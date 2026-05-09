@@ -1,0 +1,566 @@
+'use client';
+
+import React, { useState } from 'react';
+import InvestorLayout from '@/components/InvestorLayout';
+
+type TabType = 'overview' | 'investments' | 'transactions' | 'distributions' | 'documents' | 'analytics' | 'lexa' | 'asset-intelligence';
+
+export default function InvestorHubPage() {
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
+
+  const tabs: { id: TabType; label: string; icon: string; count?: number }[] = [
+    { id: 'overview', label: 'Overview', icon: '⊞' },
+    { id: 'investments', label: 'My Investments', icon: '📊', count: 4 },
+    { id: 'transactions', label: 'Transactions', icon: '↗' },
+    { id: 'distributions', label: 'Distributions', icon: '💸' },
+    { id: 'documents', label: 'Documents', icon: '📄' },
+    { id: 'analytics', label: 'Analytics', icon: '📈' },
+    { id: 'lexa', label: 'Lexa AI', icon: '🤖', count: 0 },
+    { id: 'asset-intelligence', label: 'Asset Intelligence', icon: '✨' },
+  ];
+
+  const investments = [
+    { name: 'Prime Office Tower NYC', ticker: 'PONYC', sector: 'Real Estate', icon: '🏢', iconBg: 'bg-purple-50 text-purple-500', currentVal: '$92,140', gain: '+$7,140', gainPct: '+8.4%', invested: '$85,000', status: 'Active', up: true },
+    { name: 'Solar Farm Alpha TX', ticker: 'SFATX', sector: 'Renewable Energy', icon: '⚡', iconBg: 'bg-yellow-50 text-yellow-500', currentVal: '$44,520', gain: '+$2,520', gainPct: '+6%', invested: '$42,000', status: 'Active', up: true },
+    { name: 'Harbor Ports PE Fund', ticker: 'HPPE', sector: 'Private Equity', icon: '🌐', iconBg: 'bg-blue-50 text-blue-500', currentVal: '$138,600', gain: '+$18,600', gainPct: '+15.5%', invested: '$120,000', status: 'Active', up: true },
+    { name: 'Copper Mining Royalty', ticker: 'CMRF', sector: 'Commodities', icon: '⏰', iconBg: 'bg-orange-50 text-orange-500', currentVal: '$26,880', gain: '-$1,120', gainPct: '-4%', invested: '$28,000', status: 'Active', up: false },
+  ];
+
+  const transactions = [
+    { name: 'Prime Office Tower NYC', id: 'TX-5421', type: 'Buy', icon: '↗', iconBg: 'bg-primary/10 text-primary', amount: '+$15,000', date: 'May 1, 2026' },
+    { name: 'Harbor Ports PE Fund', id: 'TX-5420', type: 'Yield', icon: '$', iconBg: 'bg-green-50 text-green-500', amount: '+$2,840', date: 'Apr 30, 2026' },
+    { name: 'Solar Farm Alpha TX', id: 'TX-5419', type: 'Buy', icon: '↗', iconBg: 'bg-primary/10 text-primary', amount: '+$8,000', date: 'Apr 28, 2026' },
+    { name: 'Residential REIT Bundle', id: 'TX-5418', type: 'Sell', icon: '↙', iconBg: 'bg-rose-50 text-rose-500', amount: '-$12,000', date: 'Apr 25, 2026' },
+    { name: 'Prime Office Tower NYC', id: 'TX-5417', type: 'Yield', icon: '$', iconBg: 'bg-green-50 text-green-500', amount: '+$1,240', date: 'Apr 15, 2026' },
+  ];
+
+  const statsOverview = [
+    { label: 'Monthly Income', val: '$14,218', sub: 'Passive earnings', trend: '+8.2%', icon: '💵', up: true },
+    { label: 'Annual Return', val: '9.45%', sub: 'YTD performance', trend: '+1.8%', icon: '📈', up: true },
+    { label: 'Active Investments', val: '7', sub: 'Across 4 sectors', trend: '+2', icon: '⚡', up: true },
+    { label: 'Pending Approvals', val: '3', sub: 'Under review', trend: '', icon: '⏰', up: false },
+  ];
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+  const earningsHeights = [40, 45, 52, 55, 60, 68, 75, 78, 80];
+  const passiveHeights  = [30, 33, 36, 40, 44, 48, 52, 55, 58];
+
+  // ── Tab Content ──────────────────────────────────────────────────────────────
+
+  const renderOverview = () => (
+    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {statsOverview.map((stat, i) => (
+          <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-4 md:p-7 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start justify-between mb-4">
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-primary/5 flex items-center justify-center text-lg">{stat.icon}</div>
+              {stat.trend && (
+                <span className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full ${stat.up ? 'text-green-500 bg-green-50' : 'text-amber-500 bg-amber-50'}`}>
+                  ↗ {stat.trend}
+                </span>
+              )}
+            </div>
+            <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">{stat.label}</p>
+            <p className="text-xl md:text-3xl font-bold text-ui-strong mb-1">{stat.val}</p>
+            <p className="text-[10px] text-ui-faint font-medium hidden sm:block">{stat.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        {/* Earnings Chart */}
+        <div className="lg:col-span-2 bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h3 className="text-base font-bold text-ui-strong">Monthly Earnings</h3>
+              <p className="text-xs text-ui-faint mt-0.5">Earnings vs. passive income · USD</p>
+            </div>
+            <div className="flex gap-5">
+              {[['Earnings', 'bg-primary'], ['Passive', 'bg-purple-300']].map(([l, c]) => (
+                <div key={l} className="flex items-center gap-2">
+                  <div className={`w-6 h-1 rounded-full ${c}`} />
+                  <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">{l}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Y-axis */}
+          <div className="relative h-48 md:h-56">
+            <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[9px] text-ui-placeholder font-medium">
+              {['$18k', '$14k', '$10k', '$6k', '$2k'].map(l => <span key={l}>{l}</span>)}
+            </div>
+            <div className="absolute left-8 right-0 top-0 bottom-0">
+              {/* Earnings line */}
+              <svg className="absolute inset-0 w-full h-full text-primary" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                <path d="M0,60 Q250,50 500,35 T1000,15" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                <path d="M0,60 Q250,50 500,35 T1000,15 L1000,100 L0,100 Z" fill="currentColor" fillOpacity="0.05" />
+              </svg>
+              {/* Passive line */}
+              <svg className="absolute inset-0 w-full h-full text-purple-300" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                <path d="M0,70 Q250,65 500,55 T1000,42" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 4" />
+              </svg>
+            </div>
+          </div>
+          <div className="flex justify-between mt-4 pl-8 overflow-x-auto pb-1">
+            {months.map(m => (
+              <span key={m} className="text-[9px] font-bold text-ui-placeholder uppercase tracking-widest">{m}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Asset Allocation */}
+        <div className="bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-sm flex flex-col">
+          <h3 className="text-base font-bold text-ui-strong mb-1">Asset Allocation</h3>
+          <p className="text-xs text-ui-faint mb-6">By investment type</p>
+          <div className="flex-1 flex flex-col items-center justify-center gap-6">
+            <div className="relative w-32 h-32">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#F1F5F9" strokeWidth="14" />
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#7C3AED" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="96" />
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#8B5CF6" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="202" />
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#A78BFA" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="232" />
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#C4B5FD" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="252" />
+              </svg>
+            </div>
+            <div className="w-full space-y-3">
+              {[
+                { l: 'Real Estate', v: '62%', c: 'bg-primary' },
+                { l: 'Private Credit', v: '18%', c: 'bg-purple-500' },
+                { l: 'Commodities', v: '12%', c: 'bg-purple-400' },
+                { l: 'Art & Collectibles', v: '8%', c: 'bg-purple-300' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${item.c}`} />
+                    <span className="text-[11px] font-medium text-ui-muted-text">{item.l}</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-ui-strong">{item.v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderInvestments = () => (
+    <div className="space-y-4 animate-in fade-in duration-500">
+      <div className="mb-2">
+        <h3 className="text-base font-bold text-ui-strong">All Investments</h3>
+        <p className="text-xs text-ui-faint mt-0.5">{investments.length} active positions</p>
+      </div>
+      {investments.map((inv, i) => (
+        <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-8 shadow-sm hover:shadow-md transition-all cursor-pointer group">
+          {/* Top row */}
+          <div className="flex items-center justify-between gap-4 mb-5 md:mb-8">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 ${inv.iconBg}`}>
+                {inv.icon}
+              </div>
+              <div>
+                <h4 className="text-[13px] md:text-base font-bold text-ui-strong group-hover:text-primary transition-colors">{inv.name}</h4>
+                <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{inv.ticker} · {inv.sector}</p>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-lg md:text-2xl font-bold text-ui-strong">{inv.currentVal}</p>
+              <p className={`text-[11px] md:text-sm font-bold flex items-center justify-end gap-1 ${inv.up ? 'text-green-500' : 'text-red-500'}`}>
+                <span>{inv.up ? '↗' : '↙'}</span> {inv.gainPct}
+              </p>
+            </div>
+          </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-3 md:gap-8 border-t border-ui-divider pt-5 md:pt-6">
+            <div>
+              <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Invested</p>
+              <p className="text-sm md:text-base font-bold text-ui-strong">{inv.invested}</p>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Gain / Loss</p>
+              <p className={`text-sm md:text-base font-bold ${inv.up ? 'text-green-500' : 'text-red-500'}`}>{inv.gain}</p>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Status</p>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 border border-green-100 rounded-full text-[10px] font-bold">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                {inv.status}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderTransactions = () => (
+    <div className="animate-in fade-in duration-500">
+      <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
+        <div className="p-5 md:p-8 border-b border-ui-divider flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-base font-bold text-ui-strong">Transaction History</h3>
+            <p className="text-xs text-ui-faint mt-0.5">All buy, sell, and yield transactions</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-[12px] font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-colors">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+              Filter
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-[12px] font-bold text-primary hover:bg-primary/5 transition-colors">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              Export
+            </button>
+          </div>
+        </div>
+        <div className="divide-y divide-ui-divider">
+          {transactions.map((tx, i) => (
+            <div key={i} className="flex items-center gap-3 md:gap-6 px-5 md:px-8 py-4 md:py-5 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
+              <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${tx.iconBg}`}>
+                {tx.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{tx.name}</p>
+                <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{tx.id} · {tx.type}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className={`text-[13px] md:text-base font-bold ${tx.amount.startsWith('-') ? 'text-red-500' : 'text-green-500'}`}>
+                  {tx.amount}
+                </p>
+                <p className="text-[10px] text-ui-faint font-medium">{tx.date}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderDistributions = () => (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+        {[
+          { label: 'YTD Distributions', val: '$42,850', icon: '💵' },
+          { label: 'Next Payment', val: 'May 15', icon: '📅' },
+          { label: 'Avg Monthly', val: '$4,761', icon: '📈' },
+        ].map((s, i) => (
+          <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-6 md:p-8 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl mb-4">{s.icon}</div>
+            <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">{s.label}</p>
+            <p className="text-2xl md:text-3xl font-bold text-ui-strong">{s.val}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* History */}
+      <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
+        <div className="p-5 md:p-8 border-b border-ui-divider">
+          <h3 className="text-base font-bold text-ui-strong">Distribution History</h3>
+          <p className="text-xs text-ui-faint mt-0.5">Yield and dividend payments</p>
+        </div>
+        <div className="divide-y divide-ui-divider">
+          {[
+            { name: 'Harbor Ports PE Fund', id: 'DIST-891', freq: 'Monthly', amount: '+$2,840', date: 'Apr 30, 2026' },
+            { name: 'Prime Office Tower NYC', id: 'DIST-890', freq: 'Monthly', amount: '+$1,240', date: 'Apr 15, 2026' },
+            { name: 'Solar Farm Alpha TX', id: 'DIST-889', freq: 'Monthly', amount: '+$680', date: 'Apr 10, 2026' },
+            { name: 'Harbor Ports PE Fund', id: 'DIST-888', freq: 'Monthly', amount: '+$2,720', date: 'Mar 30, 2026' },
+          ].map((d, i) => (
+            <div key={i} className="flex items-center gap-4 md:gap-6 px-5 md:px-8 py-4 md:py-5 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
+              <div className="w-9 h-9 rounded-xl bg-green-50 text-green-500 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{d.name}</p>
+                <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{d.id} · {d.freq}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-[13px] md:text-base font-bold text-green-500">{d.amount}</p>
+                <p className="text-[10px] text-ui-faint font-medium">{d.date}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderDocuments = () => (
+    <div className="animate-in fade-in duration-500">
+      <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
+        <div className="p-5 md:p-8 border-b border-ui-divider flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-bold text-ui-strong">Investment Documents</h3>
+            <p className="text-xs text-ui-faint mt-0.5">Statements, prospectuses, and legal documents</p>
+          </div>
+          <button className="flex items-center gap-2 text-[12px] font-bold text-primary hover:gap-3 transition-all">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            Download All
+          </button>
+        </div>
+        <div className="divide-y divide-ui-divider">
+          {[
+            { name: 'Q1 2026 Portfolio Statement', type: 'Statement', size: '2.4 MB', date: 'Apr 1, 2026' },
+            { name: 'Prime Office Tower – Offering Memorandum', type: 'Prospectus', size: '8.7 MB', date: 'Mar 18, 2026' },
+            { name: 'Tax Document – 1099-DIV', type: 'Tax', size: '156 KB', date: 'Feb 25, 2026' },
+            { name: 'KYC Verification Certificate', type: 'Compliance', size: '89 KB', date: 'Jan 10, 2026' },
+          ].map((doc, i) => (
+            <div key={i} className="flex items-center gap-4 md:gap-6 px-5 md:px-8 py-5 md:py-6 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-ui-muted-deep text-ui-faint group-hover:bg-primary group-hover:text-white transition-all flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{doc.name}</p>
+                <p className="text-[10px] text-ui-faint font-medium">{doc.type} · {doc.size} · {doc.date}</p>
+              </div>
+              <svg className="w-4 h-4 text-ui-placeholder group-hover:text-primary transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAnalytics = () => (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {[
+          { label: 'Total Return', val: '+9.45%', sub: 'Since inception', icon: '📈', color: 'text-green-500' },
+          { label: 'Sharpe Ratio', val: '1.82', sub: 'Risk-adjusted', icon: '🎯', color: 'text-primary' },
+          { label: 'Volatility', val: '12.4%', sub: 'Standard deviation', icon: '⚡', color: 'text-amber-500' },
+          { label: 'Beta', val: '0.76', sub: 'vs. market', icon: '📊', color: 'text-blue-500' },
+        ].map((m, i) => (
+          <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-7 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl mb-4">{m.icon}</div>
+            <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">{m.label}</p>
+            <p className={`text-2xl md:text-3xl font-bold ${m.color}`}>{m.val}</p>
+            <p className="text-[10px] text-ui-faint font-medium mt-1 hidden sm:block">{m.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Performance Chart */}
+      <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-6 md:p-10 shadow-sm">
+        <h3 className="text-base font-bold text-ui-strong mb-1">Portfolio Performance</h3>
+        <p className="text-xs text-ui-faint mb-8">Your portfolio vs. benchmark (S&P 500)</p>
+        <div className="relative h-48 md:h-64">
+          <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[9px] text-ui-placeholder font-medium">
+            {['$260k','$195k','$130k','$95k','$0k'].map(l => <span key={l}>{l}</span>)}
+          </div>
+          <div className="absolute left-10 right-0 top-0 bottom-0">
+            <svg className="absolute inset-0 w-full h-full text-primary" viewBox="0 0 1000 100" preserveAspectRatio="none">
+              <path d="M0,75 Q300,68 600,45 T1000,18" fill="none" stroke="currentColor" strokeWidth="2.5" />
+              <path d="M0,75 Q300,68 600,45 T1000,18 L1000,100 L0,100 Z" fill="currentColor" fillOpacity="0.05" />
+            </svg>
+          </div>
+        </div>
+        <div className="flex justify-between mt-4 pl-10 overflow-x-auto pb-1">
+          {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'].map(m => (
+            <span key={m} className="text-[9px] font-bold text-ui-placeholder uppercase tracking-widest">{m}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const [lexaInput, setLexaInput] = React.useState('');
+  const chatMessages = [
+    { role: 'user', text: 'What are the tax implications of receiving yield distributions?' },
+    { role: 'ai', text: 'Yield distributions from tokenized real estate assets are typically treated as ordinary income and reported on Form 1099-DIV. The specific tax treatment depends on:\n\n1. **Asset Type**: Real estate yields may qualify for REIT-like treatment  2. **Holding Period**: Long-term vs short-term capital gains  3. **Jurisdiction**: Your tax residency and where the asset is located\n\nI recommend consulting with a tax professional for personalized advice. Would you like me to generate a tax estimation report for your current holdings?' },
+    { role: 'user', text: 'Yes, please generate that report.' },
+    { role: 'ai', text: "I'll prepare a comprehensive tax estimation report based on your current portfolio. This will include estimated tax liabilities for each asset class and suggested withholding strategies. The report will be ready in your Documents tab within 2–3 minutes." },
+  ];
+
+  const renderLexa = () => (
+    <div className="space-y-4 animate-in fade-in duration-500">
+      {/* Hero */}
+      <div className="bg-gradient-to-r from-primary to-purple-500 rounded-[20px] md:rounded-[28px] p-6 md:p-8 text-white flex items-center gap-5">
+        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-ui-card/10 border border-background/20 flex items-center justify-center text-2xl shrink-0">⚖️</div>
+        <div>
+          <h3 className="text-lg md:text-xl font-bold">Lexa Legal Assistant</h3>
+          <p className="text-white/70 text-xs md:text-sm mt-1 leading-relaxed">Your AI-powered legal and compliance advisor. Ask questions about tax implications, regulatory requirements, investment structures, and legal documentation.</p>
+        </div>
+      </div>
+
+      {/* Chat Window */}
+      <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
+        <div className="p-5 md:p-6 border-b border-ui-divider">
+          <h4 className="text-[13px] font-bold text-ui-strong">Conversation</h4>
+        </div>
+        <div className="p-4 md:p-6 space-y-5 max-h-[420px] overflow-y-auto">
+          {chatMessages.map((msg, i) => (
+            <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 ${
+                msg.role === 'ai' ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-ui-muted-text'
+              }`}>
+                {msg.role === 'ai' ? '⚖️' : '👤'}
+              </div>
+              <div className={`max-w-[80%] md:max-w-[70%] px-4 py-3 rounded-2xl text-[13px] font-medium leading-relaxed ${
+                msg.role === 'user'
+                  ? 'bg-primary text-white rounded-tr-none'
+                  : 'bg-ui-muted-deep text-ui-body rounded-tl-none'
+              }`}>
+                {msg.text.split('\n').map((line, j) => <p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>)}
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Input */}
+        <div className="p-4 md:p-5 border-t border-ui-divider flex gap-3">
+          <input
+            type="text"
+            value={lexaInput}
+            onChange={e => setLexaInput(e.target.value)}
+            placeholder="Ask Lexa about legal or compliance matters…"
+            className="flex-1 px-4 py-3 bg-ui-muted-deep border border-ui-border rounded-2xl text-[13px] font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all"
+          />
+          <button className="px-5 py-3 bg-primary text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAssetIntelligence = () => (
+    <div className="space-y-4 animate-in fade-in duration-500">
+      {/* Hero */}
+      <div className="bg-gradient-to-r from-primary to-purple-500 rounded-[20px] md:rounded-[28px] p-6 md:p-8 text-white flex items-center gap-5">
+        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-ui-card/10 border border-background/20 flex items-center justify-center text-2xl shrink-0">🧠</div>
+        <div>
+          <h3 className="text-lg md:text-xl font-bold">AI Asset Intelligence</h3>
+          <p className="text-white/70 text-xs md:text-sm mt-1 leading-relaxed">Predictive analytics, market insights, and AI-powered recommendations for your investment portfolio.</p>
+        </div>
+      </div>
+
+      {/* Insight Cards */}
+      <div className="space-y-4">
+        {[
+          {
+            title: 'Prime Office Tower Undervalued',
+            desc: 'Market analysis suggests 12–15% upside based on comparable NYC properties and recent transactions.',
+            confidence: 92,
+            confidenceColor: 'text-green-500',
+            action: 'Consider increasing position',
+            actionColor: 'bg-green-50 text-green-600 border-green-100',
+            icon: '✨',
+            iconBg: 'bg-purple-50 text-purple-500',
+          },
+          {
+            title: 'Solar Farm Revenue Forecast',
+            desc: 'Energy price trends and grid demand indicate 8–10% yield increase over next 12 months.',
+            confidence: 87,
+            confidenceColor: 'text-primary',
+            action: 'Monitor quarterly',
+            actionColor: 'bg-primary/5 text-primary border-primary/10',
+            icon: '✦',
+            iconBg: 'bg-blue-50 text-blue-500',
+          },
+          {
+            title: 'Copper Price Volatility Risk',
+            desc: 'Mining royalty asset exposed to commodity price swings. Consider hedging or rebalancing.',
+            confidence: 78,
+            confidenceColor: 'text-amber-500',
+            action: 'Review allocation',
+            actionColor: 'bg-amber-50 text-amber-600 border-amber-100',
+            icon: '⚠',
+            iconBg: 'bg-orange-50 text-orange-400',
+          },
+        ].map((insight, i) => (
+          <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-8 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4 mb-4">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${insight.iconBg}`}>{insight.icon}</div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-4 mb-2">
+                  <h4 className="text-[13px] md:text-base font-bold text-ui-strong">{insight.title}</h4>
+                  <span className={`text-[11px] font-bold shrink-0 flex items-center gap-1.5 ${insight.confidenceColor}`}>
+                    <div className="w-1.5 h-1.5 rounded-full bg-current" />
+                    {insight.confidence}% confidence
+                  </span>
+                </div>
+                <p className="text-[12px] md:text-[13px] text-ui-muted-text font-medium leading-relaxed">{insight.desc}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 pl-14">
+              <span className={`px-3 py-1.5 rounded-full text-[11px] font-bold border ${insight.actionColor}`}>{insight.action}</span>
+              <button className="flex items-center gap-1.5 text-[11px] font-bold text-ui-faint hover:text-primary transition-colors">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                View Details
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const tabContent: Record<TabType, React.ReactNode> = {
+    overview: renderOverview(),
+    investments: renderInvestments(),
+    transactions: renderTransactions(),
+    distributions: renderDistributions(),
+    documents: renderDocuments(),
+    analytics: renderAnalytics(),
+    lexa: renderLexa(),
+    'asset-intelligence': renderAssetIntelligence(),
+  };
+
+  return (
+    <InvestorLayout pageTitle="Investor Hub">
+      <div className="space-y-6 animate-in fade-in duration-700">
+
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Investor Hub</h1>
+            <p className="text-sm text-ui-faint mt-1 font-medium">Manage your portfolio, track performance, and access AI-powered insights</p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest mb-1">Total Portfolio Value</p>
+            <p className="text-2xl md:text-4xl font-bold text-ui-strong">$248,650</p>
+            <p className="text-sm font-bold text-green-500 flex items-center justify-end gap-1 mt-1">
+              <span>↗</span> +9.45% Annual
+            </p>
+          </div>
+        </div>
+
+        {/* Tab Bar */}
+        <div className="border-b border-ui-border overflow-x-auto scrollbar-hide -mx-4 md:-mx-0">
+          <div className="flex items-center px-4 md:px-0 min-w-max">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 md:px-6 py-4 border-b-2 text-[13px] font-bold transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-ui-faint hover:text-ui-body hover:border-ui-border-strong'
+                }`}
+              >
+                <span className="text-base">{tab.icon}</span>
+                <span>{tab.label}</span>
+                {tab.count !== undefined && tab.count > 0 && (
+                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${activeTab === tab.id ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-ui-faint'}`}>
+                    {tab.count}
+                  </span>
+                )}
+                {tab.id === 'lexa' && (
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div>{tabContent[activeTab]}</div>
+
+      </div>
+    </InvestorLayout>
+  );
+}

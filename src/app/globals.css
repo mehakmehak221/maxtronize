@@ -1,26 +1,643 @@
 @import "tailwindcss";
 
+@custom-variant dark ([data-theme='dark'] &);
+
+/* -------------------------------------------------------------------------- */
+/* Design tokens — light mode (:root) / dark mode ([data-theme='dark'])        */
+/* All screens should consume these via Tailwind theme colors or utilities.   */
+/* -------------------------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core app shell (also used by body when aligned) */
+  --background: #f9fafb;
+  --foreground: #111827;
+  --primary: #7c3aed;
+  --primary-dark: #5b21b6;
+  --primary-deep: #1a0033;
+  --accent: #dab2ff;
+  --surface: #f3f4f6;
+  --border: #e5e7eb;
+  --text-muted: #6b7280;
+
+  --card: #ffffff;
+  --card-border: #e5e7eb;
+  --header-bg: rgba(255, 255, 255, 0.92);
+  --sidebar-bg: #ffffff;
+
+  --palette-success: #10b981;
+  --palette-success-light: #34d399;
+  --palette-warning: #f59e0b;
+  --palette-danger: #ef4444;
+  --palette-info: #3b82f6;
+
+  --brand-cyan: #00d492;
+  --brand-cyan-dark: #00bc7d;
+  --brand-purple-light: #e8deff;
+  --brand-purple: #9810fa;
+  --brand-indigo: #6366f1;
+
+  /* UI semantic surfaces */
+  --ui-page: #f9fafb;
+  --ui-sidebar: #ffffff;
+  --ui-card: #ffffff;
+  --ui-elevated: #ffffff;
+  --ui-input: #f8fafc;
+  --ui-input-focus: #ffffff;
+  --ui-muted: #f9fafb;
+  --ui-muted-surface: rgba(249, 250, 251, 0.65);
+  --ui-muted-deep: #f3f4f6;
+  --ui-border: #e5e7eb;
+  --ui-border-strong: #d1d5db;
+  --ui-divider: #f3f4f6;
+  --ui-divider-strong: #e5e7eb;
+  --ui-strong: #111827;
+  --ui-body: #4b5563;
+  --ui-muted-text: #6b7280;
+  --ui-faint: #9ca3af;
+  --ui-placeholder: #9ca3af;
+
+  --ui-accent-tint: rgba(124, 58, 237, 0.06);
+  --ui-accent-tint-hover: rgba(124, 58, 237, 0.1);
+  --ui-help-bg: #f5f3ff;
+  --ui-help-border: rgba(124, 58, 237, 0.12);
+  --ui-highlight-box: #fbfbff;
+  --ui-inset-shadow: rgba(15, 23, 42, 0.06);
+
+  /* Alerts & status */
+  --alert-info-bg: rgba(239, 246, 255, 0.85);
+  --alert-info-border: #bfdbfe;
+  --alert-info-icon-wrap-bg: #ffffff;
+  --alert-info-icon-wrap-border: #bfdbfe;
+  --alert-info-icon: #3b82f6;
+  --alert-info-title: #1e3a8a;
+  --alert-info-body: rgba(30, 58, 138, 0.72);
+
+  --alert-warn-bg: rgba(255, 251, 235, 0.9);
+  --alert-warn-border: #fde68a;
+  --alert-warn-icon-wrap-bg: #ffffff;
+  --alert-warn-icon-wrap-border: #fde68a;
+  --alert-warn-icon: #d97706;
+  --alert-warn-title: #92400e;
+  --alert-warn-body: rgba(146, 64, 14, 0.78);
+
+  --ui-success-bg: #ecfdf5;
+  --ui-success-bg-soft: rgba(16, 185, 129, 0.12);
+  --ui-success-border: #a7f3d0;
+  --ui-success-text: #059669;
+  --ui-success-icon: #10b981;
+  --ui-success-badge-bg: #d1fae5;
+  --ui-success-badge-text: #047857;
+
+  --ui-danger-soft: rgba(239, 68, 68, 0.12);
+  --ui-danger-text: #ef4444;
+  --ui-danger-muted: #f87171;
+
+  --ui-purple-banner-bg: rgba(245, 243, 255, 0.95);
+  --ui-purple-banner-border: rgba(124, 58, 237, 0.14);
+  --ui-purple-banner-icon-bg: #ffffff;
+
+  /* Controls */
+  --btn-primary-from: #7c3aed;
+  --btn-primary-to: #5b21b6;
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-hover: #f9fafb;
+  --btn-secondary-text: #6b7280;
+
+  --progress-track: #e5e7eb;
+  --progress-fill: var(--primary);
+
+  /* Marketing / auth hero (left rail) */
+  --auth-hero-accent: #a78bfa;
+  --auth-hero-mesh-opacity: 0.6;
+
+  /* Success / celebration overlay */
+  --celebrate-green: #22c55e;
+  --celebrate-green-glow: rgba(34, 197, 94, 0.22);
+  --celebrate-green-soft: #4ade80;
+  --celebrate-shadow: rgba(34, 197, 94, 0.35);
+
+  /* Dashboard: filter rail & application table */
+  --dash-filter-rail-bg: rgba(243, 244, 246, 0.75);
+  --dash-filter-active-bg: #111827;
+  --dash-filter-active-fg: #ffffff;
+  --dash-filter-active-badge-bg: rgba(255, 255, 255, 0.22);
+  --dash-filter-inactive-fg: #9ca3af;
+  --dash-filter-inactive-hover-fg: #4b5563;
+  --dash-filter-count-bg: rgba(229, 231, 235, 0.85);
+
+  --app-status-success-bg: #ecfdf5;
+  --app-status-success-fg: #047857;
+  --app-status-success-border: #a7f3d0;
+  --app-status-success-dot: #10b981;
+
+  --app-status-warn-bg: #fff7ed;
+  --app-status-warn-fg: #c2410c;
+  --app-status-warn-border: #fed7aa;
+  --app-status-warn-dot: #ea580c;
+
+  --app-status-purple-bg: #f5f3ff;
+  --app-status-purple-fg: #6d28d9;
+  --app-status-purple-border: #ddd6fe;
+  --app-status-purple-dot: #7c3aed;
+
+  --app-status-neutral-bg: #f9fafb;
+  --app-status-neutral-fg: #6b7280;
+  --app-status-neutral-border: #e5e7eb;
+  --app-status-neutral-dot: #9ca3af;
+
+  --network-badge-bg: #f3f4f6;
+  --network-badge-fg: #4b5563;
+  --network-badge-border: #e5e7eb;
+}
+
+[data-theme='dark'] {
+  /* Brand dark shell: #0D0D12 base, #A78BFA primary, #94A3B8 secondary, #FBBF24 warning */
+  --background: #0d0d12;
+  --foreground: #f8fafc;
+  --primary: #a78bfa;
+  --primary-dark: #7c3aed;
+  --primary-deep: #060609;
+  --accent: #c4b5fd;
+  --surface: #16161e;
+  --border: #2a2a34;
+  --text-muted: #94a3b8;
+
+  --card: #16161e;
+  --card-border: #2a2a34;
+  --header-bg: rgba(13, 13, 18, 0.92);
+  --sidebar-bg: #0d0d12;
+
+  --palette-warning: #fbbf24;
+
+  --ui-page: #0d0d12;
+  --ui-sidebar: #0d0d12;
+  --ui-card: #16161e;
+  --ui-elevated: #1c1c26;
+  --ui-input: #121218;
+  --ui-input-focus: #16161e;
+  --ui-muted: rgba(22, 22, 30, 0.65);
+  --ui-muted-surface: rgba(22, 22, 30, 0.5);
+  --ui-muted-deep: #16161e;
+  --ui-border: #2a2a34;
+  --ui-border-strong: #36363f;
+  --ui-divider: #2a2a34;
+  --ui-divider-strong: #36363f;
+  --ui-strong: #f8fafc;
+  --ui-body: #94a3b8;
+  --ui-muted-text: #94a3b8;
+  --ui-faint: #64748b;
+  --ui-placeholder: #64748b;
+
+  --ui-accent-tint: rgba(167, 139, 250, 0.14);
+  --ui-accent-tint-hover: rgba(167, 139, 250, 0.2);
+  --ui-help-bg: rgba(124, 58, 237, 0.14);
+  --ui-help-border: rgba(167, 139, 250, 0.28);
+  --ui-highlight-box: rgba(99, 102, 241, 0.08);
+  --ui-inset-shadow: rgba(0, 0, 0, 0.35);
+
+  --alert-info-bg: rgba(30, 58, 138, 0.35);
+  --alert-info-border: rgba(59, 130, 246, 0.45);
+  --alert-info-icon-wrap-bg: #1e3a8a;
+  --alert-info-icon-wrap-border: rgba(96, 165, 250, 0.45);
+  --alert-info-icon: #93c5fd;
+  --alert-info-title: #bfdbfe;
+  --alert-info-body: rgba(191, 219, 254, 0.85);
+
+  --alert-warn-bg: rgba(251, 191, 36, 0.12);
+  --alert-warn-border: rgba(251, 191, 36, 0.35);
+  --alert-warn-icon-wrap-bg: rgba(251, 191, 36, 0.1);
+  --alert-warn-icon-wrap-border: rgba(251, 191, 36, 0.4);
+  --alert-warn-icon: #fbbf24;
+  --alert-warn-title: #fcd34d;
+  --alert-warn-body: rgba(253, 230, 138, 0.88);
+
+  --ui-success-bg: rgba(6, 78, 59, 0.35);
+  --ui-success-bg-soft: rgba(16, 185, 129, 0.18);
+  --ui-success-border: rgba(52, 211, 153, 0.45);
+  --ui-success-text: #6ee7b7;
+  --ui-success-icon: #34d399;
+  --ui-success-badge-bg: rgba(6, 95, 70, 0.45);
+  --ui-success-badge-text: #a7f3d0;
+
+  --ui-danger-soft: rgba(248, 113, 113, 0.15);
+  --ui-danger-text: #fca5a5;
+  --ui-danger-muted: #f87171;
+
+  --ui-purple-banner-bg: rgba(167, 139, 250, 0.12);
+  --ui-purple-banner-border: rgba(167, 139, 250, 0.32);
+  --ui-purple-banner-icon-bg: rgba(22, 22, 30, 0.95);
+
+  --btn-primary-from: #a78bfa;
+  --btn-primary-to: #7c3aed;
+  --btn-secondary-bg: #16161e;
+  --btn-secondary-hover: #1c1c26;
+  --btn-secondary-text: #94a3b8;
+
+  --progress-track: #16161e;
+  --progress-fill: var(--primary);
+
+  --auth-hero-accent: #a78bfa;
+  --auth-hero-mesh-opacity: 0.45;
+
+  --celebrate-green: #34d399;
+  --celebrate-green-glow: rgba(52, 211, 153, 0.2);
+  --celebrate-green-soft: #6ee7b7;
+  --celebrate-shadow: rgba(52, 211, 153, 0.35);
+
+  --dash-filter-rail-bg: rgba(22, 22, 30, 0.85);
+  --dash-filter-active-bg: #f8fafc;
+  --dash-filter-active-fg: #0d0d12;
+  --dash-filter-active-badge-bg: rgba(13, 13, 18, 0.12);
+  --dash-filter-inactive-fg: #94a3b8;
+  --dash-filter-inactive-hover-fg: #e2e8f0;
+  --dash-filter-count-bg: rgba(42, 42, 52, 0.9);
+
+  --app-status-success-bg: rgba(6, 78, 59, 0.42);
+  --app-status-success-fg: #6ee7b7;
+  --app-status-success-border: rgba(52, 211, 153, 0.45);
+  --app-status-success-dot: #34d399;
+
+  --app-status-warn-bg: rgba(251, 191, 36, 0.14);
+  --app-status-warn-fg: #fbbf24;
+  --app-status-warn-border: rgba(251, 191, 36, 0.4);
+  --app-status-warn-dot: #fbbf24;
+
+  --app-status-purple-bg: rgba(91, 33, 182, 0.28);
+  --app-status-purple-fg: #c4b5fd;
+  --app-status-purple-border: rgba(167, 139, 250, 0.45);
+  --app-status-purple-dot: #a78bfa;
+
+  --app-status-neutral-bg: rgba(42, 42, 52, 0.55);
+  --app-status-neutral-fg: #94a3b8;
+  --app-status-neutral-border: #36363f;
+  --app-status-neutral-dot: #64748b;
+
+  --network-badge-bg: rgba(42, 42, 52, 0.75);
+  --network-badge-fg: #94a3b8;
+  --network-badge-border: #36363f;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-deep: var(--primary-deep);
+  --color-accent: var(--accent);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text-muted: var(--text-muted);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-header-bg: var(--header-bg);
+  --color-sidebar-bg: var(--sidebar-bg);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-success: var(--palette-success);
+  --color-success-light: var(--palette-success-light);
+  --color-warning: var(--palette-warning);
+  --color-danger: var(--palette-danger);
+  --color-info: var(--palette-info);
+
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-indigo: var(--brand-indigo);
+
+  /* Semantic UI palette for Tailwind: bg-ui-page, text-ui-strong, etc. */
+  --color-ui-page: var(--ui-page);
+  --color-ui-sidebar: var(--ui-sidebar);
+  --color-ui-card: var(--ui-card);
+  --color-ui-elevated: var(--ui-elevated);
+  --color-ui-input: var(--ui-input);
+  --color-ui-input-focus: var(--ui-input-focus);
+  --color-ui-muted: var(--ui-muted);
+  --color-ui-muted-surface: var(--ui-muted-surface);
+  --color-ui-muted-deep: var(--ui-muted-deep);
+  --color-ui-border: var(--ui-border);
+  --color-ui-border-strong: var(--ui-border-strong);
+  --color-ui-divider: var(--ui-divider);
+  --color-ui-divider-strong: var(--ui-divider-strong);
+  --color-ui-strong: var(--ui-strong);
+  --color-ui-body: var(--ui-body);
+  --color-ui-muted-text: var(--ui-muted-text);
+  --color-ui-faint: var(--ui-faint);
+  --color-ui-placeholder: var(--ui-placeholder);
+  --color-ui-accent-tint: var(--ui-accent-tint);
+  --color-ui-accent-tint-hover: var(--ui-accent-tint-hover);
+  --color-ui-help-bg: var(--ui-help-bg);
+  --color-ui-help-border: var(--ui-help-border);
+  --color-ui-highlight-box: var(--ui-highlight-box);
+  --color-ui-success-bg: var(--ui-success-bg);
+  --color-ui-success-bg-soft: var(--ui-success-bg-soft);
+  --color-ui-success-border: var(--ui-success-border);
+  --color-ui-success-text: var(--ui-success-text);
+  --color-ui-success-icon: var(--ui-success-icon);
+  --color-ui-success-badge-bg: var(--ui-success-badge-bg);
+  --color-ui-success-badge-text: var(--ui-success-badge-text);
+  --color-ui-danger-soft: var(--ui-danger-soft);
+  --color-ui-danger-text: var(--ui-danger-text);
+  --color-ui-danger-muted: var(--ui-danger-muted);
+  --color-alert-info-bg: var(--alert-info-bg);
+  --color-alert-info-border: var(--alert-info-border);
+  --color-alert-info-title: var(--alert-info-title);
+  --color-alert-info-body: var(--alert-info-body);
+  --color-alert-info-icon: var(--alert-info-icon);
+  --color-alert-info-icon-wrap-bg: var(--alert-info-icon-wrap-bg);
+  --color-alert-info-icon-wrap-border: var(--alert-info-icon-wrap-border);
+  --color-alert-warn-bg: var(--alert-warn-bg);
+  --color-alert-warn-border: var(--alert-warn-border);
+  --color-alert-warn-title: var(--alert-warn-title);
+  --color-alert-warn-body: var(--alert-warn-body);
+  --color-alert-warn-icon: var(--alert-warn-icon);
+  --color-alert-warn-icon-wrap-bg: var(--alert-warn-icon-wrap-bg);
+  --color-alert-warn-icon-wrap-border: var(--alert-warn-icon-wrap-border);
+  --color-ui-purple-banner-bg: var(--ui-purple-banner-bg);
+  --color-ui-purple-banner-border: var(--ui-purple-banner-border);
+  --color-ui-purple-banner-icon-bg: var(--ui-purple-banner-icon-bg);
+  --color-btn-primary-from: var(--btn-primary-from);
+  --color-btn-primary-to: var(--btn-primary-to);
+  --color-btn-secondary-bg: var(--btn-secondary-bg);
+  --color-btn-secondary-hover: var(--btn-secondary-hover);
+  --color-btn-secondary-text: var(--btn-secondary-text);
+  --color-progress-track: var(--progress-track);
+  --color-progress-fill: var(--progress-fill);
+  --color-auth-hero-accent: var(--auth-hero-accent);
+  --color-celebrate-green: var(--celebrate-green);
+  --color-celebrate-green-glow: var(--celebrate-green-glow);
+  --color-celebrate-green-soft: var(--celebrate-green-soft);
+  --color-celebrate-shadow: var(--celebrate-shadow);
+
+  --color-dash-filter-rail-bg: var(--dash-filter-rail-bg);
+  --color-dash-filter-active-bg: var(--dash-filter-active-bg);
+  --color-dash-filter-active-fg: var(--dash-filter-active-fg);
+  --color-dash-filter-active-badge-bg: var(--dash-filter-active-badge-bg);
+  --color-dash-filter-inactive-fg: var(--dash-filter-inactive-fg);
+  --color-dash-filter-inactive-hover-fg: var(--dash-filter-inactive-hover-fg);
+  --color-dash-filter-count-bg: var(--dash-filter-count-bg);
+
+  --color-app-status-success-bg: var(--app-status-success-bg);
+  --color-app-status-success-fg: var(--app-status-success-fg);
+  --color-app-status-success-border: var(--app-status-success-border);
+  --color-app-status-success-dot: var(--app-status-success-dot);
+  --color-app-status-warn-bg: var(--app-status-warn-bg);
+  --color-app-status-warn-fg: var(--app-status-warn-fg);
+  --color-app-status-warn-border: var(--app-status-warn-border);
+  --color-app-status-warn-dot: var(--app-status-warn-dot);
+  --color-app-status-purple-bg: var(--app-status-purple-bg);
+  --color-app-status-purple-fg: var(--app-status-purple-fg);
+  --color-app-status-purple-border: var(--app-status-purple-border);
+  --color-app-status-purple-dot: var(--app-status-purple-dot);
+  --color-app-status-neutral-bg: var(--app-status-neutral-bg);
+  --color-app-status-neutral-fg: var(--app-status-neutral-fg);
+  --color-app-status-neutral-border: var(--app-status-neutral-border);
+  --color-app-status-neutral-dot: var(--app-status-neutral-dot);
+  --color-network-badge-bg: var(--network-badge-bg);
+  --color-network-badge-fg: var(--network-badge-fg);
+  --color-network-badge-border: var(--network-badge-border);
+
+  --font-sans: var(--font-plus-jakarta-sans), system-ui, -apple-system, sans-serif;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Shared patterns */
+.auth-hero-mesh {
+  opacity: var(--auth-hero-mesh-opacity);
+}
+
+.bg-mesh {
+  background-image:
+    radial-gradient(at 0% 0%, hsla(270, 100%, 20%, 1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(280, 100%, 15%, 1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(260, 100%, 10%, 1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(290, 100%, 25%, 1) 0px, transparent 50%);
+}
+
+.bg-grid-pattern {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-slanted-pattern {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 40px,
+    rgba(255, 255, 255, 0.03) 40px,
+    rgba(255, 255, 255, 0.03) 80px
+  );
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-progress {
+  animation: progress 5s ease-in-out forwards;
+}
+
+.bg-gradient-glow-purple {
+  background-image: linear-gradient(to right, #000000 0%, #ad46ff 40%, #000000 100%);
+}
+
+.bg-gradient-glow-indigo {
+  background-image: linear-gradient(to right, #000000 0%, #615fff 25%, #000000 100%);
+}
+
+.bg-gradient-glow-pink {
+  background-image: linear-gradient(to right, #000000 0%, #c27aff 50%, #000000 100%);
+}
+
+/* Primary CTA gradient — uses global button tokens */
+.btn-gradient-primary {
+  background-image: linear-gradient(to right, var(--btn-primary-from), var(--btn-primary-to));
+}
+
+/* ==========================================================================
+   ANIMATION SYSTEM
+   Usage: .animate-fade-in, .animate-slide-up, .animate-page-enter, etc.
+   Respects prefers-reduced-motion automatically.
+   ========================================================================== */
+
+/* Smooth scrolling + global box-sizing */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+@keyframes scaleInBounce {
+  0%   { opacity: 0; transform: scale(0.88); }
+  60%  { opacity: 1; transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.35); }
+  50%       { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0);  }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Animation utility classes ──────────────────────────────────────────── */
+.animate-fade-in        { animation: fadeIn        0.45s ease-out both; }
+.animate-slide-up       { animation: slideUp       0.5s  cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-slide-down     { animation: slideDown     0.4s  ease-out both; }
+.animate-slide-in-left  { animation: slideInLeft   0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-slide-in-right { animation: slideInRight  0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-scale-in       { animation: scaleIn       0.4s  cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-scale-bounce   { animation: scaleInBounce 0.5s  cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-float          { animation: floatY        3.5s  ease-in-out infinite; }
+.animate-pulse-glow     { animation: pulseGlow     2.2s  ease-in-out infinite; }
+.animate-spin-slow      { animation: spinSlow      2s    linear infinite; }
+
+/* Page-level entrance (applied once per route mount) */
+.animate-page-enter {
+  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Delay helpers ──────────────────────────────────────────────────────── */
+.delay-50  { animation-delay:  50ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-250 { animation-delay: 250ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+
+/* ── Stagger helpers (parent sets context, children cascade) ─────────────
+   Usage: <ul class="stagger-children"> <li class="stagger-item">…
+   ────────────────────────────────────────────────────────────────────── */
+.stagger-children > .stagger-item {
+  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger-children > .stagger-item:nth-child(1)  { animation-delay:  30ms; }
+.stagger-children > .stagger-item:nth-child(2)  { animation-delay:  80ms; }
+.stagger-children > .stagger-item:nth-child(3)  { animation-delay: 130ms; }
+.stagger-children > .stagger-item:nth-child(4)  { animation-delay: 180ms; }
+.stagger-children > .stagger-item:nth-child(5)  { animation-delay: 230ms; }
+.stagger-children > .stagger-item:nth-child(6)  { animation-delay: 280ms; }
+.stagger-children > .stagger-item:nth-child(7)  { animation-delay: 330ms; }
+.stagger-children > .stagger-item:nth-child(8)  { animation-delay: 380ms; }
+
+/* ── Global smooth interactive transitions ──────────────────────────────── */
+a,
+button,
+[role="button"],
+input,
+select,
+textarea {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Cards — opt-in lift on hover */
+.card-lift {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.10);
+}
+[data-theme='dark'] .card-lift:hover {
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.45);
+}
+
+/* Shimmer loading skeleton */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ui-muted-deep) 25%,
+    var(--ui-muted)      50%,
+    var(--ui-muted-deep) 75%
+  );
+  background-size: 200% auto;
+  animation: shimmer 1.5s linear infinite;
+  border-radius: 8px;
+}
+
+/* Focus rings — consistent across the platform */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Scrollbar — thin and theme-aware */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--ui-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ui-border-strong); }
+
+/* ── Reduced-motion override ─────────────────────────────────────────────
+   All animations and transitions collapse to instant when user requests it.
+   ────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

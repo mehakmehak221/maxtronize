@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!-- Combined vector sprite: four 24×24 tiles (original paths preserved per slot) -->
+  <symbol id="onboarding-vector-1" viewBox="0 0 24 24">
+    <path d="M-3.05176e-05 23.9999H24V-5.38826e-05H-3.05176e-05V23.9999Z" fill="#0A0A0A"/>
+  </symbol>
+  <symbol id="onboarding-vector-2" viewBox="0 0 24 24">
+    <path d="M-3.05176e-05 23.9999H24V-5.38826e-05H-3.05176e-05V23.9999Z" fill="#0A0A0A"/>
+  </symbol>
+  <symbol id="onboarding-vector-3" viewBox="0 0 24 24">
+    <path d="M-3.05176e-05 23.9999H24V-5.38826e-05H-3.05176e-05V23.9999Z" fill="#0A0A0A"/>
+  </symbol>
+  <symbol id="onboarding-vector-4" viewBox="0 0 24 24">
+    <path d="M-3.05176e-05 23.9999H24V-5.38826e-05H-3.05176e-05V23.9999Z" fill="#0A0A0A"/>
+  </symbol>
+</svg>

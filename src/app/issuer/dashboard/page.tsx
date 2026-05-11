@@ -29,7 +29,7 @@ export default function DashboardPage() {
           <div className="relative z-10 flex flex-col justify-between gap-12 lg:flex-row">
             <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                <div className="h-2 w-2 animate-pulse rounded-full bg-palette-success-light" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-white/55 md:text-xs">
                   Good morning, Alex · Oct 25, 2049
                 </p>
@@ -42,7 +42,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex flex-wrap gap-3 pt-2">
                 <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 backdrop-blur-md md:px-5">
-                  <span className="text-[11px] font-bold text-emerald-400 md:text-sm">↗ +12.5% vs last quarter</span>
+                  <span className="text-[11px] font-bold text-palette-success-light md:text-sm">↗ +12.5% vs last quarter</span>
                 </div>
                 <div className="flex items-center rounded-full border border-white/5 bg-white/[0.06] px-4 py-2 md:px-5">
                   <span className="text-[11px] font-medium text-white/45 md:text-sm">$42.5M tokenized · 6 assets</span>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
               trend: '↗ +12.5%',
               sub: 'vs $13.17M last quarter',
               Icon: IssuerStatIconWallet,
-              well: 'bg-[#7F22FE]/10 text-[#7F22FE] ring-1 ring-[#7F22FE]/15',
+              well: 'bg-dash-kpi-violet-soft text-dash-kpi-violet-fg ring-1 ring-dash-kpi-violet-ring',
             },
             {
               label: 'Assets Tokenized',
@@ -103,7 +103,7 @@ export default function DashboardPage() {
               trend: '↗ +8.2%',
               sub: '6 assets · 4 jurisdictions',
               Icon: IssuerStatIconBars,
-              well: 'bg-[#155DFC]/10 text-[#155DFC] ring-1 ring-[#155DFC]/15',
+              well: 'bg-dash-kpi-blue-soft text-dash-kpi-blue-fg ring-1 ring-dash-kpi-blue-ring',
             },
             {
               label: 'Active Investors',
@@ -111,7 +111,7 @@ export default function DashboardPage() {
               trend: '↗ +15.3%',
               sub: '89% KYC verified',
               Icon: IssuerStatIconUsers,
-              well: 'bg-[#009966]/10 text-[#009966] ring-1 ring-[#009966]/15',
+              well: 'bg-dash-kpi-green-soft text-dash-kpi-green-fg ring-1 ring-dash-kpi-green-ring',
             },
             {
               label: 'Platform Yield',
@@ -119,7 +119,7 @@ export default function DashboardPage() {
               trend: '↘ -0.2%',
               sub: 'Weighted avg. APY',
               Icon: IssuerStatIconTrend,
-              well: 'bg-[#E17100]/10 text-[#E17100] ring-1 ring-[#E17100]/15',
+              well: 'bg-dash-kpi-orange-soft text-dash-kpi-orange-fg ring-1 ring-dash-kpi-orange-ring',
             },
           ].map((stat, i) => (
             <div
@@ -209,8 +209,8 @@ export default function DashboardPage() {
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border)" strokeWidth="12" />
                   <circle cx="50" cy="50" r="40" fill="none" stroke="var(--primary)" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="125" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#8B5CF6" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="200" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#A78BFA" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="230" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--chart-donut-2)" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="200" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--chart-donut-3)" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="230" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <p className="text-xl md:text-2xl font-bold text-foreground">100%</p>
@@ -221,10 +221,10 @@ export default function DashboardPage() {
               <div className="w-full space-y-4">
                 {[
                   { label: 'Commercial RE', val: '54%', color: 'bg-primary' },
-                  { label: 'Private Equity', val: '22%', color: 'bg-purple-500' },
-                  { label: 'Infrastructure', val: '14%', color: 'bg-purple-400' },
-                  { label: 'Residential', val: '7%', color: 'bg-purple-300' },
-                  { label: 'Art & Col.', val: '3%', color: 'bg-purple-200' }
+                  { label: 'Private Equity', val: '22%', color: 'bg-chart-alloc-legend-2' },
+                  { label: 'Infrastructure', val: '14%', color: 'bg-chart-alloc-legend-3' },
+                  { label: 'Residential', val: '7%', color: 'bg-chart-alloc-legend-4' },
+                  { label: 'Art & Col.', val: '3%', color: 'bg-chart-alloc-legend-5' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -291,20 +291,20 @@ export default function DashboardPage() {
           <div className="flex h-full flex-col rounded-[28px] border border-card-border bg-card p-6 shadow-sm md:rounded-[36px] md:p-10">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-lg font-bold text-foreground">Upcoming</h3>
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center text-primary">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-issuer-calendar-icon-bg text-primary">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               </div>
             </div>
 
             <div className="flex-1 space-y-4">
               {[
-                { date: 'Oct 28', label: 'Yield Distribution', color: 'text-purple-500 bg-purple-500/10' },
-                { date: 'Nov 2', label: 'KYC Review', color: 'text-amber-500 bg-amber-500/10' },
-                { date: 'Nov 15', label: 'Lock-up Expiry', color: 'text-blue-500 bg-blue-500/10' },
-                { date: 'Nov 20', label: 'New Onboarding', color: 'text-green-500 bg-green-500/10' }
+                { date: 'Oct 28', label: 'Yield Distribution', color: 'text-event-violet-fg bg-event-violet-bg' },
+                { date: 'Nov 2', label: 'KYC Review', color: 'text-event-amber-fg bg-event-amber-bg' },
+                { date: 'Nov 15', label: 'Lock-up Expiry', color: 'text-event-blue-fg bg-event-blue-bg' },
+                { date: 'Nov 20', label: 'New Onboarding', color: 'text-event-green-fg bg-event-green-bg' },
               ].map((event, i) => (
                 <div key={i} className="flex cursor-pointer items-center gap-4 rounded-2xl border border-card-border p-4 transition-all hover:border-primary/40 md:rounded-3xl">
-                  <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex flex-col items-center justify-center text-center shrink-0 ${event.color}`}>
+                  <div className={`flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-xl text-center md:h-12 md:rounded-2xl ${event.color}`}>
                     <p className="text-[8px] md:text-[10px] font-bold uppercase">{event.date.split(' ')[0]}</p>
                     <p className="text-xs md:text-sm font-bold">{event.date.split(' ')[1]}</p>
                   </div>
@@ -330,28 +330,28 @@ export default function DashboardPage() {
               label: 'Tokenize New Asset',
               sub: 'Start a new offering',
               Icon: IconNavSparkles,
-              well: 'bg-gradient-to-br from-primary to-[#5b21b6] shadow-lg shadow-primary/30',
+              well: 'bg-gradient-to-br from-primary to-primary-dark shadow-lg shadow-primary/30',
             },
             {
               href: '/issuer/hub',
               label: 'Issuer Hub',
               sub: 'Manage assets & raises',
               Icon: IconNavBuilding,
-              well: 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25',
+              well: 'bg-gradient-to-br from-qa-hub-from to-qa-hub-to shadow-lg shadow-primary/25',
             },
             {
               href: '/issuer/ai-intelligence',
               label: 'AI Intelligence',
               sub: 'Predictive analytics',
               Icon: IconNavShield,
-              well: 'bg-gradient-to-br from-violet-600 to-fuchsia-700 shadow-lg shadow-violet-500/25',
+              well: 'bg-gradient-to-br from-qa-ai-from to-qa-ai-to shadow-lg shadow-primary/25',
             },
             {
               href: '/issuer/yield',
               label: 'Yield Center',
               sub: 'Distributions & payouts',
               Icon: IconNavTrendingUp,
-              well: 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25',
+              well: 'bg-gradient-to-br from-qa-yield-from to-qa-yield-to shadow-lg shadow-warning/25',
             },
           ].map((action) => (
             <Link

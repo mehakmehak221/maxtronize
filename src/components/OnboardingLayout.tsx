@@ -64,6 +64,107 @@ function DocumentIcon({ className }: { className?: string }) {
   );
 }
 
+function ShieldIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+      />
+    </svg>
+  );
+}
+
+function CubeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"
+      />
+    </svg>
+  );
+}
+
+function ChartBarIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+      />
+    </svg>
+  );
+}
+
+function CpuChipIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM7 9h10v10H7V9z"
+      />
+    </svg>
+  );
+}
+
+function VaultIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+      />
+    </svg>
+  );
+}
+
+function ClipboardCheckIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+      />
+    </svg>
+  );
+}
+
+function StepLeadingIcon({ stepId, className = 'w-[18px] h-[18px]' }: { stepId: number; className?: string }) {
+  switch (stepId) {
+    case 1:
+      return <BuildingIcon className={className} />;
+    case 2:
+      return <ShieldIcon className={className} />;
+    case 3:
+      return <CubeIcon className={className} />;
+    case 4:
+      return <DocumentIcon className={className} />;
+    case 5:
+      return <ChartBarIcon className={className} />;
+    case 6:
+      return <CpuChipIcon className={className} />;
+    case 7:
+      return <VaultIcon className={className} />;
+    case 8:
+      return <ClipboardCheckIcon className={className} />;
+    default:
+      return <DocumentIcon className={className} />;
+  }
+}
+
 export default function OnboardingLayout({
   children,
   currentStep,
@@ -75,7 +176,6 @@ export default function OnboardingLayout({
     <ForceLightTheme>
     <div className="min-h-screen bg-ui-page flex flex-col font-sans">
       <header className="sticky top-0 z-50 shrink-0 bg-card border-b border-ui-border">
-        <div className="h-0.5 w-full bg-primary" aria-hidden />
         <div className="h-16 flex items-center justify-between px-6 md:px-8 gap-4">
           <div className="flex items-center gap-3 md:gap-4 min-w-0">
             <div className="relative h-7 w-28 md:h-8 md:w-32 shrink-0">
@@ -102,7 +202,7 @@ export default function OnboardingLayout({
             )}
             <Link
               href="/issuer/dashboard"
-              className="text-xs md:text-sm font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1.5 transition-colors"
+              className="text-xs md:text-sm font-semibold text-[#6B7280] hover:text-[#7C3AED] flex items-center gap-1.5 transition-colors"
             >
               <span className="hidden sm:inline">Skip to Dashboard</span>
               <span className="sm:hidden">Skip</span>
@@ -112,6 +212,8 @@ export default function OnboardingLayout({
             </Link>
           </div>
         </div>
+
+        <div className="h-px w-full bg-[#7C3AED]" aria-hidden />
 
         <div className="relative h-1 w-full bg-[#eceef2] overflow-hidden">
           <div
@@ -172,10 +274,8 @@ export default function OnboardingLayout({
                         </svg>
                       ) : locked ? (
                         <LockIcon className="w-[18px] h-[18px]" />
-                      ) : step.id === 1 ? (
-                        <BuildingIcon className="w-[18px] h-[18px]" />
                       ) : (
-                        <DocumentIcon className="w-[18px] h-[18px]" />
+                        <StepLeadingIcon stepId={step.id} />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">

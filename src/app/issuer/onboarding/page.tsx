@@ -6,27 +6,6 @@ import OnboardingLayout from '@/components/OnboardingLayout';
 
 type AssetType = 'real-estate' | 'private-credit' | 'data-centers' | 'commodities';
 
-type DirectorEntry = {
-  id: string;
-  fullName: string;
-  title: string;
-  dateOfBirth: string;
-  ssnLast4: string;
-};
-
-type UboEntry = {
-  id: string;
-  fullName: string;
-  ownershipPercent: string;
-};
-
-function newRowId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-}
-
 function IconBuilding({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -138,29 +117,6 @@ function IconLockClosedOutline({ className }: { className?: string }) {
   );
 }
 
-const ONBOARDING_VECTOR_SPRITE = '/icons/onboarding-vector-sprite.svg';
-
-const ONBOARDING_VECTOR_SYMBOL_IDS = [
-  'onboarding-vector-1',
-  'onboarding-vector-2',
-  'onboarding-vector-3',
-  'onboarding-vector-4',
-] as const;
-
-function OnboardingVectorSpriteIcons({ className }: { className?: string }) {
-  return (
-    <div className={className} aria-hidden>
-      <div className="flex items-center gap-2">
-        {ONBOARDING_VECTOR_SYMBOL_IDS.map((id) => (
-          <svg key={id} width={24} height={24} className="shrink-0 overflow-visible">
-            <use href={`${ONBOARDING_VECTOR_SPRITE}#${id}`} />
-          </svg>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -171,6 +127,14 @@ export default function OnboardingPage() {
   const [selectedCustodian, setSelectedCustodian] = useState('anchorage');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const [directorsNotes, setDirectorsNotes] = useState(
+    `Marcus Vance — Managing Partner\nDOB: 1979-03-14 | SSN last four: ••••1842\n\nPriya Nair — General Partner\nDOB: 1983-07-22 | SSN last four: ••••3901`
+  );
+  const [ubosNotes, setUbosNotes] = useState(
+    `Marcus Vance — 60% beneficial ownership\nPriya Nair — 40% beneficial ownership`
+  );
+  const [tokenHolderRightId, setTokenHolderRightId] = useState('pro-rata');
+
   useEffect(() => {
     if (!isSubmitted) return;
     const redirectMs = 5200;
@@ -179,30 +143,6 @@ export default function OnboardingPage() {
     }, redirectMs);
     return () => window.clearTimeout(id);
   }, [isSubmitted, router]);
-
-  const [directors, setDirectors] = useState<DirectorEntry[]>(() => [
-    {
-      id: newRowId(),
-      fullName: 'Marcus Vance',
-      title: 'Managing Partner',
-      dateOfBirth: '1979-03-14',
-      ssnLast4: '1842',
-    },
-    {
-      id: newRowId(),
-      fullName: 'Priya Nair',
-      title: 'General Partner',
-      dateOfBirth: '1983-07-22',
-      ssnLast4: '3901',
-    },
-  ]);
-
-  const [ubos, setUbos] = useState<UboEntry[]>(() => [
-    { id: newRowId(), fullName: 'Marcus Vance', ownershipPercent: '60' },
-    { id: newRowId(), fullName: 'Priya Nair', ownershipPercent: '40' },
-  ]);
-
-  const uboOwnershipTotal = ubos.reduce((sum, row) => sum + (parseFloat(row.ownershipPercent) || 0), 0);
 
   const assetTypes: {
     id: AssetType;
@@ -226,278 +166,84 @@ export default function OnboardingPage() {
   const renderStep1 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 1 of 8 — Entity Setup</p>
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+          Step 1 of 8 - Entity Setup
+        </p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Entity Setup</h1>
         <p className="text-ui-muted-text text-sm">Provide your entity details for Know Your Business (KYB) verification.</p>
-        <OnboardingVectorSpriteIcons className="mt-5" />
       </header>
 
-      <div className="bg-alert-info-bg border border-alert-info-border rounded-3xl p-8 flex gap-5 items-start">
+      <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-alert-info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div className="space-y-1">
-          <h4 className="text-sm font-bold text-alert-info-title">Know Your Business (KYB) Verification</h4>
+          <h4 className="text-sm font-bold text-alert-info-title">Know Your Business (KYB)</h4>
           <p className="text-xs text-alert-info-body leading-relaxed">
             We verify your entity against FinCEN, EDGAR, and state corporate registries. This typically takes 1–2 business days. All data is encrypted at rest.
           </p>
         </div>
       </div>
 
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
-          <h3 className="text-sm font-bold text-ui-strong">Entity Information</h3>
+          <h3 className="text-base font-bold text-ui-strong">Entity Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-            <FormField label="Legal Company Name" placeholder="Crescent Capital Partners LLC" required fullWidth hint="Must match your state registration exactly" />
+            <FormField label="Legal Company Name" placeholder="Crescent Capital Partners LLC" required fullWidth />
             <FormField label="Entity Type" placeholder="Select Type" isSelect />
-            <FormField label="Employer Identification Number (EIN)" placeholder="82-4519302" hint="Format: XX-XXXXXXX" />
+            <FormField label="Employer Identification Number (EIN)" placeholder="82-4519302" />
             <FormField label="Registered Business Address" placeholder="1234 Financial District Blvd, Suite 800, New York, NY 10004" fullWidth />
           </div>
         </div>
 
         <div className="space-y-8 pt-10 border-t border-ui-divider">
-          <div>
-            <h3 className="text-sm font-bold text-ui-strong mb-2">Directors & Ultimate Beneficial Owners (UBOs)</h3>
-            <p className="text-xs text-ui-faint">List all directors and individuals owning 25%+ of the entity. Required for FinCEN compliance.</p>
-          </div>
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-                <div>
-                  <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Directors</label>
-                  <p className="text-[10px] text-ui-faint mt-1 max-w-xl">
-                    Full legal name, role, date of birth, and last four digits of SSN for each director or officer.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setDirectors((rows) => [
-                      ...rows,
-                      { id: newRowId(), fullName: '', title: '', dateOfBirth: '', ssnLast4: '' },
-                    ])
-                  }
-                  className="shrink-0 px-4 py-2.5 rounded-xl border border-ui-border bg-ui-card text-xs font-bold text-primary hover:border-primary/40 hover:bg-ui-accent-tint transition-all"
-                >
-                  Add director
-                </button>
-              </div>
-              <div className="space-y-4">
-                {directors.map((d, index) => (
-                  <div
-                    key={d.id}
-                    className="p-5 sm:p-6 bg-ui-highlight-box border border-ui-border rounded-2xl space-y-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
-                        Director {index + 1}
-                      </span>
-                      {directors.length > 1 ? (
-                        <button
-                          type="button"
-                          aria-label={`Remove director ${index + 1}`}
-                          onClick={() => setDirectors((rows) => rows.filter((row) => row.id !== d.id))}
-                          className="text-[11px] font-bold text-ui-muted-text hover:text-ui-danger-text transition-colors"
-                        >
-                          Remove
-                        </button>
-                      ) : null}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <label className="space-y-2 block">
-                        <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Full legal name</span>
-                        <input
-                          type="text"
-                          autoComplete="name"
-                          value={d.fullName}
-                          onChange={(e) =>
-                            setDirectors((rows) =>
-                              rows.map((row) => (row.id === d.id ? { ...row, fullName: e.target.value } : row))
-                            )
-                          }
-                          placeholder="Jane Doe"
-                          className="w-full px-4 py-3 bg-ui-input border border-ui-border rounded-xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium"
-                        />
-                      </label>
-                      <label className="space-y-2 block">
-                        <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Title / role</span>
-                        <input
-                          type="text"
-                          value={d.title}
-                          onChange={(e) =>
-                            setDirectors((rows) =>
-                              rows.map((row) => (row.id === d.id ? { ...row, title: e.target.value } : row))
-                            )
-                          }
-                          placeholder="Managing Director"
-                          className="w-full px-4 py-3 bg-ui-input border border-ui-border rounded-xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium"
-                        />
-                      </label>
-                      <label className="space-y-2 block">
-                        <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Date of birth</span>
-                        <input
-                          type="date"
-                          value={d.dateOfBirth}
-                          onChange={(e) =>
-                            setDirectors((rows) =>
-                              rows.map((row) => (row.id === d.id ? { ...row, dateOfBirth: e.target.value } : row))
-                            )
-                          }
-                          className="w-full px-4 py-3 bg-ui-input border border-ui-border rounded-xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground font-medium [color-scheme:light] dark:[color-scheme:dark]"
-                        />
-                      </label>
-                      <label className="space-y-2 block">
-                        <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">SSN (last 4)</span>
-                        <input
-                          type="password"
-                          inputMode="numeric"
-                          autoComplete="off"
-                          maxLength={4}
-                          value={d.ssnLast4}
-                          onChange={(e) => {
-                            const next = e.target.value.replace(/\D/g, '').slice(0, 4);
-                            setDirectors((rows) =>
-                              rows.map((row) => (row.id === d.id ? { ...row, ssnLast4: next } : row))
-                            );
-                          }}
-                          placeholder="••••"
-                          className="w-full px-4 py-3 bg-ui-input border border-ui-border rounded-xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium tracking-widest"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-                <div>
-                  <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
-                    Ultimate Beneficial Owners (25%+ Ownership)
-                  </label>
-                  <p className="text-[10px] text-ui-faint mt-1 max-w-xl">
-                    List each person who owns or controls 25% or more. Percentages should reflect total beneficial ownership.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setUbos((rows) => [...rows, { id: newRowId(), fullName: '', ownershipPercent: '' }])
-                  }
-                  className="shrink-0 px-4 py-2.5 rounded-xl border border-ui-border bg-ui-card text-xs font-bold text-primary hover:border-primary/40 hover:bg-ui-accent-tint transition-all"
-                >
-                  Add beneficial owner
-                </button>
-              </div>
-              <div className="space-y-4">
-                {ubos.map((u, index) => (
-                  <div
-                    key={u.id}
-                    className="p-5 sm:p-6 bg-ui-highlight-box border border-ui-border rounded-2xl space-y-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
-                        Beneficial owner {index + 1}
-                      </span>
-                      {ubos.length > 1 ? (
-                        <button
-                          type="button"
-                          aria-label={`Remove beneficial owner ${index + 1}`}
-                          onClick={() => setUbos((rows) => rows.filter((row) => row.id !== u.id))}
-                          className="text-[11px] font-bold text-ui-muted-text hover:text-ui-danger-text transition-colors"
-                        >
-                          Remove
-                        </button>
-                      ) : null}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:max-w-2xl">
-                      <label className="space-y-2 block">
-                        <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Full legal name</span>
-                        <input
-                          type="text"
-                          autoComplete="name"
-                          value={u.fullName}
-                          onChange={(e) =>
-                            setUbos((rows) =>
-                              rows.map((row) => (row.id === u.id ? { ...row, fullName: e.target.value } : row))
-                            )
-                          }
-                          placeholder="Jane Doe"
-                          className="w-full px-4 py-3 bg-ui-input border border-ui-border rounded-xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium"
-                        />
-                      </label>
-                      <label className="space-y-2 block">
-                        <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Ownership %</span>
-                        <div className="relative">
-                          <input
-                            type="number"
-                            min={0}
-                            max={100}
-                            step={0.01}
-                            value={u.ownershipPercent}
-                            onChange={(e) =>
-                              setUbos((rows) =>
-                                rows.map((row) =>
-                                  row.id === u.id ? { ...row, ownershipPercent: e.target.value } : row
-                                )
-                              )
-                            }
-                            placeholder="0"
-                            className="w-full px-4 py-3 pr-10 bg-ui-input border border-ui-border rounded-xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium"
-                          />
-                          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-ui-faint">
-                            %
-                          </span>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p
-                className={`text-[10px] font-medium ${
-                  uboOwnershipTotal > 100
-                    ? 'text-ui-danger-text'
-                    : uboOwnershipTotal > 0 && Math.abs(uboOwnershipTotal - 100) > 0.01
-                      ? 'text-ui-muted-text'
-                      : 'text-ui-faint'
-                }`}
-              >
-                Total reported ownership:{' '}
-                <span className="font-bold tabular-nums">{uboOwnershipTotal.toFixed(2)}%</span>
-                {uboOwnershipTotal > 100
-                  ? ' — totals above 100%; adjust percentages.'
-                  : uboOwnershipTotal > 0 && Math.abs(uboOwnershipTotal - 100) > 0.01
-                    ? ' — verify that figures match your cap table.'
-                    : null}
-              </p>
-            </div>
+          <h3 className="text-base font-bold text-ui-strong">Directors & UBOs</h3>
+          <div className="space-y-6">
+            <label className="block space-y-3">
+              <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Directors</span>
+              <textarea
+                value={directorsNotes}
+                onChange={(e) => setDirectorsNotes(e.target.value)}
+                rows={6}
+                className="w-full min-h-[160px] px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y"
+                placeholder="Full legal name, title, and identification details for each director or officer."
+              />
+            </label>
+            <label className="block space-y-3">
+              <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
+                Ultimate Beneficial Owners (UBOs)
+              </span>
+              <textarea
+                value={ubosNotes}
+                onChange={(e) => setUbosNotes(e.target.value)}
+                rows={5}
+                className="w-full min-h-[120px] px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y"
+                placeholder="List each beneficial owner and ownership percentage (must total 100%)."
+              />
+            </label>
           </div>
         </div>
       </section>
 
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
-        <h3 className="text-sm font-bold text-ui-strong">Supporting Documents</h3>
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
+        <h3 className="text-base font-bold text-ui-strong">Supporting Documents</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FileUploadField label="Certificate of Formation / Incorporation" sub="State-issued, within 12 months" />
-          <FileUploadField label="Operating Agreement" sub="Signed by all members" />
-          <FileUploadField label="EIN Confirmation Letter" sub="IRS CP 575 or 147C" />
-          <FileUploadField label="Government-Issued ID" sub="For each UBO listed above" />
+          <FileUploadField label="Certificate of Formation / Incorporation" sub="Upload PDF" />
+          <FileUploadField label="Operating Agreement" sub="Upload PDF" />
+          <FileUploadField label="EIN Confirmation Letter" sub="Upload PDF" />
+          <FileUploadField label="Government-Issued ID" sub="Upload PDF" />
         </div>
       </section>
 
       <div className="flex items-center justify-end pt-6 border-t border-ui-border">
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(2)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all flex items-center gap-3 group"
+          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
         >
-          Continue
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          Continue →
         </button>
       </div>
     </div>
@@ -506,12 +252,14 @@ export default function OnboardingPage() {
   const renderStep2 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 2 of 8 — Accreditation</p>
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+          Step 2 of 8 - Accreditation
+        </p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Accreditation</h1>
         <p className="text-ui-muted-text text-sm">Configure your offering type and investor accreditation requirements.</p>
       </header>
 
-      <div className="bg-alert-warn-bg border border-alert-warn-border rounded-3xl p-8 flex gap-5 items-start">
+      <div className="bg-alert-warn-bg border border-alert-warn-border rounded-2xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-alert-warn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -520,13 +268,17 @@ export default function OnboardingPage() {
         <div className="space-y-1">
           <h4 className="text-sm font-bold text-alert-warn-title">Important: Regulation Selection</h4>
           <p className="text-xs text-alert-warn-body leading-relaxed">
-            This selection determines your <span className="font-bold">investor eligibility</span>, <span className="font-bold">marketing restrictions</span>, and ongoing compliance obligations. Consult with legal counsel before proceeding.{' '}
-            <span className="font-bold text-amber-800">Maxtronize compliance team can provide guidance.</span>
+            This selection determines your <span className="font-bold">investor eligibility</span>,{' '}
+            <span className="font-bold">marketing restrictions</span>, and ongoing compliance obligations. Consult with legal counsel before proceeding.{' '}
+            <button type="button" className="font-bold text-[#7C3AED] hover:underline">
+              Talk to Compliance
+            </button>{' '}
+            for guidance.
           </p>
         </div>
       </div>
 
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <div>
           <h3 className="text-sm font-bold text-ui-strong mb-1">Select Offering Regulation</h3>
           <p className="text-xs text-ui-faint">Choose the exemption under which you will conduct this offering.</p>
@@ -534,8 +286,8 @@ export default function OnboardingPage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { id: 'reg-d-506b', name: 'Reg D - Rule 506(b)', tag: 'Most Common', sub: 'Up to 35 non-accredited + unlimited accredited investors. No SEC registration. No general solicitation.', checks: ['No SEC filing required', 'Up to 35 non-accredited investors'], crosses: ['No advertising', 'Pre-existing relationships required'] },
-            { id: 'reg-d-506c', name: 'Reg D - Rule 506(c)', tag: 'Recommended', sub: 'Unlimited accredited investors only. General solicitation permitted. Must verify accreditation for each investor.', checks: ['General solicitation allowed', 'Unlimited raise size'], crosses: ['Accredited investors only', 'Must verify each investor'] },
+            { id: 'reg-d-506b', name: 'Reg D — Rule 506(b)', tag: 'Most Common', sub: 'Up to 35 non-accredited + unlimited accredited investors. No SEC registration. No general solicitation.', checks: ['No SEC filing required', 'Up to 35 non-accredited investors'], crosses: ['No advertising', 'Pre-existing relationships required'] },
+            { id: 'reg-d-506c', name: 'Reg D — Rule 506(c)', tag: 'Recommended', sub: 'Unlimited accredited investors only. General solicitation permitted. Must verify accreditation for each investor.', checks: ['General solicitation allowed', 'Unlimited raise size'], crosses: ['Accredited investors only', 'Must verify each investor'] },
             { id: 'reg-s', name: 'Regulation S', tag: 'International', sub: 'Offshore offerings to non-US persons. Complements Reg D for global capital raises. No US investor participation.', checks: ['Global investor access', 'No SEC registration'], crosses: ['US persons excluded', 'Complex compliance'] },
             { id: 'reg-a', name: 'Regulation A+', tag: 'Public-Light', sub: 'Mini-IPO structure. Up to $75M per year. Non-accredited investors permitted. Requires SEC qualification.', checks: ['Non-accredited investors OK', 'Up to $75M raise'], crosses: ['SEC qualification required', 'Higher compliance cost'] }
           ].map((reg) => {
@@ -584,8 +336,8 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
-        <h3 className="text-sm font-bold text-ui-strong">Investor Eligibility</h3>
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
+        <h3 className="text-base font-bold text-ui-strong">Investor Eligibility</h3>
         <div className="flex items-center justify-between p-6 bg-ui-muted-surface rounded-2xl border border-ui-border">
           <div>
             <p className="text-[13px] font-bold text-ui-strong mb-1">Accredited Investors Only</p>
@@ -614,7 +366,7 @@ export default function OnboardingPage() {
           <FormField label="" placeholder="Select Method" isSelect />
         </div>
 
-        <div className="bg-ui-purple-banner-bg border border-ui-purple-banner-border rounded-2xl p-6 flex items-center gap-4">
+        <div className="bg-ui-purple-banner-bg border-2 border-dashed border-[#C4B5FD] rounded-2xl p-6 flex items-center gap-4">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
             <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
@@ -627,42 +379,79 @@ export default function OnboardingPage() {
       </section>
 
       <div className="flex items-center justify-between pt-6 border-t border-ui-border">
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(1)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
+          ← Back
         </button>
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(3)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all flex items-center gap-3 group"
+          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
         >
-          Continue
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          Continue →
         </button>
       </div>
     </div>
   );
 
+  const renderAssetDocumentUploads = () => {
+    switch (selectedAssetType) {
+      case 'real-estate':
+        return (
+          <>
+            <FileUploadField label="MAI Appraisal Report" sub="Upload PDF" />
+            <FileUploadField label="Rent Roll (last 12 months)" sub="Upload PDF" />
+            <FileUploadField label="Title Report" sub="Upload PDF" />
+            <FileUploadField label="Environmental Assessment (Phase I)" sub="Upload PDF" />
+          </>
+        );
+      case 'commodities':
+        return (
+          <>
+            <FileUploadField label="Vault Storage Certificate" sub="Upload PDF" />
+            <FileUploadField label="Independent Assay Report" sub="Upload PDF" />
+          </>
+        );
+      case 'data-centers':
+        return (
+          <>
+            <FileUploadField label="Facility Appraisal Report" sub="Upload PDF" />
+            <FileUploadField label="Colocation Agreements" sub="Upload PDF" />
+          </>
+        );
+      case 'private-credit':
+        return (
+          <>
+            <FileUploadField label="Credit Agreement" sub="Upload PDF" />
+            <FileUploadField label="Borrower Financial Statements" sub="Upload PDF" />
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
   const renderStep3 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 3 of 8 — Asset Details</p>
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+          Step 3 of 8 - Asset Details
+        </p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Asset Details</h1>
         <p className="text-ui-muted-text text-sm">Submit asset details. Fields adjust dynamically based on your asset type.</p>
       </header>
 
       {/* Asset Type Selection */}
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-8 shadow-sm">
-        <h3 className="text-sm font-bold text-ui-strong mb-1">Asset Type</h3>
-        <p className="text-xs text-ui-faint mb-8">Select the category of asset you are tokenizing. Form fields will adjust accordingly.</p>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
+        <h3 className="text-base font-bold text-ui-strong mb-1">Asset Type</h3>
+        <p className="text-xs text-ui-faint mb-8">
+          Select the category of asset you are tokenizing. Form fields will adjust accordingly.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {assetTypes.map((type) => (
             <button
               type="button"
@@ -691,7 +480,7 @@ export default function OnboardingPage() {
       </section>
 
       {/* Dynamic Form */}
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <div className="border-b border-ui-divider pb-6 mb-2">
           <h3 className="text-lg font-bold text-ui-strong">{assetDetailsTitle[selectedAssetType]} Details</h3>
         </div>
@@ -705,8 +494,6 @@ export default function OnboardingPage() {
               <FormField label="Total Value (USD)" placeholder="50,000,000" />
               <FormField label="Purity / Grade" placeholder="99.99% Fine Gold" />
               <FormField label="Vault Provider" placeholder="Brinks / Loomis International" />
-              <FileUploadField label="Vault Storage Certificate" sub="Upload PDF" />
-              <FileUploadField label="Independent Assay Report" sub="Upload PDF" />
             </>
           )}
 
@@ -718,8 +505,6 @@ export default function OnboardingPage() {
               <FormField label="Appraised Value (USD)" placeholder="250,000,000" />
               <FormField label="Annual NOI (USD)" placeholder="18,500,000" />
               <FormField label="Tier Level" placeholder="Select Tier" isSelect />
-              <FileUploadField label="Facility Appraisal Report" sub="Upload PDF" />
-              <FileUploadField label="Colocation Agreements" sub="Upload PDF" />
             </>
           )}
 
@@ -731,8 +516,6 @@ export default function OnboardingPage() {
               <FormField label="Interest Rate (%)" placeholder="SOFR + 450bps" />
               <FormField label="Maturity Date" placeholder="Select Date" />
               <FormField label="Credit Rating" placeholder="BB+ / Ba1" />
-              <FileUploadField label="Credit Agreement" sub="Upload PDF" />
-              <FileUploadField label="Borrower Financial Statements" sub="Last 3 years" />
             </>
           )}
 
@@ -745,39 +528,33 @@ export default function OnboardingPage() {
               <FormField label="Cap Rate (%)" placeholder="6.8" />
               <FormField label="Occupancy Rate (%)" placeholder="94.2" />
               <FormField label="Year Built / Renovated" placeholder="2018 / 2023" />
-              <div className="md:col-span-2 space-y-4 pt-2">
-                <p className="text-[10px] font-bold text-ui-faint uppercase tracking-[0.2em]">Required Documents</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FileUploadField label="MAI Appraisal Report" sub="Upload PDF" />
-                  <FileUploadField label="Rent Roll (last 12 months)" sub="Upload PDF" />
-                  <FileUploadField label="Title Report" sub="Upload PDF" />
-                  <FileUploadField label="Environmental Assessment (Phase I)" sub="Upload PDF" />
-                </div>
-              </div>
             </>
           )}
         </div>
       </section>
 
+      <section className="space-y-4">
+        <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-[0.22em]">Required Documents</p>
+        <div className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{renderAssetDocumentUploads()}</div>
+        </div>
+      </section>
+
       {/* Navigation Buttons */}
       <div className="flex items-center justify-between pt-6 border-t border-ui-border">
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(2)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
+          ← Back
         </button>
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(4)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all flex items-center gap-3 group"
+          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
         >
-          Continue
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          Continue →
         </button>
       </div>
     </div>
@@ -786,13 +563,15 @@ export default function OnboardingPage() {
   const renderStep4 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 4 of 8 — Legal Structure</p>
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+          Step 4 of 8 - Legal Structure
+        </p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Legal Structure</h1>
         <p className="text-ui-muted-text text-sm">Set up the Special Purpose Vehicle (SPV) structure for this asset.</p>
       </header>
 
       {/* Info Box */}
-      <div className="bg-alert-info-bg border border-alert-info-border rounded-3xl p-8 flex gap-5 items-start">
+      <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-alert-info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -806,43 +585,64 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
-          <h3 className="text-sm font-bold text-ui-strong">SPV Configuration</h3>
+          <h3 className="text-base font-bold text-ui-strong">SPV Configuration</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
             <FormField label="SPV Entity Name" placeholder="Crescent Peachtree Tower Holdings LLC" required fullWidth hint="Will be registered as a Delaware LLC. Format: [Asset Name] Holdings LLC" />
-            <FormField label="SPV Jurisdiction" placeholder="Delaware, USA" isSelect />
+            <FormField label="SPV Jurisdiction" placeholder="Select jurisdiction" isSelect />
             <FormField label="Issuer Retained Ownership (%)" placeholder="100" hint="Remaining % is available for investor token allocation" />
           </div>
         </div>
 
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <div>
-            <h3 className="text-sm font-bold text-ui-strong mb-2">Token-Holder Rights Mapping</h3>
-            <p className="text-xs text-ui-faint">Define what rights token holders receive. These are encoded in the subscription agreement and operating agreement.</p>
+            <h3 className="text-base font-bold text-ui-strong mb-2">Token-Holder Rights Mapping</h3>
+            <p className="text-xs text-ui-faint">
+              Define what rights token holders receive. These are encoded in the subscription agreement and operating agreement.
+            </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { title: 'Pro-Rata Cash Distributions', sub: 'Holders receive proportional income distributions', checked: true },
-              { title: 'Voting Rights', sub: 'Major asset decisions require token-holder vote', checked: false },
-              { title: 'Liquidation Preference', sub: 'Priority return of capital on asset sale', checked: false },
-              { title: 'Information Rights', sub: 'Quarterly financials and annual audit reports', checked: false }
-            ].map((right, i) => (
-              <div key={i} className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex gap-4 ${right.checked ? 'border-primary bg-ui-accent-tint' : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'}`}>
-                <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${right.checked ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'}`}>
-                  {right.checked && <div className="w-2 h-2 rounded-full bg-white"></div>}
-                </div>
-                <div>
-                  <p className={`text-[13px] font-bold mb-1 ${right.checked ? 'text-primary' : 'text-ui-strong'}`}>{right.title}</p>
-                  <p className="text-[10px] text-ui-faint leading-relaxed">{right.sub}</p>
-                </div>
-              </div>
-            ))}
+              { id: 'pro-rata', title: 'Pro-Rata Cash Distributions', sub: 'Holders receive proportional income distributions' },
+              { id: 'voting', title: 'Voting Rights', sub: 'Major asset decisions require token-holder vote' },
+              { id: 'liquidation', title: 'Liquidation Preference', sub: 'Priority return of capital on asset sale' },
+              { id: 'information', title: 'Information Rights', sub: 'Quarterly financials and annual audit reports' },
+            ].map((right) => {
+              const checked = tokenHolderRightId === right.id;
+              return (
+                <button
+                  key={right.id}
+                  type="button"
+                  onClick={() => setTokenHolderRightId(right.id)}
+                  className={`text-left p-6 rounded-2xl border-2 cursor-pointer transition-all flex gap-4 w-full ${
+                    checked
+                      ? 'border-primary bg-ui-accent-tint'
+                      : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${
+                      checked ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'
+                    }`}
+                    aria-hidden
+                  >
+                    {checked ? <div className="w-2 h-2 rounded-full bg-white" /> : null}
+                  </div>
+                  <div>
+                    <p className={`text-[13px] font-bold mb-1 ${checked ? 'text-primary' : 'text-ui-strong'}`}>
+                      {right.title}
+                    </p>
+                    <p className="text-[10px] text-ui-faint leading-relaxed">{right.sub}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Warning Box */}
-        <div className="bg-alert-warn-bg border border-alert-warn-border rounded-3xl p-6 flex gap-4 items-start">
+        <div className="bg-alert-warn-bg border border-alert-warn-border rounded-2xl p-6 flex gap-4 items-start">
           <svg className="w-5 h-5 text-alert-warn-icon shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
@@ -852,25 +652,23 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
-        <h3 className="text-sm font-bold text-ui-strong">Required Legal Documents</h3>
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
+        <h3 className="text-base font-bold text-ui-strong">Required Legal Documents</h3>
         <div className="space-y-4">
           {[
-            { name: 'Private Placement Memorandum (PPM)', status: 'Template Available', color: 'text-ui-success-icon bg-ui-success-bg' },
-            { name: 'Subscription Agreement', status: 'Template Available', color: 'text-ui-success-icon bg-ui-success-bg' },
-            { name: 'Operating Agreement (SPV)', status: 'Auto-Generated', color: 'text-primary bg-ui-accent-tint' },
-            { name: 'Transfer Restriction Agreement', status: 'Template Available', color: 'text-ui-success-icon bg-ui-success-bg' }
+            { name: 'Private Placement Memorandum (PPM)', status: 'Template Available' },
+            { name: 'Subscription Agreement', status: 'Template Available' },
+            { name: 'Operating Agreement (SPV)', status: 'Auto-Generated' },
+            { name: 'Transfer Restriction Agreement', status: 'Template Available' },
           ].map((doc, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-ui-border flex items-center justify-between hover:border-ui-border-strong transition-colors group">
+            <div
+              key={i}
+              className="p-5 rounded-2xl border border-ui-border flex items-center justify-between hover:border-ui-border-strong transition-colors"
+            >
               <div className="space-y-1">
                 <p className="text-sm font-bold text-ui-strong">{doc.name}</p>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${doc.color}`}>{doc.status}</span>
+                <span className="text-[10px] font-bold text-[#10B981]">{doc.status}</span>
               </div>
-              <button className="w-10 h-10 rounded-xl border border-ui-border flex items-center justify-center text-ui-faint hover:text-primary hover:border-primary hover:bg-ui-accent-tint transition-all">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                </svg>
-              </button>
             </div>
           ))}
         </div>
@@ -878,23 +676,19 @@ export default function OnboardingPage() {
 
       {/* Navigation Buttons */}
       <div className="flex items-center justify-between pt-6 border-t border-ui-border">
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(3)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
+          ← Back
         </button>
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(5)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all flex items-center gap-3 group"
+          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
         >
-          Continue
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          Continue →
         </button>
       </div>
     </div>
@@ -946,23 +740,19 @@ export default function OnboardingPage() {
       </section>
 
       <div className="flex items-center justify-between pt-6 border-t border-ui-border">
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(4)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
+          ← Back
         </button>
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(6)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all flex items-center gap-3 group"
+          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
         >
-          Continue
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          Continue →
         </button>
       </div>
     </div>
@@ -1044,23 +834,19 @@ export default function OnboardingPage() {
       </section>
 
       <div className="flex items-center justify-between pt-6 border-t border-ui-border">
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(5)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
+          ← Back
         </button>
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(7)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all flex items-center gap-3 group"
+          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
         >
-          Continue
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          Continue →
         </button>
       </div>
     </div>
@@ -1133,23 +919,19 @@ export default function OnboardingPage() {
       </section>
 
       <div className="flex items-center justify-between pt-6 border-t border-ui-border">
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(6)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
+          ← Back
         </button>
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(8)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all flex items-center gap-3 group"
+          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
         >
-          Continue
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          Continue →
         </button>
       </div>
     </div>
@@ -1288,23 +1070,19 @@ export default function OnboardingPage() {
       </section>
 
       <div className="flex items-center justify-between pt-6 border-t border-ui-border">
-        <button 
+        <button
+          type="button"
           onClick={() => setCurrentStep(7)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
+          ← Back
         </button>
-        <button 
+        <button
+          type="button"
           onClick={() => setIsSubmitted(true)}
-          className="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all flex items-center gap-3 group"
+          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
         >
-          Submit Application
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          Submit Application →
         </button>
       </div>
     </div>

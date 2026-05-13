@@ -1,10 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
+import type { ComponentType, SVGProps } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Document,
+  Help,
+  InvestorHub,
+  Marketplace,
+  MyPortfolio,
+  Overview,
+  SecondaryMarket,
+  Wallet,
+} from "@/app/VectorImages";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { MaxtronizeLogo } from "@/components/MaxtronizeLogo";
+import { useTheme } from "@/components/ThemeProvider";
+
+type NavIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 export default function InvestorLayout({
   children,
@@ -15,19 +29,26 @@ export default function InvestorLayout({
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { theme } = useTheme();
+  const sidebarLogoSrc = theme === "dark" ? "/lightlogo.png" : "/darklogo.png";
 
-  const investorItems = [
-    { name: "Overview", icon: "⊞", href: "/investor/overview" },
-    { name: "Investor Hub", icon: "🏛", tag: "NEW", href: "/investor/hub" },
-    { name: "Marketplace", icon: "◈", href: "/investor/marketplace" },
-    { name: "Secondary Market", icon: "↗", href: "/investor/secondary-market" },
-    { name: "My Portfolio", icon: "📁", href: "/investor/portfolio" },
-    { name: "Wallet", icon: "💳", href: "/investor/wallet" },
-    { name: "Documents", icon: "📄", href: "/investor/documents" },
+  const investorItems: {
+    name: string;
+    href: string;
+    Icon: NavIcon;
+    tag?: string;
+  }[] = [
+    { name: "Overview", href: "/investor/overview", Icon: Overview },
+    { name: "Investor Hub", href: "/investor/hub", Icon: InvestorHub, tag: "NEW" },
+    { name: "Marketplace", href: "/investor/marketplace", Icon: Marketplace },
+    { name: "Secondary Market", href: "/investor/secondary-market", Icon: SecondaryMarket },
+    { name: "My Portfolio", href: "/investor/portfolio", Icon: MyPortfolio },
+    { name: "Wallet", href: "/investor/wallet", Icon: Wallet },
+    { name: "Documents", href: "/investor/documents", Icon: Document },
   ];
-  const supportItems = [
-    { name: "Help Center", icon: "💡", href: "/investor/help" },
-  ];
+  const supportItems: { name: string; href: string; Icon: NavIcon }[] = [
+    { name: "Help Center", href: "/investor/help", Icon: Help },
+    ];
 
   const allItems = [...investorItems, ...supportItems];
   const currentPage =
@@ -36,7 +57,7 @@ export default function InvestorLayout({
     "Investor Hub";
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-ui-page text-foreground transition-colors duration-300">
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground antialiased transition-colors duration-300">
       {/* Mobile overlay */}
       {isMobileMenuOpen && (
         <div
@@ -48,29 +69,38 @@ export default function InvestorLayout({
       <div className="flex min-h-0 flex-1">
         {/* Sidebar */}
         <aside
-          className={`fixed lg:sticky top-0 h-screen lg:max-h-screen flex flex-col w-64 shrink-0 border-r border-ui-border bg-sidebar-bg shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] transition-all duration-300 z-[70] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] ${
+          className={`fixed lg:sticky top-0 h-screen lg:max-h-screen flex flex-col w-64 shrink-0 border-r border-ui-border bg-ui-sidebar shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] transition-all duration-300 z-[70] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] ${
             isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >
-          {/* Logo row */}
-          <div className="flex shrink-0 items-center justify-between border-b border-ui-border px-5 pb-6 pt-8 md:px-6">
-            <Link href="/investor/overview" className="block min-w-0 max-w-[180px]" onClick={() => setIsMobileMenuOpen(false)}>
-              <div className="relative h-8 w-full">
-                <MaxtronizeLogo fill sizes="180px" className="object-contain object-left" />
-              </div>
-            </Link>
+          {/* Logo row — same height + border as main header; logo centered in sidebar strip */}
+          <div className="relative flex h-17 shrink-0 items-center justify-center border-b border-ui-border bg-ui-sidebar px-4">
             {isMobileMenuOpen && (
               <button
                 type="button"
-                className="shrink-0 text-ui-muted-text lg:hidden"
+                className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-ui-muted-text transition-colors hover:text-ui-strong lg:hidden"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             )}
+            <Link
+              href="/investor/overview"
+              className="relative mx-auto block h-8 w-[200px] max-w-[calc(100%-2.5rem)] sm:h-9 sm:w-[210px]"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Image
+                src={sidebarLogoSrc}
+                alt="Maxtronize"
+                fill
+                className="object-contain object-center"
+                sizes="210px"
+                priority
+              />
+            </Link>
           </div>
 
           {/* Nav */}
@@ -87,18 +117,21 @@ export default function InvestorLayout({
               </div>
               {investorItems.map((item, i) => {
                 const isActive = pathname === item.href;
+                const Icon = item.Icon;
                 return (
                   <Link
                     key={i}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-colors duration-150 ${
+                    className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                       isActive
                         ? "border-l-[4px] border-primary bg-ui-accent-tint text-primary shadow-[inset_0_0_0_1px_rgba(124,58,237,0.06)] dark:shadow-[inset_0_0_0_1px_rgba(167,139,250,0.12)]"
                         : "border-l-[4px] border-transparent text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
                     }`}
                   >
-                    <span className="text-base shrink-0">{item.icon}</span>
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center [&>svg]:block" aria-hidden>
+                      <Icon className="h-4 w-4" />
+                    </span>
                     <span className={`flex-1 truncate text-[13px] ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>
                       {item.name}
                     </span>
@@ -118,18 +151,21 @@ export default function InvestorLayout({
               <p className="mb-3 px-1 text-[10px] font-bold uppercase tracking-[0.14em] text-ui-faint">Support</p>
               {supportItems.map((item, i) => {
                 const isActive = pathname === item.href;
+                const Icon = item.Icon;
                 return (
                   <Link
                     key={i}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-colors duration-150 ${
+                    className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                       isActive
                         ? "border-l-[4px] border-primary bg-ui-accent-tint text-primary"
                         : "border-l-[4px] border-transparent text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
                     }`}
                   >
-                    <span className="text-base shrink-0">{item.icon}</span>
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center [&>svg]:block" aria-hidden>
+                      <Icon className="h-4 w-4" />
+                    </span>
                     <span className={`text-[13px] ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>{item.name}</span>
                   </Link>
                 );
@@ -175,45 +211,67 @@ export default function InvestorLayout({
         </aside>
 
         {/* Main column */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-ui-border bg-sidebar-bg px-4 backdrop-blur-sm sm:px-6 md:px-8">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-ui-page">
+          <header className="sticky top-0 z-40 flex h-17 shrink-0 items-center justify-between gap-4 border-b border-ui-border bg-ui-sidebar px-4 sm:px-6 md:px-8">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <button
                 type="button"
-                className="shrink-0 text-ui-muted-text lg:hidden"
+                className="shrink-0 text-ui-muted-text transition-colors hover:text-ui-strong lg:hidden"
                 onClick={() => setIsMobileMenuOpen(true)}
                 aria-label="Open menu"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:gap-x-3 sm:text-sm">
-                <span className="shrink-0 font-medium text-ui-muted-text">Platform</span>
-                <span className="shrink-0 text-ui-faint">›</span>
-                <span className="min-w-0 truncate font-bold text-foreground">{currentPage}</span>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-ui-success-border/50 bg-ui-success-bg-soft px-2 py-0.5 text-[10px] font-bold text-ui-success-icon">
-                  <span className="h-1.5 w-1.5 rounded-full bg-ui-success-icon" aria-hidden />
-                  Live
+              <nav
+                className="flex min-w-0 items-center gap-2 text-[13px] sm:text-sm"
+                aria-label="Breadcrumb"
+              >
+                <span className="shrink-0 font-medium text-ui-placeholder">Platform</span>
+                <span className="shrink-0 font-medium text-ui-faint" aria-hidden>
+                  &gt;
                 </span>
-              </div>
+                <span className="min-w-0 truncate font-semibold text-ui-strong">{currentPage}</span>
+              </nav>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:gap-4">
-              <button type="button" className="relative text-ui-muted-text transition-colors hover:text-foreground" aria-label="Notifications">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            <div className="flex shrink-0 items-center gap-1 sm:gap-2 md:gap-3">
+              <button
+                type="button"
+                className="relative rounded-lg p-2 text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
+                aria-label="Notifications"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
                 </svg>
-                <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border-2 border-sidebar-bg bg-primary" aria-hidden />
+                <span
+                  className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-ui-sidebar bg-[#7c3aed] dark:border-[#0d0d12]"
+                  aria-hidden
+                />
               </button>
-              <button type="button" className="hidden text-ui-muted-text transition-colors hover:text-foreground sm:block" aria-label="Settings">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <button
+                type="button"
+                className="hidden rounded-lg p-2 text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong sm:block"
+                aria-label="Settings"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </button>
-              <div className="hidden h-8 w-px shrink-0 bg-ui-border sm:block" aria-hidden />
-              <div className="flex items-center gap-2 rounded-xl border border-ui-border bg-ui-elevated py-1 pl-1 pr-3 shadow-sm">
+              <div className="mx-1 hidden h-8 w-px shrink-0 bg-ui-border sm:block" aria-hidden />
+              <div className="flex items-center gap-2.5 rounded-full border border-ui-border bg-ui-card py-1 pl-1 pr-3 shadow-sm">
                 <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border border-ui-border bg-ui-muted-deep">
                   <svg className="h-full w-full" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                     <rect width="80" height="80" fill="url(#invHeaderAvatarGrad)" />
@@ -221,20 +279,21 @@ export default function InvestorLayout({
                     <circle cx="40" cy="34" r="16" fill="#94a3b8" />
                     <defs>
                       <linearGradient id="invHeaderAvatarGrad" x1="40" y1="0" x2="40" y2="80" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#f8fafc" /><stop offset="1" stopColor="#e2e8f0" />
+                        <stop stopColor="#f8fafc" />
+                        <stop offset="1" stopColor="#e2e8f0" />
                       </linearGradient>
                     </defs>
                   </svg>
                 </div>
-                <span className="hidden text-sm font-semibold text-ui-strong sm:inline">Alex Chen</span>
+                <span className="hidden text-[13px] font-semibold text-ui-strong sm:inline">Alex Chen</span>
               </div>
-              <div className="flex items-center [&_button]:p-1">
+              <div className="flex items-center pl-1 [&_button]:p-1.5">
                 <ThemeToggle />
               </div>
             </div>
           </header>
 
-          <main className="min-h-0 flex-1 bg-ui-page p-6 md:p-8">
+          <main className="min-h-0 flex-1 bg-[#F8F7FF80] p-5 sm:p-6 md:p-8 dark:bg-ui-page">
             <div key={pathname} className="animate-page-enter">
               {children}
             </div>

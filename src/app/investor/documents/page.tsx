@@ -1,7 +1,31 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
+import {
+  Document,
+  PendingIcon,
+  SuccessIcon,
+  WalletCustodyBarsIcon,
+  WalletPolygonIcon,
+  WalletTransferIcon,
+  WalletWithdrawIcon,
+} from '@/app/VectorImages';
+
+type NavSvg = ComponentType<SVGProps<SVGSVGElement>>;
+
+function ShieldOutlineMini(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+      />
+    </svg>
+  );
+}
 
 type Category = 'All Documents' | 'Legal' | 'Compliance' | 'Asset Docs' | 'Reports';
 type DocStatus = 'signed' | 'pending' | 'draft' | 'expired';
@@ -22,11 +46,45 @@ export default function InvestorDocumentsPage() {
   const [activeCategory, setActiveCategory] = useState<Category>('All Documents');
   const [search, setSearch] = useState('');
 
-  const stats = [
-    { label: 'Total Documents', val: '12', sub: 'Across all assets', icon: '📁', bg: 'bg-ui-card', border: 'border-ui-border' },
-    { label: 'Fully Signed', val: '8', sub: '67% completion rate', icon: '✅', bg: 'bg-ui-card', border: 'border-ui-border' },
-    { label: 'Pending Signature', val: '2', sub: 'Action required', icon: '⏳', bg: 'bg-amber-50', border: 'border-amber-100' },
-    { label: 'Compliance Score', val: '94%', sub: '2 items need attention', icon: '🛡️', bg: 'bg-ui-card', border: 'border-ui-border' },
+  const stats: {
+    label: string;
+    val: string;
+    sub: string;
+    Icon: NavSvg;
+    iconRing: string;
+    iconShape?: 'square' | 'circle';
+    highlight?: boolean;
+  }[] = [
+    {
+      label: 'Total Documents',
+      val: '12',
+      sub: 'Across all assets',
+      Icon: Document,
+      iconRing: 'bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300',
+    },
+    {
+      label: 'Fully Signed',
+      val: '8',
+      sub: '67% completion rate',
+      Icon: SuccessIcon,
+      iconRing: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300',
+      iconShape: 'circle',
+    },
+    {
+      label: 'Pending Signature',
+      val: '2',
+      sub: 'Action required',
+      Icon: PendingIcon,
+      iconRing: 'bg-orange-100 text-orange-600 dark:bg-orange-950/40 dark:text-orange-300',
+      highlight: true,
+    },
+    {
+      label: 'Compliance Score',
+      val: '94%',
+      sub: '2 items need attention',
+      Icon: ShieldOutlineMini,
+      iconRing: 'bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300',
+    },
   ];
 
   const categories: { name: Category; count: number }[] = [
@@ -65,19 +123,44 @@ export default function InvestorDocumentsPage() {
     expired: 'bg-rose-50 text-rose-600 border-rose-100',
   };
 
-  const statusDot: Record<DocStatus, string> = {
-    signed: 'bg-green-500',
-    pending: 'bg-amber-500',
-    draft: 'bg-gray-400',
-    expired: 'bg-rose-500',
+  const catStyle: Record<string, string> = {
+    LEGAL: 'bg-primary/5 text-primary border-primary/10',
+    COMPLIANCE: 'bg-blue-50 text-blue-600 border-blue-100',
+    'ASSET DOCS': 'bg-amber-50 text-amber-600 border-amber-100',
+    REPORTS: 'bg-green-50 text-green-600 border-green-100',
   };
 
-  const catStyle: Record<string, string> = {
-    'LEGAL': 'bg-primary/5 text-primary border-primary/10',
-    'COMPLIANCE': 'bg-blue-50 text-blue-600 border-blue-100',
-    'ASSET DOCS': 'bg-amber-50 text-amber-600 border-amber-100',
-    'REPORTS': 'bg-green-50 text-green-600 border-green-100',
-  };
+  function CategoryGlyph({ catLabel }: { catLabel: string }) {
+    const cls = 'h-3.5 w-3.5 shrink-0';
+    switch (catLabel) {
+      case 'LEGAL':
+        return <Document className={cls} />;
+      case 'COMPLIANCE':
+        return <WalletTransferIcon className={cls} />;
+      case 'ASSET DOCS':
+        return <WalletPolygonIcon className={`${cls} w-3`} />;
+      case 'REPORTS':
+        return <WalletCustodyBarsIcon className="h-3.5 w-2.5 shrink-0" />;
+      default:
+        return <Document className={cls} />;
+    }
+  }
+
+  function StatusGlyph({ statusType }: { statusType: DocStatus }) {
+    const cls = 'h-3.5 w-3.5 shrink-0';
+    switch (statusType) {
+      case 'signed':
+        return <SuccessIcon className={cls} />;
+      case 'pending':
+        return <PendingIcon className={cls} />;
+      case 'draft':
+        return <Document className={cls} />;
+      case 'expired':
+        return <WalletWithdrawIcon className={cls} />;
+      default:
+        return <Document className={cls} />;
+    }
+  }
 
   return (
     <InvestorLayout pageTitle="Documents">
@@ -96,15 +179,34 @@ export default function InvestorDocumentsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+        <div className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
           {stats.map((s, i) => (
-            <div key={i} className={`p-4 md:p-6 rounded-[20px] md:rounded-[28px] border ${s.bg} ${s.border} shadow-sm`}>
+            <div
+              key={i}
+              className={`rounded-[20px] border p-4 shadow-sm md:rounded-[28px] md:p-6 ${
+                s.highlight
+                  ? 'border-amber-100/80 bg-amber-50/90 dark:border-amber-900/40 dark:bg-amber-950/25'
+                  : 'border-ui-border bg-ui-card dark:border-zinc-800 dark:bg-zinc-900/70'
+              }`}
+            >
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 ${i === 2 ? 'bg-amber-100' : 'bg-ui-muted-deep'}`}>{s.icon}</div>
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center ${
+                    s.iconShape === 'circle' ? 'rounded-full' : 'rounded-xl'
+                  } ${s.iconRing}`}
+                >
+                  <s.Icon className="h-5 w-5" />
+                </div>
                 <div className="min-w-0">
-                  <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-0.5 truncate">{s.label}</p>
-                  <p className={`text-xl md:text-2xl font-bold ${i === 2 ? 'text-amber-600' : 'text-ui-strong'}`}>{s.val}</p>
-                  <p className={`text-[10px] font-medium hidden sm:block ${i === 2 ? 'text-amber-500' : 'text-ui-faint'}`}>{s.sub}</p>
+                  <p className="mb-0.5 truncate text-[9px] font-bold uppercase tracking-widest text-ui-faint">{s.label}</p>
+                  <p className={`text-xl font-bold md:text-2xl ${s.highlight ? 'text-amber-600' : 'text-ui-strong'}`}>
+                    {s.val}
+                  </p>
+                  <p
+                    className={`hidden text-[10px] font-medium sm:block ${s.highlight ? 'text-amber-600/90' : 'text-ui-faint'}`}
+                  >
+                    {s.sub}
+                  </p>
                 </div>
               </div>
             </div>
@@ -120,12 +222,18 @@ export default function InvestorDocumentsPage() {
                 onClick={() => setActiveCategory(cat.name)}
                 className={`flex items-center gap-1.5 px-3 md:px-5 py-2 rounded-full text-[12px] font-bold transition-all whitespace-nowrap shrink-0 ${
                   activeCategory === cat.name
-                    ? 'bg-gray-900 text-white shadow-lg'
-                    : 'text-ui-muted-text hover:text-ui-body'
+                    ? 'bg-slate-900 text-white shadow-md dark:bg-slate-900 dark:text-white'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100'
                 }`}
               >
                 {cat.name}
-                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${activeCategory === cat.name ? 'bg-ui-card/20 text-white' : 'bg-ui-muted-deep text-ui-faint'}`}>
+                <span
+                  className={`rounded-md px-1.5 py-0.5 text-[9px] font-bold ${
+                    activeCategory === cat.name
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-400'
+                  }`}
+                >
                   {cat.count}
                 </span>
               </button>
@@ -144,10 +252,17 @@ export default function InvestorDocumentsPage() {
         </div>
 
         {/* Upload Zone */}
-        <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm p-4 md:p-6 cursor-pointer hover:bg-ui-muted-surface transition-colors group">
+        <div className="group cursor-pointer rounded-[20px] border-2 border-dashed border-ui-border bg-ui-card/95 p-4 shadow-sm transition-colors hover:border-violet-300 hover:bg-ui-card md:rounded-[28px] md:p-6 dark:border-zinc-700 dark:bg-zinc-900/80 dark:hover:border-violet-500/50">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600 transition-transform group-hover:scale-105 dark:bg-violet-950/60 dark:text-violet-300">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 11l-3-3m0 0l-3 3m3-3V4"
+                />
+              </svg>
             </div>
             <div className="flex-1">
               <p className="text-[13px] font-bold text-ui-strong">
@@ -155,14 +270,21 @@ export default function InvestorDocumentsPage() {
               </p>
               <p className="text-[11px] text-ui-faint font-medium">PDF, DOCX, XLSX up to 50MB · Encrypted at rest</p>
             </div>
-            <button className="text-ui-placeholder hover:text-ui-faint transition-colors shrink-0">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            <button type="button" className="shrink-0 text-ui-placeholder transition-colors hover:text-ui-faint" aria-label="Encrypted upload">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
             </button>
           </div>
         </div>
 
         {/* Documents Table */}
-        <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[32px] shadow-sm overflow-hidden">
+        <div className="overflow-hidden rounded-[20px] border border-ui-border bg-ui-card/95 shadow-sm md:rounded-[32px] dark:border-zinc-800 dark:bg-zinc-900/70">
           <div className="overflow-x-auto">
             <table className="w-full text-left min-w-[680px]">
               <thead>
@@ -193,20 +315,28 @@ export default function InvestorDocumentsPage() {
                       </div>
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-5">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9px] font-bold border whitespace-nowrap ${catStyle[doc.catLabel]}`}>
-                        {doc.catLabel === 'COMPLIANCE' && '🔵 '}
-                        {doc.catLabel === 'ASSET DOCS' && '🟠 '}
-                        {doc.catLabel === 'LEGAL' && '🟣 '}
-                        {doc.catLabel === 'REPORTS' && '🟢 '}
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[9px] font-bold whitespace-nowrap ${catStyle[doc.catLabel]}`}
+                      >
+                        <CategoryGlyph catLabel={doc.catLabel} />
                         {doc.catLabel}
                       </span>
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-5">
-                      <p className="text-[12px] font-medium text-ui-muted-text whitespace-nowrap">{doc.asset}</p>
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        {doc.asset === 'All Assets' ? (
+                          <WalletCustodyBarsIcon className="h-3.5 w-2.5 shrink-0 text-ui-placeholder" aria-hidden />
+                        ) : (
+                          <WalletPolygonIcon className="h-3.5 w-3 shrink-0 text-violet-500 dark:text-violet-400" aria-hidden />
+                        )}
+                        <p className="text-[12px] font-medium text-ui-muted-text">{doc.asset}</p>
+                      </div>
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-5">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${statusStyle[doc.statusType]}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDot[doc.statusType]}`} />
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold whitespace-nowrap ${statusStyle[doc.statusType]}`}
+                      >
+                        <StatusGlyph statusType={doc.statusType} />
                         {doc.status}
                       </span>
                     </td>

@@ -4,6 +4,20 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import InvestorLayout from '@/components/InvestorLayout';
 
+function MapPinOutlineIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
 type FilterType = 'All Assets' | 'Commercial RE' | 'Infrastructure' | 'Residential' | 'Private Equity' | 'Art & Col.';
 
 export default function MyPortfolioPage() {
@@ -71,15 +85,15 @@ export default function MyPortfolioPage() {
     <InvestorLayout pageTitle="My Portfolio">
       <div className="space-y-6 animate-in fade-in duration-700">
 
-        {/* Header */}
+      
         <div>
           <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Portfolio</h1>
           <p className="text-sm text-ui-faint mt-1 font-medium">All tokenized assets under management, live on-chain.</p>
         </div>
 
-        {/* Top stats row */}
+       
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-          {/* Total NAV card */}
+         
           <div className="bg-[#1A1A2E] rounded-[24px] md:rounded-[32px] p-6 md:p-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full blur-[80px] -translate-y-1/4 translate-x-1/4" />
             <div className="relative z-10">
@@ -90,7 +104,7 @@ export default function MyPortfolioPage() {
             </div>
           </div>
 
-          {/* NAV Chart */}
+         
           <div className="bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-5 md:p-7 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -103,7 +117,7 @@ export default function MyPortfolioPage() {
               <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[9px] text-ui-placeholder font-medium">
                 {['$M', '$70', '$50'].map(l => <span key={l}>{l}</span>)}
               </div>
-              <div className="absolute left-6 right-0 top-0 bottom-0">
+              <div className="absolute left-6 right-0 top-0 bottom-0 motion-chart">
                 <svg className="w-full h-full text-primary" viewBox="0 0 1000 100" preserveAspectRatio="none">
                   <path d="M0,75 Q200,70 400,58 T700,42 T1000,22" fill="none" stroke="currentColor" strokeWidth="2.5" />
                   <path d="M0,75 Q200,70 400,58 T700,42 T1000,22 L1000,100 L0,100 Z" fill="currentColor" fillOpacity="0.06" />
@@ -118,7 +132,13 @@ export default function MyPortfolioPage() {
           {/* Right stats */}
           <div className="grid grid-rows-2 gap-4">
             <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[24px] p-5 shadow-sm flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl shrink-0">👥</div>
+              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl shrink-0"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.3294 17.4952V15.829C13.3294 14.9452 12.9783 14.0976 12.3533 13.4726C11.7284 12.8477 10.8808 12.4966 9.99697 12.4966H4.9984C4.1146 12.4966 3.26699 12.8477 2.64205 13.4726C2.01711 14.0976 1.66602 14.9452 1.66602 15.829V17.4952" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.4984 9.16428C9.33882 9.16428 10.8308 7.67232 10.8308 5.8319C10.8308 3.99147 9.33882 2.49951 7.4984 2.49951C5.65797 2.49951 4.16602 3.99147 4.16602 5.8319C4.16602 7.67232 5.65797 9.16428 7.4984 9.16428Z" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M18.3274 17.4953V15.8291C18.3269 15.0907 18.0811 14.3735 17.6287 13.7899C17.1764 13.2064 16.543 12.7896 15.8281 12.605" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.3301 2.60742C14.0469 2.79095 14.6822 3.20783 15.1359 3.79234C15.5896 4.37685 15.8359 5.09574 15.8359 5.83567C15.8359 6.5756 15.5896 7.29449 15.1359 7.87899C14.6822 8.4635 14.0469 8.88038 13.3301 9.06391" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div>
               <div>
                 <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest">Total Investors</p>
                 <p className="text-2xl font-bold text-ui-strong">3,004</p>
@@ -126,7 +146,11 @@ export default function MyPortfolioPage() {
               </div>
             </div>
             <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[24px] p-5 shadow-sm flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl shrink-0">📈</div>
+              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl shrink-0"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M18.3279 5.83154L11.2466 12.9129L7.08114 8.74738L1.66602 14.1625" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.3301 5.83154H18.3287V10.8301" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div>
               <div>
                 <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest">Avg. Token Yield</p>
                 <p className="text-2xl font-bold text-primary">7.9%</p>
@@ -161,7 +185,10 @@ export default function MyPortfolioPage() {
                 </div>
                 <div className="absolute bottom-3 left-3">
                   <p className="text-white font-bold text-base drop-shadow-lg">{asset.name}</p>
-                  <p className="text-white/60 text-[10px] font-medium flex items-center gap-1">📍 {asset.location} · {asset.compliance}</p>
+                  <p className="flex items-center gap-1 text-[10px] font-medium text-white/60">
+                    <MapPinOutlineIcon className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
+                    {asset.location} · {asset.compliance}
+                  </p>
                 </div>
               </div>
 

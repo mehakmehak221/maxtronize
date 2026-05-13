@@ -124,6 +124,30 @@ export function IconChartBar(p: IconProps) {
   );
 }
 
+/** Hero / pulse-style activity line (outline) */
+export function IconPulseActivity(p: IconProps) {
+  const s = strokeProps(p);
+  return (
+    <svg {...s}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M4 14h2.5l2-7 2.5 10 2.5-6.5L16 11h4"
+      />
+    </svg>
+  );
+}
+
+export function IconClock(p: IconProps) {
+  const s = strokeProps(p);
+  return (
+    <svg {...s}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.75V12l4 2.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
 /** Issuer dashboard stat tiles — 20×20 art (stroke uses currentColor) */
 function statTileProps(p: IconProps) {
   const extra = p.className?.trim();

@@ -18,8 +18,8 @@ export default function AuthLayout({
 }: AuthLayoutProps) {
   return (
     <ForceLightTheme>
-    <div className="min-h-screen flex font-sans">
-      <div className="hidden lg:flex lg:w-[60%] bg-primary-deep relative overflow-hidden flex-col justify-between p-16">
+      <div className="h-screen flex font-sans overflow-hidden">
+      <div className="hidden lg:flex lg:w-[60%] bg-primary-deep relative overflow-hidden flex-col justify-between p-10 xl:p-14">
         <div className="absolute inset-0 bg-mesh auth-hero-mesh"></div>
         <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
         <div className="absolute inset-0 opacity-20">
@@ -32,7 +32,7 @@ export default function AuthLayout({
         </div>
 
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-16">
+          <div className="flex items-center gap-3 mb-10">
             <div className="relative h-10 w-44">
               <Image
                 src="/lightlogo.png"
@@ -46,15 +46,15 @@ export default function AuthLayout({
           </div>
 
           <div className="max-w-2xl">
-            <h1 className="text-5xl xl:text-6xl font-bold text-white leading-[1.12] tracking-tight mb-6">
+            <h1 className="text-4xl xl:text-5xl font-bold text-white leading-[1.12] tracking-tight mb-4">
               Tokenize Real Assets. Raise Capital Globally.
             </h1>
-            <p className="text-white/70 text-lg leading-relaxed mb-10 max-w-lg">
+            <p className="text-white/70 text-[15px] leading-relaxed mb-7 max-w-lg">
               The institutional platform for compliant real-world asset
               tokenization. SEC Reg D to MiCA — all in one secure workspace.
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-12">
+            <div className="flex flex-wrap gap-2.5 mb-8">
               {[
                 "Real Estate",
                 "Private Credit",
@@ -63,14 +63,14 @@ export default function AuthLayout({
               ].map((tag) => (
                 <span
                   key={tag}
-                  className="px-4 py-2 rounded-full text-white/90 text-sm font-medium bg-white/[0.08] border border-white/15 backdrop-blur-sm"
+                  className="px-3.5 py-1.5 rounded-full text-white/90 text-xs font-medium bg-white/[0.08] border border-white/15 backdrop-blur-sm"
                 >
                   {tag}
                 </span>
               ))}
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               {[
                 {
                   icon: (
@@ -131,7 +131,7 @@ export default function AuthLayout({
                   <div className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center bg-white/5 transition-colors group-hover:bg-white/10">
                     {item.icon}
                   </div>
-                  <p className="text-white/80 text-sm">{item.text}</p>
+                  <p className="text-white/80 text-[13px] leading-snug">{item.text}</p>
                 </div>
               ))}
             </div>
@@ -139,7 +139,7 @@ export default function AuthLayout({
         </div>
 
         <div className="relative z-10">
-          <div className="mb-10">
+          <div className="mb-7">
             <h3 className="text-white/40 text-[10px] font-bold tracking-[0.2em] uppercase mb-5">
               Trusted by leading institutions
             </h3>
@@ -152,7 +152,7 @@ export default function AuthLayout({
               ].map((inst) => (
                 <span
                   key={inst}
-                  className="text-white/45 text-xs font-semibold px-4 py-2 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-sm"
+                  className="text-white/45 text-[11px] font-semibold px-3.5 py-1.5 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-sm"
                 >
                   {inst}
                 </span>
@@ -160,14 +160,14 @@ export default function AuthLayout({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-12 pt-10 border-t border-white/10">
+          <div className="grid grid-cols-3 gap-8 pt-6 border-t border-white/10">
             {[
               { label: "Assets Tokenized", value: "$2.4B+" },
               { label: "Active Issuers", value: "340+" },
               { label: "Accredited Investors", value: "12,800+" },
             ].map((stat) => (
               <div key={stat.label}>
-                <p className="text-white text-3xl font-bold mb-1">
+                <p className="text-white text-2xl font-bold mb-1">
                   {stat.value}
                 </p>
                 <p className="text-white/40 text-[10px] uppercase font-bold tracking-wider">
@@ -179,11 +179,18 @@ export default function AuthLayout({
         </div>
       </div>
 
-      {/* Right Panel: Scrollable Auth Section */}
-      <div className="flex-1 bg-background p-6 md:p-12 lg:p-24 flex flex-col justify-center overflow-y-auto relative">
-        <div className="max-w-md w-full mx-auto space-y-8 md:space-y-10">
-          {/* Mobile branding — only visible when hero panel is hidden */}
-          <div className="lg:hidden text-center space-y-2 pb-4 border-b border-border">
+      
+      <div className="flex-1 min-h-0 bg-white text-[#1F2937] p-3 sm:p-4 md:p-6 lg:p-10 flex flex-col justify-start relative">
+        <div
+          className="max-w-md w-full mx-auto space-y-5 md:space-y-7 transform-gpu"
+          style={{
+            transformOrigin: "top center",
+            transform:
+              "scale(clamp(0.78, calc((100vh - 2rem) / 860px), 1))",
+          }}
+        >
+          
+          <div className="lg:hidden text-center space-y-2 pb-3 border-b border-[#E5E7EB]">
             <div className="relative h-7 w-28 mx-auto">
               <MaxtronizeLogo
                 fill
@@ -192,21 +199,21 @@ export default function AuthLayout({
                 alt="Maxtronize Logo"
               />
             </div>
-            <p className="text-[10px] font-bold text-primary uppercase tracking-widest">
+            <p className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest">
               Asset Protocol
             </p>
           </div>
 
-          <div className="bg-[#eceef2] p-1 rounded-2xl flex shadow-inner border border-border/80">
+          <div className="flex rounded-full border border-[#E5E7EB] bg-[#F3F4F6] p-1 shadow-inner">
             <button
               onClick={() => onToggle(false)}
-              className={`flex-1 py-3 px-6 rounded-xl text-[15px] font-bold transition-all ${!isSignUp ? "bg-card text-foreground shadow-md shadow-black/5" : "text-text-muted hover:text-foreground"}`}
+              className={`flex-1 rounded-full py-3 px-6 text-[15px] font-bold transition-all ${!isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
             >
               Sign In
             </button>
             <button
               onClick={() => onToggle(true)}
-              className={`flex-1 py-3 px-6 rounded-xl text-[15px] font-bold transition-all ${isSignUp ? "bg-card text-foreground shadow-md shadow-black/5" : "text-text-muted hover:text-foreground"}`}
+              className={`flex-1 rounded-full py-3 px-6 text-[15px] font-bold transition-all ${isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
             >
               Sign Up
             </button>
@@ -214,15 +221,15 @@ export default function AuthLayout({
 
           {children}
 
-          {/* Footer Icons & Legal (Shared) */}
-          <div className="pt-10 space-y-8">
+          
+          <div className="pt-5 space-y-5">
             <div className="flex justify-center items-center gap-8">
               {[
                 {
                   label: "SOC 2 Type II",
                   icon: (
                     <svg
-                      className="w-3.5 h-3.5 text-text-muted"
+                      className="w-3.5 h-3.5 text-[#9CA3AF]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -240,7 +247,7 @@ export default function AuthLayout({
                   label: "ISO 27001",
                   icon: (
                     <svg
-                      className="w-3.5 h-3.5 text-text-muted"
+                      className="w-3.5 h-3.5 text-[#9CA3AF]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -258,7 +265,7 @@ export default function AuthLayout({
                   label: "SEC Regulated",
                   icon: (
                     <svg
-                      className="w-3.5 h-3.5 text-text-muted"
+                      className="w-3.5 h-3.5 text-[#9CA3AF]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -275,19 +282,19 @@ export default function AuthLayout({
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
                   {item.icon}
-                  <span className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                  <span className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-wider">
                     {item.label}
                   </span>
                 </div>
               ))}
             </div>
-            <p className="text-[10px] text-center text-text-muted opacity-60 font-medium">
+            <p className="text-[10px] text-center text-[#9CA3AF] font-medium">
               © 2049 Maxtronize, Inc. All rights reserved.
             </p>
           </div>
         </div>
       </div>
-    </div>
+      </div>
     </ForceLightTheme>
   );
 }

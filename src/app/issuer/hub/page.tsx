@@ -159,7 +159,7 @@ export default function IssuerHubPage() {
               </div>
             </div>
           </div>
-          <div className="relative mt-8 h-64">
+          <div className="relative mt-8 h-64 motion-chart">
             <svg
               className="absolute inset-0 h-full w-full text-issuer-chart-line-primary"
               viewBox="0 0 1000 100"

@@ -28,9 +28,11 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans transition-colors duration-300">
+      <body className="min-h-full flex flex-col font-sans transition-colors duration-300 selection:bg-primary/20 selection:text-foreground">
         <StoreProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <div className="motion-app-mount flex min-h-full flex-1 flex-col">{children}</div>
+          </ThemeProvider>
         </StoreProvider>
       </body>
     </html>

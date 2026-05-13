@@ -97,8 +97,8 @@
   --ui-purple-banner-icon-bg: #ffffff;
 
   /* Controls */
-  --btn-primary-from: #7c3aed;
-  --btn-primary-to: #3b82f6;
+  --btn-primary-from: #8b5cf6;
+  --btn-primary-to: #6366f1;
   --btn-secondary-bg: #ffffff;
   --btn-secondary-hover: #f9fafb;
   --btn-secondary-text: #6b7280;
@@ -249,6 +249,13 @@
   --cap-chip-cw-fg: #f9a8d4;
   --cap-chip-eh-bg: #2e1065;
   --cap-chip-eh-fg: #ddd6fe;
+
+  /* Motion — easing & stagger (honoured by prefers-reduced-motion block) */
+  --motion-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-enter: 580ms;
+  --motion-stagger-step: 55ms;
 }
 
 [data-theme='dark'] {
@@ -767,8 +774,38 @@ html {
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.994);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Route / hero block entrance — opacity + lift + micro-scale */
+@keyframes premiumEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.988);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Short fade for nested panels, toasts, small UI */
+@keyframes revealSoft {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideDown {
@@ -818,20 +855,119 @@ html {
 }
 
 /* ── Animation utility classes ──────────────────────────────────────────── */
-.animate-fade-in        { animation: fadeIn        0.45s ease-out both; }
-.animate-slide-up       { animation: slideUp       0.5s  cubic-bezier(0.22, 1, 0.36, 1) both; }
-.animate-slide-down     { animation: slideDown     0.4s  ease-out both; }
-.animate-slide-in-left  { animation: slideInLeft   0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.animate-slide-in-right { animation: slideInRight  0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.animate-scale-in       { animation: scaleIn       0.4s  cubic-bezier(0.22, 1, 0.36, 1) both; }
-.animate-scale-bounce   { animation: scaleInBounce 0.5s  cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-fade-in        { animation: fadeIn        0.5s var(--motion-ease-out-expo) both; }
+.animate-slide-up       { animation: slideUp       0.55s var(--motion-ease-spring) both; }
+.animate-slide-down     { animation: slideDown     0.42s var(--motion-ease-soft) both; }
+.animate-slide-in-left  { animation: slideInLeft   0.48s var(--motion-ease-spring) both; }
+.animate-slide-in-right { animation: slideInRight  0.48s var(--motion-ease-spring) both; }
+.animate-scale-in       { animation: scaleIn       0.44s var(--motion-ease-spring) both; }
+.animate-scale-bounce   { animation: scaleInBounce 0.52s var(--motion-ease-spring) both; }
 .animate-float          { animation: floatY        3.5s  ease-in-out infinite; }
 .animate-pulse-glow     { animation: pulseGlow     2.2s  ease-in-out infinite; }
 .animate-spin-slow      { animation: spinSlow      2s    linear infinite; }
 
-/* Page-level entrance (applied once per route mount) */
+/* Nested blocks — dialogs, accordions, secondary panels */
+.animate-reveal-soft {
+  animation: revealSoft 0.38s var(--motion-ease-spring) both;
+}
+
+/* Page-level entrance (layout wrappers key on pathname) */
 .animate-page-enter {
-  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: premiumEnter var(--motion-enter) var(--motion-ease-out-expo) both;
+}
+
+/* First paint of the app shell (root layout wrapper) */
+.motion-app-mount {
+  animation: fadeIn 0.6s var(--motion-ease-out-expo) both;
+}
+
+/* ==========================================================================
+   CHART / GRAPH MOTION
+   Wrap SVG chart roots with .motion-chart; HTML bar columns with .motion-chart-bars;
+   nested bars with .motion-bar-grow + inline animation-delay.
+   ========================================================================== */
+
+@keyframes motion-chart-line-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes motion-chart-bar-grow {
+  from {
+    opacity: 0.75;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+/* Stroke-only data lines (long dasharray works for typical 0–1000 viewBox paths) */
+.motion-chart svg path[fill="none"][stroke] {
+  stroke-dasharray: 3000;
+  stroke-dashoffset: 3000;
+  animation: motion-chart-line-draw 1.12s var(--motion-ease-out-expo) forwards;
+}
+
+/* Filled areas under lines */
+.motion-chart svg path[fill^="url"],
+.motion-chart svg path[fill="currentColor"] {
+  opacity: 0;
+  animation: fadeIn 0.72s var(--motion-ease-out-expo) 0.14s forwards;
+}
+
+/* SVG horizontal guides */
+.motion-chart svg line {
+  opacity: 0;
+  animation: fadeIn 0.42s var(--motion-ease-soft) forwards;
+}
+.motion-chart svg line:nth-of-type(1) { animation-delay: 0.04s; }
+.motion-chart svg line:nth-of-type(2) { animation-delay: 0.08s; }
+.motion-chart svg line:nth-of-type(3) { animation-delay: 0.12s; }
+.motion-chart svg line:nth-of-type(4) { animation-delay: 0.16s; }
+.motion-chart svg line:nth-of-type(5) { animation-delay: 0.2s; }
+.motion-chart svg line:nth-of-type(6) { animation-delay: 0.24s; }
+
+/* Donut / ring layers */
+.motion-chart svg circle[stroke] {
+  opacity: 0;
+  animation: fadeIn 0.5s var(--motion-ease-out-expo) forwards;
+}
+.motion-chart svg circle:nth-of-type(1) { animation-delay: 0.02s; }
+.motion-chart svg circle:nth-of-type(2) { animation-delay: 0.08s; }
+.motion-chart svg circle:nth-of-type(3) { animation-delay: 0.14s; }
+.motion-chart svg circle:nth-of-type(4) { animation-delay: 0.2s; }
+.motion-chart svg circle:nth-of-type(5) { animation-delay: 0.26s; }
+.motion-chart svg circle:nth-of-type(6) { animation-delay: 0.32s; }
+
+/* HTML / flex bar charts */
+.motion-chart-bars > * {
+  transform-origin: bottom center;
+  animation: motion-chart-bar-grow 0.7s var(--motion-ease-out-expo) backwards;
+}
+.motion-chart-bars > *:nth-child(1)  { animation-delay: 0.03s; }
+.motion-chart-bars > *:nth-child(2)  { animation-delay: 0.06s; }
+.motion-chart-bars > *:nth-child(3)  { animation-delay: 0.09s; }
+.motion-chart-bars > *:nth-child(4)  { animation-delay: 0.12s; }
+.motion-chart-bars > *:nth-child(5)  { animation-delay: 0.15s; }
+.motion-chart-bars > *:nth-child(6)  { animation-delay: 0.18s; }
+.motion-chart-bars > *:nth-child(7)  { animation-delay: 0.21s; }
+.motion-chart-bars > *:nth-child(8)  { animation-delay: 0.24s; }
+.motion-chart-bars > *:nth-child(9)  { animation-delay: 0.27s; }
+.motion-chart-bars > *:nth-child(10) { animation-delay: 0.3s; }
+.motion-chart-bars > *:nth-child(11) { animation-delay: 0.33s; }
+.motion-chart-bars > *:nth-child(12) { animation-delay: 0.36s; }
+.motion-chart-bars > *:nth-child(13) { animation-delay: 0.39s; }
+.motion-chart-bars > *:nth-child(14) { animation-delay: 0.42s; }
+.motion-chart-bars > *:nth-child(15) { animation-delay: 0.45s; }
+.motion-chart-bars > *:nth-child(16) { animation-delay: 0.48s; }
+
+/* Nested bar columns: stagger with inline style={{ animationDelay: `${i * 45}ms` }} */
+.motion-bar-grow {
+  transform-origin: bottom center;
+  animation: motion-chart-bar-grow 0.7s var(--motion-ease-out-expo) backwards;
 }
 
 /* ── Delay helpers ──────────────────────────────────────────────────────── */
@@ -849,7 +985,7 @@ html {
    Usage: <ul class="stagger-children"> <li class="stagger-item">…
    ────────────────────────────────────────────────────────────────────── */
 .stagger-children > .stagger-item {
-  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: slideUp 0.5s var(--motion-ease-spring) both;
 }
 .stagger-children > .stagger-item:nth-child(1)  { animation-delay:  30ms; }
 .stagger-children > .stagger-item:nth-child(2)  { animation-delay:  80ms; }
@@ -859,6 +995,27 @@ html {
 .stagger-children > .stagger-item:nth-child(6)  { animation-delay: 280ms; }
 .stagger-children > .stagger-item:nth-child(7)  { animation-delay: 330ms; }
 .stagger-children > .stagger-item:nth-child(8)  { animation-delay: 380ms; }
+.stagger-children > .stagger-item:nth-child(9)  { animation-delay: 430ms; }
+.stagger-children > .stagger-item:nth-child(10) { animation-delay: 480ms; }
+.stagger-children > .stagger-item:nth-child(11) { animation-delay: 530ms; }
+.stagger-children > .stagger-item:nth-child(12) { animation-delay: 580ms; }
+
+/* Auto-stagger direct children (opt-in on a container) */
+.motion-stagger-children > * {
+  animation: slideUp 0.52s var(--motion-ease-spring) both;
+}
+.motion-stagger-children > *:nth-child(1)  { animation-delay: calc(var(--motion-stagger-step) * 0); }
+.motion-stagger-children > *:nth-child(2)  { animation-delay: calc(var(--motion-stagger-step) * 1); }
+.motion-stagger-children > *:nth-child(3)  { animation-delay: calc(var(--motion-stagger-step) * 2); }
+.motion-stagger-children > *:nth-child(4)  { animation-delay: calc(var(--motion-stagger-step) * 3); }
+.motion-stagger-children > *:nth-child(5)  { animation-delay: calc(var(--motion-stagger-step) * 4); }
+.motion-stagger-children > *:nth-child(6)  { animation-delay: calc(var(--motion-stagger-step) * 5); }
+.motion-stagger-children > *:nth-child(7)  { animation-delay: calc(var(--motion-stagger-step) * 6); }
+.motion-stagger-children > *:nth-child(8)  { animation-delay: calc(var(--motion-stagger-step) * 7); }
+.motion-stagger-children > *:nth-child(9)  { animation-delay: calc(var(--motion-stagger-step) * 8); }
+.motion-stagger-children > *:nth-child(10) { animation-delay: calc(var(--motion-stagger-step) * 9); }
+.motion-stagger-children > *:nth-child(11) { animation-delay: calc(var(--motion-stagger-step) * 10); }
+.motion-stagger-children > *:nth-child(12) { animation-delay: calc(var(--motion-stagger-step) * 11); }
 
 /* ── Global smooth interactive transitions ──────────────────────────────── */
 a,
@@ -867,21 +1024,30 @@ button,
 input,
 select,
 textarea {
-  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-  transition-duration: 150ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform, filter;
+  transition-duration: 200ms;
+  transition-timing-function: var(--motion-ease-soft);
+}
+
+/* Tables — row hover feels smoother */
+tbody tr {
+  transition: background-color 0.2s var(--motion-ease-soft);
 }
 
 /* Cards — opt-in lift on hover */
 .card-lift {
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.38s var(--motion-ease-spring),
+    transform 0.38s var(--motion-ease-spring),
+    border-color 0.25s var(--motion-ease-soft);
+  will-change: transform;
 }
 .card-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.10);
+  transform: translateY(-3px) scale(1.003);
+  box-shadow: 0 20px 48px -16px rgba(15, 23, 42, 0.12);
 }
 [data-theme='dark'] .card-lift:hover {
-  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 22px 50px -14px rgba(0, 0, 0, 0.55);
 }
 
 /* Shimmer loading skeleton */

@@ -89,7 +89,7 @@ export default function MarketplaceDetailPage() {
                 <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[9px] text-ui-placeholder font-medium pr-2">
                   {['$1400','$1050','$700','$350','$0'].map(l => <span key={l}>{l}</span>)}
                 </div>
-                <div className="absolute left-10 right-0 top-0 bottom-0">
+                <div className="absolute left-10 right-0 top-0 bottom-0 motion-chart">
                   <svg className="absolute inset-0 w-full h-full text-green-500" viewBox="0 0 1000 100" preserveAspectRatio="none">
                     <path d="M0,75 Q100,72 200,65 T400,55 T600,45 T800,40 T1000,35" fill="none" stroke="currentColor" strokeWidth="2.5" />
                     <path d="M0,75 Q100,72 200,65 T400,55 T600,45 T800,40 T1000,35 L1000,100 L0,100 Z" fill="currentColor" fillOpacity="0.08" />
@@ -104,7 +104,7 @@ export default function MarketplaceDetailPage() {
             {/* Volume chart */}
             <div className="bg-ui-card border border-ui-border rounded-[24px] p-5 md:p-8 shadow-sm">
               <h3 className="text-base font-bold text-ui-strong mb-6">Volume (24h)</h3>
-              <div className="flex items-end gap-1 h-24">
+              <div className="flex h-24 items-end gap-1 motion-chart-bars">
                 {volumeHistory.map((v, i) => (
                   <div key={i} className="flex-1 bg-primary/20 rounded-t hover:bg-primary/40 transition-colors" style={{ height: `${(v / 4.5) * 100}%` }} />
                 ))}

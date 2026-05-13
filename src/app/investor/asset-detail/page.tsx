@@ -3,18 +3,46 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import InvestorLayout from '@/components/InvestorLayout';
+import { BuildingIcon, Overview, AnalyticIcon, AssetIntelligenceIcon, Document } from '@/app/VectorImages';
+
+function MapPinOutlineIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+function ShieldOutlineIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+      />
+    </svg>
+  );
+}
 
 type TabType = 'overview' | 'financials' | 'ai' | 'documents';
 
 export default function AssetDetailPage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  const tabs: { id: TabType; label: string; icon: string }[] = [
-    { id: 'overview', label: 'Overview', icon: '👁' },
-    { id: 'financials', label: 'Financials', icon: '📊' },
-    { id: 'ai', label: 'AI Intelligence', icon: '🤖' },
-    { id: 'documents', label: 'Documents', icon: '📄' },
-  ];
+  const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
+    { id: 'overview', label: 'Overview', icon: <Overview className="h-4 w-4" /> },
+    { id: 'financials', label: 'Financials', icon: <AnalyticIcon className="h-4 w-4" /> },
+    { id: 'ai', label: 'AI Intelligence', icon: <AssetIntelligenceIcon className="h-4 w-4" /> },
+    { id: 'documents', label: 'Documents', icon: <Document className="h-4 w-4" /> },
+  ];  
 
   const financials = [
     { label: 'Net Operating Income', val: '$4.12M / yr' },
@@ -206,19 +234,27 @@ export default function AssetDetailPage() {
         </Link>
 
         {/* Asset header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl shrink-0">🏢</div>
-            <div>
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-violet-100 bg-violet-50 text-violet-600 dark:border-violet-900/50 dark:bg-violet-950/40 dark:text-violet-400 md:h-16 md:w-16">
+              <BuildingIcon className="h-8 w-8 md:h-9 md:w-9" />
+            </div>
+            <div className="min-w-0 pt-0.5">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl md:text-2xl font-bold text-ui-strong">Prime Office Tower NYC</h1>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-600 border border-green-100 rounded-full text-[10px] font-bold">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" /> Verified
+                <h1 className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl">Prime Office Tower NYC</h1>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/90 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 dark:border-emerald-800/80 dark:bg-emerald-950/50 dark:text-emerald-400">
+                  <ShieldOutlineIcon className="h-3.5 w-3.5 shrink-0" />
+                  Verified
                 </span>
               </div>
-              <p className="text-[12px] text-ui-faint mt-0.5 flex items-center gap-2 font-medium">
-                <span>📍 Manhattan, New York, NY</span>
-                <span>·</span>
+              <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] font-medium text-slate-500 dark:text-slate-400">
+                <span className="inline-flex items-center gap-1">
+                  <MapPinOutlineIcon className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
+                  Manhattan, New York, NY
+                </span>
+                <span className="text-slate-300 dark:text-slate-600" aria-hidden>
+                  ·
+                </span>
                 <span>Commercial Property</span>
               </p>
             </div>

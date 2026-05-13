@@ -102,8 +102,8 @@ export default function YieldPage() {
                   <div className="w-full relative h-40 flex items-end justify-center">
                     <div className="w-4 bg-primary/10 rounded-t-sm absolute inset-0 mb-[-10px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div 
-                      className="w-4 bg-primary rounded-t-sm transition-all duration-700 relative"
-                      style={{ height: `${h}%` }}
+                      className="motion-bar-grow w-4 bg-primary rounded-t-sm transition-all duration-700 relative"
+                      style={{ height: `${h}%`, animationDelay: `${i * 45}ms` }}
                     >
                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[9px] font-bold py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                          ${h}K

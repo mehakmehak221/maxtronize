@@ -1,14 +1,32 @@
 'use client';
 
-import React from 'react';
+import React, { type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
+import {
+  OverviewHeroPulse,
+  OverviewKpiBarChart,
+  OverviewKpiInvestors,
+  OverviewKpiWallet,
+  ReturnIcon,
+  SuccessIcon,
+  Wallet,
+} from '@/app/VectorImages';
+
+type NavSvg = ComponentType<SVGProps<SVGSVGElement>>;
 
 export default function InvestorOverviewPage() {
-  const platformStats = [
-    { label: 'Total Raised', val: '$14.82M', trend: '+12.5%', sub: 'vs $13.17M last quarter', up: true },
-    { label: 'Assets Tokenized', val: '$42.5M', trend: '+8.2%', sub: '6 assets · 4 jurisdictions', up: true },
-    { label: 'Active Investors', val: '2,403', trend: '+15.3%', sub: '89% KYC verified', up: true },
-    { label: 'Platform Yield', val: '8.4%', trend: '-0.2%', sub: 'Weighted avg. APY', up: false },
+  const platformStats: {
+    label: string;
+    val: string;
+    trend: string;
+    sub: string;
+    up: boolean;
+    Icon: NavSvg;
+  }[] = [
+    { label: 'Total Raised', val: '$14.82M', trend: '+12.5%', sub: 'vs $13.17M last quarter', up: true, Icon: OverviewKpiWallet },
+    { label: 'Assets Tokenized', val: '$42.5M', trend: '+8.2%', sub: '6 assets · 4 jurisdictions', up: true, Icon: OverviewKpiBarChart },
+    { label: 'Active Investors', val: '2,403', trend: '+15.3%', sub: '89% KYC verified', up: true, Icon: OverviewKpiInvestors },
+    { label: 'Platform Yield', val: '8.4%', trend: '-0.2%', sub: 'Weighted avg. APY', up: false, Icon: ReturnIcon },
   ];
 
   const allocation = [
@@ -20,31 +38,61 @@ export default function InvestorOverviewPage() {
   ];
 
   const activity = [
-    { name: 'Prime Office Tower NYC', id: 'TX-901', type: 'Capital Raise', region: 'US', amount: '+$1.20M', time: 'Today, 10:42 AM', color: 'bg-green-50 text-green-500' },
-    { name: 'Solar Farm Alpha TX', id: 'TX-902', type: 'Capital Raise', region: 'US', amount: '+$850K', time: 'Yesterday, 2:30 PM', color: 'bg-amber-50 text-amber-500' },
-    { name: 'Harbor Ports PE Fund', id: 'TX-903', type: 'Distribution', region: 'SG', amount: '+$3.40M', time: 'Oct 5, 9:10 AM', color: 'bg-green-50 text-green-500' },
-    { name: 'Logistics Hub DE', id: 'TX-904', type: 'Yield Payout', region: 'EU', amount: '+$280K', time: 'Oct 1, 6:00 AM', color: 'bg-green-50 text-green-500' },
-    { name: 'Riviera Residences', id: 'TX-906', type: 'Monthly Yield', region: 'EU', amount: '+$2.1K', time: 'Sep 30, 8:00 AM', color: 'bg-green-50 text-green-500' },
+    { name: 'Prime Office Tower NYC', id: 'TX-901', type: 'Capital Raise', region: 'US', amount: '+$1.20M', time: 'Today, 10:42 AM', color: 'bg-green-50 text-green-500 dark:bg-emerald-950/35 dark:text-emerald-400', amountClass: 'text-green-600 dark:text-emerald-400' },
+    { name: 'Solar Farm Alpha TX', id: 'TX-902', type: 'Capital Raise', region: 'US', amount: '+$850K', time: 'Yesterday, 2:30 PM', color: 'bg-amber-50 text-amber-500 dark:bg-amber-950/35 dark:text-amber-400', amountClass: 'text-amber-600 dark:text-amber-400' },
+    { name: 'Harbor Ports PE Fund', id: 'TX-903', type: 'Distribution', region: 'SG', amount: '+$3.40M', time: 'Oct 5, 9:10 AM', color: 'bg-green-50 text-green-500 dark:bg-emerald-950/35 dark:text-emerald-400', amountClass: 'text-green-600 dark:text-emerald-400' },
+    { name: 'Logistics Hub DE', id: 'TX-904', type: 'Yield Payout', region: 'EU', amount: '+$280K', time: 'Oct 1, 6:00 AM', color: 'bg-green-50 text-green-500 dark:bg-emerald-950/35 dark:text-emerald-400', amountClass: 'text-green-600 dark:text-emerald-400' },
+    { name: 'Riviera Residences', id: 'TX-906', type: 'Monthly Yield', region: 'EU', amount: '+$2.1K', time: 'Sep 30, 8:00 AM', color: 'bg-green-50 text-green-500 dark:bg-emerald-950/35 dark:text-emerald-400', amountClass: 'text-green-600 dark:text-emerald-400' },
   ];
 
   const upcoming = [
-    { date: 'Oct 28', label: 'Q3 Yield Distribution', sub: 'Prime Office Tower', color: 'text-purple-500 bg-purple-50', dot: 'bg-purple-500' },
-    { date: 'Nov 2', label: 'KYC Review Deadline', sub: 'Riviera Residences', color: 'text-amber-500 bg-amber-50', dot: 'bg-amber-500' },
-    { date: 'Nov 15', label: 'Token Lock-up Expiry', sub: 'Harbor Ports PE Fund', color: 'text-blue-500 bg-blue-50', dot: 'bg-blue-500' },
-    { date: 'Nov 20', label: 'New Investor Onboarding', sub: 'BlackRock RE Partners', color: 'text-green-500 bg-green-50', dot: 'bg-green-500' },
+    { date: 'Oct 28', label: 'Q3 Yield Distribution', sub: 'Prime Office Tower', color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/40 dark:text-purple-300', dot: 'bg-purple-500' },
+    { date: 'Nov 2', label: 'KYC Review Deadline', sub: 'Riviera Residences', color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-300', dot: 'bg-amber-500' },
+    { date: 'Nov 15', label: 'Token Lock-up Expiry', sub: 'Harbor Ports PE Fund', color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/40 dark:text-blue-300', dot: 'bg-blue-500' },
+    { date: 'Nov 20', label: 'New Investor Onboarding', sub: 'BlackRock RE Partners', color: 'text-green-500 bg-green-50 dark:bg-emerald-950/40 dark:text-emerald-300', dot: 'bg-green-500' },
   ];
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
-  const barHeights = [22, 30, 38, 50, 62, 70, 80, 88, 92];
+
+  const capW = 1000;
+  const capH = 200;
+  const capPadT = 14;
+  const capPadB = 10;
+  const capInnerH = capH - capPadT - capPadB;
+  const yAtM = (m: number) => capPadT + ((16 - m) / 16) * capInnerH;
+  const capXs = [0, 125, 250, 375, 500, 625, 750, 875, 1000];
+  const capActualM = [2, 3.4, 5.1, 6.9, 8.5, 10.2, 11.8, 13.5, 15.2];
+  const capTargetM = [2.2, 4, 5.8, 7.6, 9.4, 11.2, 13, 14.6, 16];
+  const capSmoothLine = (xs: number[], ms: number[]) => {
+    const pts = xs.map((x, i) => [x, yAtM(ms[i])] as const);
+    if (pts.length < 2) return '';
+    const tension = 0.38;
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1];
+      const [x1, y1] = pts[i];
+      d += ` C ${x0 + tension * (x1 - x0)} ${y0}, ${x1 - tension * (x1 - x0)} ${y1}, ${x1} ${y1}`;
+    }
+    return d;
+  };
+  const capitalActualLineD = capSmoothLine(capXs, capActualM);
+  const capitalTargetLineD = capSmoothLine(capXs, capTargetM);
+  const capitalAreaD = `${capitalActualLineD} L ${capW} ${capH} L 0 ${capH} Z`;
+
+  const heroMiniStats: { label: string; val: string; Icon: NavSvg }[] = [
+    { label: 'Monthly Income', val: '$14.2K', Icon: Wallet },
+    { label: 'Active Positions', val: '7', Icon: OverviewHeroPulse },
+    { label: 'Avg Yield', val: '10.8%', Icon: ReturnIcon },
+  ];
 
   return (
     <InvestorLayout pageTitle="Investor Overview">
       <div className="space-y-6 md:space-y-8 animate-in fade-in duration-700">
 
         {/* Hero Banner */}
-        <section className="relative overflow-hidden bg-[#1A1A2E] rounded-[24px] md:rounded-[32px] p-6 md:p-10 text-white shadow-2xl">
-          <div className="absolute inset-0 bg-mesh opacity-60" />
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3" />
+        <section className="relative overflow-hidden rounded-[24px] bg-linear-to-br from-[#1e1b4b] via-[#312e81] to-[#5b21b6] p-6 text-white shadow-xl md:rounded-[32px] md:p-10 md:shadow-2xl">
+          <div className="absolute inset-0 bg-mesh opacity-50" />
+          <div className="absolute top-0 right-0 h-[500px] w-[500px] -translate-y-1/2 translate-x-1/3 rounded-full bg-violet-500/25 blur-[120px]" />
 
           <div className="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
             <div className="space-y-4">
@@ -58,35 +106,40 @@ export default function InvestorOverviewPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <span className="px-3 py-1.5 bg-green-500/10 text-green-400 rounded-full text-[11px] font-bold border border-green-500/20 flex items-center gap-1.5">
-                  ↗ +9.45% Annual Return
+                  <ReturnIcon className="h-4 w-4 shrink-0" /> +9.45% Annual Return
                 </span>
-                <span className="px-3 py-1.5 bg-ui-card/5 text-white/50 rounded-full text-[11px] font-medium border border-background/5">
+                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white/70">
                   7 investments · 4 asset classes
                 </span>
               </div>
-              <div className="flex items-center gap-6 pt-2 border-t border-background/10">
-                <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Active Tokens:</p>
+              <div className="flex flex-wrap items-center gap-4 border-t border-white/10 pt-4">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-white/35">Active Tokens</p>
                 <div className="flex flex-wrap gap-2">
                   {['PONYC +4.2%', 'HPPE +6.8%', 'SFATX +2.1%'].map((token, i) => (
-                    <div key={i} className="px-3 py-1 bg-ui-card/5 rounded-lg border border-background/10 flex items-center gap-1.5">
-                      <div className="w-1 h-1 rounded-full bg-primary" />
-                      <span className="text-[10px] font-bold">{token}</span>
+                    <div key={i} className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/10 px-3 py-1">
+                      <div className="h-1 w-1 shrink-0 rounded-full bg-primary" />
+                      <span className="flex items-center gap-1 text-[10px] font-bold text-white">
+                        <SuccessIcon className="h-3.5 w-3.5 shrink-0 text-white/90" aria-hidden />
+                        {token}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Right mini-stats */}
-            <div className="flex flex-row lg:flex-col gap-3 lg:w-48 shrink-0">
-              {[
-                { label: 'Monthly Income', val: '$14.2K' },
-                { label: 'Active Positions', val: '7' },
-                { label: 'Avg Yield', val: '10.8%' },
-              ].map((s, i) => (
-                <div key={i} className="flex-1 lg:flex-none bg-ui-card/5 border border-background/10 rounded-2xl p-4 text-center backdrop-blur-xl">
-                  <p className="text-lg md:text-2xl font-bold">{s.val}</p>
-                  <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-1">{s.label}</p>
+            {/* Right mini-stats — glass cards: icon, value, label */}
+            <div className="grid w-full grid-cols-3 gap-2 sm:gap-3 lg:max-w-[22rem] lg:shrink-0">
+              {heroMiniStats.map((s, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-white/20 bg-white/[0.12] px-2 py-2 text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:px-2.5 "
+                >
+                  <s.Icon className="h-5 w-5 shrink-0 text-white" aria-hidden />
+                  <p className="text-sm font-bold tracking-tight text-white sm:text-base">{s.val}</p>
+                  <p className="max-w-[5.5rem] text-[7px] font-bold uppercase leading-snug tracking-widest text-white/55 sm:max-w-none sm:text-[8px]">
+                    {s.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -96,15 +149,28 @@ export default function InvestorOverviewPage() {
         {/* Platform Stats */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {platformStats.map((stat, i) => (
-            <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-4 md:p-7 shadow-sm space-y-3 md:space-y-5 hover:shadow-md transition-shadow">
+            <div key={i} className="space-y-3 rounded-[22px] border border-ui-border bg-ui-card p-4 shadow-sm transition-shadow hover:shadow-md md:space-y-5 md:rounded-[28px] md:p-7">
               <div className="flex items-start justify-between">
-                <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-base md:text-xl ${
-                  i === 0 ? 'bg-primary/10 text-primary' : i === 1 ? 'bg-blue-50 text-blue-500' : i === 2 ? 'bg-green-50 text-green-500' : 'bg-amber-50 text-amber-500'
+                <div className={`flex h-9 w-9 items-center justify-center rounded-2xl md:h-10 md:w-10 ${
+                  i === 0
+                    ? 'bg-dash-kpi-violet-soft text-dash-kpi-violet-fg'
+                    : i === 1
+                      ? 'bg-dash-kpi-blue-soft text-dash-kpi-blue-fg'
+                      : i === 2
+                        ? 'bg-dash-kpi-green-soft text-dash-kpi-green-fg'
+                        : 'bg-dash-kpi-orange-soft text-dash-kpi-orange-fg'
                 }`}>
-                  {['💰', '🏢', '👥', '📈'][i]}
+                  <stat.Icon className="h-5 w-5 shrink-0" />
                 </div>
-                <span className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full ${stat.up ? 'text-green-500 bg-green-50' : 'text-red-500 bg-red-50'}`}>
-                  ↗ {stat.trend}
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold md:text-[10px] ${
+                    stat.up
+                      ? 'bg-green-50 text-green-600 dark:bg-emerald-950/40 dark:text-emerald-400'
+                      : 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400'
+                  }`}
+                >
+                  <ReturnIcon className={`h-3.5 w-3.5 shrink-0 ${stat.up ? '' : 'rotate-180'}`} />
+                  {stat.trend}
                 </span>
               </div>
               <div>
@@ -119,43 +185,85 @@ export default function InvestorOverviewPage() {
         {/* Charts Row */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Capital Chart */}
-          <div className="lg:col-span-2 bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-sm">
+          <div className="rounded-[28px] border border-ui-border bg-ui-card p-6 shadow-sm lg:col-span-2 md:rounded-[32px] md:p-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
               <div>
                 <h3 className="text-base font-bold text-ui-strong mb-1">Capital Raised</h3>
                 <p className="text-xs text-ui-faint">Cumulative vs. target · USD Millions</p>
               </div>
-              <div className="flex gap-5">
-                {[['Actual', 'bg-primary'], ['Target', 'border border-dashed border-gray-300']].map(([label, cls]) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <div className={`w-6 h-1 rounded-full ${cls}`} />
-                    <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">{label}</span>
-                  </div>
-                ))}
+              <div className="flex gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="h-1 w-6 rounded-full bg-primary" />
+                  <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Actual</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-px w-6 shrink-0 border-t-2 border-dashed border-slate-300 dark:border-slate-600" />
+                  <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Target</span>
+                </div>
               </div>
             </div>
 
-            {/* Y-axis labels */}
-            <div className="relative h-48 md:h-56">
-              <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[9px] text-ui-placeholder font-medium">
-                {['$16M', '$12M', '$8M', '$4M', '$0M'].map(l => <span key={l}>{l}</span>)}
+            <div className="flex gap-2 md:gap-3">
+              <div className="flex w-9 shrink-0 flex-col justify-between py-1 text-right text-[9px] font-medium text-ui-placeholder md:w-10">
+                {['$16M', '$12M', '$8M', '$4M', '$0M'].map(l => (
+                  <span key={l}>{l}</span>
+                ))}
               </div>
-              <div className="absolute left-8 right-0 top-0 bottom-0">
-                <div className="absolute inset-0 flex items-end justify-between px-2">
-                  {barHeights.map((h, i) => (
-                    <div key={i} className="w-3 md:w-6 bg-primary/5 border-t-2 border-primary/15" style={{ height: `${h}%` }} />
+              <div className="relative min-h-[12rem] flex-1 motion-chart md:min-h-[14rem]">
+                <svg
+                  className="h-full w-full overflow-visible"
+                  viewBox={`0 0 ${capW} ${capH}`}
+                  preserveAspectRatio="none"
+                  aria-hidden
+                >
+                  <defs>
+                    <linearGradient id="capital-raised-area-fill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.45" />
+                      <stop offset="55%" stopColor="#8b5cf6" stopOpacity="0.12" />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {[0, 4, 8, 12, 16].map(m => (
+                    <line
+                      key={m}
+                      x1="0"
+                      x2={capW}
+                      y1={yAtM(m)}
+                      y2={yAtM(m)}
+                      stroke="currentColor"
+                      strokeWidth="1"
+                      strokeDasharray="4 6"
+                      className="text-slate-200 dark:text-slate-700"
+                    />
                   ))}
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/8 to-transparent pointer-events-none" />
-                <svg className="absolute inset-0 w-full h-full text-primary" viewBox="0 0 1000 100" preserveAspectRatio="none">
-                  <path d="M0,85 Q250,75 500,55 T1000,12" fill="none" stroke="currentColor" strokeWidth="3" />
-                  <path d="M0,85 Q250,75 500,55 T1000,12 L1000,100 L0,100 Z" fill="currentColor" fillOpacity="0.06" />
+                  <path d={capitalAreaD} fill="url(#capital-raised-area-fill)" className="text-primary" />
+                  <path
+                    d={capitalTargetLineD}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeDasharray="8 6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-slate-300 dark:text-slate-600"
+                  />
+                  <path
+                    d={capitalActualLineD}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-primary"
+                  />
                 </svg>
               </div>
             </div>
-            <div className="flex justify-between mt-4 pl-8 overflow-x-auto pb-1">
+            <div className="mt-3 flex justify-between pl-11 md:pl-12">
               {months.map(m => (
-                <span key={m} className="text-[9px] font-bold text-ui-placeholder uppercase tracking-widest">{m}</span>
+                <span key={m} className="text-[9px] font-bold text-ui-placeholder uppercase tracking-widest">
+                  {m}
+                </span>
               ))}
             </div>
 
@@ -163,7 +271,7 @@ export default function InvestorOverviewPage() {
               {[
                 { label: 'Current Month', val: '$14.82M' },
                 { label: 'Target Gap', val: '$0.18M' },
-                { label: 'Completion', val: '98.8%', color: 'text-green-500' },
+                { label: 'Completion', val: '98.8%', color: 'text-[#009966] dark:text-emerald-400' },
               ].map((item, i) => (
                 <div key={i}>
                   <p className="text-[9px] font-bold text-ui-placeholder uppercase tracking-widest mb-1">{item.label}</p>
@@ -174,13 +282,13 @@ export default function InvestorOverviewPage() {
           </div>
 
           {/* Allocation */}
-          <div className="bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-sm flex flex-col">
+          <div className="flex flex-col rounded-[28px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[32px] md:p-10">
             <h3 className="text-base font-bold text-ui-strong mb-1">Allocation</h3>
             <p className="text-xs text-ui-faint mb-8">By asset class</p>
             <div className="flex-1 flex flex-col items-center justify-center gap-8">
-              <div className="relative w-36 h-36">
+              <div className="relative h-36 w-36 motion-chart">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#F1F5F9" strokeWidth="14" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--ui-divider-strong)" strokeWidth="14" />
                   <circle cx="50" cy="50" r="40" fill="none" stroke="#7C3AED" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="116" />
                   <circle cx="50" cy="50" r="40" fill="none" stroke="#8B5CF6" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="192" />
                   <circle cx="50" cy="50" r="40" fill="none" stroke="#A78BFA" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="227" />
@@ -209,7 +317,7 @@ export default function InvestorOverviewPage() {
         {/* Activity + Upcoming */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Activity */}
-          <div className="lg:col-span-2 bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-sm">
+          <div className="rounded-[28px] border border-ui-border bg-ui-card p-6 shadow-sm lg:col-span-2 md:rounded-[32px] md:p-10">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-base font-bold text-ui-strong">Recent Activity</h3>
@@ -221,18 +329,18 @@ export default function InvestorOverviewPage() {
             </div>
             <div className="space-y-1">
               {activity.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 md:gap-5 p-3 md:p-4 hover:bg-ui-muted-deep rounded-2xl transition-colors group cursor-pointer">
-                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-sm shrink-0 ${item.color}`}>
-                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div key={i} className="group flex cursor-pointer items-center gap-3 rounded-2xl p-3 transition-colors hover:bg-ui-muted-deep md:gap-5 md:p-4">
+                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm md:h-10 md:w-10 ${item.color}`}>
+                    <svg className="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] md:text-[13px] font-bold text-ui-strong truncate">{item.name}</p>
-                    <p className="text-[10px] text-ui-faint font-medium uppercase tracking-wide">{item.id} · {item.type}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[12px] font-bold text-ui-strong md:text-[13px]">{item.name}</p>
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-ui-faint">{item.id} · {item.type}</p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-[12px] md:text-[13px] font-bold text-green-500">{item.amount}</p>
+                  <div className="shrink-0 text-right">
+                    <p className={`text-[12px] font-bold md:text-[13px] ${item.amountClass}`}>{item.amount}</p>
                     <div className="flex items-center justify-end gap-2">
                       <span className="hidden sm:inline-block px-1.5 py-0.5 bg-ui-muted-deep text-ui-faint text-[8px] font-bold rounded uppercase">{item.region}</span>
                       <p className="text-[10px] text-ui-placeholder font-medium">{item.time}</p>
@@ -244,13 +352,15 @@ export default function InvestorOverviewPage() {
           </div>
 
           {/* Upcoming */}
-          <div className="bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-sm flex flex-col">
+          <div className="flex flex-col rounded-[28px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[32px] md:p-10">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-base font-bold text-ui-strong">Upcoming</h3>
                 <p className="text-xs text-ui-faint mt-0.5">Deadlines & events</p>
               </div>
-              <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-primary">📅</div>
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-primary dark:bg-purple-950/40 dark:text-purple-300">
+                📅
+              </div>
             </div>
             <div className="flex-1 space-y-3">
               {upcoming.map((event, i) => (
@@ -266,7 +376,7 @@ export default function InvestorOverviewPage() {
                 </div>
               ))}
             </div>
-            <button className="w-full py-3 mt-6 bg-ui-muted-deep text-ui-faint rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-ui-muted-deep transition-all flex items-center justify-center gap-2">
+            <button type="button" className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-100 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-200 dark:bg-ui-muted-deep dark:text-ui-faint dark:hover:bg-ui-muted-deep">
               Full Calendar <span>›</span>
             </button>
           </div>

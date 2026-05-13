@@ -6,17 +6,18 @@ import AuthLayout from '@/components/AuthLayout';
 export default function Home() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [role, setRole] = useState<'issuer' | 'investor'>('issuer');
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   return (
     <AuthLayout isSignUp={isSignUp} onToggle={setIsSignUp}>
       <div className="space-y-8">
       
         <div>
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em] mb-4">I am a</p>
+          <p className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-4">I am a</p>
           <div className="grid grid-cols-2 gap-4">
             <button 
               onClick={() => setRole('issuer')}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-[20px] transition-all ${role === 'issuer' ? 'border-primary bg-card text-primary' : 'border-border bg-surface text-text-muted hover:text-foreground hover:border-ui-border-strong'}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === 'issuer' ? 'border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]' : 'border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]'}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -29,7 +30,7 @@ export default function Home() {
             </button>
             <button 
               onClick={() => setRole('investor')}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-[20px] transition-all ${role === 'investor' ? 'border-primary bg-card text-primary' : 'border-border bg-surface text-text-muted hover:text-foreground hover:border-ui-border-strong'}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === 'investor' ? 'border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]' : 'border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]'}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -47,64 +48,74 @@ export default function Home() {
           {isSignUp && (
             <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-1 duration-300">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em]">First Name</label>
+                <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">First Name</label>
                 <input 
                   type="text" 
                   placeholder="Alex" 
-                  className="w-full px-5 py-4 bg-surface border-transparent rounded-xl focus:bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-text-muted/50 text-foreground"
+                  className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em]">Last Name</label>
+                <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">Last Name</label>
                 <input 
                   type="text" 
                   placeholder="Chen" 
-                  className="w-full px-5 py-4 bg-surface border-transparent rounded-xl focus:bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-text-muted/50 text-foreground"
+                  className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
                 />
               </div>
             </div>
           )}
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em]">Work Email</label>
+            <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">Work Email</label>
             <input 
               type="email" 
               placeholder={isSignUp ? "you@yourfirm.com" : "alex@maxtronize.com"}
-              className="w-full px-5 py-4 bg-surface border-transparent rounded-xl focus:bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-text-muted/50 text-foreground"
+              className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
             />
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em]">Password</label>
-              {!isSignUp && <button type="button" className="text-[10px] font-bold text-primary hover:underline">Forgot password?</button>}
+              <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">Password</label>
+              {!isSignUp && <button type="button" className="text-[10px] font-bold text-[#7C3AED] hover:underline">Forgot password?</button>}
             </div>
             <div className="relative">
               <input 
-                type="password" 
+                type={passwordVisible ? "text" : "password"}
                 placeholder={isSignUp ? "Create a strong password" : ""}
                 defaultValue={!isSignUp ? "••••••••••" : ""}
-                className="w-full px-5 py-4 bg-surface border-transparent rounded-xl focus:bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm text-foreground"
+                autoComplete={isSignUp ? "new-password" : "current-password"}
+                className="w-full px-5 py-4 pr-12 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
               />
-              {!isSignUp && (
-                <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button
+                type="button"
+                onClick={() => setPasswordVisible((v) => !v)}
+                aria-label={passwordVisible ? "Hide password" : "Show password"}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563]"
+              >
+                {passwordVisible ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
-                </button>
-              )}
+                )}
+              </button>
             </div>
           </div>
 
           {!isSignUp && (
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-5 h-5 bg-primary rounded-md shadow-sm">
+              <div className="flex h-5 w-5 items-center justify-center rounded bg-[#7C3AED] shadow-sm">
                 <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <span className="text-sm text-text-muted font-medium">Remember me for 30 days</span>
+              <span className="text-sm font-medium text-[#9CA3AF]">Remember me for 30 days</span>
             </div>
           )}
 
@@ -113,7 +124,7 @@ export default function Home() {
             onClick={() => {
               window.location.href = role === 'investor' ? '/investor/hub' : '/issuer/dashboard';
             }}
-            className="w-full py-4 bg-primary text-white font-bold rounded-[16px] transition-all flex items-center justify-center gap-2 text-sm group hover:bg-primary-dark"
+            className="btn-gradient-primary w-full py-4 text-white font-bold rounded-2xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-sm group"
           >
             {isSignUp ? 'Create Account' : 'Sign In to Platform'}
             <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,26 +135,27 @@ export default function Home() {
 
         {/* Divider */}
         <div className="relative flex items-center justify-center">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border"></div></div>
-          <span className="relative px-4 bg-background text-[10px] font-bold text-text-muted uppercase tracking-widest">or continue with</span>
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#E5E7EB]"></div></div>
+          <span className="relative bg-white px-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">or continue with</span>
         </div>
 
         {/* Wallet Connect */}
-        <button className="w-full py-4 border border-border rounded-xl font-bold text-foreground hover:bg-surface transition-all flex items-center justify-center gap-3 text-sm">
-          <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="2" y="5" width="20" height="14" rx="2"/>
-            <path d="M12 11V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4"/>
-          </svg>
+        <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E5E7EB] bg-white py-4 text-sm font-bold text-[#1F2937] transition-all hover:bg-[#F9FAFB]">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.6575 4.66327V2.66472C12.6575 2.48804 12.5873 2.31859 12.4623 2.19366C12.3374 2.06872 12.168 1.99854 11.9913 1.99854H3.3309C2.97754 1.99854 2.63864 2.13891 2.38878 2.38878C2.13891 2.63864 1.99854 2.97754 1.99854 3.3309C1.99854 3.68427 2.13891 4.02316 2.38878 4.27303C2.63864 4.52289 2.97754 4.66327 3.3309 4.66327H13.3237C13.5003 4.66327 13.6698 4.73346 13.7947 4.85839C13.9196 4.98332 13.9898 5.15277 13.9898 5.32945V7.99419M13.9898 7.99419H11.9913C11.6379 7.99419 11.299 8.13456 11.0492 8.38443C10.7993 8.63429 10.6589 8.97319 10.6589 9.32655C10.6589 9.67992 10.7993 10.0188 11.0492 10.2687C11.299 10.5185 11.6379 10.6589 11.9913 10.6589H13.9898C14.1665 10.6589 14.336 10.5887 14.4609 10.4638C14.5858 10.3389 14.656 10.1694 14.656 9.99274V8.66037C14.656 8.48369 14.5858 8.31424 14.4609 8.18931C14.336 8.06437 14.1665 7.99419 13.9898 7.99419Z" stroke="#90A1B9" stroke-width="1.33237" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1.99854 3.33093V12.6575C1.99854 13.0109 2.13891 13.3498 2.38878 13.5996C2.63864 13.8495 2.97754 13.9899 3.3309 13.9899H13.3237C13.5003 13.9899 13.6698 13.9197 13.7947 13.7947C13.9196 13.6698 13.9898 13.5004 13.9898 13.3237V10.6589" stroke="#90A1B9" stroke-width="1.33237" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
           Connect Wallet (MetaMask / WalletConnect)
         </button>
 
-        {/* Navigation Link */}
+        
         <div className="text-center pt-2">
-          <p className="text-sm font-medium text-text-muted">
+          <p className="text-sm font-medium text-[#9CA3AF]">
             {isSignUp ? (
-              <>Already have an account? <button onClick={() => setIsSignUp(false)} className="text-primary font-bold hover:underline">Sign in</button></>
+              <>Already have an account? <button onClick={() => setIsSignUp(false)} className="font-bold text-[#7C3AED] hover:underline">Sign in</button></>
             ) : (
-              <>Don't have an account? <button onClick={() => setIsSignUp(true)} className="text-primary font-bold hover:underline">Apply for institutional access →</button></>
+              <>Don't have an account? <button onClick={() => setIsSignUp(true)} className="font-bold text-[#7C3AED] hover:underline">Apply for institutional access →</button></>
             )}
           </p>
         </div>

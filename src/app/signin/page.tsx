@@ -1,13 +1,37 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthLayout from "@/components/AuthLayout";
-import { useRouter } from "next/navigation";
+import { formatRequestError } from "@/lib/formatRequestError";
+import { uiPersonaToApiRole } from "@/lib/authUi";
+import { useLoginMutation } from "@/store/api/authApi";
 
 export default function SignInPage() {
   const router = useRouter();
   const [role, setRole] = useState<"issuer" | "investor">("issuer");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const [login, { isLoading }] = useLoginMutation();
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setFormError(null);
+    try {
+      await login({
+        email: email.trim(),
+        password,
+        role: uiPersonaToApiRole(role),
+      }).unwrap();
+      router.push(role === "investor" ? "/investor/hub" : "/issuer/dashboard");
+    } catch (err) {
+      setFormError(formatRequestError(err));
+    }
+  }
 
   return (
     <AuthLayout isSignUp={false} onToggle={() => router.push("/signup")}>
@@ -18,6 +42,7 @@ export default function SignInPage() {
           </p>
           <div className="grid grid-cols-2 gap-4">
             <button
+              type="button"
               onClick={() => setRole("issuer")}
               className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
             >
@@ -38,6 +63,7 @@ export default function SignInPage() {
               <span className="text-xs font-bold">Asset Issuer</span>
             </button>
             <button
+              type="button"
               onClick={() => setRole("investor")}
               className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
             >
@@ -59,14 +85,26 @@ export default function SignInPage() {
           </div>
         </div>
 
-        {/* Form Section */}
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+        {formError && (
+          <p
+            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+            role="alert"
+          >
+            {formError}
+          </p>
+        )}
+
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
               Work Email
             </label>
             <input
+              required
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
               placeholder="alex@maxtronize.com"
               className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
             />
@@ -77,16 +115,19 @@ export default function SignInPage() {
               <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                 Password
               </label>
-              <button
-                type="button"
+              <Link
+                href="/forgot-password"
                 className="text-[10px] font-bold text-[#7C3AED] hover:underline"
               >
                 Forgot password?
-              </button>
+              </Link>
             </div>
             <div className="relative">
               <input
+                required
                 type={passwordVisible ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 autoComplete="current-password"
                 className="w-full px-5 py-4 pr-12 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
@@ -160,11 +201,11 @@ export default function SignInPage() {
           </div>
 
           <button
-            type="button"
-            onClick={() => router.push("/issuer/onboarding")}
-            className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-sm group"
+            type="submit"
+            disabled={isLoading}
+            className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-sm group disabled:opacity-60"
           >
-            Sign In to Platform
+            {isLoading ? "Signing in…" : "Sign In to Platform"}
             <svg
               className="w-4 h-4 transition-transform group-hover:translate-x-1"
               fill="none"
@@ -181,7 +222,6 @@ export default function SignInPage() {
           </button>
         </form>
 
-        {/* Divider */}
         <div className="relative flex items-center justify-center">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-[#E5E7EB]"></div>
@@ -191,8 +231,10 @@ export default function SignInPage() {
           </span>
         </div>
 
-        {/* Wallet Connect */}
-        <button className="w-full py-4 rounded-xl border border-[#E5E7EB] bg-white text-sm font-bold text-[#1F2937] transition-all hover:bg-[#F9FAFB] flex items-center justify-center gap-3">
+        <button
+          type="button"
+          className="w-full py-4 rounded-xl border border-[#E5E7EB] bg-white text-sm font-bold text-[#1F2937] transition-all hover:bg-[#F9FAFB] flex items-center justify-center gap-3"
+        >
           <svg
             className="h-5 w-5 text-[#9CA3AF]"
             viewBox="0 0 24 24"
@@ -206,11 +248,11 @@ export default function SignInPage() {
           Connect Wallet (MetaMask / WalletConnect)
         </button>
 
-        {/* Navigation Link */}
         <div className="text-center pt-2">
           <p className="text-sm font-medium text-[#9CA3AF]">
             {"Don't have an account? "}
             <button
+              type="button"
               onClick={() => router.push("/signup")}
               className="font-bold text-[#7C3AED] hover:underline"
             >

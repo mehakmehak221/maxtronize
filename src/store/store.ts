@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import { baseApi } from "./api/baseApi";
+import "./api/authApi";
 
 export function makeStore() {
   return configureStore({

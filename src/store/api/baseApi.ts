@@ -10,12 +10,12 @@ export const baseApi = createApi({
       if (typeof window !== "undefined") {
         const token = window.localStorage.getItem("access_token");
         if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
+          headers.set("access_token", token);
         }
       }
       return headers;
     },
   }),
-  tagTypes: [],
+  tagTypes: ["User"],
   endpoints: () => ({}),
 });

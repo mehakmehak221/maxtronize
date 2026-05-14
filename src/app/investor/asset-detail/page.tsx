@@ -40,7 +40,7 @@ export default function AssetDetailPage() {
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Overview', icon: <Overview className="h-4 w-4" /> },
     { id: 'financials', label: 'Financials', icon: <AnalyticIcon className="h-4 w-4" /> },
-    { id: 'ai', label: 'AI Intelligence', icon: <AssetIntelligenceIcon className="h-4 w-4" /> },
+    // { id: 'ai', label: 'AI Intelligence', icon: <AssetIntelligenceIcon className="h-4 w-4" /> },
     { id: 'documents', label: 'Documents', icon: <Document className="h-4 w-4" /> },
   ];  
 

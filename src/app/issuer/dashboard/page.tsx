@@ -444,13 +444,13 @@ export default function DashboardPage() {
               Icon: IconChartBar,
               well: 'bg-gradient-to-br from-qa-hub-from to-qa-hub-to shadow-lg shadow-indigo-500/25',
             },
-            {
-              href: '/issuer/ai-intelligence',
-              label: 'AI Intelligence',
-              sub: 'Predictive analytics',
-              Icon: IconNavShield,
-              well: 'bg-gradient-to-br from-qa-ai-from to-qa-ai-to shadow-lg shadow-violet-500/25',
-            },
+            // {
+            //   href: '/issuer/ai-intelligence',
+            //   label: 'AI Intelligence',
+            //   sub: 'Predictive analytics',
+            //   Icon: IconNavShield,
+            //   well: 'bg-gradient-to-br from-qa-ai-from to-qa-ai-to shadow-lg shadow-violet-500/25',
+            // },
             {
               href: '/issuer/yield',
               label: 'Yield Center',

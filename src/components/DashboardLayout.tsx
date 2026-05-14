@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       items: [
         { name: 'Dashboard', icon: 'dashboard', href: '/issuer/dashboard' },
         { name: 'Issuer Hub', icon: 'hub', tag: 'NEW', href: '/issuer/hub' },
-        { name: 'AI Intelligence', icon: 'ai', tag: 'AI', href: '/issuer/ai-intelligence' },
+        // { name: 'AI Intelligence', icon: 'ai', tag: 'AI', href: '/issuer/ai-intelligence' },
         { name: 'Portfolio', icon: 'portfolio', href: '/issuer/portfolio' },
         { name: 'Investors', icon: 'investors', href: '/issuer/investors' },
         { name: 'Yield', icon: 'yield', href: '/issuer/yield' },
@@ -204,7 +204,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </aside>
 
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-ui-page">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden bg-ui-page">
           <header className="sticky top-0 z-40 flex h-17 shrink-0 items-center justify-between gap-4 border-b border-ui-border bg-ui-sidebar px-4 sm:px-6 md:px-8">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <button
@@ -283,7 +283,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </header>
 
-          <main className="min-h-0 flex-1 bg-[#F8F7FF80] p-5 sm:p-6 md:p-8 dark:bg-ui-page">
+          <main className="min-h-0 flex-1 overflow-x-hidden bg-[#F8F7FF80] p-5 sm:p-6 md:p-8 dark:bg-ui-page">
             <div key={pathname} className="animate-page-enter">
               {children}
             </div>

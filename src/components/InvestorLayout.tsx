@@ -293,7 +293,7 @@ export default function InvestorLayout({
             </div>
           </header>
 
-          <main className="min-h-0 flex-1 bg-[#F8F7FF80] p-5 sm:p-6 md:p-8 dark:bg-ui-page">
+          <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden bg-[#F8F7FF80] p-5 sm:p-6 md:p-8 dark:bg-ui-page">
             <div key={pathname} className="animate-page-enter">
               {children}
             </div>

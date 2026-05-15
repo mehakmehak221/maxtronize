@@ -93,7 +93,15 @@ export default function Home() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">Password</label>
-              {!isSignUp && <button type="button" className="text-[10px] font-bold text-[#7C3AED] hover:underline">Forgot password?</button>}
+              {!isSignUp && (
+                <button
+                  type="button"
+                  onClick={() => router.push("/forgot-password")}
+                  className="text-[10px] font-bold text-[#7C3AED] hover:underline"
+                >
+                  Forgot password?
+                </button>
+              )}
             </div>
             <div className="relative">
               <input 

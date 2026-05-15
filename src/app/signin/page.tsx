@@ -96,6 +96,7 @@ export default function SignInPage() {
               </label>
               <button
                 type="button"
+                onClick={() => router.push("/forgot-password")}
                 className="text-[10px] font-bold text-[#9810FA] hover:underline"
               >
                 Forgot password?

@@ -16,7 +16,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  const isAuthRoute = pathname === "/signin" || pathname === "/signup" || pathname === "/";
+  const isAuthRoute =
+    pathname === "/signin" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/";
   if (isAuthRoute && session) {
     const destination =
       session === "investor" ? "/investor/overview" : "/issuer/dashboard";
@@ -27,5 +31,12 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/signin", "/signup", "/investor/:path*", "/issuer/:path*"],
+  matcher: [
+    "/",
+    "/signin",
+    "/signup",
+    "/forgot-password",
+    "/investor/:path*",
+    "/issuer/:path*",
+  ],
 };

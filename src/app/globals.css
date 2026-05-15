@@ -1035,6 +1035,36 @@ html {
   animation: slideUp 0.58s var(--motion-ease-spring) 0.12s both;
 }
 
+/* Auth pages: let the document scroll on small screens (root layout uses h-full flex) */
+html.auth-page-active {
+  height: auto !important;
+  min-height: 100dvh;
+  overflow-y: auto;
+}
+
+html.auth-page-active body {
+  height: auto !important;
+  min-height: 100dvh;
+  overflow-y: visible;
+}
+
+html.auth-page-active .motion-app-mount {
+  flex: none !important;
+  min-height: 0 !important;
+}
+
+.auth-layout-root {
+  min-height: 100dvh;
+}
+
+/* Fit tall auth forms on desktop only — avoid clipping scroll on mobile */
+@media (min-width: 1024px) {
+  .auth-form-viewport-scale {
+    transform-origin: top center;
+    transform: scale(clamp(0.78, calc((100vh - 2rem) / 860px), 1));
+  }
+}
+
 /* Onboarding step transitions */
 .motion-onboarding-step {
   animation: premiumEnter 0.62s var(--motion-ease-out-expo) both;

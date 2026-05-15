@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import Image from "next/image";
 import { ForceLightTheme } from "@/components/ForceLightTheme";
 import { MaxtronizeLogo } from "@/components/MaxtronizeLogo";
@@ -16,9 +16,25 @@ export default function AuthLayout({
   isSignUp,
   onToggle,
 }: AuthLayoutProps) {
+  useLayoutEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const mount = document.querySelector<HTMLElement>(".motion-app-mount");
+
+    html.classList.add("auth-page-active");
+    body.classList.add("auth-page-active");
+    mount?.classList.add("auth-page-active");
+
+    return () => {
+      html.classList.remove("auth-page-active");
+      body.classList.remove("auth-page-active");
+      mount?.classList.remove("auth-page-active");
+    };
+  }, []);
+
   return (
     <ForceLightTheme>
-      <div className="h-screen flex font-sans overflow-hidden">
+      <div className="auth-layout-root flex min-h-dvh w-full flex-col overflow-x-hidden bg-white font-sans lg:h-dvh lg:max-h-dvh lg:flex-row lg:overflow-hidden">
       <div className="hidden lg:flex lg:w-[60%] bg-primary-deep relative overflow-hidden flex-col justify-between p-10 xl:p-14">
         <div className="absolute inset-0 bg-mesh auth-hero-mesh"></div>
         <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
@@ -184,15 +200,8 @@ export default function AuthLayout({
       </div>
 
       
-      <div className="flex-1 min-h-0 bg-white text-[#1F2937] p-3 sm:p-4 md:p-6 lg:p-10 flex flex-col justify-start relative">
-        <div
-          className="motion-auth-form max-w-md w-full mx-auto space-y-5 md:space-y-7 transform-gpu"
-          style={{
-            transformOrigin: "top center",
-            transform:
-              "scale(clamp(0.78, calc((100vh - 2rem) / 860px), 1))",
-          }}
-        >
+      <div className="relative w-full shrink-0 p-3 pb-16 sm:p-4 sm:pb-20 md:p-6 md:pb-24 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-y-auto lg:p-10 lg:pb-10">
+        <div className="motion-auth-form auth-form-viewport-scale mx-auto w-full max-w-md space-y-5 py-2 md:space-y-7 transform-gpu">
           
           <div className="lg:hidden text-center space-y-2 pb-3 border-b border-[#E5E7EB]">
             <div className="relative h-7 w-28 mx-auto">

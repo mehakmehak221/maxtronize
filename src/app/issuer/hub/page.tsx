@@ -784,7 +784,7 @@ export default function IssuerHubPage() {
                   sub: 'All Form D filings up to date.',
                   border: 'border-emerald-200 dark:border-emerald-800',
                   Icon: CheckCircle2,
-                  ring: 'border-emerald-500/25 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30',
+                  ring: 'border-emerald-500/25 bg-app-status-success-bg text-app-status-success-fg dark:bg-emerald-950/30',
                 },
                 {
                   title: 'KYC Completion Rate',
@@ -792,7 +792,7 @@ export default function IssuerHubPage() {
                   sub: '7 of 10 investors fully verified.',
                   border: 'border-emerald-200 dark:border-emerald-800',
                   Icon: UserCheck,
-                  ring: 'border-emerald-500/25 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30',
+                  ring: 'border-emerald-500/25 bg-app-status-success-bg text-app-status-success-fg dark:bg-emerald-950/30',
                 },
                 {
                   title: 'OFAC Hits (90D)',
@@ -851,10 +851,10 @@ export default function IssuerHubPage() {
               [
                 {
                   RowIcon: CheckCircle2,
-                  lineRing: 'border-emerald-200 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40',
+                  lineRing: 'border-emerald-200 bg-app-status-success-bg text-app-status-success-fg dark:bg-emerald-950/40',
                   title: 'Reg D 506(c) Filing (Form D)',
                   status: 'Filed',
-                  statusClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                  statusClass: 'border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg',
                   entity: 'Peachtree Tower',
                   desc: 'Filed with SEC EDGAR — notice period active through offering.',
                   date: '03/01/2026',
@@ -864,7 +864,7 @@ export default function IssuerHubPage() {
                   lineRing: 'border-sky-200 bg-sky-50 text-sky-600 dark:bg-sky-950/40',
                   title: 'MiCA Whitepaper — Summit Credit',
                   status: 'Active',
-                  statusClass: 'border-sky-200 bg-sky-50 text-sky-700',
+                  statusClass: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300',
                   entity: 'Summit Credit',
                   desc: 'Passport-ready disclosure pack on file with EU host distributor.',
                   date: '02/15/2026',
@@ -881,10 +881,10 @@ export default function IssuerHubPage() {
                 },
                 {
                   RowIcon: CheckCircle2,
-                  lineRing: 'border-emerald-200 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40',
+                  lineRing: 'border-emerald-200 bg-app-status-success-bg text-app-status-success-fg dark:bg-emerald-950/40',
                   title: 'Reg S Exemption — Apex Data Ctr',
                   status: 'Filed',
-                  statusClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                  statusClass: 'border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg',
                   entity: 'Apex Data Ctr',
                   desc: 'Offering memorandum and investor certification workflow complete.',
                   date: '01/10/2026',
@@ -1113,8 +1113,8 @@ export default function IssuerHubPage() {
                     <span
                       className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold ${
                         row.status === 'Completed'
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                          : 'border-sky-200 bg-sky-50 text-sky-700'
+                          ? 'border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg'
+                          : 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300'
                       }`}
                     >
                       {row.status}
@@ -1409,7 +1409,7 @@ export default function IssuerHubPage() {
   return (
     <DashboardLayout>
       <div className="max-w-full min-w-0 space-y-10 animate-in fade-in duration-700">
-        <header className="-mx-5 mb-6 flex flex-col gap-3 border-b border-ui-border px-5 py-4 sm:-mx-6 sm:px-6 md:-mx-8 md:mb-8 md:flex md:h-16 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-0 lg:mb-10">
+        <header className="-mx-5 mb-6 flex flex-col gap-3 px-5 py-4 sm:-mx-6 sm:px-6 md:-mx-8 md:mb-8 md:flex md:h-16 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-0 lg:mb-10">
           <div className="flex min-w-0 flex-col gap-0.5 md:flex-row md:items-baseline md:gap-2.5">
             <h1 className="truncate text-lg font-bold tracking-tight text-foreground">Issuer Dashboard</h1>
             <span className="truncate text-xs font-semibold text-primary">Crescent Capital Partners LLC</span>

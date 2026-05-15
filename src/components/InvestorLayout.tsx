@@ -1,24 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import type { ComponentType, SVGProps } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Document,
-  Help,
-  InvestorHub,
-  Marketplace,
-  MyPortfolio,
-  Overview,
-  SecondaryMarket,
-  Wallet,
-} from "@/app/VectorImages";
+import { InvestorNavIcon, type InvestorNavIconId } from "@/components/InvestorNavIcons";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTheme } from "@/components/ThemeProvider";
 
-type NavIcon = ComponentType<SVGProps<SVGSVGElement>>;
+type NavItem = {
+  name: string;
+  href: string;
+  icon: InvestorNavIconId;
+  tag?: string;
+};
 
 export default function InvestorLayout({
   children,
@@ -32,23 +27,18 @@ export default function InvestorLayout({
   const { theme } = useTheme();
   const sidebarLogoSrc = theme === "dark" ? "/lightlogo.png" : "/darklogo.png";
 
-  const investorItems: {
-    name: string;
-    href: string;
-    Icon: NavIcon;
-    tag?: string;
-  }[] = [
-    { name: "Overview", href: "/investor/overview", Icon: Overview },
-    { name: "Investor Hub", href: "/investor/hub", Icon: InvestorHub, tag: "NEW" },
-    { name: "Marketplace", href: "/investor/marketplace", Icon: Marketplace },
-    { name: "Secondary Market", href: "/investor/secondary-market", Icon: SecondaryMarket },
-    { name: "My Portfolio", href: "/investor/portfolio", Icon: MyPortfolio },
-    { name: "Wallet", href: "/investor/wallet", Icon: Wallet },
-    { name: "Documents", href: "/investor/documents", Icon: Document },
+  const investorItems: NavItem[] = [
+    { name: "Overview", href: "/investor/overview", icon: "overview" },
+    { name: "Investor Hub", href: "/investor/hub", icon: "hub", tag: "NEW" },
+    { name: "Marketplace", href: "/investor/marketplace", icon: "marketplace" },
+    { name: "Secondary Market", href: "/investor/secondary-market", icon: "secondary-market" },
+    { name: "My Portfolio", href: "/investor/portfolio", icon: "portfolio" },
+    { name: "Wallet", href: "/investor/wallet", icon: "wallet" },
+    { name: "Documents", href: "/investor/documents", icon: "documents" },
   ];
-  const supportItems: { name: string; href: string; Icon: NavIcon }[] = [
-    { name: "Help Center", href: "/investor/help", Icon: Help },
-    ];
+  const supportItems: NavItem[] = [
+    { name: "Help Center", href: "/investor/help", icon: "help" },
+  ];
 
   const allItems = [...investorItems, ...supportItems];
   const currentPage =
@@ -115,12 +105,11 @@ export default function InvestorLayout({
                   Switch
                 </Link>
               </div>
-              {investorItems.map((item, i) => {
+              {investorItems.map((item) => {
                 const isActive = pathname === item.href;
-                const Icon = item.Icon;
                 return (
                   <Link
-                    key={i}
+                    key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
@@ -129,14 +118,15 @@ export default function InvestorLayout({
                         : "border-l-[4px] border-transparent text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
                     }`}
                   >
-                    <span className="flex h-4 w-4 shrink-0 items-center justify-center [&>svg]:block" aria-hidden>
-                      <Icon className="h-4 w-4" />
-                    </span>
+                    <InvestorNavIcon
+                      id={item.icon}
+                      className={isActive ? "text-primary" : "text-ui-muted-text"}
+                    />
                     <span className={`flex-1 truncate text-[13px] ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>
                       {item.name}
                     </span>
                     {item.tag ? (
-                      <span className="shrink-0 rounded-md border border-ui-border bg-ui-muted-deep px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-ui-body">
+                      <span className="shrink-0 rounded-md bg-ui-muted-deep px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-ui-muted-text">
                         {item.tag}
                       </span>
                     ) : isActive ? (
@@ -149,24 +139,29 @@ export default function InvestorLayout({
 
             <div className="space-y-1">
               <p className="mb-3 px-1 text-[10px] font-bold uppercase tracking-[0.14em] text-ui-faint">Support</p>
-              {supportItems.map((item, i) => {
+              {supportItems.map((item) => {
                 const isActive = pathname === item.href;
-                const Icon = item.Icon;
                 return (
                   <Link
-                    key={i}
+                    key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                       isActive
-                        ? "border-l-[4px] border-primary bg-ui-accent-tint text-primary"
+                        ? "border-l-[4px] border-primary bg-ui-accent-tint text-primary shadow-[inset_0_0_0_1px_rgba(124,58,237,0.06)] dark:shadow-[inset_0_0_0_1px_rgba(167,139,250,0.12)]"
                         : "border-l-[4px] border-transparent text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
                     }`}
                   >
-                    <span className="flex h-4 w-4 shrink-0 items-center justify-center [&>svg]:block" aria-hidden>
-                      <Icon className="h-4 w-4" />
+                    <InvestorNavIcon
+                      id={item.icon}
+                      className={isActive ? "text-primary" : "text-ui-muted-text"}
+                    />
+                    <span className={`flex-1 truncate text-[13px] ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>
+                      {item.name}
                     </span>
-                    <span className={`text-[13px] ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>{item.name}</span>
+                    {isActive ? (
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_0_3px_rgba(124,58,237,0.2)] dark:shadow-[0_0_0_3px_rgba(167,139,250,0.25)]" aria-hidden />
+                    ) : null}
                   </Link>
                 );
               })}
@@ -293,7 +288,7 @@ export default function InvestorLayout({
             </div>
           </header>
 
-          <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden bg-[#F8F7FF80] p-5 sm:p-6 md:p-8 dark:bg-ui-page">
+          <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden bg-ui-page p-5 sm:p-6 md:p-8">
             <div key={pathname} className="animate-page-enter">
               {children}
             </div>

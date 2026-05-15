@@ -344,7 +344,7 @@ export default function OnboardingPage() {
             <p className="text-[10px] text-ui-faint">Restrict this offering to SEC-accredited investors (net worth $1M+ or income $200K+/year).</p>
           </div>
           <div className="w-12 h-6 bg-primary rounded-full relative cursor-pointer shadow-inner shadow-primary/20 transition-all">
-            <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+            <div className="absolute right-1 top-1 w-4 h-4 bg-ui-card rounded-full shadow-sm"></div>
           </div>
         </div>
 
@@ -534,7 +534,7 @@ export default function OnboardingPage() {
       </section>
 
       <section className="space-y-4">
-        <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-[0.22em]">Required Documents</p>
+        <p className="text-[10px] font-semibold text-ui-faint uppercase tracking-[0.22em]">Required Documents</p>
         <div className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{renderAssetDocumentUploads()}</div>
         </div>
@@ -627,7 +627,7 @@ export default function OnboardingPage() {
                     }`}
                     aria-hidden
                   >
-                    {checked ? <div className="w-2 h-2 rounded-full bg-white" /> : null}
+                    {checked ? <div className="w-2 h-2 rounded-full bg-ui-card" /> : null}
                   </div>
                   <div>
                     <p className={`text-[13px] font-bold mb-1 ${checked ? 'text-primary' : 'text-ui-strong'}`}>
@@ -795,7 +795,7 @@ export default function OnboardingPage() {
                 className={`p-6 rounded-2xl border-2 transition-all cursor-pointer flex gap-5 ${selectedTokenStandard === std.id ? 'border-primary bg-ui-accent-tint' : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'}`}
               >
                 <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${selectedTokenStandard === std.id ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'}`}>
-                  {selectedTokenStandard === std.id && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                  {selectedTokenStandard === std.id && <div className="w-2 h-2 rounded-full bg-ui-card"></div>}
                 </div>
                 <div>
                   <div className="flex items-center gap-3 mb-1">
@@ -891,7 +891,7 @@ export default function OnboardingPage() {
               className={`p-8 rounded-3xl border-2 transition-all cursor-pointer flex gap-6 ${selectedCustodian === c.id ? 'border-primary bg-ui-accent-tint' : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'}`}
             >
               <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${selectedCustodian === c.id ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'}`}>
-                {selectedCustodian === c.id && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                {selectedCustodian === c.id && <div className="w-2 h-2 rounded-full bg-ui-card"></div>}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
@@ -1106,7 +1106,7 @@ export default function OnboardingPage() {
         <div className="relative inline-flex">
           <div className="absolute inset-0 scale-150 rounded-full bg-[var(--brand-cyan)]/25 blur-3xl" aria-hidden />
           <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-[var(--brand-cyan)] shadow-[0_0_48px_-8px_rgba(0,212,168,0.65)]">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-inner">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-ui-card shadow-inner">
               <svg
                 className="h-8 w-8 text-[var(--brand-cyan-dark)]"
                 fill="none"

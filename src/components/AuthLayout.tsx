@@ -47,9 +47,13 @@ export default function AuthLayout({
 
           <div className="max-w-2xl">
             <h1 className="text-4xl xl:text-5xl font-bold text-white leading-[1.12] tracking-tight mb-4">
-              Tokenize Real Assets. Raise Capital Globally.
+              Tokenize{" "}
+              <span className="bg-linear-to-r from-[#A684FF] via-[#DAB2FF] to-[#7C86FF] bg-clip-text text-transparent">
+                Real Assets
+              </span>
+              . Raise Capital Globally.
             </h1>
-            <p className="text-white/70 text-[15px] leading-relaxed mb-7 max-w-lg">
+            <p className="text-white text-[15px] leading-relaxed mb-7 max-w-lg">
               The institutional platform for compliant real-world asset
               tokenization. SEC Reg D to MiCA — all in one secure workspace.
             </p>
@@ -140,7 +144,7 @@ export default function AuthLayout({
 
         <div className="relative z-10">
           <div className="mb-7">
-            <h3 className="text-white/40 text-[10px] font-bold tracking-[0.2em] uppercase mb-5">
+            <h3 className="text-white text-[10px] font-bold tracking-[0.2em] uppercase mb-5">
               Trusted by leading institutions
             </h3>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
@@ -152,7 +156,7 @@ export default function AuthLayout({
               ].map((inst) => (
                 <span
                   key={inst}
-                  className="text-white/45 text-[11px] font-semibold px-3.5 py-1.5 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-sm"
+                  className="text-white text-[11px] font-semibold px-3.5 py-1.5 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-sm"
                 >
                   {inst}
                 </span>

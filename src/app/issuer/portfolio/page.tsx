@@ -123,24 +123,24 @@ const DEMO_ASSETS = [
       'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=900&q=80',
     category: 'Residential' as FilterType,
   },
-  {
-    id: 'logde',
-    name: 'Logistics Hub DE',
-    ticker: 'LHDE',
-    location: 'Frankfurt, DE',
-    compliance: 'EU · MiCA',
-    status: 'Locked' as const,
-    tokenPrice: '$12.60',
-    priceChange: '+1.3%',
-    up: true,
-    nav: '$21.8M',
-    apy: '9.3%',
-    investors: '419',
-    lockup: 'Locked',
-    image:
-      'https://images.unsplash.com/photo-1494412574653-ff7b073067e4?auto=format&fit=crop&w=900&q=80',
-    category: 'Infrastructure' as FilterType,
-  },
+  // {
+  //   id: 'logde',
+  //   name: 'Logistics Hub DE',
+  //   ticker: 'LHDE',
+  //   location: 'Frankfurt, DE',
+  //   compliance: 'EU · MiCA',
+  //   status: 'Locked' as const,
+  //   tokenPrice: '$12.60',
+  //   priceChange: '+1.3%',
+  //   up: true,
+  //   nav: '$21.8M',
+  //   apy: '9.3%',
+  //   investors: '419',
+  //   lockup: 'Locked',
+  //   image:
+  //     'https://images.unsplash.com/photo-1494412574653-ff7b073067e4?auto=format&fit=crop&w=900&q=80',
+  //   category: 'Infrastructure' as FilterType,
+  // },
   {
     id: 'hppe',
     name: 'Harbor Ports PE Fund',
@@ -159,24 +159,24 @@ const DEMO_ASSETS = [
       'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80',
     category: 'Private Equity' as FilterType,
   },
-  {
-    id: 'alp',
-    name: 'Alpine Art Collection',
-    ticker: 'ALPC',
-    location: 'Zurich, CH',
-    compliance: 'CH · FINMA',
-    status: 'Raising' as const,
-    tokenPrice: '$220.00',
-    priceChange: '+0.8%',
-    up: true,
-    nav: '$3.5M',
-    apy: '6.8%',
-    investors: '47',
-    lockup: '24 months',
-    image:
-      'https://images.unsplash.com/photo-1545989251-0ac6ebc74504?auto=format&fit=crop&w=900&q=80',
-    category: 'Art & Col.' as FilterType,
-  },
+  // {
+  //   id: 'alp',
+  //   name: 'Alpine Art Collection',
+  //   ticker: 'ALPC',
+  //   location: 'Zurich, CH',
+  //   compliance: 'CH · FINMA',
+  //   status: 'Raising' as const,
+  //   tokenPrice: '$220.00',
+  //   priceChange: '+0.8%',
+  //   up: true,
+  //   nav: '$3.5M',
+  //   apy: '6.8%',
+  //   investors: '47',
+  //   lockup: '24 months',
+  //   image:
+  //     'https://images.unsplash.com/photo-1545989251-0ac6ebc74504?auto=format&fit=crop&w=900&q=80',
+  //   category: 'Art & Col.' as FilterType,
+  // },
 ];
 
 const FILTERS: FilterType[] = [
@@ -376,7 +376,7 @@ export default function IssuerPortfolioPage() {
             return (
               <article
                 key={asset.id}
-                className="group flex max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition-shadow hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-950 md:rounded-3xl"
+                className="group flex max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-ui-card shadow-sm transition-shadow hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-950 md:rounded-3xl"
               >
                 <div className="relative h-44 w-full min-h-44 overflow-hidden md:h-48">
                   <Image

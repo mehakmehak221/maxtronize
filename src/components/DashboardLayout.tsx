@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const currentPage =
     allItems.find(item => item.href === pathname)?.name ?? extraTitles[pathname] ?? 'Dashboard';
   return (
-    <div className="relative flex min-h-screen flex-col bg-background text-foreground antialiased transition-colors duration-300">
+    <div className="relative flex h-dvh min-h-0 max-h-dvh flex-col overflow-hidden bg-background text-foreground antialiased transition-colors duration-300">
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm lg:hidden"
@@ -55,7 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
       )}
 
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <aside
           className={`fixed top-0 z-[70] flex h-screen w-64 shrink-0 flex-col border-r border-ui-border bg-ui-sidebar shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] transition-all duration-300 dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] lg:sticky lg:max-h-screen lg:translate-x-0 ${
             isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
@@ -137,10 +137,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           <div className="flex shrink-0 items-center gap-2">
                             {item.tag ? (
                               <span
-                                className={`text-[8px] font-bold uppercase tracking-wide ${
+                                className={`text-[9px] font-bold uppercase tracking-wide ${
                                   item.tag === 'AI'
-                                    ? 'min-w-[26px] rounded-full bg-primary px-1.5 py-0.5 text-center text-white shadow-sm shadow-primary/25'
-                                    : 'rounded-md border border-ui-border bg-ui-muted-deep px-1.5 py-0.5 text-ui-body'
+                                    ? 'min-w-[26px] rounded-full bg-[#7C3AED] px-1.5 py-0.5 text-center text-white'
+                                    : 'text-[#9CA3AF]'
                                 }`}
                               >
                                 {item.tag}
@@ -204,8 +204,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </aside>
 
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden bg-ui-page">
-          <header className="sticky top-0 z-40 flex h-17 shrink-0 items-center justify-between gap-4 border-b border-ui-border bg-ui-sidebar px-4 sm:px-6 md:px-8">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-ui-page">
+          <header className="z-40 flex h-17 shrink-0 items-center justify-between gap-4 border-b border-ui-border bg-ui-sidebar px-4 sm:px-6 md:px-8">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <button
                 type="button"
@@ -283,7 +283,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </header>
 
-          <main className="min-h-0 flex-1 overflow-x-hidden bg-[#F8F7FF80] p-5 sm:p-6 md:p-8 dark:bg-ui-page">
+          <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain bg-ui-page p-5 sm:p-6 md:p-8">
             <div key={pathname} className="animate-page-enter">
               {children}
             </div>

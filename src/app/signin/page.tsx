@@ -79,7 +79,7 @@ export default function SignInPage() {
               </label>
               <button
                 type="button"
-                className="text-[10px] font-bold text-[#7C3AED] hover:underline"
+                className="text-[10px] font-bold text-[#9810FA] hover:underline"
               >
                 Forgot password?
               </button>
@@ -162,7 +162,7 @@ export default function SignInPage() {
           <button
             type="button"
             onClick={() => router.push("/issuer/onboarding")}
-            className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-sm group"
+            className="w-full py-4 text-white font-bold rounded-xl bg-linear-to-r from-[#9810FA] to-[#4F39F6] shadow-lg shadow-[#9810FA]/25 hover:shadow-xl hover:shadow-[#4F39F6]/30 transition-all flex items-center justify-center gap-2 text-sm group"
           >
             Sign In to Platform
             <svg

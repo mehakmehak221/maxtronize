@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -188,8 +189,24 @@ export default function MarketplacePage() {
                   <p className="text-[9px] font-bold uppercase tracking-widest text-ui-faint">{section.title}</p>
                   {section.items.map(item => (
                     <label key={item} className="group flex cursor-pointer items-center gap-3">
-                      <input type="checkbox" className="sr-only peer" />
-                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-ui-border bg-ui-card transition-colors peer-checked:border-primary peer-checked:bg-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary/30" />
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        defaultChecked={
+                          section.title === 'Asset Type'
+                            ? ['Real Estate', 'Private Credit', 'Commodities'].includes(item)
+                            : section.title === 'Risk Level'
+                              ? ['Conservative', 'Moderate'].includes(item)
+                              : false
+                        }
+                      />
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-ui-border bg-ui-card transition-colors group-has-[:checked]:border-primary group-has-[:checked]:bg-primary group-has-[:focus-visible]:ring-2 group-has-[:focus-visible]:ring-primary/30">
+                        <Check
+                          className="h-3 w-3 text-white opacity-0 transition-opacity group-has-[:checked]:opacity-100"
+                          strokeWidth={3}
+                          aria-hidden
+                        />
+                      </span>
                       <span className="text-[13px] font-medium text-ui-body">{item}</span>
                     </label>
                   ))}

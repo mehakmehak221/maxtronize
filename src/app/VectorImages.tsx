@@ -776,3 +776,235 @@ export function WalletTransferIcon(props: NavIconProps) {
   );
 }
 
+/** Tokenize Asset wizard — sidebar step icons (18×18, design system). */
+
+export function TokenizeWizardGlobeIcon(props: NavIconProps) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <g clipPath="url(#clip-tkwiz-globe)">
+        <path
+          d="M8.99913 16.4985C13.1409 16.4985 16.4984 13.141 16.4984 8.99925C16.4984 4.85753 13.1409 1.5 8.99913 1.5C4.85741 1.5 1.49988 4.85753 1.49988 8.99925C1.49988 13.141 4.85741 16.4985 8.99913 16.4985Z"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8.99909 1.5C7.07346 3.52191 5.99939 6.20708 5.99939 8.99925C5.99939 11.7914 7.07346 14.4766 8.99909 16.4985C10.9247 14.4766 11.9988 11.7914 11.9988 8.99925C11.9988 6.20708 10.9247 3.52191 8.99909 1.5Z"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M1.49988 8.99902H16.4984" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <defs>
+        <clipPath id="clip-tkwiz-globe">
+          <rect width="17.9982" height="17.9982" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+export function TokenizeWizardBuildingIcon(props: NavIconProps) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <g clipPath="url(#clip-tkwiz-building)">
+        <path
+          d="M4.49951 16.4985V2.99985C4.49951 2.60207 4.65753 2.22057 4.93881 1.9393C5.22008 1.65802 5.60158 1.5 5.99936 1.5H11.9988C12.3965 1.5 12.778 1.65802 13.0593 1.9393C13.3406 2.22057 13.4986 2.60207 13.4986 2.99985V16.4985H4.49951Z"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M4.49958 8.99902H2.99973C2.60194 8.99902 2.22045 9.15704 1.93917 9.43832C1.6579 9.7196 1.49988 10.1011 1.49988 10.4989V14.9984C1.49988 15.3962 1.6579 15.7777 1.93917 16.059C2.22045 16.3403 2.60194 16.4983 2.99973 16.4983H4.49958"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M13.4987 6.74902H14.9985C15.3963 6.74902 15.7778 6.90704 16.0591 7.18832C16.3403 7.4696 16.4984 7.85109 16.4984 8.24887V14.9982C16.4984 15.396 16.3403 15.7775 16.0591 16.0588C15.7778 16.34 15.3963 16.498 14.9985 16.498H13.4987"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M7.49927 4.5H10.499" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M7.49927 7.49902H10.499" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M7.49927 10.499H10.499" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M7.49927 13.499H10.499" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <defs>
+        <clipPath id="clip-tkwiz-building">
+          <rect width="17.9982" height="17.9982" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+export function TokenizeWizardScalesIcon(props: NavIconProps) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <g clipPath="url(#clip-tkwiz-scales)">
+        <path
+          d="M11.9988 11.9984L14.2486 5.99902L16.4983 11.9984C15.8459 12.4859 15.0585 12.7483 14.2486 12.7483C13.4386 12.7483 12.6512 12.4859 11.9988 11.9984Z"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M1.49988 11.9984L3.74965 5.99902L5.99943 11.9984C5.34699 12.4859 4.55957 12.7483 3.74965 12.7483C2.93973 12.7483 2.15231 12.4859 1.49988 11.9984Z"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M5.24951 15.748H12.7488" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M8.99915 2.25V15.7487" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M2.24976 5.24985H3.74961C5.24946 5.24985 7.49923 4.49993 8.99908 3.75C10.4989 4.49993 12.7487 5.24985 14.2486 5.24985H15.7484"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip-tkwiz-scales">
+          <rect width="17.9982" height="17.9982" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+export function TokenizeWizardGearIcon(props: NavIconProps) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <g clipPath="url(#clip-tkwiz-gear)">
+        <path
+          d="M9.16406 1.5H8.8341C8.43631 1.5 8.05482 1.65802 7.77354 1.9393C7.49227 2.22057 7.33425 2.60207 7.33425 2.99985V3.13484C7.33398 3.39785 7.26455 3.65618 7.13292 3.88389C7.0013 4.1116 6.8121 4.3007 6.58432 4.43221L6.26186 4.61969C6.03385 4.75133 5.77521 4.82063 5.51193 4.82063C5.24865 4.82063 4.99001 4.75133 4.762 4.61969L4.64952 4.55969C4.30535 4.36116 3.89647 4.3073 3.51263 4.40994C3.12879 4.51258 2.80136 4.76333 2.60222 5.10714L2.43724 5.39211C2.2387 5.73628 2.18485 6.14516 2.28748 6.529C2.39012 6.91283 2.64087 7.24026 2.98468 7.43941L3.09717 7.5144C3.32386 7.64527 3.51234 7.83318 3.6439 8.05947C3.77547 8.28575 3.84552 8.54253 3.8471 8.80427V9.18673C3.84815 9.45102 3.77934 9.71089 3.64765 9.94004C3.51596 10.1692 3.32605 10.3595 3.09717 10.4916L2.98468 10.5591C2.64087 10.7582 2.39012 11.0857 2.28748 11.4695C2.18485 11.8533 2.2387 12.2622 2.43724 12.6064L2.60222 12.8914C2.80136 13.2352 3.12879 13.4859 3.51263 13.5886C3.89647 13.6912 4.30535 13.6373 4.64952 13.4388L4.762 13.3788C4.99001 13.2472 5.24865 13.1779 5.51193 13.1779C5.77521 13.1779 6.03385 13.2472 6.26186 13.3788L6.58432 13.5663C6.8121 13.6978 7.0013 13.8869 7.13292 14.1146C7.26455 14.3423 7.33398 14.6006 7.33425 14.8637V14.9987C7.33425 15.3964 7.49227 15.7779 7.77354 16.0592C8.05482 16.3405 8.43631 16.4985 8.8341 16.4985H9.16406C9.56185 16.4985 9.94334 16.3405 10.2246 16.0592C10.5059 15.7779 10.6639 15.3964 10.6639 14.9987V14.8637C10.6642 14.6006 10.7336 14.3423 10.8652 14.1146C10.9969 13.8869 11.1861 13.6978 11.4138 13.5663L11.7363 13.3788C11.9643 13.2472 12.223 13.1779 12.4862 13.1779C12.7495 13.1779 13.0082 13.2472 13.2362 13.3788L13.3486 13.4388C13.6928 13.6373 14.1017 13.6912 14.4855 13.5886C14.8694 13.4859 15.1968 13.2352 15.3959 12.8914L15.5609 12.5989C15.7595 12.2547 15.8133 11.8458 15.7107 11.462C15.608 11.0782 15.3573 10.7507 15.0135 10.5516L14.901 10.4916C14.6721 10.3595 14.4822 10.1692 14.3505 9.94004C14.2188 9.71089 14.15 9.45102 14.1511 9.18673V8.81177C14.15 8.54748 14.2188 8.28761 14.3505 8.05846C14.4822 7.82932 14.6721 7.63904 14.901 7.5069L15.0135 7.43941C15.3573 7.24026 15.608 6.91283 15.7107 6.529C15.8133 6.14516 15.7595 5.73628 15.5609 5.39211L15.3959 5.10714C15.1968 4.76333 14.8694 4.51258 14.4855 4.40994C14.1017 4.3073 13.6928 4.36116 13.3486 4.55969L13.2362 4.61969C13.0082 4.75133 12.7495 4.82063 12.4862 4.82063C12.223 4.82063 11.9643 4.75133 11.7363 4.61969L11.4138 4.43221C11.1861 4.3007 10.9969 4.1116 10.8652 3.88389C10.7336 3.65618 10.6642 3.39785 10.6639 3.13484V2.99985C10.6639 2.60207 10.5059 2.22057 10.2246 1.9393C9.94334 1.65802 9.56185 1.5 9.16406 1.5Z"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8.99904 11.2486C10.2416 11.2486 11.2488 10.2413 11.2488 8.9988C11.2488 7.75628 10.2416 6.74902 8.99904 6.74902C7.75653 6.74902 6.74927 7.75628 6.74927 8.9988C6.74927 10.2413 7.75653 11.2486 8.99904 11.2486Z"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip-tkwiz-gear">
+          <rect width="17.9982" height="17.9982" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+/** Stacked layers — “Tokenization / Deploy on-chain” (no duplicate gear in design). */
+export function TokenizeWizardLayersIcon(props: NavIconProps) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <path
+        d="M2.25 6.75L9 3.75L15.75 6.75L9 9.75L2.25 6.75Z"
+        stroke="currentColor"
+        strokeWidth="1.49985"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M2.25 9L9 12L15.75 9" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2.25 11.25L9 14.25L15.75 11.25" stroke="currentColor" strokeWidth="1.49985" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function TokenizeWizardShieldCheckIcon(props: NavIconProps) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <g clipPath="url(#clip-tkwiz-shield)">
+        <path
+          d="M14.9986 9.74951C14.9986 13.4991 12.3738 15.374 9.25413 16.4613C9.09077 16.5167 8.91332 16.5141 8.75168 16.4538C5.62449 15.374 2.99976 13.4991 2.99976 9.74951V4.50004C2.99976 4.30114 3.07877 4.1104 3.2194 3.96976C3.36004 3.82912 3.55079 3.75011 3.74968 3.75011C5.24953 3.75011 7.12434 2.8502 8.42921 1.71032C8.58809 1.57458 8.79019 1.5 8.99916 1.5C9.20812 1.5 9.41022 1.57458 9.5691 1.71032C10.8815 2.8577 12.7488 3.75011 14.2486 3.75011C14.4475 3.75011 14.6383 3.82912 14.7789 3.96976C14.9195 4.1104 14.9986 4.30114 14.9986 4.50004V9.74951Z"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M6.74927 8.99887L8.24912 10.4987L11.2488 7.49902"
+          stroke="currentColor"
+          strokeWidth="1.49985"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip-tkwiz-shield">
+          <rect width="17.9982" height="17.9982" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+/** Smart contract “Token Burn” — chip / CPU (16×16). */
+export function TokenizeBurnChipIcon(props: NavIconProps) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <g clipPath="url(#clip-tkwiz-burn-chip)">
+        <path
+          d="M11.9931 2.66504H3.99762C3.26166 2.66504 2.66504 3.26166 2.66504 3.99762V11.9931C2.66504 12.7291 3.26166 13.3257 3.99762 13.3257H11.9931C12.7291 13.3257 13.3257 12.7291 13.3257 11.9931V3.99762C13.3257 3.26166 12.7291 2.66504 11.9931 2.66504Z"
+          stroke="currentColor"
+          strokeWidth="1.33258"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9.32804 5.99707H6.66287C6.29489 5.99707 5.99658 6.29538 5.99658 6.66336V9.32853C5.99658 9.69651 6.29489 9.99482 6.66287 9.99482H9.32804C9.69602 9.99482 9.99433 9.69651 9.99433 9.32853V6.66336C9.99433 6.29538 9.69602 5.99707 9.32804 5.99707Z"
+          stroke="currentColor"
+          strokeWidth="1.33258"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M9.99414 1.33301V2.66559" stroke="currentColor" strokeWidth="1.33258" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9.99414 13.3262V14.6588" stroke="currentColor" strokeWidth="1.33258" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M1.33252 9.99414H2.6651" stroke="currentColor" strokeWidth="1.33258" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M1.33252 5.99707H2.6651" stroke="currentColor" strokeWidth="1.33258" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M13.3257 9.99414H14.6583" stroke="currentColor" strokeWidth="1.33258" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M13.3257 5.99707H14.6583" stroke="currentColor" strokeWidth="1.33258" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M5.99658 1.33301V2.66559" stroke="currentColor" strokeWidth="1.33258" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M5.99658 13.3262V14.6588" stroke="currentColor" strokeWidth="1.33258" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <defs>
+        <clipPath id="clip-tkwiz-burn-chip">
+          <rect width="15.991" height="15.991" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+/** Smart contract features — bolt / distributions (16×16). */
+export function TokenizeFeatureBoltIcon(props: NavIconProps) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <path
+        d="M13 10V3L4 14h7v7l9-11h-7z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+

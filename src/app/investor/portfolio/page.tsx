@@ -141,42 +141,7 @@ const DEMO_ASSETS = [
       'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80',
     category: 'Private Equity' as FilterType,
   },
-  {
-    id: 'logde',
-    name: 'Logistics Hub DE',
-    ticker: 'LHDE',
-    location: 'Frankfurt, DE',
-    compliance: 'EU · MiCA',
-    status: 'Locked' as const,
-    tokenPrice: '$12.60',
-    priceChange: '+1.3%',
-    up: true,
-    nav: '$21.8M',
-    apy: '9.3%',
-    investors: '419',
-    lockup: 'Locked',
-    image:
-      'https://images.unsplash.com/photo-1494412574653-ff7b073067e4?auto=format&fit=crop&w=900&q=80',
-    category: 'Infrastructure' as FilterType,
-  },
-  {
-    id: 'alp',
-    name: 'Alpine Art Collection',
-    ticker: 'ALPC',
-    location: 'Zurich, CH',
-    compliance: 'CH · FINMA',
-    status: 'Raising' as const,
-    tokenPrice: '$220.00',
-    priceChange: '+0.8%',
-    up: true,
-    nav: '$3.5M',
-    apy: '6.8%',
-    investors: '47',
-    lockup: '24 months',
-    image:
-      'https://images.unsplash.com/photo-1545989251-0ac6ebc74504?auto=format&fit=crop&w=900&q=80',
-    category: 'Art & Col.' as FilterType,
-  },
+  
 ];
 
 const FILTERS: FilterType[] = [

@@ -245,11 +245,11 @@ export default function SecondaryMarketPage() {
           {filtered.map((listing) => (
             <article
               key={listing.id}
-              className="rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-sm transition-all hover:shadow-md md:rounded-[28px] md:p-7 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]"
+              className="rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-sm transition-all hover:shadow-md md:rounded-[28px] md:p-6 lg:p-5 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]"
             >
-              <div className="flex flex-col gap-6 2xl:flex-row 2xl:items-start 2xl:justify-between 2xl:gap-8">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-6 xl:gap-8">
                 {/* Asset identity */}
-                <div className="flex min-w-0 flex-1 items-start gap-4 2xl:max-w-[38%]">
+                <div className="flex min-w-0 items-start gap-4 lg:w-[min(100%,260px)] lg:shrink-0 xl:w-[280px]">
                   <div
                     className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl md:h-[52px] md:w-[52px] ${listing.iconWell}`}
                   >
@@ -269,11 +269,11 @@ export default function SecondaryMarketPage() {
                   </div>
                 </div>
 
-                {/* Price + availability */}
-                <div className="grid grid-cols-2 gap-5 sm:gap-8 md:gap-10 2xl:flex 2xl:flex-1 2xl:items-center 2xl:justify-center 2xl:gap-14">
-                  <div>
+                {/* Price + availability — grouped on laptop+, not stretched edge-to-edge */}
+                <div className="grid grid-cols-2 gap-5 border-t border-ui-divider pt-5 sm:gap-8 lg:flex lg:flex-1 lg:items-center lg:justify-start lg:gap-10 lg:border-t-0 lg:pt-0 xl:gap-14">
+                  <div className="min-w-0 lg:max-w-[200px]">
                     <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Price per token</p>
-                    <p className="text-2xl font-bold tabular-nums text-ui-strong md:text-3xl">{listing.pricePerToken}</p>
+                    <p className="text-2xl font-bold tabular-nums text-ui-strong lg:text-[1.65rem] xl:text-3xl">{listing.pricePerToken}</p>
                     <p
                       className={`mt-1 flex items-center gap-1 text-sm font-bold ${
                         listing.up ? 'text-ui-success-text' : 'text-ui-danger-text'
@@ -286,40 +286,40 @@ export default function SecondaryMarketPage() {
                       )}
                       {listing.change}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-4 text-[11px]">
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] lg:mt-2.5">
                       <div>
-                        <span className="font-bold uppercase tracking-wider text-ui-faint">24h Volume </span>
+                        <span className="font-bold uppercase tracking-wider text-ui-faint">24h Vol </span>
                         <span className="font-bold text-ui-strong">{listing.vol24h}</span>
                       </div>
                       <div>
-                        <span className="font-bold uppercase tracking-wider text-ui-faint">Last Sale </span>
+                        <span className="font-bold uppercase tracking-wider text-ui-faint">Last </span>
                         <span className="font-bold text-ui-strong">{listing.lastSale}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div>
+                  <div className="min-w-0 lg:max-w-[180px]">
                     <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Available</p>
-                    <p className="text-2xl font-bold tabular-nums text-ui-strong md:text-3xl">{listing.available}</p>
-                    <p className="mt-3 text-[11px]">
-                      <span className="font-bold uppercase tracking-wider text-ui-faint">Total Value </span>
+                    <p className="text-2xl font-bold tabular-nums text-ui-strong lg:text-[1.65rem] xl:text-3xl">{listing.available}</p>
+                    <p className="mt-2 text-[11px] lg:mt-2.5">
+                      <span className="font-bold uppercase tracking-wider text-ui-faint">Total </span>
                       <span className="font-bold text-ui-strong">{listing.totalVal}</span>
                     </p>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row 2xl:flex-col 2xl:items-stretch">
+                {/* Actions — right column on laptop+ */}
+                <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row lg:min-w-[148px] lg:flex-col lg:items-stretch">
                   <Link
                     href="/investor/marketplace-detail"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5b21b6] to-[#4338ca] px-6 py-3 text-[12px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5b21b6] to-[#4338ca] px-5 py-2.5 text-[12px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105 lg:px-4"
                   >
                     <Zap className="h-4 w-4" strokeWidth={iconStroke} />
                     Trade Now
                   </Link>
                   <Link
                     href="/investor/marketplace-detail"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-3 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted-deep/80"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted-deep/80 lg:px-4"
                   >
                     <BarChart3 className="h-4 w-4" strokeWidth={iconStroke} />
                     View Chart

@@ -1,6 +1,19 @@
+import {
+  Brain,
+  Briefcase,
+  CircleHelp,
+  FileText,
+  LayoutGrid,
+  TrendingUp,
+  User,
+  Wallet,
+  type LucideIcon,
+} from 'lucide-react';
 import React from 'react';
 
 type IconProps = { className?: string };
+
+const NAV_STROKE = 1.75;
 
 /** Keeps explicit size whenever callers pass color-only classes (e.g. text-primary). */
 function strokeProps(props: IconProps) {
@@ -15,31 +28,22 @@ function strokeProps(props: IconProps) {
   };
 }
 
-export function IconNavDashboard(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25a2.25 2.25 0 01-2.25 2.25H15.75a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-    </svg>
-  );
+function NavLucideIcon({ Icon, className }: { Icon: LucideIcon; className?: string }) {
+  const cn = className?.trim() ? `h-5 w-5 shrink-0 ${className.trim()}` : 'h-5 w-5 shrink-0';
+  return <Icon className={cn} strokeWidth={NAV_STROKE} aria-hidden />;
 }
 
+export function IconNavDashboard(p: IconProps) {
+  return <NavLucideIcon Icon={LayoutGrid} className={p.className} />;
+}
+
+/** Issuer Hub — same 2×2 grid as Dashboard per design */
 export function IconNavBuilding(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-    </svg>
-  );
+  return <NavLucideIcon Icon={LayoutGrid} className={p.className} />;
 }
 
 export function IconNavSparkles(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423L16.5 15l.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-    </svg>
-  );
+  return <NavLucideIcon Icon={Brain} className={p.className} />;
 }
 
 export function IconNavShield(p: IconProps) {
@@ -52,57 +56,27 @@ export function IconNavShield(p: IconProps) {
 }
 
 export function IconNavBriefcase(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.25 14.15v4.25c0 .414-.336.75-.75.75h-4.5a.75.75 0 01-.75-.75v-4.25m11.25 0v4.25c0 .414-.336.75-.75.75h-4.5a.75.75 0 01-.75-.75v-4.25m6 0h.008v.008H21v-.008zm.75 0h.008v.008h-.008v-.008zm-16.5 0h.008v.008H5.25v-.008zM5.25 8.25h13.5c.497 0 .891.403.891.891v3.409c0 .497-.403.891-.891.891H5.25a.891.891 0 01-.891-.891V9.141c0-.497.403-.891.891-.891zM5.25 5.25h13.5a3 3 0 013 3v.75H2.25V8.25a3 3 0 013-3z" />
-    </svg>
-  );
+  return <NavLucideIcon Icon={Briefcase} className={p.className} />;
 }
 
 export function IconNavUsers(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z" />
-    </svg>
-  );
+  return <NavLucideIcon Icon={User} className={p.className} />;
 }
 
 export function IconNavTrendingUp(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
-    </svg>
-  );
+  return <NavLucideIcon Icon={TrendingUp} className={p.className} />;
 }
 
 export function IconNavWallet(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 3.75h-4.875a2.625 2.625 0 010-5.25H21M3 12V7.5A2.25 2.25 0 015.25 5.25h13.5A2.25 2.25 0 0121 7.5V12" />
-    </svg>
-  );
+  return <NavLucideIcon Icon={Wallet} className={p.className} />;
 }
 
 export function IconNavDocument(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125V7.875a3.375 3.375 0 00-3.375-3.375H7.5a3.375 3.375 0 00-3.375 3.375v11.25a3.375 3.375 0 003.375 3.375h12a3.375 3.375 0 003.375-3.375z" />
-    </svg>
-  );
+  return <NavLucideIcon Icon={FileText} className={p.className} />;
 }
 
 export function IconNavHelp(p: IconProps) {
-  const s = strokeProps(p);
-  return (
-    <svg {...s}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-    </svg>
-  );
+  return <NavLucideIcon Icon={CircleHelp} className={p.className} />;
 }
 
 /** Stat / dashboard accents */
@@ -290,27 +264,25 @@ export type IssuerNavIconId =
   | 'help';
 
 export function IssuerNavIcon({ id, className }: { id: IssuerNavIconId; className?: string }) {
-  const p = { className };
   switch (id) {
     case 'dashboard':
-      return <IconNavDashboard {...p} />;
     case 'hub':
-      return <IconNavBuilding {...p} />;
+      return <NavLucideIcon Icon={LayoutGrid} className={className} />;
     case 'ai':
-      return <IconNavSparkles {...p} />;
+      return <NavLucideIcon Icon={Brain} className={className} />;
     case 'portfolio':
-      return <IconNavBriefcase {...p} />;
+      return <NavLucideIcon Icon={Briefcase} className={className} />;
     case 'investors':
-      return <IconNavUsers {...p} />;
+      return <NavLucideIcon Icon={User} className={className} />;
     case 'yield':
-      return <IconNavTrendingUp {...p} />;
+      return <NavLucideIcon Icon={TrendingUp} className={className} />;
     case 'wallet':
-      return <IconNavWallet {...p} />;
+      return <NavLucideIcon Icon={Wallet} className={className} />;
     case 'documents':
-      return <IconNavDocument {...p} />;
+      return <NavLucideIcon Icon={FileText} className={className} />;
     case 'help':
-      return <IconNavHelp {...p} />;
+      return <NavLucideIcon Icon={CircleHelp} className={className} />;
     default:
-      return <IconNavDashboard {...p} />;
+      return <NavLucideIcon Icon={LayoutGrid} className={className} />;
   }
 }

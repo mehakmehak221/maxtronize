@@ -119,7 +119,7 @@ export default function InvestorHubPage() {
   const renderOverview = () => (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:gap-6 2xl:grid-cols-4">
         {statsOverview.map((stat, i) => (
           <div
             key={i}
@@ -155,9 +155,9 @@ export default function InvestorHubPage() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3 md:gap-8">
         {/* Earnings Chart */}
-        <div className="lg:col-span-2 bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-sm">
+        <div className="xl:col-span-2 bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
               <h3 className="text-base font-bold text-ui-strong">Monthly Earnings</h3>
@@ -463,7 +463,7 @@ export default function InvestorHubPage() {
   const renderAnalytics = () => (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
       {/* KPI row — matches analytics reference: tinted circle + icon, caps label, bold value, faint sub */}
-      <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:gap-6 2xl:grid-cols-4">
         {[
           {
             label: 'Total Return',

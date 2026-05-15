@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
 import { MaxtronizeLogo } from './MaxtronizeLogo';
 import { IssuerNavIcon, type IssuerNavIconId } from './IssuerNavIcons';
+import { UserProfileMenu } from '@/components/UserProfileMenu';
 
 type NavTag = 'NEW' | 'AI';
 
@@ -26,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       items: [
         { name: 'Dashboard', icon: 'dashboard', href: '/issuer/dashboard' },
         { name: 'Issuer Hub', icon: 'hub', tag: 'NEW', href: '/issuer/hub' },
-        { name: 'AI Intelligence', icon: 'ai', tag: 'AI', href: '/issuer/ai-intelligence' },
+        // { name: 'AI Intelligence', icon: 'ai', tag: 'AI', href: '/issuer/ai-intelligence' },
         { name: 'Portfolio', icon: 'portfolio', href: '/issuer/portfolio' },
         { name: 'Investors', icon: 'investors', href: '/issuer/investors' },
         { name: 'Yield', icon: 'yield', href: '/issuer/yield' },
@@ -47,18 +48,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const currentPage =
     allItems.find(item => item.href === pathname)?.name ?? extraTitles[pathname] ?? 'Dashboard';
   return (
-    <div className="relative flex min-h-screen flex-col bg-background text-foreground antialiased transition-colors duration-300">
+    <div className="relative flex h-dvh min-h-0 max-h-dvh flex-col overflow-hidden bg-background text-foreground antialiased transition-colors duration-300">
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm lg:hidden"
+          className="motion-overlay fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <aside
-          className={`fixed top-0 z-[70] flex h-screen w-64 shrink-0 flex-col border-r border-ui-border bg-ui-sidebar shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] transition-all duration-300 dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] lg:sticky lg:max-h-screen lg:translate-x-0 ${
-            isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          className={`motion-sidebar fixed top-0 z-[70] flex h-screen w-64 shrink-0 flex-col border-r border-ui-border bg-ui-sidebar shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] lg:sticky lg:max-h-screen lg:translate-x-0 ${
+            isMobileMenuOpen ? 'is-open translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
           <div className="relative flex h-17 shrink-0 items-center justify-center border-b border-ui-border bg-ui-sidebar px-4">
@@ -87,7 +88,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link
               href="/issuer/tokenize-asset"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-brand-indigo py-3.5 text-[13px] font-bold text-white shadow-[0_12px_32px_-10px_rgba(91,33,182,0.55)] transition-all hover:brightness-[1.05] active:scale-[0.99] dark:shadow-[0_12px_32px_-12px_rgba(124,58,237,0.45)]"
+              className="btn-press flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-brand-indigo py-3.5 text-[13px] font-bold text-white shadow-[0_12px_32px_-10px_rgba(91,33,182,0.55)] transition-all hover:brightness-[1.05] dark:shadow-[0_12px_32px_-12px_rgba(124,58,237,0.45)]"
             >
               <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.25} d="M12 4v16m8-8H4" />
@@ -96,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Link>
           </div>
 
-          <nav className="scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-2">
+          <nav className="motion-sidebar-nav scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-2">
             {menuItems.map((category, idx) => (
               <div key={idx} className="space-y-1">
                 <div className="mb-3 flex items-center justify-between px-1">
@@ -118,7 +119,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         key={i}
                         href={item.href}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${
                           isActive
                             ? 'border-l-[4px] border-primary bg-ui-accent-tint text-primary shadow-[inset_0_0_0_1px_rgba(124,58,237,0.06)] dark:shadow-[inset_0_0_0_1px_rgba(167,139,250,0.12)]'
                             : 'border-l-[4px] border-transparent text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong'
@@ -137,10 +138,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           <div className="flex shrink-0 items-center gap-2">
                             {item.tag ? (
                               <span
-                                className={`text-[8px] font-bold uppercase tracking-wide ${
+                                className={`text-[9px] font-bold uppercase tracking-wide ${
                                   item.tag === 'AI'
-                                    ? 'min-w-[26px] rounded-full bg-primary px-1.5 py-0.5 text-center text-white shadow-sm shadow-primary/25'
-                                    : 'rounded-md border border-ui-border bg-ui-muted-deep px-1.5 py-0.5 text-ui-body'
+                                    ? 'min-w-[26px] rounded-full bg-[#7C3AED] px-1.5 py-0.5 text-center text-white'
+                                    : 'text-[#9CA3AF]'
                                 }`}
                               >
                                 {item.tag}
@@ -169,43 +170,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
               <p className="text-[9px] font-medium leading-relaxed text-ui-success-text/90">99.98% uptime · Blockchain synced</p>
             </div>
-            <button
-              type="button"
-              className="group flex w-full cursor-pointer items-center gap-3 rounded-xl p-1.5 text-left transition-colors hover:bg-ui-muted-deep"
-              aria-haspopup="menu"
-            >
-              <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-ui-border bg-ui-muted-deep ring-2 ring-sidebar-bg">
-                <svg className="h-full w-full" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <rect width="80" height="80" fill="url(#issuerDashAvatarGrad)" />
-                  <ellipse cx="40" cy="72" rx="26" ry="20" fill="#cbd5e1" />
-                  <circle cx="40" cy="34" r="16" fill="#94a3b8" />
-                  <defs>
-                    <linearGradient id="issuerDashAvatarGrad" x1="40" y1="0" x2="40" y2="80" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#f8fafc" />
-                      <stop offset="1" stopColor="#e2e8f0" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-bold text-ui-strong">Alex Chen</p>
-                <p className="truncate text-[11px] text-ui-muted-text">alex@maxtronize.com</p>
-              </div>
-              <svg
-                className="h-4 w-4 shrink-0 text-ui-faint transition-transform group-hover:text-ui-muted-text"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
+            <div className="flex flex-col gap-3 lg:hidden">
+              <button
+                type="button"
+                className="relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
+                aria-label="Notifications"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+                <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+                <span className="text-[13px] font-semibold text-ui-body">Notifications</span>
+                <span className="ml-auto h-2 w-2 rounded-full bg-[#7c3aed]" aria-hidden />
+              </button>
+              <div className="flex items-center justify-between gap-3 px-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">Appearance</span>
+                <ThemeToggle />
+              </div>
+              <UserProfileMenu variant="mobile" />
+            </div>
+
+            <div className="hidden lg:block">
+              <UserProfileMenu variant="sidebar" />
+            </div>
           </div>
         </aside>
 
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-ui-page">
-          <header className="sticky top-0 z-40 flex h-17 shrink-0 items-center justify-between gap-4 border-b border-ui-border bg-ui-sidebar px-4 sm:px-6 md:px-8">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-ui-page">
+          <header className="motion-header z-40 flex h-17 shrink-0 items-center justify-between gap-4 border-b border-ui-border bg-ui-sidebar px-4 sm:px-6 md:px-8">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <button
                 type="button"
@@ -226,7 +222,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </nav>
             </div>
 
-            <div className="flex shrink-0 items-center gap-1 sm:gap-2 md:gap-3">
+            <div className="hidden shrink-0 items-center gap-1 sm:gap-2 md:gap-3 lg:flex">
               <button
                 type="button"
                 className="relative rounded-lg p-2 text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
@@ -261,30 +257,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </svg>
               </button>
               <div className="mx-1 hidden h-8 w-px shrink-0 bg-ui-border sm:block" aria-hidden />
-              <div className="flex items-center gap-2.5 rounded-full border border-ui-border bg-ui-card py-1 pl-1 pr-3 shadow-sm">
-                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border border-ui-border bg-ui-muted-deep">
-                  <svg className="h-full w-full" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                    <rect width="80" height="80" fill="url(#issuerHeaderAvatarGrad)" />
-                    <ellipse cx="40" cy="72" rx="26" ry="20" fill="#cbd5e1" />
-                    <circle cx="40" cy="34" r="16" fill="#94a3b8" />
-                    <defs>
-                      <linearGradient id="issuerHeaderAvatarGrad" x1="40" y1="0" x2="40" y2="80" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#f8fafc" />
-                        <stop offset="1" stopColor="#e2e8f0" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-                <span className="hidden text-[13px] font-semibold text-ui-strong sm:inline">Alex Chen</span>
-              </div>
+              <UserProfileMenu variant="header" />
               <div className="flex items-center pl-1 [&_button]:p-1.5">
                 <ThemeToggle />
               </div>
             </div>
           </header>
 
-          <main className="min-h-0 flex-1 bg-[#F8F7FF80] p-5 sm:p-6 md:p-8 dark:bg-ui-page">
-            <div key={pathname} className="animate-page-enter">
+          <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain bg-ui-page p-5 sm:p-6 md:p-8">
+            <div key={pathname} className="motion-page-content animate-page-enter">
               {children}
             </div>
           </main>

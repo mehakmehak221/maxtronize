@@ -112,7 +112,7 @@ export default function InvestorWalletPage() {
         <div className="relative overflow-hidden rounded-[24px] bg-linear-to-br from-[#0b0b16] via-[#121228] to-[#1a0f38] p-6 text-white shadow-2xl ring-1 ring-white/10 md:rounded-[32px] md:p-10">
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet-600/25 blur-[100px]" />
           <div className="pointer-events-none absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-primary/20 blur-[90px]" />
-          <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
+          <div className="relative z-10 flex flex-col justify-between gap-8 xl:flex-row xl:items-center">
             <div className="min-w-0">
               <div className="mb-3 flex items-center gap-2">
                 <Wallet className="h-4 w-4 shrink-0 text-white/50" />
@@ -160,7 +160,7 @@ export default function InvestorWalletPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 2xl:grid-cols-3">
           {/* Connected Wallets */}
           <div className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:rounded-[32px]">
             <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
@@ -306,8 +306,8 @@ export default function InvestorWalletPage() {
             </div>
           </div>
 
-          {/* Transactions */}
-          <div className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:rounded-[32px]">
+          {/* Transactions — full width on tablet */}
+          <div className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:col-span-2 md:rounded-[32px] 2xl:col-span-1">
             <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
               <h3 className="text-[14px] font-bold text-ui-strong">Transactions</h3>
               <div className="flex items-center gap-2">

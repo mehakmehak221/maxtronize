@@ -854,6 +854,33 @@ html {
   to   { transform: rotate(360deg); }
 }
 
+@keyframes overlayFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes sidebarSlideIn {
+  from {
+    opacity: 0.92;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes navItemIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 /* ── Animation utility classes ──────────────────────────────────────────── */
 .animate-fade-in        { animation: fadeIn        0.5s var(--motion-ease-out-expo) both; }
 .animate-slide-up       { animation: slideUp       0.55s var(--motion-ease-spring) both; }
@@ -880,6 +907,216 @@ html {
 .motion-app-mount {
   animation: fadeIn 0.6s var(--motion-ease-out-expo) both;
 }
+
+/* Tailwind-animate shims — makes existing animate-in classes work */
+.animate-in {
+  animation-fill-mode: both;
+  animation-timing-function: var(--motion-ease-out-expo);
+}
+.animate-in.fade-in {
+  animation-name: fadeIn;
+}
+.animate-in.slide-in-from-bottom-4 {
+  animation-name: slideUp;
+}
+.animate-in.slide-in-from-right-4 {
+  animation-name: slideInRight;
+}
+.animate-in.slide-in-from-top-1 {
+  animation-name: slideDown;
+}
+.animate-in.zoom-in,
+.animate-in.zoom-in-50 {
+  animation-name: scaleInBounce;
+}
+.animate-in.duration-200  { animation-duration: 200ms; }
+.animate-in.duration-300  { animation-duration: 300ms; }
+.animate-in.duration-500  { animation-duration: 500ms; }
+.animate-in.duration-700  { animation-duration: 700ms; }
+.animate-in.duration-1000 { animation-duration: 1000ms; }
+
+/* ==========================================================================
+   PLATFORM CHROME — layouts, sidebars, auth, onboarding
+   ========================================================================== */
+
+.motion-overlay {
+  animation: overlayFade 0.32s var(--motion-ease-soft) both;
+}
+
+.motion-sidebar {
+  transition:
+    transform 0.42s var(--motion-ease-out-expo),
+    box-shadow 0.42s var(--motion-ease-soft);
+}
+
+@media (max-width: 1023px) {
+  .motion-sidebar.is-open {
+    animation: sidebarSlideIn 0.42s var(--motion-ease-out-expo) both;
+  }
+}
+
+.motion-header {
+  animation: slideDown 0.48s var(--motion-ease-spring) both;
+}
+
+.motion-nav-link {
+  transition:
+    background-color 0.28s var(--motion-ease-soft),
+    color 0.28s var(--motion-ease-soft),
+    transform 0.22s var(--motion-ease-spring),
+    box-shadow 0.28s var(--motion-ease-soft);
+}
+.motion-nav-link:active {
+  transform: scale(0.985);
+}
+
+.motion-sidebar-nav a {
+  animation: navItemIn 0.42s var(--motion-ease-spring) both;
+}
+.motion-sidebar-nav > div:nth-child(1) a:nth-child(1) { animation-delay: 40ms; }
+.motion-sidebar-nav > div:nth-child(1) a:nth-child(2) { animation-delay: 70ms; }
+.motion-sidebar-nav > div:nth-child(1) a:nth-child(3) { animation-delay: 100ms; }
+.motion-sidebar-nav > div:nth-child(1) a:nth-child(4) { animation-delay: 130ms; }
+.motion-sidebar-nav > div:nth-child(1) a:nth-child(5) { animation-delay: 160ms; }
+.motion-sidebar-nav > div:nth-child(1) a:nth-child(6) { animation-delay: 190ms; }
+.motion-sidebar-nav > div:nth-child(1) a:nth-child(7) { animation-delay: 220ms; }
+.motion-sidebar-nav > div:nth-child(2) a:nth-child(1) { animation-delay: 250ms; }
+
+/* Page content inside dashboard layouts — stagger sections after route enter */
+.motion-page-content {
+  --motion-section-base-delay: 90ms;
+}
+
+.motion-page-content [class*='space-y-'] > *:not(.motion-no-stagger) {
+  animation: slideUp 0.52s var(--motion-ease-spring) both;
+}
+
+.motion-page-content [class*='space-y-'] > *:nth-child(1):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 0); }
+.motion-page-content [class*='space-y-'] > *:nth-child(2):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 1); }
+.motion-page-content [class*='space-y-'] > *:nth-child(3):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 2); }
+.motion-page-content [class*='space-y-'] > *:nth-child(4):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 3); }
+.motion-page-content [class*='space-y-'] > *:nth-child(5):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 4); }
+.motion-page-content [class*='space-y-'] > *:nth-child(6):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 5); }
+.motion-page-content [class*='space-y-'] > *:nth-child(7):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 6); }
+.motion-page-content [class*='space-y-'] > *:nth-child(8):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 7); }
+.motion-page-content [class*='space-y-'] > *:nth-child(9):not(.motion-no-stagger)  { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 8); }
+.motion-page-content [class*='space-y-'] > *:nth-child(10):not(.motion-no-stagger) { animation-delay: calc(var(--motion-section-base-delay) + var(--motion-stagger-step) * 9); }
+
+/* Premium card hover on dashboard panels */
+.motion-page-content [class*='bg-ui-card'][class*='border-ui-border'][class*='rounded-'] {
+  transition:
+    box-shadow 0.38s var(--motion-ease-spring),
+    transform 0.38s var(--motion-ease-spring),
+    border-color 0.25s var(--motion-ease-soft);
+  will-change: transform;
+}
+.motion-page-content [class*='bg-ui-card'][class*='border-ui-border'][class*='rounded-']:hover {
+  transform: translateY(-3px) scale(1.003);
+  box-shadow: 0 20px 48px -16px rgba(15, 23, 42, 0.12);
+}
+[data-theme='dark'] .motion-page-content [class*='bg-ui-card'][class*='border-ui-border'][class*='rounded-']:hover {
+  box-shadow: 0 22px 50px -14px rgba(0, 0, 0, 0.55);
+}
+
+/* Primary CTAs — subtle press feedback */
+.btn-press:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Auth / marketing hero */
+.motion-auth-hero > * {
+  animation: slideUp 0.55s var(--motion-ease-spring) both;
+}
+.motion-auth-hero > *:nth-child(1) { animation-delay: 80ms; }
+.motion-auth-hero > *:nth-child(2) { animation-delay: 140ms; }
+.motion-auth-hero > *:nth-child(3) { animation-delay: 200ms; }
+
+.motion-auth-form {
+  animation: slideUp 0.58s var(--motion-ease-spring) 0.12s both;
+}
+
+/* Auth pages: let the document scroll on small screens (root layout uses h-full flex) */
+html.auth-page-active {
+  height: auto !important;
+  min-height: 100dvh;
+  overflow-y: auto;
+}
+
+html.auth-page-active body {
+  height: auto !important;
+  min-height: 100dvh;
+  overflow-y: visible;
+}
+
+html.auth-page-active .motion-app-mount {
+  flex: none !important;
+  min-height: 0 !important;
+}
+
+.auth-layout-root {
+  min-height: 100dvh;
+}
+
+/* Tablet & iPad Pro: no scale — form stays full size in the side column */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .auth-form-viewport-scale {
+    transform: none;
+  }
+
+  .auth-form-panel-inner {
+    max-width: none;
+  }
+}
+
+/* Large desktop only: scale very tall forms */
+@media (min-width: 1280px) {
+  .auth-form-viewport-scale {
+    transform-origin: top center;
+    transform: scale(clamp(0.85, calc((100vh - 2rem) / 860px), 1));
+  }
+
+  .auth-form-panel-inner {
+    max-width: 28rem;
+  }
+}
+
+/* Tablet/desktop split: lock viewport height (phones use document scroll below) */
+@media (min-width: 768px) {
+  html.auth-page-active {
+    height: 100dvh !important;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  html.auth-page-active body {
+    height: 100dvh !important;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  html.auth-page-active .motion-app-mount {
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: 100dvh;
+  }
+}
+
+/* Onboarding step transitions */
+.motion-onboarding-step {
+  animation: premiumEnter 0.62s var(--motion-ease-out-expo) both;
+}
+
+.motion-onboarding-nav > div {
+  animation: navItemIn 0.4s var(--motion-ease-spring) both;
+}
+.motion-onboarding-nav > div:nth-child(1)  { animation-delay: 30ms; }
+.motion-onboarding-nav > div:nth-child(2)  { animation-delay: 55ms; }
+.motion-onboarding-nav > div:nth-child(3)  { animation-delay: 80ms; }
+.motion-onboarding-nav > div:nth-child(4)  { animation-delay: 105ms; }
+.motion-onboarding-nav > div:nth-child(5)  { animation-delay: 130ms; }
+.motion-onboarding-nav > div:nth-child(6)  { animation-delay: 155ms; }
+.motion-onboarding-nav > div:nth-child(7)  { animation-delay: 180ms; }
+.motion-onboarding-nav > div:nth-child(8)  { animation-delay: 205ms; }
 
 /* ==========================================================================
    CHART / GRAPH MOTION
@@ -1031,7 +1268,12 @@ textarea {
 
 /* Tables — row hover feels smoother */
 tbody tr {
-  transition: background-color 0.2s var(--motion-ease-soft);
+  transition:
+    background-color 0.22s var(--motion-ease-soft),
+    transform 0.22s var(--motion-ease-soft);
+}
+tbody tr:hover {
+  transform: translateX(2px);
 }
 
 /* Cards — opt-in lift on hover */

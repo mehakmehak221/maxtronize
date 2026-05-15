@@ -179,7 +179,7 @@ export default function InvestorDocumentsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-5 2xl:grid-cols-4">
           {stats.map((s, i) => (
             <div
               key={i}
@@ -198,7 +198,7 @@ export default function InvestorDocumentsPage() {
                   <s.Icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="mb-0.5 truncate text-[9px] font-bold uppercase tracking-widest text-ui-faint">{s.label}</p>
+                  <p className="mb-0.5 text-[9px] font-bold uppercase leading-snug tracking-wide text-ui-faint sm:tracking-widest">{s.label}</p>
                   <p className={`text-xl font-bold md:text-2xl ${s.highlight ? 'text-amber-600' : 'text-ui-strong'}`}>
                     {s.val}
                   </p>
@@ -214,7 +214,7 @@ export default function InvestorDocumentsPage() {
         </div>
 
         {/* Filters + Search */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide max-w-full">
             {categories.map((cat) => (
               <button
@@ -239,7 +239,7 @@ export default function InvestorDocumentsPage() {
               </button>
             ))}
           </div>
-          <div className="relative w-full sm:w-56 md:w-72 shrink-0">
+          <div className="relative w-full shrink-0 lg:w-72">
             <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ui-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             <input
               value={search}
@@ -283,10 +283,60 @@ export default function InvestorDocumentsPage() {
           </div>
         </div>
 
-        {/* Documents Table */}
-        <div className="overflow-hidden rounded-[20px] border border-ui-border bg-ui-card/95 shadow-sm md:rounded-[32px] dark:border-zinc-800 dark:bg-zinc-900/70">
+        {/* Documents — cards on tablet */}
+        <div className="space-y-3 xl:hidden">
+          {filteredDocs.length === 0 ? (
+            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+              No documents found matching your search.
+            </p>
+          ) : (
+            filteredDocs.map((doc, i) => (
+            <article
+              key={i}
+              className="rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900/70"
+            >
+              <div className="mb-3 flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ui-muted-deep text-ui-faint">
+                  <Document className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-bold leading-snug text-ui-strong">{doc.name}</p>
+                  <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{doc.id}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 border-t border-ui-divider pt-3">
+                <span className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[9px] font-bold ${catStyle[doc.catLabel]}`}>
+                  <CategoryGlyph catLabel={doc.catLabel} />
+                  {doc.catLabel}
+                </span>
+                <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold ${statusStyle[doc.statusType]}`}>
+                  <StatusGlyph statusType={doc.statusType} />
+                  {doc.status}
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-4 text-[11px]">
+                <div className="min-w-0">
+                  <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Asset</p>
+                  <p className="line-clamp-2 font-medium text-ui-muted-text">{doc.asset}</p>
+                </div>
+                <div>
+                  <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Date</p>
+                  <p className="font-medium text-ui-faint">{doc.date}</p>
+                </div>
+                <div>
+                  <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Size</p>
+                  <p className="font-medium text-ui-faint">{doc.size}</p>
+                </div>
+              </div>
+            </article>
+            ))
+          )}
+        </div>
+
+        {/* Documents table — desktop */}
+        <div className="hidden overflow-hidden rounded-[20px] border border-ui-border bg-ui-card/95 shadow-sm md:rounded-[32px] xl:block dark:border-zinc-800 dark:bg-zinc-900/70">
           <div className="overflow-x-auto">
-            <table className="w-full text-left min-w-[680px]">
+            <table className="w-full min-w-[680px] text-left">
               <thead>
                 <tr className="border-b border-ui-divider">
                   {['Document', 'Category', 'Asset', 'Status', 'Date', 'Size'].map(h => (

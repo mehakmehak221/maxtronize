@@ -1,124 +1,337 @@
 'use client';
 
-import React, { useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  BarChart3,
+  Building2,
+  Filter,
+  Globe,
+  Info,
+  Pickaxe,
+  Search,
+  TrendingDown,
+  TrendingUp,
+  Zap,
+} from 'lucide-react';
 import Link from 'next/link';
+import React, { useMemo, useState } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
+
+const iconStroke = 1.75;
+
+type StatCard = {
+  label: string;
+  val: string;
+  trend: string;
+  up: boolean;
+};
+
+const STATS: StatCard[] = [
+  { label: '24H Volume', val: '$2.8M', trend: '+12.4%', up: true },
+  { label: 'Total Listings', val: '847', trend: '+42', up: true },
+  { label: 'Avg. Price Change', val: '+3.2%', trend: '+0.8%', up: true },
+  { label: 'Active Traders', val: '1,284', trend: '+156', up: true },
+];
+
+type LiquidityLevel = 'High Liquidity' | 'Medium Liquidity' | 'Low Liquidity';
+
+type Listing = {
+  id: string;
+  name: string;
+  ticker: string;
+  sector: string;
+  seller: string;
+  liquidity: LiquidityLevel;
+  pricePerToken: string;
+  change: string;
+  up: boolean;
+  vol24h: string;
+  lastSale: string;
+  available: string;
+  totalVal: string;
+  Icon: LucideIcon;
+  iconWell: string;
+};
+
+const LISTINGS: Listing[] = [
+  {
+    id: 'ponyc',
+    name: 'Prime Office Tower NYC',
+    ticker: 'PONYC',
+    sector: 'Real Estate',
+    seller: 'Investor #4728',
+    liquidity: 'High Liquidity',
+    pricePerToken: '$1,240',
+    change: '+5.1%',
+    up: true,
+    vol24h: '$12,400',
+    lastSale: '$1,235',
+    available: '150 tokens',
+    totalVal: '$186,000',
+    Icon: Building2,
+    iconWell: 'bg-emerald-500/12 text-emerald-600 ring-1 ring-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400',
+  },
+  {
+    id: 'sfatx',
+    name: 'Solar Farm Alpha TX',
+    ticker: 'SFATX',
+    sector: 'Energy',
+    seller: 'Investor #2891',
+    liquidity: 'Medium Liquidity',
+    pricePerToken: '$285',
+    change: '-5%',
+    up: false,
+    vol24h: '$8,900',
+    lastSale: '$288',
+    available: '320 tokens',
+    totalVal: '$91,200',
+    Icon: Zap,
+    iconWell: 'bg-amber-500/12 text-amber-600 ring-1 ring-amber-500/20 dark:bg-amber-500/15 dark:text-amber-400',
+  },
+  {
+    id: 'hppe',
+    name: 'Harbor Ports PE Fund',
+    ticker: 'HPPE',
+    sector: 'Private Equity',
+    seller: 'Investor #1044',
+    liquidity: 'Low Liquidity',
+    pricePerToken: '$4,820',
+    change: '+15.5%',
+    up: true,
+    vol24h: '$24,100',
+    lastSale: '$4,800',
+    available: '28 tokens',
+    totalVal: '$134,960',
+    Icon: Globe,
+    iconWell: 'bg-blue-500/12 text-blue-600 ring-1 ring-blue-500/20 dark:bg-blue-500/15 dark:text-blue-400',
+  },
+  {
+    id: 'cmrf',
+    name: 'Copper Mining Royalty',
+    ticker: 'CMRF',
+    sector: 'Commodities',
+    seller: 'Investor #3312',
+    liquidity: 'Medium Liquidity',
+    pricePerToken: '$960',
+    change: '-4%',
+    up: false,
+    vol24h: '$5,760',
+    lastSale: '$968',
+    available: '75 tokens',
+    totalVal: '$72,000',
+    Icon: Pickaxe,
+    iconWell: 'bg-orange-500/12 text-orange-600 ring-1 ring-orange-500/20 dark:bg-orange-500/15 dark:text-orange-400',
+  },
+];
+
+const LIQUIDITY_STYLES: Record<LiquidityLevel, string> = {
+  'High Liquidity':
+    'border-emerald-200/80 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400',
+  'Medium Liquidity':
+    'border-blue-200/80 bg-blue-50 text-blue-700 dark:border-blue-500/25 dark:bg-blue-500/10 dark:text-blue-400',
+  'Low Liquidity':
+    'border-rose-200/80 bg-rose-50 text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-400',
+};
+
+function StatKpiCard({ stat }: { stat: StatCard }) {
+  return (
+    <div className="rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-sm transition-shadow hover:shadow-md md:rounded-[28px] md:p-6 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary md:h-11 md:w-11 md:rounded-2xl">
+          <TrendingUp className="h-5 w-5" strokeWidth={iconStroke} />
+        </div>
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${
+            stat.up ? 'bg-ui-success-bg-soft text-ui-success-text' : 'bg-ui-danger-soft text-ui-danger-text'
+          }`}
+        >
+          <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
+          {stat.trend}
+        </span>
+      </div>
+      <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ui-faint">{stat.label}</p>
+      <p className="text-2xl font-bold tabular-nums tracking-tight text-ui-strong md:text-3xl">{stat.val}</p>
+    </div>
+  );
+}
 
 export default function SecondaryMarketPage() {
   const [search, setSearch] = useState('');
 
-  const stats = [
-    { label: '24H Volume', val: '$2.8M', trend: '+12.4%', up: true },
-    { label: 'Total Listings', val: '847', trend: '+42', up: true },
-    { label: 'Avg. Price Change', val: '+3.2%', trend: '+0.8%', up: true },
-    { label: 'Active Traders', val: '1,284', trend: '+156', up: true },
-  ];
-
-  const listings = [
-    { id: 'ponyc', name: 'Prime Office Tower NYC', ticker: 'PONYC', sector: 'Real Estate', seller: 'Investor #4728', liquidity: 'High Liquidity', liqColor: 'bg-green-50 text-green-600 border-green-100', pricePerToken: '$1,240', change: '+5.1%', up: true, vol24h: '$12,400', lastSale: '$1,235', available: '150 tokens', totalVal: '$186,000', icon: '🏢', iconBg: 'bg-purple-100 text-purple-600' },
-    { id: 'sfatx', name: 'Solar Farm Alpha TX', ticker: 'SFATX', sector: 'Energy', seller: 'Investor #2891', liquidity: 'Medium Liquidity', liqColor: 'bg-amber-50 text-amber-600 border-amber-100', pricePerToken: '$285', change: '-5%', up: false, vol24h: '$8,900', lastSale: '$288', available: '320 tokens', totalVal: '$91,200', icon: '⚡', iconBg: 'bg-yellow-100 text-yellow-600' },
-    { id: 'hppe', name: 'Harbor Ports PE Fund', ticker: 'HPPE', sector: 'Private Equity', seller: 'Investor #1044', liquidity: 'Low Liquidity', liqColor: 'bg-rose-50 text-rose-600 border-rose-100', pricePerToken: '$4,820', change: '+15.5%', up: true, vol24h: '$24,100', lastSale: '$4,800', available: '28 tokens', totalVal: '$134,960', icon: '🌐', iconBg: 'bg-blue-100 text-blue-600' },
-    { id: 'cmrf', name: 'Copper Mining Royalty', ticker: 'CMRF', sector: 'Commodities', seller: 'Investor #3312', liquidity: 'Medium Liquidity', liqColor: 'bg-amber-50 text-amber-600 border-amber-100', pricePerToken: '$960', change: '-4%', up: false, vol24h: '$5,760', lastSale: '$968', available: '75 tokens', totalVal: '$72,000', icon: '⛏️', iconBg: 'bg-orange-100 text-orange-600' },
-  ];
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return LISTINGS;
+    return LISTINGS.filter(
+      (l) =>
+        l.name.toLowerCase().includes(q) ||
+        l.ticker.toLowerCase().includes(q) ||
+        l.sector.toLowerCase().includes(q),
+    );
+  }, [search]);
 
   return (
     <InvestorLayout pageTitle="Secondary Market">
-      <div className="space-y-6 animate-in fade-in duration-700">
+      <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Secondary Market</h1>
-            <p className="text-sm text-ui-faint mt-1 font-medium">Trade tokenized assets peer-to-peer with instant settlement</p>
+            <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Secondary Market</h1>
+            <p className="mt-1 text-sm font-medium text-ui-muted-text">
+              Trade tokenized assets peer-to-peer with instant settlement
+            </p>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-100 rounded-full shrink-0">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-[12px] font-bold text-green-600">Market Open</span>
+          <div className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50 px-4 py-2 dark:border-emerald-500/25 dark:bg-emerald-500/10">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            <span className="text-[12px] font-bold text-emerald-700 dark:text-emerald-400">Market Open</span>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {stats.map((s, i) => (
-            <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-6 shadow-sm">
-              <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-2">{s.label}</p>
-              <p className="text-xl md:text-2xl font-bold text-ui-strong mb-1">{s.val}</p>
-              <span className={`text-[10px] font-bold flex items-center gap-1 ${s.up ? 'text-green-500' : 'text-red-500'}`}>↗ {s.trend}</span>
-            </div>
+        {/* KPI row */}
+        <section className="grid grid-cols-2 gap-4 md:gap-5 2xl:grid-cols-4">
+          {STATS.map((stat) => (
+            <StatKpiCard key={stat.label} stat={stat} />
           ))}
-        </div>
+        </section>
 
-        {/* Search + Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ui-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-            <input value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="Search by asset name or symbol..." className="w-full pl-11 pr-6 py-3.5 bg-ui-card border border-ui-border rounded-2xl text-[13px] font-medium outline-none focus:ring-4 focus:ring-primary/5 shadow-sm" />
+        {/* Search + filters */}
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="relative min-w-0 flex-1">
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ui-faint"
+              strokeWidth={iconStroke}
+            />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              type="search"
+              placeholder="Search by asset name or symbol..."
+              className="w-full rounded-2xl border border-ui-border bg-ui-card py-3.5 pl-11 pr-4 text-[13px] font-medium text-ui-strong shadow-sm outline-none transition-shadow placeholder:text-ui-placeholder focus:ring-4 focus:ring-primary/10"
+            />
           </div>
-          <button className="flex items-center gap-2 px-5 py-3 bg-ui-card border border-ui-border rounded-2xl text-[13px] font-bold text-ui-muted-text shadow-sm hover:bg-ui-muted-deep transition-colors shrink-0">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+          <input
+            type="text"
+            aria-label="Additional filter"
+            className="hidden w-36 rounded-2xl border border-ui-border bg-ui-card px-4 py-3.5 text-[13px] font-medium shadow-sm outline-none focus:ring-4 focus:ring-primary/10 sm:block"
+          />
+          <button
+            type="button"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-ui-border bg-ui-card px-5 py-3.5 text-[13px] font-bold text-ui-muted-text shadow-sm transition-colors hover:bg-ui-muted-deep/80"
+          >
+            <Filter className="h-4 w-4" strokeWidth={iconStroke} />
             Filters
           </button>
         </div>
 
-        {/* Info Banner */}
-        <div className="flex items-start gap-3 p-4 md:p-5 bg-blue-50 border border-blue-100 rounded-2xl">
-          <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-500 flex items-center justify-center text-sm shrink-0">ℹ</div>
-          <div>
-            <h4 className="text-[13px] font-bold text-blue-900 mb-1">About Secondary Market</h4>
-            <p className="text-[12px] text-blue-700 font-medium leading-relaxed">The secondary market allows investors to trade tokenized assets peer-to-peer before maturity. Prices are set by sellers and may differ from the original offering price. All trades are settled instantly on-chain with automated escrow protection.</p>
+        {/* Info banner */}
+        <div className="flex items-start gap-3.5 rounded-2xl border border-primary/15 bg-primary/5 p-4 md:gap-4 md:rounded-[22px] md:p-5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary md:h-10 md:w-10">
+            <Info className="h-5 w-5" strokeWidth={iconStroke} />
+          </div>
+          <div className="min-w-0">
+            <h4 className="mb-1 text-[13px] font-bold text-ui-strong md:text-sm">About Secondary Market</h4>
+            <p className="text-[12px] font-medium leading-relaxed text-ui-muted-text md:text-[13px]">
+              The secondary market allows investors to trade tokenized assets peer-to-peer before maturity. Prices are
+              set by sellers and may differ from the original offering price. All trades are settled instantly on-chain
+              with automated escrow protection.
+            </p>
           </div>
         </div>
 
         {/* Listings */}
-        <div className="space-y-4">
-          {listings.map((listing, i) => (
-            <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-7 shadow-sm hover:shadow-md transition-all">
-              {/* Top row */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-5">
-                <div className="flex items-center gap-4">
-                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0 ${listing.iconBg}`}>{listing.icon}</div>
-                  <div>
-                    <h3 className="text-[14px] font-bold text-ui-strong">{listing.name}</h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{listing.ticker} · {listing.sector}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${listing.liqColor}`}>{listing.liquidity}</span>
-                    </div>
-                    <p className="text-[10px] text-ui-faint mt-0.5">Seller: {listing.seller}</p>
+        <div className="space-y-4 md:space-y-5">
+          {filtered.map((listing) => (
+            <article
+              key={listing.id}
+              className="rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-sm transition-all hover:shadow-md md:rounded-[28px] md:p-6 lg:p-5 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]"
+            >
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-6 xl:gap-8">
+                {/* Asset identity */}
+                <div className="flex min-w-0 items-start gap-4 lg:w-[min(100%,260px)] lg:shrink-0 xl:w-[280px]">
+                  <div
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl md:h-[52px] md:w-[52px] ${listing.iconWell}`}
+                  >
+                    <listing.Icon className="h-6 w-6" strokeWidth={iconStroke} />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="truncate text-[15px] font-bold text-ui-strong md:text-base">{listing.name}</h3>
+                    <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                      {listing.ticker} · {listing.sector}
+                    </p>
+                    <p className="mt-1 text-[11px] font-medium text-ui-muted-text">Seller: {listing.seller}</p>
+                    <span
+                      className={`mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-[9px] font-bold ${LIQUIDITY_STYLES[listing.liquidity]}`}
+                    >
+                      {listing.liquidity}
+                    </span>
                   </div>
                 </div>
-                <div className="flex flex-col sm:items-end gap-1 shrink-0">
-                  <p className="text-xl md:text-2xl font-bold text-ui-strong">{listing.pricePerToken}</p>
-                  <p className={`text-sm font-bold flex items-center gap-1 ${listing.up ? 'text-green-500' : 'text-red-500'}`}>{listing.up ? '↗' : '↙'} {listing.change}</p>
-                </div>
-              </div>
 
-              {/* Details row */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 flex-1">
-                  {[
-                    ['24h Volume', listing.vol24h],
-                    ['Last Sale', listing.lastSale],
-                    ['Available', listing.available],
-                    ['Total Value', listing.totalVal],
-                  ].map(([l, v]) => (
-                    <div key={l}>
-                      <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-0.5">{l}</p>
-                      <p className="text-[13px] font-bold text-ui-strong">{v}</p>
+                {/* Price + availability — grouped on laptop+, not stretched edge-to-edge */}
+                <div className="grid grid-cols-2 gap-5 border-t border-ui-divider pt-5 sm:gap-8 lg:flex lg:flex-1 lg:items-center lg:justify-start lg:gap-10 lg:border-t-0 lg:pt-0 xl:gap-14">
+                  <div className="min-w-0 lg:max-w-[200px]">
+                    <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Price per token</p>
+                    <p className="text-2xl font-bold tabular-nums text-ui-strong lg:text-[1.65rem] xl:text-3xl">{listing.pricePerToken}</p>
+                    <p
+                      className={`mt-1 flex items-center gap-1 text-sm font-bold ${
+                        listing.up ? 'text-ui-success-text' : 'text-ui-danger-text'
+                      }`}
+                    >
+                      {listing.up ? (
+                        <TrendingUp className="h-4 w-4" strokeWidth={iconStroke} />
+                      ) : (
+                        <TrendingDown className="h-4 w-4" strokeWidth={iconStroke} />
+                      )}
+                      {listing.change}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] lg:mt-2.5">
+                      <div>
+                        <span className="font-bold uppercase tracking-wider text-ui-faint">24h Vol </span>
+                        <span className="font-bold text-ui-strong">{listing.vol24h}</span>
+                      </div>
+                      <div>
+                        <span className="font-bold uppercase tracking-wider text-ui-faint">Last </span>
+                        <span className="font-bold text-ui-strong">{listing.lastSale}</span>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="min-w-0 lg:max-w-[180px]">
+                    <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Available</p>
+                    <p className="text-2xl font-bold tabular-nums text-ui-strong lg:text-[1.65rem] xl:text-3xl">{listing.available}</p>
+                    <p className="mt-2 text-[11px] lg:mt-2.5">
+                      <span className="font-bold uppercase tracking-wider text-ui-faint">Total </span>
+                      <span className="font-bold text-ui-strong">{listing.totalVal}</span>
+                    </p>
+                  </div>
                 </div>
-                <div className="flex gap-3 shrink-0">
-                  <Link href="/investor/marketplace-detail" className="flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white rounded-xl text-[12px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+
+                {/* Actions — right column on laptop+ */}
+                <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row lg:min-w-[148px] lg:flex-col lg:items-stretch">
+                  <Link
+                    href="/investor/marketplace-detail"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5b21b6] to-[#4338ca] px-5 py-2.5 text-[12px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105 lg:px-4"
+                  >
+                    <Zap className="h-4 w-4" strokeWidth={iconStroke} />
                     Trade Now
                   </Link>
-                  <button className="flex items-center gap-1.5 px-4 py-2.5 border border-ui-border rounded-xl text-[12px] font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-colors">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                  <Link
+                    href="/investor/marketplace-detail"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted-deep/80 lg:px-4"
+                  >
+                    <BarChart3 className="h-4 w-4" strokeWidth={iconStroke} />
                     View Chart
-                  </button>
+                  </Link>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
+
+          {filtered.length === 0 && (
+            <p className="py-12 text-center text-sm font-medium text-ui-muted-text">No listings match your search.</p>
+          )}
         </div>
       </div>
     </InvestorLayout>

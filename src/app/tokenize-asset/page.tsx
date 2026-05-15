@@ -5,6 +5,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ForceLightTheme } from '@/components/ForceLightTheme';
 import { MaxtronizeLogo } from '@/components/MaxtronizeLogo';
+import {
+  TokenizeWizardGlobeIcon,
+  TokenizeWizardBuildingIcon,
+  TokenizeWizardScalesIcon,
+  TokenizeWizardGearIcon,
+  TokenizeWizardLayersIcon,
+  TokenizeWizardShieldCheckIcon,
+  TokenizeBurnChipIcon,
+  TokenizeFeatureBoltIcon,
+} from '@/app/VectorImages';
 
 type Step = {
   id: number;
@@ -12,6 +22,50 @@ type Step = {
   desc: string;
   icon: React.ReactNode;
 };
+
+const LEGAL_COMPLIANCE_FEATURES = [
+  { id: 'accredited' as const, label: 'Accredited Investors Only', desc: 'Restrict to SEC-verified accredited' },
+  { id: 'lockup' as const, label: 'Lock-up Period Enforced', desc: '12-month lock-up via smart contract' },
+  { id: 'ofac' as const, label: 'OFAC Screening', desc: 'Real-time sanctions list checking' },
+] as const;
+
+type LegalComplianceId = (typeof LEGAL_COMPLIANCE_FEATURES)[number]['id'];
+
+const TOKENIZATION_SMART_FEATURES = [
+  {
+    id: 'transferRestrictions' as const,
+    label: 'Transfer Restrictions',
+    desc: 'On-chain whitelist enforcement',
+    iconKey: 'shield' as const,
+  },
+  {
+    id: 'autoDistributions' as const,
+    label: 'Automatic Distributions',
+    desc: 'Smart contract yield payouts',
+    iconKey: 'bolt' as const,
+  },
+  {
+    id: 'tokenBurn' as const,
+    label: 'Token Burn on Redemption',
+    desc: 'Reduces supply on exit',
+    iconKey: 'chip' as const,
+  },
+  {
+    id: 'investorCap' as const,
+    label: 'Investor Cap per Address',
+    desc: 'Limit max tokens per wallet',
+    iconKey: 'gear' as const,
+  },
+] as const;
+
+type TokenizationSmartId = (typeof TOKENIZATION_SMART_FEATURES)[number]['id'];
+
+const TOKENIZATION_ICON_MAP = {
+  shield: TokenizeWizardShieldCheckIcon,
+  bolt: TokenizeFeatureBoltIcon,
+  chip: TokenizeBurnChipIcon,
+  gear: TokenizeWizardGearIcon,
+} as const;
 
 export default function TokenizeAssetPage() {
   const router = useRouter();
@@ -21,14 +75,25 @@ export default function TokenizeAssetPage() {
   const [selectedFramework, setSelectedFramework] = useState('Reg D');
   const [selectedEntity, setSelectedEntity] = useState('DE');
   const [selectedNetwork, setSelectedNetwork] = useState('ETH');
+  const [legalComplianceToggles, setLegalComplianceToggles] = useState<Record<LegalComplianceId, boolean>>({
+    accredited: true,
+    lockup: true,
+    ofac: true,
+  });
+  const [tokenizationSmartToggles, setTokenizationSmartToggles] = useState<Record<TokenizationSmartId, boolean>>({
+    transferRestrictions: true,
+    autoDistributions: true,
+    tokenBurn: false,
+    investorCap: false,
+  });
 
   const steps: Step[] = [
-    { id: 1, name: 'Jurisdiction', desc: 'Select legal region & framework', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg> },
-    { id: 2, name: 'Asset Details', desc: 'Define the underlying asset', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg> },
-    { id: 3, name: 'Legal Structure', desc: 'Configure SPV & compliance', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg> },
-    { id: 4, name: 'Offering Setup', desc: 'Set terms & investor access', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> },
-    { id: 5, name: 'Tokenization', desc: 'Deploy on-chain', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg> },
-    { id: 6, name: 'Review & Submit', desc: 'Final review before launch', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg> },
+    { id: 1, name: 'Jurisdiction', desc: 'Select legal region & framework', icon: <TokenizeWizardGlobeIcon className="shrink-0" /> },
+    { id: 2, name: 'Asset Details', desc: 'Define the underlying asset', icon: <TokenizeWizardBuildingIcon className="shrink-0" /> },
+    { id: 3, name: 'Legal Structure', desc: 'Configure SPV & compliance', icon: <TokenizeWizardScalesIcon className="shrink-0" /> },
+    { id: 4, name: 'Offering Setup', desc: 'Set terms & investor access', icon: <TokenizeWizardGearIcon className="shrink-0" /> },
+    { id: 5, name: 'Tokenization', desc: 'Deploy on-chain', icon: <TokenizeWizardLayersIcon className="shrink-0" /> },
+    { id: 6, name: 'Review & Submit', desc: 'Final review before launch', icon: <TokenizeWizardShieldCheckIcon className="shrink-0" /> },
   ];
 
   const jurisdictions = [
@@ -340,26 +405,55 @@ export default function TokenizeAssetPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { label: 'Accredited Investors Only', desc: 'Restrict to SEC-verified accredited', active: true },
-            { label: 'Lock-up Period Enforced', desc: '12-month lock-up via smart contract', active: true },
-            { label: 'OFAC Screening', desc: 'Real-time sanctions list checking', active: true }
-          ].map((feature, i) => (
-            <div key={i} className="p-6 bg-ui-muted-surface border border-ui-border rounded-[24px] space-y-4">
-              <div className="flex items-center justify-between">
-                <div className={`w-5 h-5 rounded-md flex items-center justify-center text-white ${feature.active ? 'bg-primary' : 'bg-progress-track'}`}>
-                  {feature.active && <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+          {LEGAL_COMPLIANCE_FEATURES.map((feature) => {
+            const active = legalComplianceToggles[feature.id];
+            return (
+              <button
+                key={feature.id}
+                type="button"
+                aria-pressed={active}
+                aria-label={`${feature.label}: ${active ? 'on' : 'off'}`}
+                onClick={() =>
+                  setLegalComplianceToggles((prev) => ({
+                    ...prev,
+                    [feature.id]: !prev[feature.id],
+                  }))
+                }
+                className="rounded-[24px] border border-ui-border bg-ui-muted-surface p-6 text-left transition-colors hover:border-ui-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-white ${
+                      active ? 'bg-primary' : 'border border-ui-border-strong bg-ui-card'
+                    }`}
+                    aria-hidden
+                  >
+                    {active && (
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </span>
+                  <span
+                    className={`relative h-5 w-10 shrink-0 rounded-full transition-colors ${
+                      active ? 'bg-primary/20' : 'bg-ui-muted-deep'
+                    }`}
+                    aria-hidden
+                  >
+                    <span
+                      className={`absolute top-1 h-3 w-3 rounded-full transition-all ${
+                        active ? 'right-1 bg-primary' : 'left-1 bg-ui-faint'
+                      }`}
+                    />
+                  </span>
                 </div>
-                <div className="w-10 h-5 bg-primary/20 rounded-full relative cursor-pointer">
-                  <div className="absolute right-1 top-1 w-3 h-3 bg-primary rounded-full"></div>
+                <div className="mt-4 space-y-1">
+                  <p className="text-[11px] font-bold text-ui-strong">{feature.label}</p>
+                  <p className="text-[9px] font-medium leading-relaxed text-ui-faint">{feature.desc}</p>
                 </div>
-              </div>
-              <div>
-                <p className="text-[11px] font-bold text-ui-strong">{feature.label}</p>
-                <p className="text-[9px] text-ui-faint font-medium leading-relaxed">{feature.desc}</p>
-              </div>
-            </div>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -540,110 +634,297 @@ export default function TokenizeAssetPage() {
         <div className="space-y-6 pt-6 border-t border-ui-divider">
           <h3 className="text-sm font-bold text-ui-strong">Smart Contract Features</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             {[
-               { label: 'Transfer Restrictions', desc: 'On-chain whitelist enforcement', icon: '🛡️' },
-               { label: 'Automatic Distributions', desc: 'Smart contract yield payouts', icon: '⚡' },
-               { label: 'Token Burn on Redemption', desc: 'Reduces supply on exit', icon: '🔥' },
-               { label: 'Investor Cap per Address', desc: 'Limit max tokens per wallet', icon: '⚙️' }
-             ].map((f, i) => (
-               <div key={i} className="p-6 bg-ui-muted-surface border border-ui-border rounded-[24px] flex items-center justify-between group hover:bg-ui-card hover:shadow-sm transition-all">
-                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-ui-card flex items-center justify-center shadow-sm text-sm">{f.icon}</div>
-                    <div>
-                       <p className="text-[12px] font-bold text-ui-strong">{f.label}</p>
-                       <p className="text-[10px] text-ui-faint font-medium">{f.desc}</p>
+            {TOKENIZATION_SMART_FEATURES.map((f) => {
+              const active = tokenizationSmartToggles[f.id];
+              const Icon = TOKENIZATION_ICON_MAP[f.iconKey];
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  aria-pressed={active}
+                  aria-label={`${f.label}: ${active ? 'on' : 'off'}`}
+                  onClick={() =>
+                    setTokenizationSmartToggles((prev) => ({
+                      ...prev,
+                      [f.id]: !prev[f.id],
+                    }))
+                  }
+                  className="flex items-center justify-between gap-4 rounded-[24px] border border-ui-border bg-ui-muted-surface p-6 text-left transition-all hover:border-ui-border-strong hover:bg-ui-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-4">
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm ${
+                        active ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-[#90A1B9]'
+                      }`}
+                      aria-hidden
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
                     </div>
-                 </div>
-                 <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer">
-                    <div className="absolute right-1 top-1 w-3 h-3 bg-ui-card rounded-full transition-all"></div>
-                 </div>
-               </div>
-             ))}
+                    <div className="min-w-0">
+                      <p className="text-[12px] font-bold text-ui-strong">{f.label}</p>
+                      <p className="text-[10px] font-medium text-ui-faint">{f.desc}</p>
+                    </div>
+                  </div>
+                  <span
+                    className={`relative h-5 w-10 shrink-0 rounded-full transition-colors ${
+                      active ? 'bg-primary' : 'bg-ui-muted-deep'
+                    }`}
+                    aria-hidden
+                  >
+                    <span
+                      className={`absolute top-1 h-3 w-3 rounded-full transition-all ${
+                        active ? 'right-1 bg-ui-card' : 'left-1 bg-ui-card'
+                      }`}
+                    />
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="bg-[#1A1A2E] rounded-[40px] p-10 text-white relative overflow-hidden">
-           <div className="absolute inset-0 bg-mesh opacity-20"></div>
-           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="flex items-center gap-4">
-                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                 <p className="text-[13px] font-bold">Ready to Deploy</p>
+        <div className="relative overflow-hidden rounded-[28px] border border-white/6 bg-[#0B0E14] shadow-[0_24px_48px_-24px_rgba(0,0,0,0.55)]">
+          <div
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(145deg,#1A1535_0%,transparent_45%,#0B0E14_100%)]"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -right-28 -top-32 h-[300px] w-[300px] rounded-full bg-[#5b21b6]/40 blur-[90px]"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_70%_at_100%_-5%,rgba(99,102,241,0.22),transparent_58%)]"
+            aria-hidden
+          />
+
+          <div className="relative z-10 space-y-8 p-8 md:p-10">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex shrink-0 items-center gap-3">
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full bg-[#00FFA3] shadow-[0_0_14px_rgba(0,255,163,0.7)]"
+                  aria-hidden
+                />
+                <p className="text-[14px] font-semibold tracking-tight text-white">Ready to Deploy</p>
               </div>
-              <div className="flex flex-wrap gap-10">
-                 <div>
-                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Network</p>
-                   <p className="text-sm font-bold">Ethereum</p>
-                 </div>
-                 <div>
-                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Supply</p>
-                   <p className="text-sm font-bold">1.0M tokens</p>
-                 </div>
-                 <div>
-                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Est. Gas</p>
-                   <p className="text-sm font-bold">~$45</p>
-                 </div>
+
+              <div className="grid min-w-0 flex-1 grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-10 lg:ml-auto lg:max-w-2xl lg:gap-14">
+                {[
+                  { label: 'Network', value: 'Ethereum' },
+                  { label: 'Supply', value: '1.0M tokens' },
+                  { label: 'Est. Gas', value: '~$45' },
+                ].map((row) => (
+                  <div key={row.label} className="min-w-0">
+                    <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#90A1B9]">
+                      {row.label}
+                    </p>
+                    <p className="text-[15px] font-bold tracking-tight text-white">{row.value}</p>
+                  </div>
+                ))}
               </div>
-           </div>
-           <p className="relative z-10 mt-6 text-[10px] text-white/30 leading-relaxed max-w-2xl">
-             Clicking the Complete Setup button will submit this configuration for Maxtronize compliance review. Smart contract deployment occurs after approval (~24-48 hours).
-           </p>
+            </div>
+
+            <p className="max-w-3xl text-left text-[11px] font-medium leading-relaxed text-[#90A1B9]">
+              Clicking &quot;Complete Setup&quot; will submit this configuration for Maxtronize compliance review. Smart
+              contract deployment occurs after approval (~48 hours).
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 
-  const renderReview = () => (
-    <div className="space-y-10 animate-in slide-in-from-right-4 duration-500">
-      <div className="space-y-4 text-center py-10">
-        <div className="w-20 h-20 bg-ui-success-bg-soft text-ui-success-icon rounded-full flex items-center justify-center text-4xl mx-auto shadow-inner">✓</div>
-        <h2 className="text-4xl font-bold text-ui-strong tracking-tight">Review & Submit</h2>
-        <p className="text-ui-faint font-medium max-w-md mx-auto">Please review your asset configuration before submitting to the Maxtronize compliance protocol.</p>
-      </div>
+  const renderReview = () => {
+    const jurisdictionName = jurisdictions.find((j) => j.id === selectedJurisdiction)?.name ?? 'United States';
+    const regulatoryFramework =
+      selectedFramework === 'Reg D'
+        ? 'SEC Regulation D (506c)'
+        : selectedFramework === 'Reg S'
+          ? 'SEC Regulation S'
+          : 'SEC Regulation A+';
+    const investorType = legalComplianceToggles.accredited ? 'Accredited Investors Only' : 'Per selected framework';
+    const entityName = entities.find((e) => e.id === selectedEntity)?.name ?? 'SPV — Delaware LLC';
+    const net = networks.find((n) => n.id === selectedNetwork);
+    const blockchainLine = net ? `${net.name} (${net.standard})` : 'Ethereum (ERC-1400)';
+    const lockupLine = legalComplianceToggles.lockup
+      ? '12 months (smart contract enforced)'
+      : 'As configured';
+    const amlLine = legalComplianceToggles.ofac
+      ? 'Automatic — Maxtronize Engine'
+      : 'Standard batch screening';
 
-      <div className="bg-ui-card border border-ui-border rounded-[40px] p-10 shadow-sm space-y-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-           {[
-             { title: 'Jurisdiction', value: 'United States (SEC Reg D 506c)', icon: '🌐' },
-             { title: 'Asset Details', value: 'Prime Office Tower — NYC ($10.0M)', icon: '🏢' },
-             { title: 'Legal Structure', value: 'SPV — Delaware LLC (Sumsub KYC)', icon: '⚖️' },
-             { title: 'Offering Terms', value: 'Min. $25k investment, Quarterly yield', icon: '⚙️' },
-             { title: 'Blockchain', value: 'Ethereum Mainnet (ERC-1400)', icon: '⛓️' },
-             { title: 'Token Symbol', value: 'PONYC (1,000,000 supply)', icon: '✨' }
-           ].map((r, i) => (
-             <div key={i} className="flex gap-5 items-start p-6 bg-ui-muted-surface rounded-[32px] border border-ui-divider group hover:bg-ui-card hover:shadow-md transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-ui-card shadow-sm flex items-center justify-center text-xl group-hover:scale-110 transition-transform">{r.icon}</div>
-                <div>
-                   <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest mb-1">{r.title}</p>
-                   <p className="text-[13px] font-bold text-ui-strong">{r.value}</p>
+    const reviewSections = [
+      {
+        badge: 'Jurisdiction',
+        badgeClass: 'bg-[#7c3aed] text-white shadow-sm shadow-violet-500/20',
+        rows: [
+          { label: 'Jurisdiction', value: jurisdictionName },
+          { label: 'Regulatory Framework', value: regulatoryFramework },
+          { label: 'Investor Type', value: investorType },
+        ],
+      },
+      {
+        badge: 'Asset',
+        badgeClass: 'bg-sky-500 text-white shadow-sm shadow-sky-500/25',
+        rows: [
+          { label: 'Asset Name', value: 'Prime Office Tower — New York City' },
+          { label: 'Asset Class', value: 'Commercial Real Estate' },
+          { label: 'Appraised Valuation', value: '$42,500,000 USD' },
+          { label: 'Location', value: 'New York City, NY' },
+          { label: 'Expected Yield', value: '8.5% per annum' },
+        ],
+      },
+      {
+        badge: 'Legal Structure',
+        badgeClass: 'bg-orange-500 text-white shadow-sm shadow-orange-500/25',
+        rows: [
+          { label: 'Entity Type', value: entityName },
+          { label: 'KYC Provider', value: 'Maxtronize Integrated KYC' },
+          { label: 'AML Screening', value: amlLine },
+          { label: 'Lock-up Period', value: lockupLine },
+        ],
+      },
+      {
+        badge: 'Offering',
+        badgeClass: 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/25',
+        rows: [
+          { label: 'Target Capital', value: '$10,000,000 USD' },
+          { label: 'Min. Investment', value: '$25,000 USD' },
+          { label: 'Offering Period', value: '180 days' },
+          { label: 'Distribution', value: 'Quarterly' },
+        ],
+      },
+      {
+        badge: 'Tokenization',
+        badgeClass: 'bg-fuchsia-600 text-white shadow-sm shadow-fuchsia-600/25',
+        rows: [
+          { label: 'Blockchain', value: blockchainLine },
+          { label: 'Token Name', value: 'Prime Office NYC Token' },
+          { label: 'Token Symbol', value: 'PONYC' },
+          { label: 'Total Supply', value: '1,000,000 tokens' },
+          { label: 'Initial Price', value: '$10.00 USD per token' },
+        ],
+      },
+    ];
+
+    return (
+      <div className="space-y-10 animate-in slide-in-from-right-4 duration-500">
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="flex gap-1.5">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === currentStep ? 'w-8 bg-primary' : i < currentStep ? 'w-2 bg-success' : 'w-2 bg-progress-track'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Step 6 of 6</span>
+          </div>
+          <h2 className="text-4xl font-bold tracking-tight text-ui-strong">Review &amp; Submit</h2>
+          <p className="font-medium text-ui-faint">Final review before launch</p>
+        </div>
+
+        <div className="space-y-10 rounded-[40px] border border-ui-border bg-ui-card p-8 shadow-sm md:p-10">
+          <div className="flex gap-4 rounded-2xl border border-violet-200/90 bg-violet-50/90 p-5 md:p-6">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-violet-100 bg-white text-[#7c3aed] shadow-sm">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                />
+              </svg>
+            </div>
+            <p className="text-[12px] font-medium leading-relaxed text-[#5b21b6]/90 md:text-[13px]">
+              Please review all details carefully before submitting. Once submitted, our compliance team will review your
+              application within 48 hours. You&apos;ll receive an email confirmation.
+            </p>
+          </div>
+
+          <div className="space-y-10">
+            {reviewSections.map((section, idx) => (
+              <div
+                key={section.badge}
+                className={idx < reviewSections.length - 1 ? 'border-b border-[#eceef2] pb-10' : ''}
+              >
+                <span
+                  className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${section.badgeClass}`}
+                >
+                  {section.badge}
+                </span>
+                <div className="mt-5 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-2">
+                  {section.rows.map((row) => (
+                    <div key={`${section.badge}-${row.label}`} className="min-w-0 space-y-1.5">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#94a3b8]">{row.label}</p>
+                      <p className="text-[13px] font-bold leading-snug text-ui-strong">{row.value}</p>
+                    </div>
+                  ))}
                 </div>
-             </div>
-           ))}
-        </div>
-        <div className="p-8 bg-alert-info-bg rounded-[32px] border border-alert-info-border flex gap-5 items-center">
-           <div className="w-10 h-10 bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border rounded-full flex items-center justify-center text-alert-info-icon shadow-sm text-lg">⚖️</div>
-           <p className="text-[12px] text-alert-info-title font-medium leading-relaxed">
-             By submitting, you agree to the Maxtronize Platform Terms of Service and acknowledge that asset issuance is subject to regulatory approval in your selected jurisdiction.
-           </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 border-t border-ui-divider pt-8 md:grid-cols-3">
+            <div className="flex flex-col gap-2 rounded-2xl border border-emerald-200 bg-emerald-50/95 p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  />
+                </svg>
+              </div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-700/90">Compliance check</p>
+              <p className="text-lg font-bold text-emerald-800">Passed</p>
+            </div>
+            <div className="flex flex-col gap-2 rounded-2xl border border-sky-200 bg-sky-50/95 p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                <TokenizeWizardLayersIcon className="h-5 w-5" aria-hidden />
+              </div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-sky-700/90">Document status</p>
+              <p className="text-lg font-bold text-sky-800">4 / 4 Uploaded</p>
+            </div>
+            <div className="flex flex-col gap-2 rounded-2xl border border-violet-200 bg-violet-50/95 p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-violet-700/90">Est. review time</p>
+              <p className="text-lg font-bold text-violet-900">24–48 hours</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <ForceLightTheme>
-    <div className="flex min-h-[100dvh] items-stretch overflow-hidden bg-background font-sans transition-colors duration-300">
-      {/* Wizard Sidebar — stretches with row height (do not cap at 100dvh or gaps appear vs main column) */}
-      <aside className="hidden min-h-0 shrink-0 bg-sidebar-bg border-r border-border md:flex md:w-72 md:flex-col lg:w-80 overflow-hidden">
-        <div className="flex h-16 shrink-0 items-center border-b border-ui-divider px-5 md:px-6">
-          <Link href="/issuer/dashboard" className="block min-w-0 w-full max-w-[240px]">
-            <div className="relative h-8 w-full max-w-[240px]">
-              <MaxtronizeLogo
-                fill
-                sizes="240px"
-                className="object-contain object-left"
-                priority
-              />
-            </div>
+    <div className="flex h-dvh min-h-0 max-h-dvh w-full overflow-hidden bg-background font-sans transition-colors duration-300">
+      {/* Wizard sidebar: fixed height with parent; step list scrolls only if it overflows */}
+      <aside className="hidden h-full min-h-0 shrink-0 bg-sidebar-bg border-r border-border md:flex md:w-72 md:flex-col lg:w-80 overflow-hidden">
+        <div className="flex h-16 shrink-0 items-center justify-center border-b border-ui-divider px-5 md:px-6">
+          <Link
+            href="/issuer/dashboard"
+            className="relative mx-auto block h-8 w-full max-w-[200px] sm:max-w-[220px]"
+          >
+            <MaxtronizeLogo
+              fill
+              sizes="220px"
+              className="object-contain object-center"
+              priority
+            />
           </Link>
         </div>
 
@@ -658,10 +939,10 @@ export default function TokenizeAssetPage() {
               <div className="flex flex-col items-center">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all ${
                   currentStep === step.id 
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                    ? 'bg-linear-to-br from-[#9810FA] to-[#4F39F6] text-white shadow-lg shadow-[#9810FA]/25' 
                     : currentStep > step.id 
                     ? 'bg-ui-success-bg-soft text-ui-success-icon border border-ui-success-border' 
-                    : 'bg-ui-muted-deep text-ui-faint border border-ui-border'
+                    : 'bg-ui-muted-deep text-[#90A1B9] border border-ui-border'
                 }`}>
                   {currentStep > step.id ? '✓' : step.icon}
                 </div>
@@ -705,8 +986,8 @@ export default function TokenizeAssetPage() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col relative min-w-0 min-h-0">
-        <header className="h-16 bg-header-bg backdrop-blur-md border-b border-border flex items-center justify-between px-4 md:px-10 sticky top-0 z-50 shrink-0">
+      <main className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="z-30 flex h-16 shrink-0 items-center justify-between border-b border-border bg-header-bg px-4 backdrop-blur-md md:px-10">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3 text-sm">
               <span className="text-text-muted font-medium">Platform</span>
@@ -724,10 +1005,11 @@ export default function TokenizeAssetPage() {
           </div>
         </header>
 
-        <div className="flex-1 p-4 md:p-10 lg:p-16 overflow-y-auto bg-background">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-background p-4 md:p-10 lg:p-16">
           <div className="max-w-4xl mx-auto space-y-12">
             <div className="flex items-center justify-between">
-              <button 
+              <button
+                type="button"
                 onClick={() => {
                   if (currentStep === 1) {
                     router.push('/issuer/dashboard');
@@ -735,12 +1017,18 @@ export default function TokenizeAssetPage() {
                     setCurrentStep(Math.max(1, currentStep - 1));
                   }
                 }}
-                className="text-[13px] font-bold text-ui-faint hover:text-primary transition-colors flex items-center gap-2 w-fit"
+                className="flex w-fit items-center gap-2 text-[13px] font-bold text-ui-faint transition-colors hover:text-primary"
               >
-                <span className="text-lg">←</span> {currentStep === 1 ? 'Back to Dashboard' : 'Previous Step'}
+                <span className="text-lg">←</span>
+                {currentStep === 1 ? 'Back to Dashboard' : currentStep === 6 ? 'Back' : 'Previous Step'}
               </button>
               {currentStep < 6 && (
-                <button className="text-[11px] font-bold text-primary px-4 py-2 bg-primary/5 rounded-xl border border-primary/10">Save Draft</button>
+                <button
+                  type="button"
+                  className="rounded-xl border border-primary/10 bg-primary/5 px-4 py-2 text-[11px] font-bold text-primary"
+                >
+                  Save Draft
+                </button>
               )}
             </div>
 
@@ -789,29 +1077,60 @@ export default function TokenizeAssetPage() {
 
         {/* Action Bar Footer */}
         {!isSubmitted && (
-          <footer className="px-16 py-8 bg-header-bg backdrop-blur-md border-t border-border flex items-center justify-between shrink-0">
-            <button 
-              className="text-[13px] font-bold text-ui-faint hover:text-ui-strong transition-colors uppercase tracking-widest"
-              onClick={() => router.push('/issuer/dashboard')}
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={() => {
-                if (currentStep < 6) {
-                  setCurrentStep(currentStep + 1);
-                } else {
-                  setIsSubmitted(true);
-                  setTimeout(() => {
-                    router.push('/issuer/dashboard');
-                  }, 4000);
-                }
-              }}
-              className="px-12 py-4 bg-primary text-white rounded-[18px] text-[13px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:translate-y-[-2px] active:translate-y-[1px] transition-all flex items-center gap-2"
-            >
-              {currentStep === 6 ? 'Complete Setup' : 'Continue'}
-              <span className="text-lg">→</span>
-            </button>
+          <footer className="flex shrink-0 items-center justify-between border-t border-border bg-header-bg px-6 py-6 backdrop-blur-md md:px-16">
+            {currentStep === 6 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(5)}
+                  className="text-[13px] font-semibold text-[#64748b] transition-colors hover:text-ui-strong"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSubmitted(true);
+                    setTimeout(() => {
+                      router.push('/issuer/dashboard');
+                    }, 4000);
+                  }}
+                  className="flex items-center gap-2 rounded-[18px] bg-linear-to-r from-[#9810FA] to-[#4F39F6] px-6 py-3.5 text-[13px] font-bold text-white shadow-lg shadow-[#9810FA]/25 transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-[#4F39F6]/30 active:translate-y-px"
+                >
+                  <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Submit for Compliance Review
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="text-[13px] font-bold uppercase tracking-widest text-ui-faint transition-colors hover:text-ui-strong"
+                  onClick={() => router.push('/issuer/dashboard')}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (currentStep < 6) {
+                      setCurrentStep(currentStep + 1);
+                    } else {
+                      setIsSubmitted(true);
+                      setTimeout(() => {
+                        router.push('/issuer/dashboard');
+                      }, 4000);
+                    }
+                  }}
+                  className="flex items-center gap-2 rounded-[18px] bg-linear-to-r from-[#9810FA] to-[#4F39F6] px-12 py-4 text-[13px] font-bold text-white shadow-lg shadow-[#9810FA]/25 transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-[#4F39F6]/30 active:translate-y-px"
+                >
+                  Continue
+                  <span className="text-lg">→</span>
+                </button>
+              </>
+            )}
           </footer>
         )}
       </main>

@@ -1,233 +1,450 @@
 'use client';
 
-import React, { useState } from 'react';
+import {
+  Briefcase,
+  ExternalLink,
+  Filter,
+  Globe2,
+  Lock,
+  TrendingUp,
+  Unlock,
+  Users,
+} from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
+import React, { useMemo, useState } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
 
-function MapPinOutlineIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-      />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  );
+type FilterType =
+  | 'All Assets'
+  | 'Commercial RE'
+  | 'Infrastructure'
+  | 'Residential'
+  | 'Private Equity'
+  | 'Art & Col.';
+
+const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+const NAV_M = [95, 100, 105, 108, 110, 115, 120];
+const Y_MAX = 140;
+
+function buildNavPath(
+  values: number[],
+  left: number,
+  width: number,
+  top: number,
+  height: number,
+  maxY: number,
+) {
+  const n = values.length;
+  return values
+    .map((v, i) => {
+      const x = left + (i / (n - 1)) * width;
+      const y = top + height - (v / maxY) * height;
+      return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(' ');
 }
 
-type FilterType = 'All Assets' | 'Commercial RE' | 'Infrastructure' | 'Residential' | 'Private Equity' | 'Art & Col.';
+function buildNavAreaPath(
+  values: number[],
+  left: number,
+  width: number,
+  top: number,
+  height: number,
+  maxY: number,
+  baselineY: number,
+) {
+  const n = values.length;
+  const pts = values.map((v, i) => {
+    const x = left + (i / (n - 1)) * width;
+    const y = top + height - (v / maxY) * height;
+    return { x, y };
+  });
+  let d = `M ${pts[0].x} ${baselineY} L ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++) {
+    d += ` L ${pts[i].x} ${pts[i].y}`;
+  }
+  d += ` L ${pts[n - 1].x} ${baselineY} Z`;
+  return d;
+}
+
+const DEMO_ASSETS = [
+  {
+    id: 'ponyc',
+    name: 'Prime Office Tower',
+    ticker: 'PONYC',
+    location: 'New York, NY',
+    compliance: 'US · Reg D',
+    status: 'Active' as const,
+    tokenPrice: '$7.83',
+    priceChange: '+4.2%',
+    up: true,
+    nav: '$33.2M',
+    apy: '9.1%',
+    investors: '1,204',
+    lockup: 'Unlocked',
+    image:
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
+    category: 'Commercial RE' as FilterType,
+  },
+  {
+    id: 'sfatx',
+    name: 'Solar Farm Alpha',
+    ticker: 'SFATX',
+    location: 'Austin, TX',
+    compliance: 'US · Reg D',
+    status: 'Raising' as const,
+    tokenPrice: '$4.51',
+    priceChange: '+2.1%',
+    up: true,
+    nav: '$8.2M',
+    apy: '7.4%',
+    investors: '512',
+    lockup: '6 months',
+    image:
+      'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80',
+    category: 'Infrastructure' as FilterType,
+  },
+  {
+    id: 'rivr',
+    name: 'Riviera Residences',
+    ticker: 'RVRE',
+    location: "Côte d'Azur, FR",
+    compliance: 'EU · MiCA',
+    status: 'Raising' as const,
+    tokenPrice: '$1.22',
+    priceChange: '-0.4%',
+    up: false,
+    nav: '$1.2M',
+    apy: '5.8%',
+    investors: '89',
+    lockup: '12 months',
+    image:
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=900&q=80',
+    category: 'Residential' as FilterType,
+  },
+  {
+    id: 'hppe',
+    name: 'Harbor Ports PE Fund',
+    ticker: 'HPPE',
+    location: 'Singapore, SG',
+    compliance: 'SG · MAS',
+    status: 'Active' as const,
+    tokenPrice: '$48.20',
+    priceChange: '+6.8%',
+    up: true,
+    nav: '$54.8M',
+    apy: '15.5%',
+    investors: '267',
+    lockup: 'Unlocked',
+    image:
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80',
+    category: 'Private Equity' as FilterType,
+  },
+  
+];
+
+const FILTERS: FilterType[] = [
+  'All Assets',
+  'Commercial RE',
+  'Infrastructure',
+  'Residential',
+  'Private Equity',
+  'Art & Col.',
+];
 
 export default function MyPortfolioPage() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('All Assets');
 
-  const filters: FilterType[] = ['All Assets', 'Commercial RE', 'Infrastructure', 'Residential', 'Private Equity', 'Art & Col.'];
+  const filtered = useMemo(
+    () =>
+      activeFilter === 'All Assets'
+        ? DEMO_ASSETS
+        : DEMO_ASSETS.filter((a) => a.category === activeFilter),
+    [activeFilter],
+  );
 
-  const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-  const navValues = [95, 100, 105, 110, 112, 118, 120];
+  const chartLeft = 40;
+  const chartW = 520;
+  const chartTop = 24;
+  const chartH = 112;
+  const chartBottom = chartTop + chartH;
+  const linePath = buildNavPath(NAV_M, chartLeft, chartW, chartTop, chartH, Y_MAX);
+  const areaPath = buildNavAreaPath(NAV_M, chartLeft, chartW, chartTop, chartH, Y_MAX, chartBottom);
 
-  const assets = [
-    {
-      id: 'ponyc', name: 'Prime Office Tower', ticker: 'PONYC', location: 'New York, NY', compliance: 'US · Reg D',
-      status: 'Active', statusColor: 'bg-green-400',
-      tokenPrice: '$7.83', priceChange: '+4.2%', up: true,
-      nav: '$33.2M', apy: '9.1%', investors: '1,204',
-      lockup: 'Unlocked', gradient: 'from-slate-700 to-slate-800',
-      category: 'Commercial RE' as FilterType,
-    },
-    {
-      id: 'sfatx', name: 'Solar Farm Alpha', ticker: 'SFATX', location: 'Austin, TX', compliance: 'US · Reg D',
-      status: 'Raising', statusColor: 'bg-blue-400',
-      tokenPrice: '$4.51', priceChange: '+2.1%', up: true,
-      nav: '$8.2M', apy: '7.4%', investors: '512',
-      lockup: '6 months', gradient: 'from-green-700 to-emerald-800',
-      category: 'Commercial RE' as FilterType,
-    },
-    {
-      id: 'rivr', name: 'Riviera Residences', ticker: 'RVRE', location: 'Côte d\'Azur, FR', compliance: 'EU · MiCA',
-      status: 'Raising', statusColor: 'bg-blue-400',
-      tokenPrice: '$1.22', priceChange: '-0.4%', up: false,
-      nav: '$1.2M', apy: '5.8%', investors: '89',
-      lockup: '12 months', gradient: 'from-rose-700 to-pink-800',
-      category: 'Residential' as FilterType,
-    },
-    {
-      id: 'hppe', name: 'Harbor Ports PE Fund', ticker: 'HPPE', location: 'Singapore, SG', compliance: 'SG · MAS',
-      status: 'Active', statusColor: 'bg-green-400',
-      tokenPrice: '$48.20', priceChange: '+6.8%', up: true,
-      nav: '$54.8M', apy: '15.5%', investors: '267',
-      lockup: 'Unlocked', gradient: 'from-blue-700 to-indigo-800',
-      category: 'Private Equity' as FilterType,
-    },
-    {
-      id: 'logde', name: 'Logistics Hub DE', ticker: 'LHDE', location: 'Frankfurt, DE', compliance: 'EU · MiCA',
-      status: 'Active', statusColor: 'bg-green-400',
-      tokenPrice: '$12.60', priceChange: '+1.3%', up: true,
-      nav: '$21.8M', apy: '9.3%', investors: '419',
-      lockup: 'Unlocked', gradient: 'from-gray-700 to-slate-800',
-      category: 'Infrastructure' as FilterType,
-    },
-    {
-      id: 'alp', name: 'Alpine Art Collection', ticker: 'ALPC', location: 'Zurich, CH', compliance: 'CH · FINMA',
-      status: 'Raising', statusColor: 'bg-blue-400',
-      tokenPrice: '$220.00', priceChange: '+0.8%', up: true,
-      nav: '$3.5M', apy: '6.8%', investors: '47',
-      lockup: '24 months', gradient: 'from-purple-700 to-violet-800',
-      category: 'Art & Col.' as FilterType,
-    },
-  ];
-
-  const filtered = activeFilter === 'All Assets' ? assets : assets.filter(a => a.category === activeFilter);
+  const statusStyles = {
+    Active: { dot: 'bg-emerald-400', ring: 'border-emerald-500/30' },
+    Raising: { dot: 'bg-sky-400', ring: 'border-sky-500/35' },
+    Locked: { dot: 'bg-zinc-400', ring: 'border-zinc-500/30' },
+  } as const;
 
   return (
-    <InvestorLayout pageTitle="My Portfolio">
-      <div className="space-y-6 animate-in fade-in duration-700">
+    <InvestorLayout pageTitle="Portfolio">
+      <div className="max-w-full min-w-0 space-y-8 pb-10 animate-in fade-in duration-700 md:space-y-10">
+        <header className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Portfolio</h1>
+          <p className="max-w-2xl text-sm font-medium text-ui-faint md:text-[15px]">
+            All tokenized assets under management, live on-chain.
+          </p>
+        </header>
 
-      
-        <div>
-          <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Portfolio</h1>
-          <p className="text-sm text-ui-faint mt-1 font-medium">All tokenized assets under management, live on-chain.</p>
-        </div>
-
-       
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-         
-          <div className="bg-[#1A1A2E] rounded-[24px] md:rounded-[32px] p-6 md:p-8 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full blur-[80px] -translate-y-1/4 translate-x-1/4" />
+        {/* KPI row: NAV | chart (wide) | investors | yield */}
+        <div className="grid grid-cols-1 gap-4 md:gap-5 xl:grid-cols-12">
+          <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-linear-to-br from-[#5b21b6] via-primary to-[#4c1d95] p-6 text-white shadow-lg md:rounded-3xl md:p-8 xl:col-span-3">
+            <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/15 blur-3xl" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-violet-300/20 blur-2xl" />
             <div className="relative z-10">
-              <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-3">Total NAV</p>
-              <p className="text-4xl md:text-5xl font-bold mb-2">$120.2M</p>
-              <p className="text-[11px] text-white/50 font-medium mb-4">6 assets on-chain</p>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 text-green-400 rounded-full text-[11px] font-bold border border-green-500/20">↗ +18.4% YTD</span>
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/55">Total NAV</p>
+              <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">$120.2M</p>
+              <p className="mb-5 text-xs font-medium text-white/60">
+                {DEMO_ASSETS.length} assets on-chain
+              </p>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-[11px] font-bold text-emerald-200">
+                ↗ +18.4% YTD
+              </span>
             </div>
           </div>
 
-         
-          <div className="bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-5 md:p-7 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-3xl md:p-7 xl:col-span-5">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 className="text-[13px] font-bold text-ui-strong">NAV History</h3>
-                <p className="text-[10px] text-ui-faint font-medium">USD Millions · 7-month trend</p>
+                <h2 className="text-sm font-bold text-ui-strong md:text-[15px]">NAV History</h2>
+                <p className="text-[11px] font-medium text-ui-faint">USD Millions · 7-month trend</p>
               </div>
-              <span className="text-[11px] font-bold text-green-500">+18.4% YTD</span>
+              <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
+                +18.4% YTD
+              </span>
             </div>
-            <div className="relative h-28">
-              <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[9px] text-ui-placeholder font-medium">
-                {['$M', '$70', '$50'].map(l => <span key={l}>{l}</span>)}
-              </div>
-              <div className="absolute left-6 right-0 top-0 bottom-0 motion-chart">
-                <svg className="w-full h-full text-primary" viewBox="0 0 1000 100" preserveAspectRatio="none">
-                  <path d="M0,75 Q200,70 400,58 T700,42 T1000,22" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                  <path d="M0,75 Q200,70 400,58 T700,42 T1000,22 L1000,100 L0,100 Z" fill="currentColor" fillOpacity="0.06" />
-                </svg>
-              </div>
-            </div>
-            <div className="flex justify-between mt-2 pl-6">
-              {months.map(m => <span key={m} className="text-[9px] font-bold text-ui-placeholder">{m}</span>)}
+            <div className="max-w-full min-w-0 overflow-hidden">
+              <svg
+                className="h-36 w-full max-w-full md:h-40"
+                viewBox="0 0 600 168"
+                preserveAspectRatio="xMidYMid meet"
+                role="img"
+                aria-label="NAV history seven month trend"
+              >
+                <defs>
+                  <linearGradient id="invPortNavFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" className="[stop-color:var(--primary)]" stopOpacity="0.22" />
+                    <stop offset="100%" className="[stop-color:var(--primary)]" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                {[0, 70, 140].map((tick) => {
+                  const y = chartBottom - (tick / Y_MAX) * chartH;
+                  return (
+                    <g key={tick}>
+                      <line
+                        x1={chartLeft}
+                        y1={y}
+                        x2={chartLeft + chartW}
+                        y2={y}
+                        className="stroke-ui-border"
+                        strokeWidth="1"
+                        strokeDasharray="4 5"
+                      />
+                      <text
+                        x="32"
+                        y={y + 4}
+                        textAnchor="end"
+                        className="fill-ui-placeholder text-[10px] font-bold"
+                      >
+                        {tick === 0 ? '$0' : `$${tick}`}
+                      </text>
+                    </g>
+                  );
+                })}
+                <path d={areaPath} fill="url(#invPortNavFill)" />
+                <path
+                  d={linePath}
+                  fill="none"
+                  className="stroke-primary"
+                  strokeWidth="2.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                {MONTHS.map((m, i) => {
+                  const x = chartLeft + (i / (MONTHS.length - 1)) * chartW;
+                  return (
+                    <text
+                      key={m}
+                      x={x}
+                      y="162"
+                      textAnchor="middle"
+                      className="fill-ui-placeholder text-[10px] font-bold"
+                    >
+                      {m}
+                    </text>
+                  );
+                })}
+              </svg>
             </div>
           </div>
 
-          {/* Right stats */}
-          <div className="grid grid-rows-2 gap-4">
-            <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[24px] p-5 shadow-sm flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl shrink-0"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M13.3294 17.4952V15.829C13.3294 14.9452 12.9783 14.0976 12.3533 13.4726C11.7284 12.8477 10.8808 12.4966 9.99697 12.4966H4.9984C4.1146 12.4966 3.26699 12.8477 2.64205 13.4726C2.01711 14.0976 1.66602 14.9452 1.66602 15.829V17.4952" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M7.4984 9.16428C9.33882 9.16428 10.8308 7.67232 10.8308 5.8319C10.8308 3.99147 9.33882 2.49951 7.4984 2.49951C5.65797 2.49951 4.16602 3.99147 4.16602 5.8319C4.16602 7.67232 5.65797 9.16428 7.4984 9.16428Z" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M18.3274 17.4953V15.8291C18.3269 15.0907 18.0811 14.3735 17.6287 13.7899C17.1764 13.2064 16.543 12.7896 15.8281 12.605" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13.3301 2.60742C14.0469 2.79095 14.6822 3.20783 15.1359 3.79234C15.5896 4.37685 15.8359 5.09574 15.8359 5.83567C15.8359 6.5756 15.5896 7.29449 15.1359 7.87899C14.6822 8.4635 14.0469 8.88038 13.3301 9.06391" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</div>
-              <div>
-                <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest">Total Investors</p>
-                <p className="text-2xl font-bold text-ui-strong">3,004</p>
-                <p className="text-[10px] text-ui-faint">Across all assets</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:col-span-4 xl:grid-cols-1 xl:gap-5">
+            <div className="flex items-center gap-4 rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-3xl md:p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Users className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+              </div>
+              <div className="min-w-0">
+                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                  Total Investors
+                </p>
+                <p className="text-2xl font-bold text-ui-strong md:text-3xl">3,004</p>
+                <p className="text-[11px] font-medium text-ui-faint">Across all assets</p>
               </div>
             </div>
-            <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[24px] p-5 shadow-sm flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl shrink-0"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M18.3279 5.83154L11.2466 12.9129L7.08114 8.74738L1.66602 14.1625" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13.3301 5.83154H18.3287V10.8301" stroke="#9810FA" stroke-width="1.66619" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</div>
-              <div>
-                <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest">Avg. Token Yield</p>
-                <p className="text-2xl font-bold text-primary">7.9%</p>
-                <p className="text-[10px] text-ui-faint">Annualized APY</p>
+            <div className="flex items-center gap-4 rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-3xl md:p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <TrendingUp className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+              </div>
+              <div className="min-w-0">
+                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                  Avg. Token Yield
+                </p>
+                <p className="text-2xl font-bold text-primary md:text-3xl">7.9%</p>
+                <p className="text-[11px] font-medium text-ui-faint">Annualized APY</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {filters.map(f => (
-            <button key={f} onClick={() => setActiveFilter(f)} className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-[12px] font-bold transition-all whitespace-nowrap shrink-0 ${activeFilter === f ? 'bg-gray-900 text-white shadow' : 'bg-ui-card border border-ui-border text-ui-muted-text hover:border-ui-border-strong'}`}>
-              {f === 'All Assets' && <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h18M3 8h18M3 12h18M3 16h18M3 20h18" /></svg>}
+        {/* Filters */}
+        <div className="flex max-w-full min-w-0 flex-wrap items-center gap-2 md:gap-2.5">
+          <span
+            className="mr-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ui-border bg-ui-card text-ui-muted-text shadow-sm"
+            aria-hidden
+          >
+            <Filter className="h-4 w-4" strokeWidth={2} />
+          </span>
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setActiveFilter(f)}
+              className={`rounded-full px-4 py-2.5 text-left text-[12px] font-bold transition-all md:px-5 md:py-3 md:text-[13px] ${
+                activeFilter === f
+                  ? 'bg-zinc-900 text-white shadow-md dark:bg-zinc-100 dark:text-zinc-900'
+                  : 'border border-ui-border bg-ui-card text-ui-muted-text shadow-sm hover:border-ui-border-strong hover:text-ui-strong'
+              }`}
+            >
               {f}
             </button>
           ))}
         </div>
 
-        {/* Asset cards grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6">
-          {filtered.map((asset, i) => (
-            <div key={i} className="bg-ui-card border border-ui-border rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
-              {/* Image hero */}
-              <div className={`relative h-40 bg-gradient-to-br ${asset.gradient}`}>
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-black/30 backdrop-blur-sm rounded-full border border-background/10">
-                  <div className={`w-1.5 h-1.5 rounded-full ${asset.statusColor} animate-pulse`} />
-                  <span className="text-[10px] font-bold text-white">{asset.status}</span>
-                </div>
-                <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/30 backdrop-blur-sm rounded-full border border-background/10">
-                  <span className="text-[10px] font-bold text-white">{asset.ticker}</span>
-                </div>
-                <div className="absolute bottom-3 left-3">
-                  <p className="text-white font-bold text-base drop-shadow-lg">{asset.name}</p>
-                  <p className="flex items-center gap-1 text-[10px] font-medium text-white/60">
-                    <MapPinOutlineIcon className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
-                    {asset.location} · {asset.compliance}
-                  </p>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Token Price</p>
-                    <p className="text-xl font-bold text-ui-strong">{asset.tokenPrice}</p>
+        {/* Asset cards */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
+          {filtered.map((asset) => {
+            const st = statusStyles[asset.status];
+            const lockupLower = asset.lockup.toLowerCase();
+            const isHardLocked = lockupLower === 'locked';
+            const isUnlocked = lockupLower === 'unlocked';
+            const lockupIsDuration =
+              !isUnlocked && /month|year|week|day/i.test(asset.lockup);
+            return (
+              <article
+                key={asset.id}
+                className="group flex max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition-shadow hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-950 md:rounded-3xl"
+              >
+                <div className="relative h-44 w-full min-h-44 overflow-hidden md:h-48">
+                  <Image
+                    src={asset.image}
+                    alt=""
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/35 to-black/10" />
+                  <div
+                    className={`absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md ${st.ring}`}
+                  >
+                    <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${st.dot}`} />
+                    <span className="text-[10px] font-bold tracking-wide text-white">{asset.status}</span>
                   </div>
-                  <p className={`text-sm font-bold flex items-center gap-1 ${asset.up ? 'text-green-500' : 'text-red-500'}`}>
-                    {asset.up ? '↗' : '↙'} {asset.priceChange}
-                  </p>
+                  <div className="absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 backdrop-blur-md">
+                    <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
+                    <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
+                      {asset.name}
+                    </h3>
+                    <p className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-300">
+                      <Globe2 className="h-3.5 w-3.5 shrink-0 text-zinc-400" strokeWidth={2} aria-hidden />
+                      <span className="line-clamp-2">
+                        {asset.location} · {asset.compliance}
+                      </span>
+                    </p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 mb-5 pb-4 border-b border-ui-divider">
-                  {[['NAV', asset.nav], ['APY', asset.apy], ['Investors', asset.investors]].map(([l, v]) => (
-                    <div key={l}>
-                      <p className="text-[8px] font-bold text-ui-faint uppercase tracking-widest mb-0.5">{l}</p>
-                      <p className="text-[13px] font-bold text-ui-strong">{v}</p>
+                <div className="flex flex-1 flex-col bg-slate-50 p-5 dark:bg-zinc-900 md:p-6">
+                  <div className="mb-5 flex items-start justify-between gap-3">
+                    <div>
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
+                        Token price
+                      </p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white md:text-2xl">
+                        {asset.tokenPrice}
+                      </p>
                     </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-ui-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                    <span className="text-[11px] font-bold text-ui-faint">{asset.lockup}</span>
+                    <span
+                      className={`shrink-0 pt-1 text-sm font-bold ${
+                        asset.up ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                      }`}
+                    >
+                      {asset.up ? '↗' : '↘'} {asset.priceChange}
+                    </span>
                   </div>
-                  <Link href="/asset-detail" className="flex items-center gap-1.5 text-[12px] font-bold text-primary hover:gap-2.5 transition-all">
-                    View Details
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
 
+                  <div className="mb-5 grid grid-cols-3 gap-3 border-b border-slate-200 pb-5 dark:border-zinc-800">
+                    {(
+                      [
+                        ['NAV', asset.nav],
+                        ['APY', asset.apy],
+                        ['INVESTORS', asset.investors],
+                      ] as const
+                    ).map(([label, val]) => (
+                      <div key={label} className="min-w-0">
+                        <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
+                          {label}
+                        </p>
+                        <p
+                          className={`truncate text-sm font-bold md:text-[15px] ${
+                            label === 'APY'
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : 'text-slate-900 dark:text-white'
+                          }`}
+                        >
+                          {val}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-auto flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-1.5 text-slate-500 dark:text-zinc-400">
+                      {lockupIsDuration ? (
+                        <Briefcase className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                      ) : isHardLocked ? (
+                        <Lock className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                      ) : (
+                        <Unlock className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                      )}
+                      <span className="truncate text-[11px] font-semibold">{asset.lockup}</span>
+                    </div>
+                    <Link
+                      href="/investor/asset-detail"
+                      className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-violet-500/70 bg-transparent px-4 py-2 text-[12px] font-bold text-violet-600 transition-colors hover:bg-violet-500/10 dark:border-violet-400/60 dark:text-violet-300 dark:hover:bg-violet-500/15"
+                    >
+                      View Details
+                      <ExternalLink className="h-3.5 w-3.5 opacity-90" strokeWidth={2} aria-hidden />
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </InvestorLayout>
   );

@@ -257,11 +257,11 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <div className="flex items-center justify-end pt-6 border-t border-ui-border">
+      <div className="flex justify-end border-t border-ui-border pt-6">
         <button
           type="button"
           onClick={() => setCurrentStep(2)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
         >
           Continue →
         </button>
@@ -270,22 +270,22 @@ export default function OnboardingPage() {
   );
 
   const renderStep2 = () => (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-6 sm:space-y-8 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
         <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
           Step 2 of 8 - Accreditation
         </p>
-        <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Accreditation</h1>
-        <p className="text-ui-muted-text text-sm">Configure your offering type and investor accreditation requirements.</p>
+        <h1 className="text-2xl font-bold text-ui-strong mb-3 tracking-tight sm:text-3xl md:mb-4 md:text-4xl">Accreditation</h1>
+        <p className="text-ui-muted-text text-sm leading-relaxed">Configure your offering type and investor accreditation requirements.</p>
       </header>
 
-      <div className="bg-alert-warn-bg border border-alert-warn-border rounded-2xl p-8 flex gap-5 items-start">
+      <div className="bg-alert-warn-bg border border-alert-warn-border rounded-2xl p-4 flex flex-col gap-4 items-start sm:flex-row sm:gap-5 sm:p-6 md:p-8">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-alert-warn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <div className="space-y-1">
+        <div className="min-w-0 flex-1 space-y-1">
           <h4 className="text-sm font-bold text-alert-warn-title">Important: Regulation Selection</h4>
           <p className="text-xs text-alert-warn-body leading-relaxed">
             This selection determines your <span className="font-bold">investor eligibility</span>,{' '}
@@ -298,7 +298,7 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-5 shadow-sm space-y-6 sm:p-6 sm:space-y-8 md:p-8 lg:p-10">
         <div>
           <h3 className="text-sm font-bold text-ui-strong mb-1">Select Offering Regulation</h3>
           <p className="text-xs text-ui-faint">Choose the exemption under which you will conduct this offering.</p>
@@ -317,7 +317,7 @@ export default function OnboardingPage() {
             <div
               key={reg.id}
               onClick={() => setSelectedReg(reg.id)}
-              className={`p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-6 relative group ${
+              className={`flex cursor-pointer flex-col gap-4 rounded-2xl border-2 p-5 transition-all relative group sm:gap-5 sm:rounded-3xl sm:p-6 md:gap-6 md:p-8 ${
                 is506cBlue
                   ? 'border-sky-500 bg-sky-50'
                   : isSel
@@ -325,9 +325,9 @@ export default function OnboardingPage() {
                     : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <h4 className={`text-sm font-bold ${is506cBlue ? 'text-sky-800' : isSel ? 'text-primary' : 'text-ui-strong'}`}>{reg.name}</h4>
-                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${
+              <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
+                <h4 className={`min-w-0 flex-1 text-sm font-bold leading-snug ${is506cBlue ? 'text-sky-800' : isSel ? 'text-primary' : 'text-ui-strong'}`}>{reg.name}</h4>
+                <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${
                   is506cBlue
                     ? 'bg-sky-100 text-sky-800 border-sky-200'
                     : isSel
@@ -356,60 +356,66 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-5 shadow-sm space-y-5 sm:p-6 sm:space-y-6 md:p-8 md:space-y-8 lg:p-10">
         <h3 className="text-base font-bold text-ui-strong">Investor Eligibility</h3>
-        <div className="flex items-center justify-between p-6 bg-ui-muted-surface rounded-2xl border border-ui-border">
-          <div>
+        <div className="flex flex-col gap-4 rounded-2xl border border-ui-border bg-ui-muted-surface p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:p-6">
+          <div className="min-w-0 flex-1">
             <p className="text-[13px] font-bold text-ui-strong mb-1">Accredited Investors Only</p>
-            <p className="text-[10px] text-ui-faint">Restrict this offering to SEC-accredited investors (net worth $1M+ or income $200K+/year).</p>
+            <p className="text-[10px] leading-relaxed text-ui-faint sm:text-[11px]">
+              Restrict this offering to SEC-accredited investors (net worth $1M+ or income $200K+/year).
+            </p>
           </div>
-          <div className="w-12 h-6 bg-primary rounded-full relative cursor-pointer shadow-inner shadow-primary/20 transition-all">
-            <div className="absolute right-1 top-1 w-4 h-4 bg-ui-card rounded-full shadow-sm"></div>
-          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked="true"
+            className="relative h-7 w-12 shrink-0 self-end rounded-full bg-primary shadow-inner shadow-primary/20 transition-colors sm:self-center"
+          >
+            <span className="absolute right-1 top-1 h-5 w-5 rounded-full bg-ui-card shadow-sm" aria-hidden />
+          </button>
         </div>
 
-        <div className="space-y-4">
-          <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_256_1316)">
-<path d="M11.6556 7.57612C11.6556 10.49 9.61586 11.947 7.19149 12.792C7.06454 12.835 6.92664 12.833 6.80103 12.7862C4.37084 11.947 2.33112 10.49 2.33112 7.57612V3.49666C2.33112 3.3421 2.39252 3.19387 2.50181 3.08457C2.6111 2.97528 2.75933 2.91388 2.91389 2.91388C4.07945 2.91388 5.5364 2.21455 6.55044 1.32872C6.6739 1.22324 6.83096 1.16528 6.99335 1.16528C7.15574 1.16528 7.3128 1.22324 7.43626 1.32872C8.45612 2.22038 9.90724 2.91388 11.0728 2.91388C11.2274 2.91388 11.3756 2.97528 11.4849 3.08457C11.5942 3.19387 11.6556 3.3421 11.6556 3.49666V7.57612Z" stroke="#00BC7D" stroke-width="1.16556" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-<defs>
-<clipPath id="clip0_256_1316">
-<rect width="13.9867" height="13.9867" fill="white"/>
-</clipPath>
-</defs>
-</svg>
-
-            Accreditation Verification Method
+        <div className="space-y-3 sm:space-y-4">
+          <label className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+            <svg className="shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <g clipPath="url(#clip0_accred_shield)">
+                <path d="M11.6556 7.57612C11.6556 10.49 9.61586 11.947 7.19149 12.792C7.06454 12.835 6.92664 12.833 6.80103 12.7862C4.37084 11.947 2.33112 10.49 2.33112 7.57612V3.49666C2.33112 3.3421 2.39252 3.19387 2.50181 3.08457C2.6111 2.97528 2.75933 2.91388 2.91389 2.91388C4.07945 2.91388 5.5364 2.21455 6.55044 1.32872C6.6739 1.22324 6.83096 1.16528 6.99335 1.16528C7.15574 1.16528 7.3128 1.22324 7.43626 1.32872C8.45612 2.22038 9.90724 2.91388 11.0728 2.91388C11.2274 2.91388 11.3756 2.97528 11.4849 3.08457C11.5942 3.19387 11.6556 3.3421 11.6556 3.49666V7.57612Z" stroke="#00BC7D" strokeWidth="1.16556" strokeLinecap="round" strokeLinejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_accred_shield">
+                  <rect width="13.9867" height="13.9867" fill="white"/>
+                </clipPath>
+              </defs>
+            </svg>
+            <span>Accreditation Verification Method</span>
           </label>
           <FormField label="" placeholder="Select Method" isSelect />
         </div>
 
-        <div className="bg-ui-purple-banner-bg border-2 border-dashed border-[#C4B5FD] rounded-2xl p-6 flex items-center gap-4">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
-            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex flex-col gap-3 rounded-2xl border-2 border-dashed border-[#C4B5FD] bg-ui-purple-banner-bg p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-6">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm">
+            <svg className="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
             </svg>
           </div>
-          <p className="text-[11px] text-primary/80 font-medium leading-relaxed">
+          <p className="min-w-0 text-[11px] font-medium leading-relaxed text-primary/80 sm:text-xs">
             Maxtronize integrates with <span className="font-bold">Parallel Markets</span> for automated accreditation checks. Investors will complete verification before committing capital.
           </p>
         </div>
       </section>
 
-      <div className="flex items-center justify-between pt-6 border-t border-ui-border">
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
         <button
           type="button"
           onClick={() => setCurrentStep(1)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
         <button
           type="button"
           onClick={() => setCurrentStep(3)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
         >
           Continue →
         </button>
@@ -561,18 +567,18 @@ export default function OnboardingPage() {
       </section>
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-6 border-t border-ui-border">
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
         <button
           type="button"
           onClick={() => setCurrentStep(2)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
         <button
           type="button"
           onClick={() => setCurrentStep(4)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
         >
           Continue →
         </button>
@@ -695,18 +701,18 @@ export default function OnboardingPage() {
       </section>
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-6 border-t border-ui-border">
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
         <button
           type="button"
           onClick={() => setCurrentStep(3)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
         <button
           type="button"
           onClick={() => setCurrentStep(5)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
         >
           Continue →
         </button>
@@ -759,18 +765,18 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <div className="flex items-center justify-between pt-6 border-t border-ui-border">
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
         <button
           type="button"
           onClick={() => setCurrentStep(4)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
         <button
           type="button"
           onClick={() => setCurrentStep(6)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
         >
           Continue →
         </button>
@@ -885,18 +891,18 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <div className="flex items-center justify-between pt-6 border-t border-ui-border">
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
         <button
           type="button"
           onClick={() => setCurrentStep(5)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
         <button
           type="button"
           onClick={() => setCurrentStep(7)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
         >
           Continue →
         </button>
@@ -970,18 +976,18 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <div className="flex items-center justify-between pt-6 border-t border-ui-border">
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
         <button
           type="button"
           onClick={() => setCurrentStep(6)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
         <button
           type="button"
           onClick={() => setCurrentStep(8)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
         >
           Continue →
         </button>
@@ -1121,20 +1127,21 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <div className="flex items-center justify-between pt-6 border-t border-ui-border">
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
         <button
           type="button"
           onClick={() => setCurrentStep(7)}
-          className="px-8 py-4 bg-ui-card border border-ui-border-strong rounded-2xl text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-all"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
         <button
           type="button"
           onClick={() => setIsSubmitted(true)}
-          className="btn-gradient-primary px-10 py-4 text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
         >
-          Submit Application →
+          <span className="sm:hidden">Submit →</span>
+          <span className="hidden sm:inline">Submit Application →</span>
         </button>
       </div>
     </div>
@@ -1262,7 +1269,7 @@ function FormField({ label, placeholder, required, fullWidth, isSelect, hint }: 
         <input 
           type="text" 
           placeholder={placeholder}
-          className="w-full px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium"
+          className="w-full min-w-0 px-4 py-3.5 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4"
         />
         {isSelect && (
           <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">

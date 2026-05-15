@@ -193,7 +193,7 @@ export default function OnboardingLayout({
           </div>
         </aside>
 
-        <main className="flex-1 p-6 md:p-12 overflow-y-auto w-full min-w-0">
+        <main className="flex-1 w-full min-w-0 overflow-y-auto p-4 sm:p-6 md:p-10 lg:p-12">
           <div className="motion-onboarding-step max-w-4xl mx-auto md:px-0">{children}</div>
         </main>
       </div>

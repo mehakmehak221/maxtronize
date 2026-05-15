@@ -8,7 +8,7 @@ import { signOut } from "@/lib/auth";
 const iconStroke = 1.75;
 
 type UserProfileMenuProps = {
-  variant?: "sidebar" | "header";
+  variant?: "sidebar" | "header" | "mobile";
   name?: string;
   email?: string;
   signOutHref?: string;
@@ -56,7 +56,7 @@ export function UserProfileMenu({
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open || variant !== "header") return;
+    if (!open || (variant !== "header" && variant !== "mobile")) return;
     const onPointerDown = (event: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
         setOpen(false);
@@ -87,6 +87,51 @@ export function UserProfileMenu({
           <p className="truncate text-[13px] font-bold text-ui-strong">{name}</p>
           <p className="truncate text-[11px] text-ui-muted-text">{email}</p>
         </div>
+      </div>
+    );
+  }
+
+  if (variant === "mobile") {
+    return (
+      <div ref={rootRef} className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          className="group flex w-full items-center gap-3 rounded-xl border border-ui-border bg-ui-card p-3 text-left shadow-sm transition-colors hover:bg-ui-muted-deep"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label="Account menu"
+        >
+          <ProfileAvatar gradientId={gradientId} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-bold text-ui-strong">{name}</p>
+            <p className="truncate text-[11px] text-ui-muted-text">{email}</p>
+          </div>
+          <ChevronDown
+            className={`h-4 w-4 shrink-0 text-ui-faint transition-transform group-hover:text-ui-muted-text ${
+              open ? "rotate-180" : ""
+            }`}
+            strokeWidth={iconStroke}
+            aria-hidden
+          />
+        </button>
+
+        {open ? (
+          <div
+            role="menu"
+            className="absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden rounded-xl border border-ui-border bg-ui-card py-1 shadow-lg"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleSignOut}
+              className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
+            >
+              <LogOut className="h-4 w-4 shrink-0 text-ui-muted-text" strokeWidth={iconStroke} aria-hidden />
+              Sign out
+            </button>
+          </div>
+        ) : null}
       </div>
     );
   }

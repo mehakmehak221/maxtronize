@@ -16,7 +16,7 @@ export default function SignUpPage() {
         
         <div>
           <p className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-4">I am a</p>
-          <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <button
               type="button"
               onClick={() => setRole('issuer')}

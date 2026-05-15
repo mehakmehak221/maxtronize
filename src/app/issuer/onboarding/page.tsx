@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Hexagon, Triangle, type LucideIcon } from 'lucide-react';
 import OnboardingLayout from '@/components/OnboardingLayout';
+
+const iconStroke = 1.75;
 
 type AssetType = 'real-estate' | 'private-credit' | 'data-centers' | 'commodities';
 
@@ -31,6 +34,23 @@ function IconDiamond({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3l8 8-8 8-8-8 8-8z" />
+    </svg>
+  );
+}
+
+function EthereumNetworkIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 12 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path
+        d="M5.28 17.256L1.04308e-06 8.64001L5.28 1.14441e-05H6.192L11.472 8.64001L6.192 17.256H5.28ZM2.304 7.82401H9.192L5.736 2.06401L2.304 7.82401ZM5.736 15.216L9.192 9.45601H2.304L5.736 15.216Z"
+        fill="currentColor"
+      />
     </svg>
   );
 }
@@ -812,23 +832,55 @@ export default function OnboardingPage() {
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <h3 className="text-sm font-bold text-ui-strong">Blockchain Network</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { id: 'ethereum', name: 'Ethereum Mainnet', icon: '💎', sub: 'Maximum security & institutional liquidity' },
-              { id: 'polygon', name: 'Polygon', icon: '🟣', sub: 'Low gas fees, fast finality' },
-              { id: 'avalanche', name: 'Avalanche', icon: '🔺', sub: 'Institutional-grade subnet' }
-            ].map((net) => (
-              <button
-                key={net.id}
-                onClick={() => setSelectedNetwork(net.id)}
-                className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-4 ${selectedNetwork === net.id ? 'border-primary bg-ui-accent-tint' : 'border-ui-border bg-ui-card hover:border-ui-border-strong'}`}
-              >
-                <div className="text-2xl">{net.icon}</div>
-                <div>
-                  <p className={`text-[11px] font-bold mb-1 ${selectedNetwork === net.id ? 'text-primary' : 'text-ui-strong'}`}>{net.name}</p>
-                  <p className="text-[9px] text-ui-faint leading-tight">{net.sub}</p>
-                </div>
-              </button>
-            ))}
+            {(
+              [
+                {
+                  id: 'ethereum',
+                  name: 'Ethereum Mainnet',
+                  sub: 'Maximum security & institutional liquidity',
+                },
+                {
+                  id: 'polygon',
+                  name: 'Polygon',
+                  Icon: Hexagon as LucideIcon,
+                  sub: 'Low gas fees, fast finality',
+                },
+                {
+                  id: 'avalanche',
+                  name: 'Avalanche',
+                  Icon: Triangle as LucideIcon,
+                  sub: 'Institutional-grade subnet',
+                },
+              ] as const
+            ).map((net) => {
+              const selected = selectedNetwork === net.id;
+              return (
+                <button
+                  key={net.id}
+                  type="button"
+                  onClick={() => setSelectedNetwork(net.id)}
+                  className={`p-6 rounded-2xl border transition-all flex flex-col items-center text-center gap-4 ${
+                    selected
+                      ? 'border-primary bg-ui-card shadow-sm'
+                      : 'border-ui-divider bg-ui-card hover:border-ui-border-strong'
+                  }`}
+                >
+                  {net.id === 'ethereum' ? (
+                    <EthereumNetworkIcon className="h-7 w-auto shrink-0 text-ui-strong" />
+                  ) : (
+                    <net.Icon
+                      className="h-7 w-7 shrink-0 text-ui-strong"
+                      strokeWidth={iconStroke}
+                      aria-hidden
+                    />
+                  )}
+                  <div>
+                    <p className="text-[11px] font-bold text-ui-strong mb-1">{net.name}</p>
+                    <p className="text-[9px] text-ui-faint leading-tight">{net.sub}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>

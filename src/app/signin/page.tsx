@@ -3,13 +3,16 @@
 import { useState } from "react";
 import AuthLayout from "@/components/AuthLayout";
 import { useRouter } from "next/navigation";
+import { signIn } from "@/lib/auth";
 
 export default function SignInPage() {
   const router = useRouter();
   const [role, setRole] = useState<"issuer" | "investor">("issuer");
+  const [email, setEmail] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleSignIn = () => {
+    signIn({ role, email: email.trim() || undefined });
     router.push(role === "investor" ? "/investor/overview" : "/issuer/onboarding");
   };
 
@@ -77,6 +80,8 @@ export default function SignInPage() {
             </label>
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="alex@maxtronize.com"
               className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
             />

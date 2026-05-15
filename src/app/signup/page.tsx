@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import AuthLayout from '@/components/AuthLayout';
 import { useRouter } from 'next/navigation';
+import { signIn } from '@/lib/auth';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -105,7 +106,10 @@ export default function SignUpPage() {
 
           <button 
             type="button"
-            onClick={() => router.push('/issuer/onboarding')}
+            onClick={() => {
+              signIn({ role });
+              router.push(role === 'investor' ? '/investor/overview' : '/issuer/onboarding');
+            }}
             className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-sm group"
           >
             Create Account

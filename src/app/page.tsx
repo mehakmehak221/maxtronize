@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AuthLayout from '@/components/AuthLayout';
+import { signIn } from '@/lib/auth';
 
 export default function Home() {
   const router = useRouter();
   const [isSignUp, setIsSignUp] = useState(false);
   const [role, setRole] = useState<'issuer' | 'investor'>('issuer');
+  const [email, setEmail] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   const goAfterAuth = () => {
+    signIn({ role, email: email.trim() || undefined });
     if (role === 'investor') {
       router.push('/investor/overview');
       return;
@@ -79,7 +82,9 @@ export default function Home() {
           <div className="space-y-2">
             <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">Work Email</label>
             <input 
-              type="email" 
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder={isSignUp ? "you@yourfirm.com" : "alex@maxtronize.com"}
               className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
             />

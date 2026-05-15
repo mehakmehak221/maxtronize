@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
 import { MaxtronizeLogo } from './MaxtronizeLogo';
 import { IssuerNavIcon, type IssuerNavIconId } from './IssuerNavIcons';
+import { UserProfileMenu } from '@/components/UserProfileMenu';
 
 type NavTag = 'NEW' | 'AI';
 
@@ -169,38 +170,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
               <p className="text-[9px] font-medium leading-relaxed text-ui-success-text/90">99.98% uptime · Blockchain synced</p>
             </div>
-            <button
-              type="button"
-              className="group flex w-full cursor-pointer items-center gap-3 rounded-xl p-1.5 text-left transition-colors hover:bg-ui-muted-deep"
-              aria-haspopup="menu"
-            >
-              <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-ui-border bg-ui-muted-deep ring-2 ring-sidebar-bg">
-                <svg className="h-full w-full" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <rect width="80" height="80" fill="url(#issuerDashAvatarGrad)" />
-                  <ellipse cx="40" cy="72" rx="26" ry="20" fill="#cbd5e1" />
-                  <circle cx="40" cy="34" r="16" fill="#94a3b8" />
-                  <defs>
-                    <linearGradient id="issuerDashAvatarGrad" x1="40" y1="0" x2="40" y2="80" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#f8fafc" />
-                      <stop offset="1" stopColor="#e2e8f0" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-bold text-ui-strong">Alex Chen</p>
-                <p className="truncate text-[11px] text-ui-muted-text">alex@maxtronize.com</p>
-              </div>
-              <svg
-                className="h-4 w-4 shrink-0 text-ui-faint transition-transform group-hover:text-ui-muted-text"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+            <UserProfileMenu variant="sidebar" />
           </div>
         </aside>
 
@@ -261,22 +231,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </svg>
               </button>
               <div className="mx-1 hidden h-8 w-px shrink-0 bg-ui-border sm:block" aria-hidden />
-              <div className="flex items-center gap-2.5 rounded-full border border-ui-border bg-ui-card py-1 pl-1 pr-3 shadow-sm">
-                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border border-ui-border bg-ui-muted-deep">
-                  <svg className="h-full w-full" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                    <rect width="80" height="80" fill="url(#issuerHeaderAvatarGrad)" />
-                    <ellipse cx="40" cy="72" rx="26" ry="20" fill="#cbd5e1" />
-                    <circle cx="40" cy="34" r="16" fill="#94a3b8" />
-                    <defs>
-                      <linearGradient id="issuerHeaderAvatarGrad" x1="40" y1="0" x2="40" y2="80" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#f8fafc" />
-                        <stop offset="1" stopColor="#e2e8f0" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-                <span className="hidden text-[13px] font-semibold text-ui-strong sm:inline">Alex Chen</span>
-              </div>
+              <UserProfileMenu variant="header" />
               <div className="flex items-center pl-1 [&_button]:p-1.5">
                 <ThemeToggle />
               </div>

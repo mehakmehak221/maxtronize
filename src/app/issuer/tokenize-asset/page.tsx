@@ -912,16 +912,17 @@ export default function TokenizeAssetPage() {
     <div className="flex h-dvh min-h-0 max-h-dvh w-full overflow-hidden bg-background font-sans transition-colors duration-300">
       {/* Wizard sidebar: fixed height with parent; step list scrolls only if it overflows */}
       <aside className="hidden h-full min-h-0 shrink-0 bg-sidebar-bg border-r border-border md:flex md:w-72 md:flex-col lg:w-80 overflow-hidden">
-        <div className="flex h-16 shrink-0 items-center border-b border-ui-divider px-5 md:px-6">
-          <Link href="/issuer/dashboard" className="block min-w-0 w-full max-w-[240px]">
-            <div className="relative h-8 w-full max-w-[240px]">
-              <MaxtronizeLogo
-                fill
-                sizes="240px"
-                className="object-contain object-left"
-                priority
-              />
-            </div>
+        <div className="flex h-16 shrink-0 items-center justify-center border-b border-ui-divider px-5 md:px-6">
+          <Link
+            href="/issuer/dashboard"
+            className="relative mx-auto block h-8 w-full max-w-[200px] sm:max-w-[220px]"
+          >
+            <MaxtronizeLogo
+              fill
+              sizes="220px"
+              className="object-contain object-center"
+              priority
+            />
           </Link>
         </div>
 

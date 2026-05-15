@@ -1,12 +1,22 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import AuthLayout from '@/components/AuthLayout';
 
 export default function Home() {
+  const router = useRouter();
   const [isSignUp, setIsSignUp] = useState(false);
   const [role, setRole] = useState<'issuer' | 'investor'>('issuer');
   const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const goAfterAuth = () => {
+    if (role === 'investor') {
+      router.push('/investor/overview');
+      return;
+    }
+    router.push('/issuer/onboarding');
+  };
 
   return (
     <AuthLayout isSignUp={isSignUp} onToggle={setIsSignUp}>
@@ -121,9 +131,7 @@ export default function Home() {
 
           <button 
             type="button"
-            onClick={() => {
-              window.location.href = role === 'investor' ? '/investor/hub' : '/issuer/dashboard';
-            }}
+            onClick={goAfterAuth}
             className="btn-gradient-primary w-full py-4 text-white font-bold rounded-2xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-sm group"
           >
             {isSignUp ? 'Create Account' : 'Sign In to Platform'}

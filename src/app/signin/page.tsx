@@ -9,6 +9,10 @@ export default function SignInPage() {
   const [role, setRole] = useState<"issuer" | "investor">("issuer");
   const [passwordVisible, setPasswordVisible] = useState(false);
 
+  const handleSignIn = () => {
+    router.push(role === "investor" ? "/investor/overview" : "/issuer/onboarding");
+  };
+
   return (
     <AuthLayout isSignUp={false} onToggle={() => router.push("/signup")}>
       <div className="space-y-8 animate-in fade-in duration-500">
@@ -60,7 +64,13 @@ export default function SignInPage() {
         </div>
 
         {/* Form Section */}
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+        <form
+          className="space-y-6"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSignIn();
+          }}
+        >
           <div className="space-y-2">
             <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
               Work Email
@@ -160,8 +170,7 @@ export default function SignInPage() {
           </div>
 
           <button
-            type="button"
-            onClick={() => router.push("/issuer/onboarding")}
+            type="submit"
             className="w-full py-4 text-white font-bold rounded-xl bg-linear-to-r from-[#9810FA] to-[#4F39F6] shadow-lg shadow-[#9810FA]/25 hover:shadow-xl hover:shadow-[#4F39F6]/30 transition-all flex items-center justify-center gap-2 text-sm group"
           >
             Sign In to Platform

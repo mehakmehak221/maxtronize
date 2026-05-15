@@ -44,7 +44,7 @@ export default function MarketplaceDetailPage() {
 
   return (
     <InvestorLayout pageTitle="Secondary Market">
-      <div className="mx-auto w-full max-w-7xl space-y-6 animate-page-enter md:space-y-8">
+      <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
         <Link
           href="/investor/secondary-market"
           className="inline-flex w-fit items-center gap-2 text-[13px] font-bold text-ui-muted-text transition-colors hover:text-ui-strong"

@@ -207,16 +207,16 @@ export default function HelpCenterPage() {
 
   return (
     <DashboardLayout>
-      <div className="animate-page-enter space-y-10 md:space-y-12">
+      <div className="animate-page-enter mx-auto w-full max-w-7xl min-w-0 space-y-6 sm:space-y-8 xl:space-y-12">
         <div className="animate-slide-up space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Help Center</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">Help Center</h1>
           <p className="text-sm font-medium text-ui-muted-text">
             Guides, FAQs, and dedicated support for your tokenization journey.
           </p>
         </div>
 
         {/* Hero search */}
-        <div className="animate-slide-up delay-100 relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#1E0A3C] via-[#2D1260] to-[#0F172A] px-6 py-10 text-center md:rounded-[32px] md:px-12 md:py-14">
+        <div className="animate-slide-up delay-100 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E0A3C] via-[#2D1260] to-[#0F172A] p-5 text-center sm:rounded-3xl sm:p-8 md:px-10 md:py-12 xl:rounded-[32px] xl:px-12 xl:py-14">
          
           <div
             className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#9810FA]/30 blur-[100px]"
@@ -228,7 +228,7 @@ export default function HelpCenterPage() {
               <Sparkles className="h-4 w-4" strokeWidth={iconStroke} />
               Maxtronize Support
             </p>
-            <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">How can we help you?</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl xl:text-5xl">How can we help you?</h2>
             <p className="text-base font-medium text-violet-200/80 md:text-lg">
               Search our knowledge base or browse categories below.
             </p>
@@ -263,14 +263,14 @@ export default function HelpCenterPage() {
         {/* Browse by topic */}
         <div className="space-y-5">
           <h3 className="px-1 text-[13px] font-bold uppercase tracking-widest text-ui-muted-text">Browse by Topic</h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-5">
             {TOPICS.map((topic) => {
               const Icon = topic.Icon;
               return (
                 <button
                   key={topic.title}
                   type="button"
-                  className="group flex w-full items-center justify-between gap-4 rounded-[20px] border border-ui-border bg-ui-card p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_28px_-8px_rgba(15,23,42,0.12)] md:p-6"
+                  className="group flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl border border-ui-border bg-ui-card p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_28px_-8px_rgba(15,23,42,0.12)] sm:gap-4 sm:rounded-[20px] sm:p-5 xl:p-6"
                 >
                   <div className="flex min-w-0 items-center gap-4">
                     <div
@@ -280,7 +280,7 @@ export default function HelpCenterPage() {
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-[14px] font-bold text-ui-strong">{topic.title}</h4>
-                      <p className="mt-0.5 text-[12px] font-medium text-ui-faint">{topic.desc}</p>
+                      <p className="mt-0.5 line-clamp-2 text-[12px] font-medium text-ui-faint">{topic.desc}</p>
                     </div>
                   </div>
                   <ChevronRight
@@ -298,7 +298,7 @@ export default function HelpCenterPage() {
           <h3 className="px-1 text-[13px] font-bold uppercase tracking-widest text-ui-muted-text">
             Frequently Asked Questions
           </h3>
-          <div className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-ui-border bg-ui-card shadow-sm sm:rounded-3xl xl:rounded-[24px]">
             {filteredFaqs.length === 0 ? (
               <p className="px-8 py-12 text-center text-[13px] font-medium text-ui-faint">No FAQs match your search.</p>
             ) : (
@@ -310,15 +310,15 @@ export default function HelpCenterPage() {
                     <button
                       type="button"
                       onClick={() => setActiveFaq(isOpen ? -1 : globalIndex)}
-                      className="flex w-full items-start justify-between gap-4 px-5 py-5 text-left transition-colors hover:bg-ui-muted md:px-8 md:py-6"
+                      className="flex w-full items-start justify-between gap-3 px-4 py-4 text-left transition-colors hover:bg-ui-muted sm:gap-4 sm:px-5 sm:py-5 md:px-8 md:py-6"
                     >
-                      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+                      <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start sm:gap-4 md:items-center md:gap-5">
                         <span
                           className={`inline-flex w-fit shrink-0 rounded-lg border px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest ${FAQ_CATEGORY_STYLES[faq.cat]}`}
                         >
                           {faq.cat}
                         </span>
-                        <span className="text-[13px] font-bold text-ui-strong md:text-[14px]">{faq.q}</span>
+                        <span className="text-[13px] font-bold leading-snug text-ui-strong md:text-[14px]">{faq.q}</span>
                       </div>
                       <ChevronDown
                         className={`mt-1 h-5 w-5 shrink-0 text-ui-faint transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
@@ -340,7 +340,7 @@ export default function HelpCenterPage() {
         </div>
 
         {/* Contact + Tickets */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+        <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-10">
           {/* Contact Support */}
           <div className="space-y-5">
             <h3 className="px-1 text-[13px] font-bold uppercase tracking-widest text-ui-muted-text">Contact Support</h3>
@@ -351,7 +351,7 @@ export default function HelpCenterPage() {
                   <button
                     key={opt.label}
                     type="button"
-                    className="group flex flex-col gap-4 rounded-[20px] border border-ui-border bg-ui-card p-5 text-left shadow-sm transition-all hover:shadow-md md:p-6"
+                    className="group flex min-w-0 flex-col gap-4 rounded-2xl border border-ui-border bg-ui-card p-4 text-left shadow-sm transition-all hover:shadow-md sm:rounded-[20px] sm:p-5 md:p-6"
                   >
                     <div className="flex items-start justify-between">
                       <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${opt.iconClass}`}>
@@ -398,7 +398,7 @@ export default function HelpCenterPage() {
               {TICKETS.map((ticket) => (
                 <div
                   key={ticket.id}
-                  className="cursor-pointer rounded-[20px] border border-ui-border bg-ui-muted p-5 transition-all hover:border-ui-border hover:bg-ui-card hover:shadow-sm md:p-6"
+                  className="cursor-pointer rounded-2xl border border-ui-border bg-ui-muted p-4 transition-all hover:border-ui-border hover:bg-ui-card hover:shadow-sm sm:rounded-[20px] sm:p-5 md:p-6"
                 >
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
@@ -433,7 +433,7 @@ export default function HelpCenterPage() {
             </div>
 
             {/* Account manager */}
-            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#9810FA] to-[#4F39F6] p-6 text-white shadow-[0_16px_40px_-12px_rgba(152,16,250,0.45)] md:p-8">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#9810FA] to-[#4F39F6] p-5 text-white shadow-[0_16px_40px_-12px_rgba(152,16,250,0.45)] sm:rounded-3xl sm:p-6 md:p-8 xl:rounded-[24px]">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-white/25 bg-white/10 text-lg font-bold">
                   SC

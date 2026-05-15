@@ -246,8 +246,8 @@ function DocStatCard({
     <div
       className={
         highlight
-          ? 'flex items-center gap-4 rounded-[20px] border border-amber-200/80 bg-[#FFFBEB] dark:border-amber-900/40 dark:bg-amber-950/25 p-5 shadow-sm md:rounded-[24px] md:p-6'
-          : 'flex items-center gap-4 rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-[24px] md:p-6'
+          ? 'flex items-center gap-3 rounded-2xl border border-amber-200/80 bg-[#FFFBEB] p-4 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/25 sm:gap-4 sm:rounded-[20px] sm:p-5 xl:rounded-[24px] xl:p-6'
+          : 'flex items-center gap-3 rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:gap-4 sm:rounded-[20px] sm:p-5 xl:rounded-[24px] xl:p-6'
       }
     >
       <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}>
@@ -285,10 +285,46 @@ function CategoryBadge({ catLabel }: { catLabel: DocCategory }) {
 function StatusBadge({ status, statusType }: { status: string; statusType: DocStatus }) {
   const { pill, Icon } = STATUS_STYLES[statusType];
   return (
-    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[10px] font-bold ${pill}`}>
+    <span className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold ${pill}`}>
       <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={iconStroke} />
-      {status}
+      <span className="line-clamp-2 sm:whitespace-nowrap">{status}</span>
     </span>
+  );
+}
+
+function DocRowCard({ doc }: { doc: DocRow }) {
+  return (
+    <article className="rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:p-5">
+      <div className="mb-4 flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ui-muted-deep text-ui-muted-text">
+          <FileText className="h-5 w-5" strokeWidth={iconStroke} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-2 text-[13px] font-bold leading-snug text-ui-strong">{doc.name}</p>
+          <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-ui-faint">{doc.id}</p>
+        </div>
+      </div>
+      <div className="space-y-3 border-t border-ui-divider pt-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <CategoryBadge catLabel={doc.catLabel} />
+          <StatusBadge status={doc.status} statusType={doc.statusType} />
+        </div>
+        <div className="grid grid-cols-3 gap-4 text-[11px]">
+          <div className="min-w-0">
+            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Asset</p>
+            <p className="line-clamp-2 font-medium text-ui-body">{doc.asset}</p>
+          </div>
+          <div>
+            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Date</p>
+            <p className="font-medium text-ui-muted-text">{doc.date}</p>
+          </div>
+          <div>
+            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Size</p>
+            <p className="font-medium text-ui-muted-text">{doc.size}</p>
+          </div>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -309,18 +345,18 @@ export default function DocumentsPage() {
 
   return (
     <DashboardLayout>
-      <div className="animate-page-enter space-y-8 md:space-y-10">
+      <div className="animate-page-enter mx-auto w-full max-w-7xl min-w-0 space-y-6 sm:space-y-8 xl:space-y-10">
         {/* Header */}
         <div className="animate-slide-up flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Documents</h1>
+          <div className="min-w-0 space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">Documents</h1>
             <p className="text-sm font-medium text-ui-muted-text">
               Legal agreements, compliance filings, and asset documentation — all in one secure vault.
             </p>
           </div>
           <button
             type="button"
-            className="inline-flex shrink-0 items-center justify-center gap-2.5 self-start rounded-2xl bg-[#9810FA] px-6 py-3.5 text-[13px] font-bold text-white shadow-[0_8px_24px_-6px_rgba(152,16,250,0.45)] transition-all hover:bg-[#7C3AED] sm:self-auto md:px-8 md:py-4"
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2.5 rounded-2xl bg-[#9810FA] px-6 py-3.5 text-[13px] font-bold text-white shadow-[0_8px_24px_-6px_rgba(152,16,250,0.45)] transition-all hover:bg-[#7C3AED] sm:w-auto sm:self-auto md:px-8 md:py-4"
           >
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
               <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -330,15 +366,15 @@ export default function DocumentsPage() {
         </div>
 
         {/* KPI cards */}
-        <div className="motion-stagger-children grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+        <div className="motion-stagger-children grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5">
           {DOC_STATS.map((stat) => (
             <DocStatCard key={stat.label} {...stat} />
           ))}
         </div>
 
         {/* Filters + search */}
-        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-          <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-1">
             {FILTER_TABS.map((tab) => {
               const active = activeCategory === tab.name;
               return (
@@ -357,7 +393,7 @@ export default function DocumentsPage() {
               );
             })}
           </div>
-          <div className="relative w-full shrink-0 sm:w-72">
+          <div className="relative w-full shrink-0 lg:w-72">
             <Search
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ui-faint"
               strokeWidth={iconStroke}
@@ -373,8 +409,8 @@ export default function DocumentsPage() {
         </div>
 
         {/* Upload dropzone */}
-        <div className="group cursor-pointer rounded-[20px] border-2 border-dashed border-ui-border bg-ui-card p-5 shadow-sm transition-colors hover:border-violet-300 hover:bg-violet-50/30 md:rounded-[24px] md:p-6">
-          <div className="flex items-center gap-4">
+        <div className="group cursor-pointer rounded-2xl border-2 border-dashed border-ui-border bg-ui-card p-4 shadow-sm transition-colors hover:border-violet-300 hover:bg-violet-50/30 sm:rounded-[20px] sm:p-5 xl:rounded-[24px] xl:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-[#7C3AED] transition-transform group-hover:scale-105">
               <Upload className="h-5 w-5" strokeWidth={iconStroke} />
             </div>
@@ -397,16 +433,29 @@ export default function DocumentsPage() {
           </div>
         </div>
 
-        {/* Documents table */}
-        <div className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left">
+        {/* Mobile / tablet: card list */}
+        <div className="space-y-3 xl:hidden">
+          {filteredDocs.length === 0 ? (
+            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-14 text-center text-[13px] font-medium text-ui-faint">
+              No documents match your filters.
+            </p>
+          ) : (
+            filteredDocs.map((doc) => <DocRowCard key={doc.id} doc={doc} />)
+          )}
+        </div>
+
+        {/* Desktop: table */}
+        <div className="hidden min-w-0 overflow-hidden rounded-2xl border border-ui-border bg-ui-card shadow-sm sm:rounded-3xl xl:block xl:rounded-[24px]">
+          <div className="min-w-0 overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left">
               <thead>
                 <tr className="border-b border-ui-border bg-ui-muted">
                   {['Document', 'Category', 'Asset', 'Status', 'Date', 'Size'].map((col) => (
                     <th
                       key={col}
-                      className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-ui-faint first:pl-8 last:pr-8 md:px-8 md:py-5"
+                      className={`px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
+                        col === 'Document' ? 'sticky left-0 z-10 bg-ui-muted pl-6 xl:pl-8' : ''
+                      }`}
                     >
                       {col}
                     </th>
@@ -426,34 +475,32 @@ export default function DocumentsPage() {
                       key={doc.id}
                       className="group cursor-pointer transition-colors hover:bg-ui-muted"
                     >
-                      <td className="px-6 py-5 first:pl-8 md:px-8 md:py-6">
-                        <div className="flex items-center gap-4">
+                      <td className="sticky left-0 z-10 bg-ui-card px-4 py-5 group-hover:bg-ui-muted xl:px-8 xl:py-6">
+                        <div className="flex min-w-[200px] items-center gap-4">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ui-muted-deep text-ui-muted-text transition-colors group-hover:bg-violet-100 group-hover:text-[#7C3AED]">
                             <FileText className="h-5 w-5" strokeWidth={iconStroke} />
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-[13px] font-bold text-ui-strong max-w-[200px] md:max-w-[280px]">
-                              {doc.name}
-                            </p>
+                            <p className="line-clamp-2 text-[13px] font-bold text-ui-strong">{doc.name}</p>
                             <p className="text-[10px] font-medium uppercase tracking-widest text-ui-faint">
                               {doc.id}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-5 md:px-8 md:py-6">
+                      <td className="px-4 py-5 xl:px-8 xl:py-6">
                         <CategoryBadge catLabel={doc.catLabel} />
                       </td>
-                      <td className="px-6 py-5 md:px-8 md:py-6">
-                        <p className="whitespace-nowrap text-[12px] font-medium text-ui-body">{doc.asset}</p>
+                      <td className="px-4 py-5 xl:px-8 xl:py-6">
+                        <p className="max-w-[180px] line-clamp-2 text-[12px] font-medium text-ui-body">{doc.asset}</p>
                       </td>
-                      <td className="px-6 py-5 md:px-8 md:py-6">
+                      <td className="px-4 py-5 xl:px-8 xl:py-6">
                         <StatusBadge status={doc.status} statusType={doc.statusType} />
                       </td>
-                      <td className="px-6 py-5 md:px-8 md:py-6">
+                      <td className="px-4 py-5 xl:px-8 xl:py-6">
                         <span className="whitespace-nowrap text-[12px] font-medium text-ui-muted-text">{doc.date}</span>
                       </td>
-                      <td className="px-6 py-5 last:pr-8 md:px-8 md:py-6">
+                      <td className="px-4 py-5 last:pr-6 xl:px-8 xl:py-6 xl:pr-8">
                         <span className="text-[12px] font-medium text-ui-muted-text">{doc.size}</span>
                       </td>
                     </tr>

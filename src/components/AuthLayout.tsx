@@ -31,7 +31,7 @@ export default function AuthLayout({
           ></div>
         </div>
 
-        <div className="relative z-10">
+        <div className="motion-auth-hero relative z-10">
           <div className="flex items-center gap-3 mb-10">
             <div className="relative h-10 w-44">
               <Image
@@ -142,7 +142,7 @@ export default function AuthLayout({
           </div>
         </div>
 
-        <div className="relative z-10">
+        <div className="motion-auth-hero relative z-10">
           <div className="mb-7">
             <h3 className="text-white text-[10px] font-bold tracking-[0.2em] uppercase mb-5">
               Trusted by leading institutions
@@ -186,7 +186,7 @@ export default function AuthLayout({
       
       <div className="flex-1 min-h-0 bg-white text-[#1F2937] p-3 sm:p-4 md:p-6 lg:p-10 flex flex-col justify-start relative">
         <div
-          className="max-w-md w-full mx-auto space-y-5 md:space-y-7 transform-gpu"
+          className="motion-auth-form max-w-md w-full mx-auto space-y-5 md:space-y-7 transform-gpu"
           style={{
             transformOrigin: "top center",
             transform:

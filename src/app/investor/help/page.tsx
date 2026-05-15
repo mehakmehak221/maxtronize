@@ -207,7 +207,7 @@ export default function InvestorHelpPage() {
 
   return (
     <InvestorLayout pageTitle="Help Center">
-      <div className="mx-auto w-full max-w-7xl space-y-8 animate-page-enter md:space-y-10">
+      <div className="mx-auto w-full max-w-7xl space-y-8 md:space-y-10">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Help Center</h1>
           <p className="mt-1 text-sm font-medium text-ui-muted-text">

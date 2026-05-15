@@ -36,7 +36,7 @@ function PortfolioSparkline() {
 
   return (
     <svg
-      className="mt-3 max-w-[280px] opacity-70"
+      className="mt-3 h-12 w-full max-w-[280px] opacity-70"
       viewBox={`0 0 ${w} ${h}`}
       fill="none"
       aria-hidden
@@ -218,16 +218,16 @@ function SectionLinkButton({ label }: { label: string }) {
 export default function WalletPage() {
   return (
     <DashboardLayout>
-      <div className="animate-page-enter space-y-8 md:space-y-10">
+      <div className="animate-page-enter mx-auto w-full max-w-7xl min-w-0 space-y-6 sm:space-y-8 xl:space-y-10">
         <div className="animate-slide-up space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Wallet</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">Wallet</h1>
           <p className="text-sm font-medium text-ui-muted-text">
             Connected wallets, token holdings, and on-chain transaction history.
           </p>
         </div>
 
         {/* Hero — Total Portfolio Value */}
-        <div className="animate-slide-up delay-100 relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#1E0A3C] via-[#2D1260] to-[#0F172A] p-8 shadow-[0_24px_60px_-16px_rgba(30,10,60,0.55)] md:rounded-[32px] md:p-10 lg:p-12">
+        <div className="animate-slide-up delay-100 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E0A3C] via-[#2D1260] to-[#0F172A] p-5 shadow-[0_24px_60px_-16px_rgba(30,10,60,0.55)] sm:rounded-3xl sm:p-8 md:p-10 xl:rounded-[32px] xl:p-12">
           <div
             className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#9810FA]/25 blur-[100px]"
             aria-hidden
@@ -237,46 +237,46 @@ export default function WalletPage() {
             aria-hidden
           />
 
-          <div className="relative z-10 flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
-            <div className="min-w-0 flex-1 space-y-6">
+          <div className="relative z-10 flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between xl:gap-10">
+            <div className="min-w-0 flex-1 space-y-5 sm:space-y-6">
               <div>
                 <p className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/55">
-                  <Wallet className="h-4 w-4 text-white/70" strokeWidth={iconStroke} />
+                  <Wallet className="h-4 w-4 shrink-0 text-white/70" strokeWidth={iconStroke} />
                   Total Portfolio Value
                 </p>
-                <p className="text-4xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl">$95.3M</p>
+                <p className="text-3xl font-bold tracking-tight tabular-nums text-white sm:text-4xl md:text-5xl xl:text-7xl">$95.3M</p>
                 <PortfolioSparkline />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <p className="text-sm font-medium text-white/55">
                   3 connected wallets · 4 token positions
                 </p>
-                <p className="flex items-center gap-1.5 text-sm font-bold text-[#34D399]">
+                <p className="flex flex-wrap items-center gap-1.5 text-sm font-bold text-[#34D399]">
                   <ArrowUpRight className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
                   +$4.2M (4.6%) this month
                 </p>
               </div>
             </div>
 
-            <div className="flex w-full shrink-0 flex-col gap-2.5 sm:w-[200px] lg:w-[220px]">
+            <div className="flex w-full shrink-0 flex-col gap-2.5 sm:flex-row sm:flex-wrap xl:w-[220px] xl:flex-col">
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-white py-3.5 text-[13px] font-bold text-[#111827] shadow-lg transition-transform hover:scale-[1.02] dark:bg-[#f8fafc] dark:text-[#0d0d12]"
+                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl bg-white py-3.5 text-[13px] font-bold text-[#111827] shadow-lg transition-transform hover:scale-[1.02] sm:min-w-[140px] xl:min-w-0 dark:bg-[#f8fafc] dark:text-[#0d0d12]"
               >
                 <ArrowDownLeft className="h-4 w-4" strokeWidth={iconStroke} />
                 Deposit
               </button>
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/5 py-3.5 text-[13px] font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10"
+                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/5 py-3.5 text-[13px] font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10 sm:min-w-[140px] xl:min-w-0"
               >
                 <ArrowUpRight className="h-4 w-4" strokeWidth={iconStroke} />
                 Withdraw
               </button>
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/5 py-3.5 text-[13px] font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10"
+                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/5 py-3.5 text-[13px] font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10 sm:min-w-[140px] xl:min-w-0"
               >
                 <ArrowLeftRight className="h-4 w-4" strokeWidth={iconStroke} />
                 Transfer
@@ -286,9 +286,9 @@ export default function WalletPage() {
         </div>
 
         {/* Three-column grid */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-6 xl:gap-8">
+        <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-3 2xl:gap-8">
           {/* Connected Wallets */}
-          <div className="animate-slide-up delay-200 space-y-4">
+          <div className="animate-slide-up delay-200 min-w-0 space-y-4">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-[15px] font-bold text-ui-strong">Connected Wallets</h2>
               <button
@@ -304,7 +304,7 @@ export default function WalletPage() {
               {CONNECTED_WALLETS.map((w) => (
                 <div
                   key={w.address}
-                  className="rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm transition-shadow hover:shadow-[0_8px_24px_-8px_rgba(15,23,42,0.12)]"
+                  className="rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:rounded-[20px] sm:p-5 transition-shadow hover:shadow-[0_8px_24px_-8px_rgba(15,23,42,0.12)]"
                 >
                   <div className="mb-5 flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
@@ -360,7 +360,7 @@ export default function WalletPage() {
           </div>
 
           {/* Token Holdings */}
-          <div className="animate-slide-up delay-300 space-y-4">
+          <div className="animate-slide-up delay-300 min-w-0 space-y-4">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-[15px] font-bold text-ui-strong">Token Holdings</h2>
               <span className="rounded-full bg-violet-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#7C3AED]">
@@ -368,7 +368,7 @@ export default function WalletPage() {
               </span>
             </div>
 
-            <div className="rounded-[24px] border border-ui-border bg-ui-card p-6 shadow-sm md:p-7">
+            <div className="rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-7">
               <div className="mb-8 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
@@ -427,7 +427,7 @@ export default function WalletPage() {
           </div>
 
           {/* Transactions */}
-          <div className="animate-slide-up delay-400 space-y-4">
+          <div className="animate-slide-up delay-400 min-w-0 space-y-4 md:col-span-2 2xl:col-span-1">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-[15px] font-bold text-ui-strong">Transactions</h2>
               <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-ui-faint">

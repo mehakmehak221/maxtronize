@@ -111,7 +111,7 @@ export default function AssetDetailPage() {
 
   return (
     <InvestorLayout pageTitle="Asset Details">
-      <div className="mx-auto w-full max-w-7xl space-y-6 animate-page-enter md:space-y-8">
+      <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
         <Link
           href="/investor/marketplace"
           className="inline-flex w-fit items-center gap-2 text-[13px] font-bold text-ui-muted-text transition-colors hover:text-ui-strong"

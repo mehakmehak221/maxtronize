@@ -1,26 +1,12 @@
 'use client';
 
-import {
-  ArrowUpRight,
-  Building2,
-  Calendar,
-  CheckCircle2,
-  ChevronRight,
-  Clock,
-  Globe,
-  TrendingUp,
-  Wallet,
-  Zap,
-} from 'lucide-react';
+import { Building2, Calendar, CheckCircle2, ChevronRight, Clock, Globe, TrendingUp, Wallet, Zap } from 'lucide-react';
 import React from 'react';
+import { OverviewHero } from '@/components/dashboard/OverviewHero';
+import { DASHBOARD_KPI_CARDS } from '@/components/dashboard/dashboardKpis';
+import { OverviewKpiGrid } from '@/components/dashboard/OverviewKpiGrid';
 import InvestorLayout from '@/components/InvestorLayout';
-import {
-  IconPulseActivity,
-  IssuerStatIconBars,
-  IssuerStatIconTrend,
-  IssuerStatIconUsers,
-  IssuerStatIconWallet,
-} from '@/components/IssuerNavIcons';
+import { IconPulseActivity } from '@/components/IssuerNavIcons';
 
 const iconStroke = 1.75;
 
@@ -32,45 +18,6 @@ const ALLOCATION = [
   { label: 'Infrastructure', val: '14%', swatch: 'bg-[#3b82f6]' },
   { label: 'Residential', val: '7%', swatch: 'bg-[#7c3aed]' },
   { label: 'Art & Col.', val: '3%', swatch: 'bg-[#c4b5fd]' },
-];
-
-const KPI_CARDS = [
-  {
-    label: 'Total Raised',
-    val: '$14.82M',
-    trend: '↗ +12.5%',
-    sub: 'vs $13.17M last quarter',
-    up: true,
-    Icon: IssuerStatIconWallet,
-    well: 'bg-dash-kpi-violet-soft text-dash-kpi-violet-fg ring-1 ring-dash-kpi-violet-ring',
-  },
-  {
-    label: 'Assets Tokenized',
-    val: '$42.5M',
-    trend: '↗ +8.2%',
-    sub: '6 assets · 4 jurisdictions',
-    up: true,
-    Icon: IssuerStatIconBars,
-    well: 'bg-dash-kpi-blue-soft text-dash-kpi-blue-fg ring-1 ring-dash-kpi-blue-ring',
-  },
-  {
-    label: 'Active Investors',
-    val: '2,403',
-    trend: '↗ +15.3%',
-    sub: '89% KYC verified',
-    up: true,
-    Icon: IssuerStatIconUsers,
-    well: 'bg-dash-kpi-green-soft text-dash-kpi-green-fg ring-1 ring-dash-kpi-green-ring',
-  },
-  {
-    label: 'Platform Yield',
-    val: '8.4%',
-    trend: '↘ -0.2%',
-    sub: 'Weighted avg. APY',
-    up: false,
-    Icon: IssuerStatIconTrend,
-    well: 'bg-dash-kpi-orange-soft text-dash-kpi-orange-fg ring-1 ring-dash-kpi-orange-ring',
-  },
 ];
 
 const ACTIVITY = [
@@ -137,106 +84,30 @@ const HERO_TOKENS = [
 export default function InvestorOverviewPage() {
   return (
     <InvestorLayout pageTitle="Investor Overview">
-      <div className="mx-auto w-full max-w-7xl space-y-8 animate-page-enter md:space-y-10">
-        {/* Hero */}
-        <section className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#312e81] via-[#4c1d95] to-[#581c87] p-7 text-white shadow-[0_28px_64px_-24px_rgba(49,46,129,0.55)] ring-1 ring-white/10 md:rounded-[32px] md:p-11">
-          <div className="pointer-events-none absolute inset-0 bg-mesh opacity-35" aria-hidden />
-          <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-[0.07]" aria-hidden />
-          <div className="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-violet-400/20 blur-[100px]" aria-hidden />
-          <div className="pointer-events-none absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-indigo-400/15 blur-[90px]" aria-hidden />
+      <div className="mx-auto w-full max-w-7xl space-y-6 sm:space-y-8 md:space-y-10">
+        <OverviewHero
+          greeting="Good afternoon, Marcus"
+          date="May 1, 2026"
+          value="$248,650"
+          subtitle="Total portfolio value across all investments"
+          badges={[
+            { type: 'positive', text: '+9.45% Annual Return' },
+            { type: 'neutral', text: '7 investments · 4 asset classes' },
+          ]}
+          pillars={[
+            { label: 'Monthly Income', value: '$14.2K', Icon: Wallet },
+            { label: 'Active Positions', value: '7', Icon: IconPulseActivity },
+            { label: 'Avg Yield', value: '10.8%', Icon: TrendingUp },
+          ]}
+          tokens={HERO_TOKENS}
+        />
 
-          <div className="relative z-10 flex flex-col justify-between gap-10 lg:flex-row lg:gap-12">
-            <div className="min-w-0 space-y-5 md:space-y-6">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/50 md:text-[11px]">
-                Good afternoon, Marcus · May 1, 2026
-              </p>
-              <div className="space-y-2 md:space-y-3">
-                <h1 className="text-4xl font-bold tracking-tight tabular-nums md:text-5xl lg:text-6xl">$248,650</h1>
-                <p className="max-w-xl text-sm font-medium leading-relaxed text-white/60 md:text-base">
-                  Total portfolio value across all investments
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2.5 pt-1 md:gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/15 px-3.5 py-2 backdrop-blur-md md:px-4">
-                  <ArrowUpRight className="h-4 w-4 shrink-0 text-emerald-200" strokeWidth={iconStroke} />
-                  <span className="text-[11px] font-bold text-emerald-200 md:text-sm">+9.45% Annual Return</span>
-                </div>
-                <div className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.07] px-3.5 py-2 backdrop-blur-md md:px-4">
-                  <span className="text-[11px] font-medium text-white/50 md:text-sm">7 investments · 4 asset classes</span>
-                </div>
-              </div>
-            </div>
+        <OverviewKpiGrid cards={DASHBOARD_KPI_CARDS} />
 
-            <div className="grid shrink-0 grid-cols-3 gap-2.5 sm:gap-3 lg:w-[min(100%,22rem)] lg:max-w-sm">
-              {[
-                { label: 'Monthly Income', val: '$14.2K', Icon: Wallet },
-                { label: 'Active Positions', val: '7', Icon: IconPulseActivity },
-                { label: 'Avg Yield', val: '10.8%', Icon: TrendingUp },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/15 bg-white/[0.08] p-3 shadow-inner shadow-black/10 backdrop-blur-xl sm:gap-2 sm:p-4 md:rounded-3xl md:p-5"
-                >
-                  <stat.Icon className="!h-6 !w-6 text-white/75 md:!h-7 md:!w-7" />
-                  <p className="text-lg font-bold tabular-nums sm:text-xl md:text-2xl">{stat.val}</p>
-                  <p className="text-center text-[8px] font-bold uppercase leading-tight tracking-widest text-white/45 sm:text-[9px] md:text-[10px]">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative z-10 mt-7 flex flex-col gap-4 border-t border-white/10 pt-7 md:mt-10 md:flex-row md:items-center md:gap-8 md:pt-9">
-            <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Active Tokens</p>
-            <div className="flex flex-wrap gap-2 md:gap-3">
-              {HERO_TOKENS.map((t) => (
-                <div
-                  key={t.sym}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-black/20 px-3 py-1.5 backdrop-blur-md md:px-4"
-                >
-                  <t.Icon className="h-3.5 w-3.5 shrink-0 text-white/80" strokeWidth={iconStroke} />
-                  <span className="text-[10px] font-bold tracking-wide text-white/95 md:text-[11px]">
-                    {t.sym}{' '}
-                    <span className="font-semibold text-emerald-200/95">{t.ch}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* KPI row */}
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
-          {KPI_CARDS.map((stat) => (
-            <div
-              key={stat.label}
-              className="space-y-5 rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm transition-shadow hover:shadow-md md:space-y-6 md:rounded-3xl md:p-7 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl md:h-12 md:w-12 ${stat.well}`}>
-                  <stat.Icon className="!h-5 !w-5 md:!h-[22px] md:!w-[22px]" />
-                </div>
-                <div
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${
-                    stat.up ? 'bg-ui-success-bg-soft text-ui-success-text' : 'bg-ui-danger-soft text-ui-danger-text'
-                  }`}
-                >
-                  {stat.trend}
-                </div>
-              </div>
-              <div>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ui-faint">{stat.label}</p>
-                <p className="mb-1.5 text-2xl font-bold tabular-nums tracking-tight text-ui-strong md:text-3xl">{stat.val}</p>
-                <p className="text-xs font-medium leading-relaxed text-ui-muted-text">{stat.sub}</p>
-              </div>
-            </div>
-          ))}
-        </section>
 
         {/* Charts */}
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
-          <div className="lg:col-span-2 overflow-hidden rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-8">
+          <div className="xl:col-span-2 overflow-hidden rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <div className="mb-8 flex flex-col justify-between gap-5 sm:mb-10 sm:flex-row sm:items-center">
               <div>
                 <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">Capital Raised</h3>
@@ -342,8 +213,8 @@ export default function InvestorOverviewPage() {
         </section>
 
         {/* Activity + Upcoming */}
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
-          <div className="lg:col-span-2 rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-8">
+          <div className="xl:col-span-2 rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <div className="mb-6 flex items-center justify-between md:mb-8">
               <div>
                 <h3 className="text-lg font-bold text-ui-strong md:text-xl">Recent Activity</h3>
@@ -362,7 +233,7 @@ export default function InvestorOverviewPage() {
               {ACTIVITY.map((item) => (
                 <div
                   key={item.id}
-                  className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-transparent p-4 transition-colors hover:border-ui-border hover:bg-ui-muted-deep/80 md:gap-5 md:p-5"
+                  className="group flex cursor-pointer flex-col gap-3 rounded-2xl border border-transparent p-4 transition-colors hover:border-ui-border hover:bg-ui-muted-deep/80 sm:flex-row sm:items-center md:gap-5 md:p-5"
                 >
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl md:h-11 md:w-11 ${
@@ -383,10 +254,10 @@ export default function InvestorOverviewPage() {
                       {item.id} · {item.type}
                     </p>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <p className="mb-0.5 text-[13px] font-bold text-ui-success-text">{item.amount}</p>
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="hidden rounded bg-ui-muted-deep px-1.5 py-0.5 text-[8px] font-bold uppercase text-ui-muted-text sm:inline-block">
+                  <div className="flex shrink-0 items-center justify-between gap-3 sm:block sm:text-right">
+                    <p className="text-[13px] font-bold text-ui-success-text sm:mb-0.5">{item.amount}</p>
+                    <div className="flex items-center gap-2 sm:justify-end">
+                      <span className="rounded bg-ui-muted-deep px-1.5 py-0.5 text-[8px] font-bold uppercase text-ui-muted-text">
                         {item.region}
                       </span>
                       <p className="text-[10px] font-medium text-ui-placeholder">{item.time}</p>

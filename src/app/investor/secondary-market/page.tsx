@@ -171,7 +171,7 @@ export default function SecondaryMarketPage() {
 
   return (
     <InvestorLayout pageTitle="Secondary Market">
-      <div className="mx-auto w-full max-w-7xl space-y-6 animate-page-enter md:space-y-8">
+      <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
         {/* Header */}
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
@@ -190,7 +190,7 @@ export default function SecondaryMarketPage() {
         </div>
 
         {/* KPI row */}
-        <section className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-5">
+        <section className="grid grid-cols-2 gap-4 md:gap-5 2xl:grid-cols-4">
           {STATS.map((stat) => (
             <StatKpiCard key={stat.label} stat={stat} />
           ))}
@@ -247,9 +247,9 @@ export default function SecondaryMarketPage() {
               key={listing.id}
               className="rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-sm transition-all hover:shadow-md md:rounded-[28px] md:p-7 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]"
             >
-              <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between xl:gap-8">
+              <div className="flex flex-col gap-6 2xl:flex-row 2xl:items-start 2xl:justify-between 2xl:gap-8">
                 {/* Asset identity */}
-                <div className="flex min-w-0 flex-1 items-start gap-4">
+                <div className="flex min-w-0 flex-1 items-start gap-4 2xl:max-w-[38%]">
                   <div
                     className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl md:h-[52px] md:w-[52px] ${listing.iconWell}`}
                   >
@@ -270,7 +270,7 @@ export default function SecondaryMarketPage() {
                 </div>
 
                 {/* Price + availability */}
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8 md:gap-12 lg:flex lg:items-center lg:gap-14">
+                <div className="grid grid-cols-2 gap-5 sm:gap-8 md:gap-10 2xl:flex 2xl:flex-1 2xl:items-center 2xl:justify-center 2xl:gap-14">
                   <div>
                     <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Price per token</p>
                     <p className="text-2xl font-bold tabular-nums text-ui-strong md:text-3xl">{listing.pricePerToken}</p>
@@ -309,7 +309,7 @@ export default function SecondaryMarketPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row xl:flex-col xl:items-stretch">
+                <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row 2xl:flex-col 2xl:items-stretch">
                   <Link
                     href="/investor/marketplace-detail"
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5b21b6] to-[#4338ca] px-6 py-3 text-[12px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105"

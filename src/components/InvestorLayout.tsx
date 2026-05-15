@@ -52,7 +52,7 @@ export default function InvestorLayout({
       {/* Mobile overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm lg:hidden"
+          className="motion-overlay fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -60,8 +60,8 @@ export default function InvestorLayout({
       <div className="flex min-h-0 flex-1">
         {/* Sidebar */}
         <aside
-          className={`fixed lg:sticky top-0 h-screen lg:max-h-screen flex flex-col w-64 shrink-0 border-r border-ui-border bg-ui-sidebar shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] transition-all duration-300 z-[70] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] ${
-            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          className={`motion-sidebar fixed lg:sticky top-0 h-screen lg:max-h-screen flex flex-col w-64 shrink-0 border-r border-ui-border bg-ui-sidebar shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] z-[70] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] ${
+            isMobileMenuOpen ? "is-open translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >
           {/* Logo row — same height + border as main header; logo centered in sidebar strip */}
@@ -95,7 +95,7 @@ export default function InvestorLayout({
           </div>
 
           {/* Nav */}
-          <nav className="scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-5">
+          <nav className="motion-sidebar-nav scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-5">
             <div className="space-y-1">
               <div className="mb-3 flex items-center justify-between px-1">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ui-faint">Investor</p>
@@ -113,7 +113,7 @@ export default function InvestorLayout({
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${
                       isActive
                         ? "border-l-[4px] border-primary bg-ui-accent-tint text-primary shadow-[inset_0_0_0_1px_rgba(124,58,237,0.06)] dark:shadow-[inset_0_0_0_1px_rgba(167,139,250,0.12)]"
                         : "border-l-[4px] border-transparent text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
@@ -147,7 +147,7 @@ export default function InvestorLayout({
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${
                       isActive
                         ? "border-l-[4px] border-primary bg-ui-accent-tint text-primary shadow-[inset_0_0_0_1px_rgba(124,58,237,0.06)] dark:shadow-[inset_0_0_0_1px_rgba(167,139,250,0.12)]"
                         : "border-l-[4px] border-transparent text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
@@ -184,7 +184,7 @@ export default function InvestorLayout({
 
         {/* Main column */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-ui-page">
-          <header className="sticky top-0 z-40 flex h-17 shrink-0 items-center justify-between gap-4 border-b border-ui-border bg-ui-sidebar px-4 sm:px-6 md:px-8">
+          <header className="motion-header sticky top-0 z-40 flex h-17 shrink-0 items-center justify-between gap-4 border-b border-ui-border bg-ui-sidebar px-4 sm:px-6 md:px-8">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <button
                 type="button"
@@ -251,7 +251,7 @@ export default function InvestorLayout({
           </header>
 
           <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden bg-ui-page p-5 sm:p-6 md:p-8">
-            <div key={pathname} className="animate-page-enter">
+            <div key={pathname} className="motion-page-content animate-page-enter">
               {children}
             </div>
           </main>

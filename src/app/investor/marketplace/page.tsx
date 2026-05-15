@@ -133,11 +133,13 @@ export default function MarketplacePage() {
 
   return (
     <InvestorLayout pageTitle="Primary Marketplace">
-      <div className="space-y-6 animate-in fade-in duration-700">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Primary Marketplace</h1>
-            <p className="mt-1 text-sm font-medium text-ui-faint">
+      <div className="mx-auto w-full max-w-7xl space-y-5 animate-in fade-in duration-700 sm:space-y-6">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end sm:gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-3xl lg:text-4xl">
+              Primary Marketplace
+            </h1>
+            <p className="mt-1 text-sm font-medium text-ui-faint md:text-[15px]">
               Discover new investment opportunities across multiple asset classes
             </p>
           </div>
@@ -164,16 +166,16 @@ export default function MarketplacePage() {
             onChange={e => setSearch(e.target.value)}
             type="search"
             placeholder="Search by name, type, or location..."
-            className="w-full rounded-2xl border border-ui-border bg-ui-card py-3.5 pl-11 pr-6 text-[13px] font-medium shadow-sm outline-none transition-all focus:ring-4 focus:ring-primary/5"
+            className="w-full rounded-2xl border border-ui-border bg-ui-card py-3.5 pl-11 pr-6 text-sm font-medium shadow-sm outline-none transition-all focus:ring-4 focus:ring-primary/5 md:py-4 md:text-[15px]"
           />
         </div>
 
-        <div className="flex flex-col gap-8 lg:flex-row">
-          <aside className="w-full shrink-0 space-y-0 lg:w-64">
-            <div className="space-y-5 rounded-[24px] border border-ui-border bg-ui-card p-6 shadow-sm lg:sticky lg:top-20">
-              <div className="flex items-center justify-between">
-                <h3 className="text-[11px] font-bold uppercase tracking-widest text-ui-strong">Filters</h3>
-                <button type="button" className="text-[11px] font-bold text-primary hover:underline">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+          <aside className="w-full shrink-0 lg:w-[240px] lg:max-w-[35%] xl:w-64 2xl:w-72">
+            <div className="space-y-4 rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm lg:sticky lg:top-20 lg:space-y-5 lg:rounded-[24px] lg:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-ui-strong">Filters</h3>
+                <button type="button" className="text-xs font-bold text-primary hover:underline">
                   Clear all
                 </button>
               </div>
@@ -185,10 +187,12 @@ export default function MarketplacePage() {
                   items: ['Up to $10,000', '$10,000 – $25,000', '$25,000 – $50,000', 'Above $50,000'],
                 },
               ].map(section => (
-                <div key={section.title} className="space-y-2.5 border-t border-ui-divider pt-4">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-ui-faint">{section.title}</p>
+                <div key={section.title} className="space-y-2.5 border-t border-ui-divider pt-4 md:space-y-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-ui-faint md:text-[11px]">
+                    {section.title}
+                  </p>
                   {section.items.map(item => (
-                    <label key={item} className="group flex cursor-pointer items-center gap-3">
+                    <label key={item} className="group flex min-h-[40px] cursor-pointer items-center gap-3 md:min-h-[44px]">
                       <input
                         type="checkbox"
                         className="sr-only"
@@ -200,14 +204,14 @@ export default function MarketplacePage() {
                               : false
                         }
                       />
-                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-ui-border bg-ui-card transition-colors group-has-[:checked]:border-primary group-has-[:checked]:bg-primary group-has-[:focus-visible]:ring-2 group-has-[:focus-visible]:ring-primary/30">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-ui-border bg-ui-card transition-colors group-has-[:checked]:border-primary group-has-[:checked]:bg-primary group-has-[:focus-visible]:ring-2 group-has-[:focus-visible]:ring-primary/30 md:h-5 md:w-5">
                         <Check
-                          className="h-3 w-3 text-white opacity-0 transition-opacity group-has-[:checked]:opacity-100"
+                          className="h-3 w-3 text-white opacity-0 transition-opacity group-has-[:checked]:opacity-100 md:h-3.5 md:w-3.5"
                           strokeWidth={3}
                           aria-hidden
                         />
                       </span>
-                      <span className="text-[13px] font-medium text-ui-body">{item}</span>
+                      <span className="text-[13px] font-medium leading-snug text-ui-body md:text-sm">{item}</span>
                     </label>
                   ))}
                 </div>
@@ -238,19 +242,19 @@ export default function MarketplacePage() {
                 <FeaturedStarOutlineIcon className="h-5 w-5 shrink-0 text-[#FE9A00] md:h-6 md:w-6" aria-hidden />
                 Featured Opportunities
               </h2>
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 2xl:grid-cols-3">
                 {featured.map(opp => (
                   <article
                     key={opp.id}
-                    className="group cursor-pointer overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm transition-all hover:shadow-lg"
+                    className="card-lift group flex h-full cursor-pointer flex-col overflow-hidden rounded-[20px] border border-ui-border bg-ui-card shadow-sm md:rounded-[24px]"
                   >
-                    <div className="relative h-44 overflow-hidden md:h-48">
+                    <div className="relative h-40 shrink-0 overflow-hidden sm:h-44 md:h-40 lg:h-44 xl:h-48">
                       <Image
                         src={opp.image}
                         alt=""
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                       />
                       <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/10 to-transparent" aria-hidden />
 
@@ -278,7 +282,7 @@ export default function MarketplacePage() {
                       </div>
                     </div>
 
-                    <div className="p-5">
+                    <div className="flex flex-1 flex-col p-4 md:p-5">
                       <div className="mb-3 flex items-start gap-3">
                         <div
                           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base ${opp.iconBg}`}
@@ -286,8 +290,8 @@ export default function MarketplacePage() {
                           {opp.emoji}
                         </div>
                         <div className="min-w-0">
-                          <h3 className="text-[14px] font-bold leading-snug text-ui-strong">{opp.name}</h3>
-                          <p className="text-[11px] text-ui-faint">{opp.type}</p>
+                          <h3 className="text-sm font-bold leading-snug text-ui-strong md:text-[15px]">{opp.name}</h3>
+                          <p className="text-xs text-ui-faint">{opp.type}</p>
                         </div>
                       </div>
 
@@ -295,21 +299,21 @@ export default function MarketplacePage() {
                         {opp.tags.map(t => (
                           <span
                             key={t}
-                            className="rounded-md border border-ui-border bg-ui-card px-2 py-0.5 text-[9px] font-bold text-ui-muted-text"
+                            className="rounded-md border border-ui-border bg-ui-card px-2 py-0.5 text-[10px] font-bold text-ui-muted-text"
                           >
                             {t}
                           </span>
                         ))}
                       </div>
 
-                      <div className="mb-4 grid grid-cols-2 gap-3">
+                      <div className="mb-4 grid grid-cols-2 gap-3 md:gap-4">
                         <div>
-                          <p className="text-[8px] font-bold uppercase tracking-widest text-ui-faint">APY</p>
-                          <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">{opp.apy}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">APY</p>
+                          <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{opp.apy}</p>
                         </div>
                         <div>
-                          <p className="text-[8px] font-bold uppercase tracking-widest text-ui-faint">Min. Investment</p>
-                          <p className="text-base font-bold text-ui-strong">{opp.minInv}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">Min. Investment</p>
+                          <p className="text-lg font-bold text-ui-strong">{opp.minInv}</p>
                         </div>
                       </div>
 
@@ -325,8 +329,8 @@ export default function MarketplacePage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-4 text-[11px] text-ui-faint">
+                      <div className="mt-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-ui-faint md:gap-4">
                           <span className="flex items-center gap-1.5">
                             <UsersIcon className="h-4 w-4 text-ui-placeholder" />
                             {opp.investors}
@@ -338,7 +342,7 @@ export default function MarketplacePage() {
                         </div>
                         <Link
                           href="/investor/asset-detail"
-                          className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-[11px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary/90"
+                          className="inline-flex w-full shrink-0 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 sm:w-auto md:py-2"
                         >
                           Invest
                           <ArrowUpRightIcon className="h-3.5 w-3.5 text-white" />

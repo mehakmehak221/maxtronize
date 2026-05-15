@@ -136,17 +136,17 @@ export default function IssuerHubPage() {
   const [aiDraft, setAiDraft] = useState('');
 
   const renderOverview = () => (
-    <div className="max-w-full min-w-0 space-y-10 animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="relative overflow-hidden rounded-[32px] bg-primary p-8 text-white shadow-2xl">
+    <div className="max-w-full min-w-0 space-y-6 animate-in fade-in duration-500 sm:space-y-8 xl:space-y-10">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 xl:gap-6">
+        <div className="relative overflow-hidden rounded-2xl bg-primary p-5 text-white shadow-2xl sm:rounded-3xl sm:p-6 md:p-7 xl:rounded-[32px] xl:p-8">
           <div className="absolute inset-0 bg-mesh opacity-40" />
-          <div className="relative z-10 space-y-6">
+          <div className="relative z-10 space-y-4 sm:space-y-5 md:space-y-6">
             <MetricIconCircle className="bg-white/20 ring-1 ring-white/25">
               <DollarSign className="h-5 w-5 text-white" strokeWidth={iconStroke} />
             </MetricIconCircle>
             <div>
               <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/60">Total Capital Raised</p>
-              <h3 className="text-4xl font-bold tracking-tight">$14,820,000</h3>
+              <h3 className="text-3xl font-bold tracking-tight tabular-nums sm:text-4xl">$14,820,000</h3>
               <p className="mt-2 text-xs font-medium text-white/60">across 3 active offerings</p>
             </div>
             <div className="border-t border-white/10 pt-4">
@@ -157,7 +157,7 @@ export default function IssuerHubPage() {
           </div>
         </div>
 
-        <div className="space-y-6 rounded-[32px] border border-card-border bg-card p-8 shadow-sm">
+        <div className="space-y-4 rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
           <div className="flex items-start justify-between">
             <MetricIconCircle className="bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
               <Building2 className="h-5 w-5" strokeWidth={iconStroke} />
@@ -168,13 +168,13 @@ export default function IssuerHubPage() {
           </div>
           <div>
             <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Active Assets</p>
-            <h3 className="text-4xl font-bold tracking-tight text-foreground">3</h3>
+            <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">3</h3>
             <p className="mt-2 text-xs font-medium text-text-muted">2 in funding · 1 fully funded</p>
           </div>
         </div>
 
-        <div className="space-y-6 rounded-[32px] border border-card-border bg-card p-8 shadow-sm">
-          <div className="flex items-start justify-between">
+        <div className="space-y-4 rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
+          <div className="flex items-start justify-between gap-2">
             <MetricIconCircle className="bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
               <Users className="h-5 w-5" strokeWidth={iconStroke} />
             </MetricIconCircle>
@@ -184,12 +184,12 @@ export default function IssuerHubPage() {
           </div>
           <div>
             <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Total Investors</p>
-            <h3 className="text-4xl font-bold tracking-tight text-foreground">148</h3>
+            <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">148</h3>
             <p className="mt-2 text-xs font-medium text-text-muted">134 funded · 14 committed</p>
           </div>
         </div>
 
-        <div className="space-y-6 rounded-[32px] bg-issuer-yield-card p-8 text-issuer-yield-card-fg shadow-sm">
+        <div className="space-y-4 rounded-2xl bg-issuer-yield-card p-5 text-issuer-yield-card-fg shadow-sm sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
           <div className="flex items-start justify-between">
             <MetricIconCircle className="bg-white/15 ring-1 ring-white/20">
               <TrendingUp className="h-5 w-5 text-issuer-yield-card-fg" strokeWidth={iconStroke} />
@@ -197,7 +197,7 @@ export default function IssuerHubPage() {
           </div>
           <div>
             <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-issuer-yield-card-fg/80">Blended Yield</p>
-            <h3 className="text-4xl font-bold tracking-tight">11.8%</h3>
+            <h3 className="text-3xl font-bold tracking-tight tabular-nums sm:text-4xl">11.8%</h3>
             <p className="mt-2 text-xs font-medium text-issuer-yield-card-fg/80">weighted avg across portfolio</p>
           </div>
           <div className="border-t border-white/20 pt-4">
@@ -207,7 +207,7 @@ export default function IssuerHubPage() {
           </div>
         </div>
 
-        <div className="space-y-6 rounded-[32px] border border-warning/20 bg-issuer-pending-kyc-bg p-8 shadow-sm">
+        <div className="space-y-4 rounded-2xl border border-warning/20 bg-issuer-pending-kyc-bg p-5 sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8 shadow-sm">
           <div className="flex items-start justify-between">
             <MetricIconCircle className="bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
               <Clock className="h-5 w-5" strokeWidth={iconStroke} />
@@ -218,7 +218,7 @@ export default function IssuerHubPage() {
           </div>
           <div>
             <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-warning/90">Pending KYC</p>
-            <h3 className="text-4xl font-bold tracking-tight text-foreground">7</h3>
+            <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">7</h3>
             <p className="mt-2 text-xs font-medium text-warning">
               5 awaiting docs · 2 in review
               <br />
@@ -227,7 +227,7 @@ export default function IssuerHubPage() {
           </div>
         </div>
 
-        <div className="space-y-6 rounded-[32px] border border-card-border bg-card p-8 shadow-sm">
+        <div className="space-y-4 rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
           <div className="flex items-start justify-between">
             <MetricIconCircle className="bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
               <Calendar className="h-5 w-5" strokeWidth={iconStroke} />
@@ -235,15 +235,15 @@ export default function IssuerHubPage() {
           </div>
           <div>
             <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Next Distribution</p>
-            <h3 className="text-4xl font-bold tracking-tight text-foreground">$186,400</h3>
+            <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">$186,400</h3>
             <p className="mt-2 text-xs font-medium text-text-muted">Scheduled May 01, 2026 · 148 investors</p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="rounded-[40px] border border-card-border bg-card p-10 shadow-sm lg:col-span-2">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-8">
+        <div className="min-w-0 xl:col-span-2 rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-8 xl:rounded-[40px] xl:p-10">
+          <div className="mb-5 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-start sm:justify-between md:mb-8">
             <div>
               <h3 className="mb-1 text-lg font-bold text-foreground">Capital Velocity</h3>
               <p className="text-xs text-text-muted">Raised vs. committed capital — last 12 weeks</p>
@@ -359,10 +359,10 @@ export default function IssuerHubPage() {
           </div>
         </div>
 
-        <div className="flex flex-col rounded-[40px] border border-card-border bg-card p-10 shadow-sm">
+        <div className="flex min-w-0 flex-col rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-8 xl:rounded-[40px] xl:p-10">
           <h3 className="mb-1 text-lg font-bold text-foreground">Recent Activity</h3>
-          <p className="mb-8 text-xs text-text-muted">Investor actions & compliance events</p>
-          <div className="flex-1 space-y-6">
+          <p className="mb-5 text-xs text-text-muted sm:mb-6 md:mb-8">Investor actions & compliance events</p>
+          <div className="flex-1 space-y-4 sm:space-y-5 md:space-y-6">
             {(
               [
                 {
@@ -406,8 +406,8 @@ export default function IssuerHubPage() {
                 <MetricIconCircle className={`${activity.ring} shadow-sm`}>
                   <RowIcon className="h-4 w-4" strokeWidth={iconStroke} />
                 </MetricIconCircle>
-                <div className="min-w-0">
-                  <p className="mb-0.5 text-[11px] font-bold text-foreground transition-colors group-hover:text-primary">
+                <div className="min-w-0 flex-1">
+                  <p className="mb-0.5 line-clamp-3 text-[11px] font-bold leading-snug text-foreground transition-colors group-hover:text-primary xl:line-clamp-2">
                     {activity.label}
                   </p>
                   <p className="text-[10px] text-text-muted">{activity.time}</p>
@@ -422,8 +422,8 @@ export default function IssuerHubPage() {
   );
 
   const renderAssets = () => (
-    <div className="max-w-full min-w-0 space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <div className="max-w-full min-w-0 space-y-6 animate-in fade-in duration-500 sm:space-y-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-bold text-foreground">Asset Portfolio</h3>
           <p className="text-xs text-text-muted">4 assets · 3 active offerings</p>
@@ -729,8 +729,8 @@ export default function IssuerHubPage() {
 
     return (
       <div className="max-w-full min-w-0 space-y-8 animate-in fade-in duration-500">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <div className="rounded-[32px] border border-card-border bg-card p-8 shadow-sm lg:col-span-5">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+          <div className="rounded-[32px] border border-card-border bg-card p-8 shadow-sm xl:col-span-5">
             <div className="flex flex-col items-center justify-center gap-6 md:flex-row md:gap-10">
               <div className="relative h-40 w-40 shrink-0">
                 <svg
@@ -775,7 +775,7 @@ export default function IssuerHubPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-7">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:col-span-7">
             {(
               [
                 {
@@ -946,7 +946,7 @@ export default function IssuerHubPage() {
 
     return (
       <div className="max-w-full min-w-0 space-y-8 animate-in fade-in duration-500">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {(
             [
               {
@@ -1161,7 +1161,7 @@ export default function IssuerHubPage() {
 
     return (
       <div className="max-w-full min-w-0 space-y-8 animate-in fade-in duration-500">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {(
             [
               {
@@ -1204,7 +1204,7 @@ export default function IssuerHubPage() {
           })}
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <div className="rounded-[32px] border border-card-border bg-card p-8 shadow-sm md:p-10">
             <h3 className="text-lg font-bold text-foreground">Investor Growth</h3>
             <p className="mb-8 text-xs text-text-muted">Cumulative accredited investors onboarded.</p>
@@ -1297,7 +1297,7 @@ export default function IssuerHubPage() {
         <div className="rounded-[32px] border border-card-border bg-card p-8 shadow-sm md:p-10">
           <h3 className="text-lg font-bold text-foreground">Investor Geography</h3>
           <p className="mb-8 text-xs text-text-muted">Breakdown by jurisdiction (% of total committed capital).</p>
-          <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-16">
+          <div className="flex flex-col items-center gap-10 xl:flex-row xl:items-center xl:gap-16">
             <div
               className="relative h-44 w-44 shrink-0 rounded-full"
               style={{
@@ -1408,7 +1408,7 @@ export default function IssuerHubPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-full min-w-0 space-y-10 animate-in fade-in duration-700">
+      <div className="max-w-full min-w-0 space-y-6 animate-in fade-in duration-700 sm:space-y-8 xl:space-y-10">
         <header className="-mx-5 mb-6 flex flex-col gap-3 px-5 py-4 sm:-mx-6 sm:px-6 md:-mx-8 md:mb-8 md:flex md:h-16 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-0 lg:mb-10">
           <div className="flex min-w-0 flex-col gap-0.5 md:flex-row md:items-baseline md:gap-2.5">
             <h1 className="truncate text-lg font-bold tracking-tight text-foreground">Issuer Dashboard</h1>

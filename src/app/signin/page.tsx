@@ -18,15 +18,16 @@ export default function SignInPage() {
 
   return (
     <AuthLayout isSignUp={false} onToggle={() => router.push("/signup")}>
-      <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="min-w-0 space-y-6 animate-fade-in sm:space-y-8">
         <div>
-          <p className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-4">
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563] sm:mb-4">
             I am a
           </p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4">
             <button
+              type="button"
               onClick={() => setRole("issuer")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center rounded-2xl border-2 p-4 transition-all sm:p-6 ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -45,8 +46,9 @@ export default function SignInPage() {
               <span className="text-xs font-bold">Asset Issuer</span>
             </button>
             <button
+              type="button"
               onClick={() => setRole("investor")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center rounded-2xl border-2 p-4 transition-all sm:p-6 ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -206,7 +208,7 @@ export default function SignInPage() {
         </div>
 
         {/* Wallet Connect */}
-        <button className="w-full py-4 rounded-xl border border-[#E5E7EB] bg-white text-sm font-bold text-[#1F2937] transition-all hover:bg-[#F9FAFB] flex items-center justify-center gap-3">
+        <button type="button" className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E5E7EB] bg-white px-3 py-4 text-center text-[12px] font-bold text-[#1F2937] transition-all hover:bg-[#F9FAFB] sm:text-sm">
           <svg
             className="h-5 w-5 text-[#9CA3AF]"
             viewBox="0 0 24 24"

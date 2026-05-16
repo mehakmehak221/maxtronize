@@ -14,18 +14,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
+import { aggregatePortfolioAssetStats, filterLabelToCategoryKey } from '@/lib/portfolio';
+import {
+  useGetPortfolioFiltersQuery,
+  useGetPortfolioSummaryQuery,
+  useListPortfolioAssetsQuery,
+} from '@/store/api/portfolioApi';
 
-type FilterType =
-  | 'All Assets'
-  | 'Commercial RE'
-  | 'Infrastructure'
-  | 'Residential'
-  | 'Private Equity'
-  | 'Art & Col.';
+const SUMMARY_MONTHS = 7;
 
-const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-const NAV_M = [95, 100, 105, 108, 110, 115, 120];
-const Y_MAX = 140;
+function chartX(left: number, width: number, index: number, count: number): number {
+  if (count <= 1) return left + width / 2;
+  return left + (index / (count - 1)) * width;
+}
 
 function buildNavPath(
   values: number[],
@@ -34,12 +35,13 @@ function buildNavPath(
   top: number,
   height: number,
   maxY: number,
-) {
-  const n = values.length;
+): string {
+  if (values.length === 0) return '';
+  const safeMaxY = maxY > 0 ? maxY : 1;
   return values
     .map((v, i) => {
-      const x = left + (i / (n - 1)) * width;
-      const y = top + height - (v / maxY) * height;
+      const x = chartX(left, width, i, values.length);
+      const y = top + height - (v / safeMaxY) * height;
       return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
     })
     .join(' ');
@@ -53,140 +55,21 @@ function buildNavAreaPath(
   height: number,
   maxY: number,
   baselineY: number,
-) {
-  const n = values.length;
+): string {
+  if (values.length === 0) return '';
+  const safeMaxY = maxY > 0 ? maxY : 1;
   const pts = values.map((v, i) => {
-    const x = left + (i / (n - 1)) * width;
-    const y = top + height - (v / maxY) * height;
+    const x = chartX(left, width, i, values.length);
+    const y = top + height - (v / safeMaxY) * height;
     return { x, y };
   });
   let d = `M ${pts[0].x} ${baselineY} L ${pts[0].x} ${pts[0].y}`;
   for (let i = 1; i < pts.length; i++) {
     d += ` L ${pts[i].x} ${pts[i].y}`;
   }
-  d += ` L ${pts[n - 1].x} ${baselineY} Z`;
+  d += ` L ${pts[pts.length - 1].x} ${baselineY} Z`;
   return d;
 }
-
-const DEMO_ASSETS = [
-  {
-    id: 'ponyc',
-    name: 'Prime Office Tower',
-    ticker: 'PONYC',
-    location: 'New York, NY',
-    compliance: 'US · Reg D',
-    status: 'Active' as const,
-    tokenPrice: '$7.83',
-    priceChange: '+4.2%',
-    up: true,
-    nav: '$33.2M',
-    apy: '9.1%',
-    investors: '1,204',
-    lockup: 'Unlocked',
-    image:
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
-    category: 'Commercial RE' as FilterType,
-  },
-  {
-    id: 'sfatx',
-    name: 'Solar Farm Alpha',
-    ticker: 'SFATX',
-    location: 'Austin, TX',
-    compliance: 'US · Reg D',
-    status: 'Raising' as const,
-    tokenPrice: '$4.51',
-    priceChange: '+2.1%',
-    up: true,
-    nav: '$8.2M',
-    apy: '7.4%',
-    investors: '512',
-    lockup: '6 months',
-    image:
-      'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80',
-    category: 'Infrastructure' as FilterType,
-  },
-  {
-    id: 'rivr',
-    name: 'Riviera Residences',
-    ticker: 'RVRE',
-    location: "Côte d'Azur, FR",
-    compliance: 'EU · MiCA',
-    status: 'Raising' as const,
-    tokenPrice: '$1.22',
-    priceChange: '-0.4%',
-    up: false,
-    nav: '$1.2M',
-    apy: '5.8%',
-    investors: '89',
-    lockup: '12 months',
-    image:
-      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=900&q=80',
-    category: 'Residential' as FilterType,
-  },
-  // {
-  //   id: 'logde',
-  //   name: 'Logistics Hub DE',
-  //   ticker: 'LHDE',
-  //   location: 'Frankfurt, DE',
-  //   compliance: 'EU · MiCA',
-  //   status: 'Locked' as const,
-  //   tokenPrice: '$12.60',
-  //   priceChange: '+1.3%',
-  //   up: true,
-  //   nav: '$21.8M',
-  //   apy: '9.3%',
-  //   investors: '419',
-  //   lockup: 'Locked',
-  //   image:
-  //     'https://images.unsplash.com/photo-1494412574653-ff7b073067e4?auto=format&fit=crop&w=900&q=80',
-  //   category: 'Infrastructure' as FilterType,
-  // },
-  {
-    id: 'hppe',
-    name: 'Harbor Ports PE Fund',
-    ticker: 'HPPE',
-    location: 'Singapore, SG',
-    compliance: 'SG · MAS',
-    status: 'Active' as const,
-    tokenPrice: '$48.20',
-    priceChange: '+6.8%',
-    up: true,
-    nav: '$54.8M',
-    apy: '15.5%',
-    investors: '267',
-    lockup: 'Unlocked',
-    image:
-      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80',
-    category: 'Private Equity' as FilterType,
-  },
-  // {
-  //   id: 'alp',
-  //   name: 'Alpine Art Collection',
-  //   ticker: 'ALPC',
-  //   location: 'Zurich, CH',
-  //   compliance: 'CH · FINMA',
-  //   status: 'Raising' as const,
-  //   tokenPrice: '$220.00',
-  //   priceChange: '+0.8%',
-  //   up: true,
-  //   nav: '$3.5M',
-  //   apy: '6.8%',
-  //   investors: '47',
-  //   lockup: '24 months',
-  //   image:
-  //     'https://images.unsplash.com/photo-1545989251-0ac6ebc74504?auto=format&fit=crop&w=900&q=80',
-  //   category: 'Art & Col.' as FilterType,
-  // },
-];
-
-const FILTERS: FilterType[] = [
-  'All Assets',
-  'Commercial RE',
-  'Infrastructure',
-  'Residential',
-  'Private Equity',
-  'Art & Col.',
-];
 
 const statusStyles = {
   Active: { dot: 'bg-emerald-400', ring: 'border-emerald-500/30' },
@@ -195,23 +78,61 @@ const statusStyles = {
 } as const;
 
 export default function IssuerPortfolioPage() {
-  const [activeFilter, setActiveFilter] = useState<FilterType>('All Assets');
+  const [activeFilter, setActiveFilter] = useState('All Assets');
+  const { data: categories = [] } = useGetPortfolioFiltersQuery();
+  const { data: summary } = useGetPortfolioSummaryQuery({ months: SUMMARY_MONTHS });
+  const categoryKey = filterLabelToCategoryKey(categories, activeFilter);
+  const { data: assetsResult, isLoading: assetsLoading } = useListPortfolioAssetsQuery({
+    page: 1,
+    limit: 50,
+    category: categoryKey,
+  });
 
-  const filtered = useMemo(
-    () =>
-      activeFilter === 'All Assets'
-        ? DEMO_ASSETS
-        : DEMO_ASSETS.filter((a) => a.category === activeFilter),
-    [activeFilter],
+  const filterLabels = useMemo(
+    () => (categories.length > 0 ? categories.map((c) => c.label) : ['All Assets']),
+    [categories],
   );
 
-  const chartLeft = 40;
-  const chartW = 520;
-  const chartTop = 24;
-  const chartH = 112;
-  const chartBottom = chartTop + chartH;
-  const linePath = buildNavPath(NAV_M, chartLeft, chartW, chartTop, chartH, Y_MAX);
-  const areaPath = buildNavAreaPath(NAV_M, chartLeft, chartW, chartTop, chartH, Y_MAX, chartBottom);
+  const assets = assetsResult?.items ?? [];
+  const navHistory = summary?.navHistory ?? [];
+  const navValues = navHistory.map((p) => p.value);
+  const months = navHistory.map((p) => p.label);
+  const yMax = navValues.length > 0 ? Math.max(...navValues, 1) * 1.1 : 1;
+
+  const assetStats = useMemo(() => aggregatePortfolioAssetStats(assets), [assets]);
+  const totalInvestors =
+    summary?.totalInvestors ?? (assetStats.totalInvestors > 0 ? assetStats.totalInvestors : null);
+  const avgApyPercent = summary?.avgApyPercent ?? assetStats.avgApyPercent;
+
+  const chartGeometry = useMemo(() => {
+    const chartLeft = 40;
+    const chartW = 520;
+    const chartTop = 24;
+    const chartH = 112;
+    const chartBottom = chartTop + chartH;
+    if (navValues.length === 0) {
+      return { chartLeft, chartW, chartTop, chartH, chartBottom, linePath: '', areaPath: '' };
+    }
+    return {
+      chartLeft,
+      chartW,
+      chartTop,
+      chartH,
+      chartBottom,
+      linePath: buildNavPath(navValues, chartLeft, chartW, chartTop, chartH, yMax),
+      areaPath: buildNavAreaPath(
+        navValues,
+        chartLeft,
+        chartW,
+        chartTop,
+        chartH,
+        yMax,
+        chartBottom,
+      ),
+    };
+  }, [navValues, yMax]);
+
+  const { chartLeft, chartW, chartTop, chartH, chartBottom, linePath, areaPath } = chartGeometry;
 
   return (
     <DashboardLayout>
@@ -229,12 +150,18 @@ export default function IssuerPortfolioPage() {
             <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-violet-300/20 blur-2xl" />
             <div className="relative z-10">
               <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/55">Total NAV</p>
-              <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">$120.2M</p>
+              <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">
+                {summary?.totalNavFormatted ?? '—'}
+              </p>
               <p className="mb-5 text-xs font-medium text-white/60">
-                {DEMO_ASSETS.length} assets on-chain
+                {summary?.assetCount ?? assets.length} assets on-chain
               </p>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-[11px] font-bold text-emerald-200">
-                ↗ +18.4% YTD
+                ↗{' '}
+                {summary
+                  ? `${summary.ytdPercent >= 0 ? '+' : ''}${summary.ytdPercent.toFixed(1)}%`
+                  : '—'}{' '}
+                YTD
               </span>
             </div>
           </div>
@@ -246,10 +173,18 @@ export default function IssuerPortfolioPage() {
                 <p className="text-[11px] font-medium text-ui-faint">USD Millions · 7-month trend</p>
               </div>
               <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
-                +18.4% YTD
+                {summary
+                  ? `${summary.ytdPercent >= 0 ? '+' : ''}${summary.ytdPercent.toFixed(1)}%`
+                  : '—'}{' '}
+                YTD
               </span>
             </div>
             <div className="max-w-full min-w-0 overflow-hidden">
+              {navHistory.length === 0 ? (
+                <p className="flex h-36 items-center justify-center text-sm font-medium text-ui-faint md:h-40">
+                  No NAV history available yet.
+                </p>
+              ) : (
               <svg
                 className="h-36 w-full max-w-full md:h-40"
                 viewBox="0 0 600 168"
@@ -263,8 +198,8 @@ export default function IssuerPortfolioPage() {
                     <stop offset="100%" className="[stop-color:var(--primary)]" stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                {[0, 70, 140].map((tick) => {
-                  const y = chartBottom - (tick / Y_MAX) * chartH;
+                {[0, Math.round(yMax / 2), Math.round(yMax)].map((tick) => {
+                  const y = chartBottom - (tick / yMax) * chartH;
                   return (
                     <g key={tick}>
                       <line
@@ -296,11 +231,14 @@ export default function IssuerPortfolioPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                {MONTHS.map((m, i) => {
-                  const x = chartLeft + (i / (MONTHS.length - 1)) * chartW;
+                {months.map((m, i) => {
+                  const x =
+                    months.length > 1
+                      ? chartLeft + (i / (months.length - 1)) * chartW
+                      : chartLeft + chartW / 2;
                   return (
                     <text
-                      key={m}
+                      key={`${m}-${i}`}
                       x={x}
                       y="162"
                       textAnchor="middle"
@@ -311,6 +249,7 @@ export default function IssuerPortfolioPage() {
                   );
                 })}
               </svg>
+              )}
             </div>
           </div>
 
@@ -323,7 +262,9 @@ export default function IssuerPortfolioPage() {
                 <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
                   Total Investors
                 </p>
-                <p className="text-2xl font-bold text-ui-strong md:text-3xl">3,004</p>
+                <p className="text-2xl font-bold text-ui-strong md:text-3xl">
+                  {totalInvestors != null ? totalInvestors.toLocaleString('en-US') : '—'}
+                </p>
                 <p className="text-[11px] font-medium text-ui-faint">Across all assets</p>
               </div>
             </div>
@@ -335,7 +276,9 @@ export default function IssuerPortfolioPage() {
                 <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
                   Avg. Token Yield
                 </p>
-                <p className="text-2xl font-bold text-primary md:text-3xl">7.9%</p>
+                <p className="text-2xl font-bold text-primary md:text-3xl">
+                  {avgApyPercent != null ? `${avgApyPercent.toFixed(1)}%` : '—'}
+                </p>
                 <p className="text-[11px] font-medium text-ui-faint">Annualized APY</p>
               </div>
             </div>
@@ -349,7 +292,7 @@ export default function IssuerPortfolioPage() {
           >
             <Filter className="h-4 w-4" strokeWidth={2} />
           </span>
-          {FILTERS.map((f) => (
+          {filterLabels.map((f) => (
             <button
               key={f}
               type="button"
@@ -366,8 +309,15 @@ export default function IssuerPortfolioPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
-          {filtered.map((asset) => {
-            const st = statusStyles[asset.status];
+          {assetsLoading ? (
+            <p className="col-span-full text-sm text-ui-muted-text">Loading portfolio assets…</p>
+          ) : assets.length === 0 ? (
+            <p className="col-span-full text-sm text-ui-muted-text">No portfolio assets yet.</p>
+          ) : null}
+          {assets.map((asset) => {
+            const st =
+              statusStyles[asset.status as keyof typeof statusStyles] ??
+              statusStyles.Active;
             const lockupLower = asset.lockup.toLowerCase();
             const isHardLocked = lockupLower === 'locked';
             const isUnlocked = lockupLower === 'unlocked';

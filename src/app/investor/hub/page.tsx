@@ -2,6 +2,7 @@
 
 import React, { useState, type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
+import { HubDistributionsTab } from '@/components/issuer/HubDistributionsTab';
 import {
   AnalyticIcon,
   AnalyticsTargetIcon,
@@ -356,73 +357,6 @@ export default function InvestorHubPage() {
     </div>
   );
 
-  const renderDistributions = () => (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-        {[
-          {
-            label: 'YTD Distributions',
-            val: '$42,850',
-            Icon: IncomeIcon,
-            iconBg: 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400',
-          },
-          {
-            label: 'Next Payment',
-            val: 'May 15',
-            Icon: PendingIcon,
-            iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
-          },
-          {
-            label: 'Avg Monthly',
-            val: '$4,761',
-            Icon: AnalyticIcon,
-            iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400',
-          },
-        ].map((s, i) => (
-          <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-6 md:p-8 shadow-sm">
-            <div
-              className={`mb-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full md:h-11 md:w-11 ${s.iconBg}`}
-            >
-              <s.Icon className="h-5 w-5" />
-            </div>
-            <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">{s.label}</p>
-            <p className="text-2xl md:text-3xl font-bold text-ui-strong">{s.val}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* History */}
-      <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
-        <div className="p-5 md:p-8 border-b border-ui-divider">
-          <h3 className="text-base font-bold text-ui-strong">Distribution History</h3>
-          <p className="text-xs text-ui-faint mt-0.5">Yield and dividend payments</p>
-        </div>
-        <div className="divide-y divide-ui-divider">
-          {[
-            { name: 'Harbor Ports PE Fund', id: 'DIST-891', freq: 'Monthly', amount: '+$2,840', date: 'Apr 30, 2026' },
-            { name: 'Prime Office Tower NYC', id: 'DIST-890', freq: 'Monthly', amount: '+$1,240', date: 'Apr 15, 2026' },
-            { name: 'Solar Farm Alpha TX', id: 'DIST-889', freq: 'Monthly', amount: '+$680', date: 'Apr 10, 2026' },
-            { name: 'Harbor Ports PE Fund', id: 'DIST-888', freq: 'Monthly', amount: '+$2,720', date: 'Mar 30, 2026' },
-          ].map((d, i) => (
-            <div key={i} className="flex items-center gap-4 md:gap-6 px-5 md:px-8 py-4 md:py-5 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{d.name}</p>
-                <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{d.id} · {d.freq}</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-[13px] md:text-base font-bold text-green-500">{d.amount}</p>
-                <p className="text-[10px] text-ui-faint font-medium">{d.date}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   const renderDocuments = () => (
     <div className="animate-in fade-in duration-500">
@@ -712,7 +646,7 @@ export default function InvestorHubPage() {
     overview: renderOverview(),
     investments: renderInvestments(),
     transactions: renderTransactions(),
-    distributions: renderDistributions(),
+    distributions: <HubDistributionsTab />,
     documents: renderDocuments(),
     analytics: renderAnalytics(),
     lexa: renderLexa(),

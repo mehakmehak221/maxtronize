@@ -2,6 +2,7 @@
 
 import React, { useState, type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
+import { FileUploadZone } from '@/components/FileUploadZone';
 import {
   Document,
   PendingIcon,
@@ -251,37 +252,7 @@ export default function InvestorDocumentsPage() {
           </div>
         </div>
 
-        {/* Upload Zone */}
-        <div className="group cursor-pointer rounded-[20px] border-2 border-dashed border-ui-border bg-ui-card/95 p-4 shadow-sm transition-colors hover:border-violet-300 hover:bg-ui-card md:rounded-[28px] md:p-6 dark:border-zinc-700 dark:bg-zinc-900/80 dark:hover:border-violet-500/50">
-          <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600 transition-transform group-hover:scale-105 dark:bg-violet-950/60 dark:text-violet-300">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 11l-3-3m0 0l-3 3m3-3V4"
-                />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="text-[13px] font-bold text-ui-strong">
-                <span className="text-primary underline">Click to upload</span> or drag &amp; drop files here
-              </p>
-              <p className="text-[11px] text-ui-faint font-medium">PDF, DOCX, XLSX up to 50MB · Encrypted at rest</p>
-            </div>
-            <button type="button" className="shrink-0 text-ui-placeholder transition-colors hover:text-ui-faint" aria-label="Encrypted upload">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
+        <FileUploadZone />
 
         {/* Documents — cards on tablet */}
         <div className="space-y-3 xl:hidden">

@@ -1,33 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import AuthLayout from "@/components/AuthLayout";
 import { formatRequestError } from "@/lib/formatRequestError";
 import { uiPersonaToApiRole } from "@/lib/authUi";
+import { getPostAuthRedirect } from "@/lib/authSession";
 import { useLoginMutation } from "@/store/api/authApi";
+import { useAppDispatch } from "@/store/hooks";
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const passwordResetSuccess = searchParams.get("reset") === "1";
   const [role, setRole] = useState<"issuer" | "investor">("issuer");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
+  const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
     try {
-      await login({
+      const data = await login({
         email: email.trim(),
         password,
         role: uiPersonaToApiRole(role),
       }).unwrap();
-      router.push(role === "investor" ? "/investor/hub" : "/issuer/dashboard");
+      const path = await getPostAuthRedirect(dispatch, data, role);
+      router.push(path);
     } catch (err) {
       setFormError(formatRequestError(err));
     }
@@ -84,6 +90,12 @@ export default function SignInPage() {
             </button>
           </div>
         </div>
+
+        {passwordResetSuccess && (
+          <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            Password reset successful. Sign in with your new password.
+          </p>
+        )}
 
         {formError && (
           <p

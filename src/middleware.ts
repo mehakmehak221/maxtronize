@@ -16,6 +16,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
+  if (pathname === "/setup-profile" && !session) {
+    return NextResponse.redirect(new URL("/signin", request.url));
+  }
+
   const isAuthRoute =
     pathname === "/signin" ||
     pathname === "/signup" ||
@@ -36,6 +40,7 @@ export const config = {
     "/signin",
     "/signup",
     "/forgot-password",
+    "/setup-profile",
     "/investor/:path*",
     "/issuer/:path*",
   ],

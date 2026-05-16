@@ -1,21 +1,23 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
 
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: rawBaseUrl.replace(/\/$/, ""),
-    prepareHeaders: (headers) => {
-      if (typeof window !== "undefined") {
-        const token = window.localStorage.getItem("access_token");
-        if (token) {
-          headers.set("access_token", token);
-        }
-      }
-      return headers;
-    },
+    baseUrl,
+    // Backend auth uses an HttpOnly `access_token` cookie (set on login/register).
+    credentials: "include",
   }),
-  tagTypes: ["User"],
+  tagTypes: [
+    "User",
+    "Asset",
+    "Onboarding",
+    "IssuerDocuments",
+    "IssuerDashboard",
+    "IssuerHub",
+    "Portfolio",
+    "Yield",
+  ],
   endpoints: () => ({}),
 });

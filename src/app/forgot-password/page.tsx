@@ -20,6 +20,7 @@ export default function ForgotPasswordPage() {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const [sendOtp, { isLoading: sending }] = useForgotPasswordMutation();
   const [verifyOtp, { isLoading: verifying }] =
@@ -31,8 +32,17 @@ export default function ForgotPasswordPage() {
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+    setSuccessMessage(null);
     try {
-      await sendOtp({ email: email.trim() }).unwrap();
+      const result = await sendOtp({ email: email.trim() }).unwrap();
+      const message =
+        result &&
+        typeof result === "object" &&
+        "message" in result &&
+        typeof (result as { message: unknown }).message === "string"
+          ? (result as { message: string }).message
+          : "OTP sent successfully";
+      setSuccessMessage(message);
       setStep("otp");
     } catch (err) {
       setFormError(formatRequestError(err));
@@ -42,8 +52,20 @@ export default function ForgotPasswordPage() {
   async function handleOtpSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+    setSuccessMessage(null);
     try {
-      await verifyOtp({ email: email.trim(), otp: otp.trim() }).unwrap();
+      const result = await verifyOtp({
+        email: email.trim(),
+        otp: otp.trim(),
+      }).unwrap();
+      const message =
+        result &&
+        typeof result === "object" &&
+        "message" in result &&
+        typeof (result as { message: unknown }).message === "string"
+          ? (result as { message: string }).message
+          : "Code verified. Choose a new password.";
+      setSuccessMessage(message);
       setStep("password");
     } catch (err) {
       setFormError(formatRequestError(err));
@@ -53,6 +75,7 @@ export default function ForgotPasswordPage() {
   async function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+    setSuccessMessage(null);
     try {
       await resetPassword({
         email: email.trim(),
@@ -124,6 +147,11 @@ export default function ForgotPasswordPage() {
             {formError}
           </p>
         )}
+        {successMessage && step !== "email" && (
+          <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            {successMessage}
+          </p>
+        )}
 
         {step === "email" && (
           <form className="space-y-6" onSubmit={handleEmailSubmit}>
@@ -174,10 +202,12 @@ export default function ForgotPasswordPage() {
               <input
                 required
                 type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                inputMode="numeric"
                 autoComplete="one-time-code"
-                placeholder="Enter OTP"
+                maxLength={6}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                placeholder="123456"
                 className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
               />
             </div>
@@ -194,6 +224,7 @@ export default function ForgotPasswordPage() {
               onClick={() => {
                 setStep("email");
                 setFormError(null);
+                setSuccessMessage(null);
               }}
             >
               Use a different email

@@ -10,7 +10,7 @@ const STORAGE_KEYS = [ACCESS_TOKEN_KEY, ROLE_KEY, EMAIL_KEY, "refresh_token"] as
 export function signIn({
   role,
   email,
-  token = "demo-session",
+  token,
 }: {
   role: UserRole;
   email?: string;
@@ -18,7 +18,9 @@ export function signIn({
 }) {
   if (typeof window === "undefined") return;
 
-  localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  if (token && token !== "demo-session") {
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  }
   localStorage.setItem(ROLE_KEY, role);
   if (email) {
     localStorage.setItem(EMAIL_KEY, email);
@@ -39,7 +41,10 @@ export function signOut() {
 
 export function isAuthenticated(): boolean {
   if (typeof window === "undefined") return false;
-  return Boolean(localStorage.getItem(ACCESS_TOKEN_KEY));
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (token && token !== "demo-session") return true;
+  const role = localStorage.getItem(ROLE_KEY);
+  return role === "issuer" || role === "investor";
 }
 
 export function getSession(): { role: UserRole | null; email: string | null } {

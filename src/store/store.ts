@@ -2,6 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import { baseApi } from "./api/baseApi";
 import "./api/authApi";
+import "./api/uploadApi";
+import "./api/assetsApi";
+import "./api/onboardingApi";
+import "./api/issuerDocumentsApi";
+import "./api/issuerDashboardApi";
+import "./api/issuerHubApi";
+import "./api/portfolioApi";
+import "./api/yieldApi";
 
 export function makeStore() {
   return configureStore({

@@ -17,208 +17,50 @@ import {
   Upload,
   XCircle,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
+import { DocumentDetailPanel } from '@/components/issuer/DocumentDetailPanel';
+import { IssuerDocumentUploadModal } from '@/components/issuer/IssuerDocumentUploadModal';
+import { formatRequestError } from '@/lib/formatRequestError';
+import {
+  categoryQueryFromKey,
+  type IssuerDocument,
+  type IssuerDocumentCategoryLabel,
+  type IssuerDocumentStatusType,
+} from '@/lib/issuerDocuments';
+import {
+  useGetIssuerDocumentCategoriesQuery,
+  useGetIssuerDocumentsSummaryQuery,
+  useListIssuerDocumentsQuery,
+} from '@/store/api/issuerDocumentsApi';
 
 const iconStroke = 1.75;
 
-type Category = 'All Documents' | 'Legal' | 'Compliance' | 'Asset Docs' | 'Reports';
-type DocStatus = 'signed' | 'pending' | 'draft' | 'expired';
-type DocCategory = 'LEGAL' | 'COMPLIANCE' | 'ASSET DOCS' | 'REPORTS';
+type DocCategory = IssuerDocumentCategoryLabel;
+type DocStatus = IssuerDocumentStatusType;
 
-type DocRow = {
-  name: string;
-  id: string;
-  cat: Category;
-  catLabel: DocCategory;
-  asset: string;
-  status: string;
-  statusType: DocStatus;
-  date: string;
-  size: string;
-};
-
-const DOC_STATS: {
-  label: string;
-  value: string;
-  sub: string;
-  Icon: LucideIcon;
-  iconClass: string;
-  highlight?: boolean;
-}[] = [
-  {
-    label: 'Total Documents',
-    value: '12',
-    sub: 'Across all assets',
+const STAT_ICONS: Record<
+  string,
+  { Icon: LucideIcon; iconClass: string; highlight?: boolean }
+> = {
+  'Total Documents': {
     Icon: Folder,
     iconClass: 'bg-violet-100 text-[#7C3AED]',
   },
-  {
-    label: 'Fully Signed',
-    value: '8',
-    sub: '67% completion rate',
+  'Fully Signed': {
     Icon: CheckCircle2,
     iconClass: 'bg-violet-100 text-[#7C3AED]',
   },
-  {
-    label: 'Pending Signature',
-    value: '2',
-    sub: 'Action required',
+  'Pending Signature': {
     Icon: Clock,
     iconClass: 'bg-amber-100 text-amber-600',
     highlight: true,
   },
-  {
-    label: 'Compliance Score',
-    value: '94%',
-    sub: '2 items need attention',
+  'Compliance Score': {
     Icon: Shield,
     iconClass: 'bg-violet-100 text-[#7C3AED]',
   },
-];
-
-const FILTER_TABS: { name: Category; count: number }[] = [
-  { name: 'All Documents', count: 12 },
-  { name: 'Legal', count: 3 },
-  { name: 'Compliance', count: 4 },
-  { name: 'Asset Docs', count: 3 },
-  { name: 'Reports', count: 2 },
-];
-
-const ALL_DOCS: DocRow[] = [
-  {
-    name: 'Limited Partnership Agreement',
-    id: 'DOC · #01',
-    cat: 'Legal',
-    catLabel: 'LEGAL',
-    asset: 'Prime Office Tower NYC',
-    status: 'Signed (3/3)',
-    statusType: 'signed',
-    date: 'Sep 15, 2026',
-    size: '2.4 MB',
-  },
-  {
-    name: 'SEC Regulation D Filing (506c)',
-    id: 'DOC · #02',
-    cat: 'Compliance',
-    catLabel: 'COMPLIANCE',
-    asset: 'Prime Office Tower NYC',
-    status: 'Signed',
-    statusType: 'signed',
-    date: 'Sep 01, 2026',
-    size: '1.1 MB',
-  },
-  {
-    name: 'Property Appraisal Report',
-    id: 'DOC · #03',
-    cat: 'Asset Docs',
-    catLabel: 'ASSET DOCS',
-    asset: 'Prime Office Tower NYC',
-    status: 'Signed',
-    statusType: 'signed',
-    date: 'Aug 20, 2026',
-    size: '8.7 MB',
-  },
-  {
-    name: 'Q3 Investor Report 2026',
-    id: 'DOC · #04',
-    cat: 'Reports',
-    catLabel: 'REPORTS',
-    asset: 'All Assets',
-    status: 'Signed',
-    statusType: 'signed',
-    date: 'Oct 05, 2026',
-    size: '3.2 MB',
-  },
-  {
-    name: 'Subscription Agreement',
-    id: 'DOC · #05',
-    cat: 'Legal',
-    catLabel: 'LEGAL',
-    asset: 'Solar Farm Alpha TX',
-    status: 'Awaiting Signature (1/2)',
-    statusType: 'pending',
-    date: 'Oct 12, 2026',
-    size: '0.9 MB',
-  },
-  {
-    name: 'MiCA Compliance Certificate',
-    id: 'DOC · #06',
-    cat: 'Compliance',
-    catLabel: 'COMPLIANCE',
-    asset: 'Riviera Residences',
-    status: 'Awaiting Signature',
-    statusType: 'pending',
-    date: 'Oct 18, 2026',
-    size: '0.5 MB',
-  },
-  {
-    name: 'Token Offering Memorandum',
-    id: 'DOC · #07',
-    cat: 'Legal',
-    catLabel: 'LEGAL',
-    asset: 'Harbor Ports PE Fund',
-    status: 'Signed (4/4)',
-    statusType: 'signed',
-    date: 'Aug 10, 2026',
-    size: '4.8 MB',
-  },
-  {
-    name: 'Asset Valuation Certificate',
-    id: 'DOC · #08',
-    cat: 'Asset Docs',
-    catLabel: 'ASSET DOCS',
-    asset: 'Alpine Art Collection',
-    status: 'Draft',
-    statusType: 'draft',
-    date: 'Oct 20, 2026',
-    size: '1.6 MB',
-  },
-  {
-    name: 'AML/KYC Compliance Report',
-    id: 'DOC · #09',
-    cat: 'Compliance',
-    catLabel: 'COMPLIANCE',
-    asset: 'All Assets',
-    status: 'Signed',
-    statusType: 'signed',
-    date: 'Oct 01, 2026',
-    size: '0.7 MB',
-  },
-  {
-    name: 'Smart Contract Audit Report',
-    id: 'DOC · #10',
-    cat: 'Compliance',
-    catLabel: 'COMPLIANCE',
-    asset: 'Harbor Ports PE Fund',
-    status: 'Signed',
-    statusType: 'signed',
-    date: 'Jul 20, 2026',
-    size: '2.1 MB',
-  },
-  {
-    name: 'Quarterly Financial Statement',
-    id: 'DOC · #11',
-    cat: 'Reports',
-    catLabel: 'REPORTS',
-    asset: 'Logistics Hub DE',
-    status: 'Signed',
-    statusType: 'signed',
-    date: 'Oct 05, 2026',
-    size: '1.4 MB',
-  },
-  {
-    name: 'Land Registry Certificate',
-    id: 'DOC · #12',
-    cat: 'Asset Docs',
-    catLabel: 'ASSET DOCS',
-    asset: 'Riviera Residences',
-    status: 'Expired',
-    statusType: 'expired',
-    date: 'Mar 01, 2026',
-    size: '0.3 MB',
-  },
-];
+};
 
 const CATEGORY_STYLES: Record<DocCategory, { pill: string; Icon: LucideIcon }> = {
   LEGAL: { pill: 'border-app-status-purple-border bg-app-status-purple-bg text-app-status-purple-fg', Icon: Scale },
@@ -292,27 +134,46 @@ function StatusBadge({ status, statusType }: { status: string; statusType: DocSt
   );
 }
 
-function DocRowCard({ doc }: { doc: DocRow }) {
+function DocRowCard({
+  doc,
+  onSelect,
+}: {
+  doc: IssuerDocument;
+  onSelect: (id: string) => void;
+}) {
   return (
-    <article className="rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:p-5">
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect(doc.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(doc.id);
+        }
+      }}
+      className="cursor-pointer rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm transition-colors hover:bg-ui-muted sm:p-5"
+    >
       <div className="mb-4 flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ui-muted-deep text-ui-muted-text">
           <FileText className="h-5 w-5" strokeWidth={iconStroke} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="line-clamp-2 text-[13px] font-bold leading-snug text-ui-strong">{doc.name}</p>
-          <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-ui-faint">{doc.id}</p>
+          <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-ui-faint">
+            {doc.id ? `DOC · ${doc.id.slice(0, 8)}` : '—'}
+          </p>
         </div>
       </div>
       <div className="space-y-3 border-t border-ui-divider pt-3">
         <div className="flex flex-wrap items-center gap-2">
-          <CategoryBadge catLabel={doc.catLabel} />
+          <CategoryBadge catLabel={doc.categoryLabel} />
           <StatusBadge status={doc.status} statusType={doc.statusType} />
         </div>
         <div className="grid grid-cols-3 gap-4 text-[11px]">
           <div className="min-w-0">
             <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Asset</p>
-            <p className="line-clamp-2 font-medium text-ui-body">{doc.asset}</p>
+            <p className="line-clamp-2 font-medium text-ui-body">{doc.assetName}</p>
           </div>
           <div>
             <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Date</p>
@@ -329,19 +190,74 @@ function DocRowCard({ doc }: { doc: DocRow }) {
 }
 
 export default function DocumentsPage() {
-  const [activeCategory, setActiveCategory] = useState<Category>('All Documents');
+  const [activeTabKey, setActiveTabKey] = useState('ALL');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
-  const filteredDocs = ALL_DOCS.filter((doc) => {
-    const matchCat = activeCategory === 'All Documents' || doc.cat === activeCategory;
-    const q = search.trim().toLowerCase();
-    const matchSearch =
-      !q ||
-      doc.name.toLowerCase().includes(q) ||
-      doc.asset.toLowerCase().includes(q) ||
-      doc.id.toLowerCase().includes(q);
-    return matchCat && matchSearch;
-  });
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    error: summaryError,
+  } = useGetIssuerDocumentsSummaryQuery();
+  const {
+    data: categoryTabs = [],
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useGetIssuerDocumentCategoriesQuery();
+
+  const listParams = useMemo(
+    () => ({
+      page: 1,
+      limit: 20,
+      search: debouncedSearch || undefined,
+      category: categoryQueryFromKey(activeTabKey),
+    }),
+    [activeTabKey, debouncedSearch],
+  );
+
+  const { data, isLoading, isFetching, error } =
+    useListIssuerDocumentsQuery(listParams);
+
+  const documents = data?.items ?? [];
+  const pageError = summaryError ?? categoriesError ?? error;
+
+  const docStats = useMemo(() => {
+    const pendingCount = summary?.pendingSignature.count ?? 0;
+    return [
+      {
+        label: 'Total Documents',
+        value: String(summary?.totalDocuments.count ?? 0),
+        sub: summary?.totalDocuments.summary || 'Across all assets',
+        ...STAT_ICONS['Total Documents'],
+      },
+      {
+        label: 'Fully Signed',
+        value: String(summary?.fullySigned.count ?? 0),
+        sub: `${summary?.fullySigned.completionRate ?? 0}% completion rate`,
+        ...STAT_ICONS['Fully Signed'],
+      },
+      {
+        label: 'Pending Signature',
+        value: String(pendingCount),
+        sub: summary?.pendingSignature.summary || 'Action required',
+        highlight: pendingCount > 0,
+        ...STAT_ICONS['Pending Signature'],
+      },
+      {
+        label: 'Compliance Score',
+        value: `${summary?.complianceScore.percent ?? 0}%`,
+        sub: summary?.complianceScore.summary || '—',
+        ...STAT_ICONS['Compliance Score'],
+      },
+    ];
+  }, [summary]);
 
   return (
     <DashboardLayout>
@@ -356,6 +272,7 @@ export default function DocumentsPage() {
           </div>
           <button
             type="button"
+            onClick={() => setUploadOpen(true)}
             className="inline-flex w-full shrink-0 items-center justify-center gap-2.5 rounded-2xl bg-[#9810FA] px-6 py-3.5 text-[13px] font-bold text-white shadow-[0_8px_24px_-6px_rgba(152,16,250,0.45)] transition-all hover:bg-[#7C3AED] sm:w-auto sm:self-auto md:px-8 md:py-4"
           >
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
@@ -365,33 +282,55 @@ export default function DocumentsPage() {
           </button>
         </div>
 
+        {pageError ? (
+          <p
+            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+            role="alert"
+          >
+            {formatRequestError(pageError)}
+          </p>
+        ) : null}
+
         {/* KPI cards */}
         <div className="motion-stagger-children grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5">
-          {DOC_STATS.map((stat) => (
-            <DocStatCard key={stat.label} {...stat} />
-          ))}
+          {summaryLoading
+            ? Object.keys(STAT_ICONS).map((label) => (
+                <div
+                  key={label}
+                  className="h-[104px] animate-pulse rounded-2xl border border-ui-border bg-ui-muted-deep sm:rounded-[20px] xl:rounded-[24px]"
+                />
+              ))
+            : docStats.map((stat) => <DocStatCard key={stat.label} {...stat} />)}
         </div>
+
+        {(isLoading || isFetching) && (
+          <p className="text-sm font-medium text-ui-muted-text">Loading documents…</p>
+        )}
 
         {/* Filters + search */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
           <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-1">
-            {FILTER_TABS.map((tab) => {
-              const active = activeCategory === tab.name;
-              return (
-                <button
-                  key={tab.name}
-                  type="button"
-                  onClick={() => setActiveCategory(tab.name)}
-                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-bold transition-all md:px-5 md:py-2.5 md:text-[13px] ${
-                    active
-                      ? 'bg-dash-filter-active-bg text-dash-filter-active-fg shadow-md'
-                      : 'bg-ui-muted-deep text-ui-body hover:bg-ui-border hover:text-ui-strong'
-                  }`}
-                >
-                  {tab.name} ({tab.count})
-                </button>
-              );
-            })}
+            {categoriesLoading ? (
+              <p className="text-sm text-ui-muted-text">Loading categories…</p>
+            ) : (
+              categoryTabs.map((tab) => {
+                const active = activeTabKey === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setActiveTabKey(tab.key)}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-bold transition-all md:px-5 md:py-2.5 md:text-[13px] ${
+                      active
+                        ? 'bg-dash-filter-active-bg text-dash-filter-active-fg shadow-md'
+                        : 'bg-ui-muted-deep text-ui-body hover:bg-ui-border hover:text-ui-strong'
+                    }`}
+                  >
+                    {tab.label} ({tab.count})
+                  </button>
+                );
+              })
+            )}
           </div>
           <div className="relative w-full shrink-0 lg:w-72">
             <Search
@@ -408,39 +347,20 @@ export default function DocumentsPage() {
           </div>
         </div>
 
-        {/* Upload dropzone */}
-        <div className="group cursor-pointer rounded-2xl border-2 border-dashed border-ui-border bg-ui-card p-4 shadow-sm transition-colors hover:border-violet-300 hover:bg-violet-50/30 sm:rounded-[20px] sm:p-5 xl:rounded-[24px] xl:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-[#7C3AED] transition-transform group-hover:scale-105">
-              <Upload className="h-5 w-5" strokeWidth={iconStroke} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-bold text-ui-strong">
-                <span className="text-[#7C3AED] underline decoration-violet-300 underline-offset-2">
-                  Click to upload
-                </span>{' '}
-                or drag & drop files here
-              </p>
-              <p className="mt-0.5 text-[11px] font-medium text-ui-faint">
-                PDF, DOCX, XLSX up to 50MB · Encrypted at rest
-              </p>
-            </div>
-            <Lock
-              className="h-5 w-5 shrink-0 text-ui-faint"
-              strokeWidth={iconStroke}
-              aria-hidden
-            />
-          </div>
-        </div>
-
         {/* Mobile / tablet: card list */}
         <div className="space-y-3 xl:hidden">
-          {filteredDocs.length === 0 ? (
+          {!isLoading && documents.length === 0 ? (
             <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-14 text-center text-[13px] font-medium text-ui-faint">
               No documents match your filters.
             </p>
           ) : (
-            filteredDocs.map((doc) => <DocRowCard key={doc.id} doc={doc} />)
+            documents.map((doc) => (
+              <DocRowCard
+                key={doc.id}
+                doc={doc}
+                onSelect={setSelectedDocumentId}
+              />
+            ))
           )}
         </div>
 
@@ -463,17 +383,18 @@ export default function DocumentsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-ui-divider">
-                {filteredDocs.length === 0 ? (
+                {!isLoading && documents.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-8 py-14 text-center">
                       <p className="text-[13px] font-medium text-ui-faint">No documents match your filters.</p>
                     </td>
                   </tr>
                 ) : (
-                  filteredDocs.map((doc) => (
+                  documents.map((doc) => (
                     <tr
                       key={doc.id}
                       className="group cursor-pointer transition-colors hover:bg-ui-muted"
+                      onClick={() => setSelectedDocumentId(doc.id)}
                     >
                       <td className="sticky left-0 z-10 bg-ui-card px-4 py-5 group-hover:bg-ui-muted xl:px-8 xl:py-6">
                         <div className="flex min-w-[200px] items-center gap-4">
@@ -483,16 +404,16 @@ export default function DocumentsPage() {
                           <div className="min-w-0">
                             <p className="line-clamp-2 text-[13px] font-bold text-ui-strong">{doc.name}</p>
                             <p className="text-[10px] font-medium uppercase tracking-widest text-ui-faint">
-                              {doc.id}
+                              {doc.id ? `DOC · ${doc.id.slice(0, 8)}` : '—'}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
-                        <CategoryBadge catLabel={doc.catLabel} />
+                        <CategoryBadge catLabel={doc.categoryLabel} />
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
-                        <p className="max-w-[180px] line-clamp-2 text-[12px] font-medium text-ui-body">{doc.asset}</p>
+                        <p className="max-w-[180px] line-clamp-2 text-[12px] font-medium text-ui-body">{doc.assetName}</p>
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
                         <StatusBadge status={doc.status} statusType={doc.statusType} />
@@ -510,6 +431,19 @@ export default function DocumentsPage() {
             </table>
           </div>
         </div>
+
+        <IssuerDocumentUploadModal
+          open={uploadOpen}
+          onClose={() => setUploadOpen(false)}
+          categoryOptions={categoryTabs}
+        />
+
+        <DocumentDetailPanel
+          documentId={selectedDocumentId}
+          onClose={() => setSelectedDocumentId(null)}
+          CategoryBadge={CategoryBadge}
+          StatusBadge={StatusBadge}
+        />
       </div>
     </DashboardLayout>
   );

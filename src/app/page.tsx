@@ -6,7 +6,9 @@ import { useState } from "react";
 import AuthLayout from "@/components/AuthLayout";
 import { formatRequestError } from "@/lib/formatRequestError";
 import { uiPersonaToApiRole } from "@/lib/authUi";
+import { getPostAuthRedirect } from "@/lib/authSession";
 import { useLoginMutation, useRegisterMutation } from "@/store/api/authApi";
+import { useAppDispatch } from "@/store/hooks";
 
 export default function Home() {
   const router = useRouter();
@@ -20,6 +22,7 @@ export default function Home() {
   const [referralCode, setReferralCode] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
+  const dispatch = useAppDispatch();
   const [login, { isLoading: loginLoading }] = useLoginMutation();
   const [register, { isLoading: registerLoading }] = useRegisterMutation();
   const busy = isSignUp ? registerLoading : loginLoading;
@@ -43,20 +46,20 @@ export default function Home() {
             ? { referralCode: referralCode.trim() }
             : {}),
         }).unwrap();
-        setIsSignUp(false);
-        setPassword("");
+        router.push("/setup-profile");
       } catch (err) {
         setFormError(formatRequestError(err));
       }
       return;
     }
     try {
-      await login({
+      const data = await login({
         email: email.trim(),
         password,
         role: uiPersonaToApiRole(role),
       }).unwrap();
-      router.push(role === "investor" ? "/investor/hub" : "/issuer/dashboard");
+      const path = await getPostAuthRedirect(dispatch, data, role);
+      router.push(path);
     } catch (err) {
       setFormError(formatRequestError(err));
     }

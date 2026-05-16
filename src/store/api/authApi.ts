@@ -1,3 +1,7 @@
+import { isAuthenticated, signOut } from "@/lib/auth";
+import { syncSessionFromAuthResponse } from "@/lib/authSession";
+import { parseProfile, type UserProfile } from "@/lib/profile";
+import { clearAccessToken, persistAccessToken } from "@/lib/authToken";
 import { baseApi } from "./baseApi";
 import type {
   ForgotPasswordRequest,
@@ -8,7 +12,6 @@ import type {
   UpdateProfileRequest,
   VerifyForgotPasswordOtpRequest,
 } from "./auth.types";
-import { clearAccessToken, persistAccessToken } from "@/lib/authToken";
 
 export type { AuthRole } from "./auth.types";
 export type {
@@ -22,6 +25,7 @@ export type {
 } from "./auth.types";
 
 export const authApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (build) => ({
     register: build.mutation<unknown, RegisterRequest>({
       query: (body) => {
@@ -39,10 +43,14 @@ export const authApi = baseApi.injectEndpoints({
           body: payload,
         };
       },
-      async onQueryStarted(_arg, { queryFulfilled }) {
+      async onQueryStarted(arg, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           persistAccessToken(data);
+          syncSessionFromAuthResponse(data, {
+            email: arg.email,
+            role: arg.role,
+          });
         } catch {
           /* handled by caller */
         }
@@ -54,10 +62,14 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      async onQueryStarted(_arg, { queryFulfilled }) {
+      async onQueryStarted(arg, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           persistAccessToken(data);
+          syncSessionFromAuthResponse(data, {
+            email: arg.email,
+            role: arg.role,
+          });
         } catch {
           /* handled by caller */
         }
@@ -87,24 +99,27 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
-    getProfile: build.query<unknown, void>({
+    getProfile: build.query<UserProfile | null, void>({
       query: () => ({ url: "/auth/profile", method: "GET" }),
+      transformResponse: (response: unknown) => parseProfile(response),
       providesTags: ["User"],
     }),
-    updateProfile: build.mutation<unknown, UpdateProfileRequest>({
+    updateProfile: build.mutation<UserProfile | null, UpdateProfileRequest>({
       query: (body) => ({
         url: "/auth/profile",
         method: "PATCH",
         body,
       }),
+      transformResponse: (response: unknown) => parseProfile(response),
       invalidatesTags: ["User"],
     }),
-    setupProfile: build.mutation<unknown, SetupProfileRequest>({
+    setupProfile: build.mutation<UserProfile | null, SetupProfileRequest>({
       query: (body) => ({
         url: "/auth/setup-profile",
         method: "POST",
         body,
       }),
+      transformResponse: (response: unknown) => parseProfile(response),
       invalidatesTags: ["User"],
     }),
     logout: build.mutation<unknown, void>({
@@ -115,6 +130,7 @@ export const authApi = baseApi.injectEndpoints({
         } catch {
           /* still end local session */
         }
+        signOut();
         clearAccessToken();
         dispatch(baseApi.util.resetApiState());
       },
@@ -134,3 +150,15 @@ export const {
   useSetupProfileMutation,
   useLogoutMutation,
 } = authApi;
+
+/** Skips the request until the user has signed in through the app (avoids 401 noise). */
+export function useAuthenticatedProfileQuery(
+  options?: Parameters<typeof useGetProfileQuery>[1],
+) {
+  const skipUnauthenticated =
+    typeof window !== "undefined" && !isAuthenticated();
+  return useGetProfileQuery(undefined, {
+    ...options,
+    skip: skipUnauthenticated || options?.skip === true,
+  });
+}

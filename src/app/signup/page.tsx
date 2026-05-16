@@ -38,7 +38,7 @@ export default function SignUpPage() {
           ? { referralCode: referralCode.trim() }
           : {}),
       }).unwrap();
-      router.push("/signin");
+      router.push("/setup-profile");
     } catch (err) {
       setFormError(formatRequestError(err));
     }

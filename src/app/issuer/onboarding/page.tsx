@@ -4,6 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Hexagon, Triangle, type LucideIcon } from 'lucide-react';
 import OnboardingLayout from '@/components/OnboardingLayout';
+import {
+  OnboardingProvider,
+  useOnboarding,
+} from '@/components/onboarding/OnboardingContext';
+import { OnboardingDocumentUpload } from '@/components/onboarding/OnboardingDocumentUpload';
 
 const iconStroke = 1.75;
 
@@ -138,7 +143,44 @@ function IconLockClosedOutline({ className }: { className?: string }) {
 }
 
 export default function OnboardingPage() {
+  return (
+    <OnboardingProvider>
+      <IssuerOnboardingWizard />
+    </OnboardingProvider>
+  );
+}
+
+function IssuerOnboardingWizard() {
   const router = useRouter();
+  const {
+    onboardingId,
+    isReady,
+    isLoading,
+    isSaving,
+    saveError,
+    hydratedRegulation,
+    hydratedAssetType,
+    hydratedCustodian,
+    hydratedAccreditedOnly,
+    hydratedAssetForm,
+    hydratedCustodyForm,
+    hydratedEntityForm,
+    hydratedLegalForm,
+    hydratedOfferingForm,
+    hydratedTokenizationForm,
+    progressStep,
+    review,
+    onboardingState,
+    saveEntityDraft,
+    saveAccreditationDraft,
+    saveAssetDraft,
+    saveLegalDraft,
+    saveOfferingDraft,
+    saveTokenizationDraft,
+    saveCustodyDraft,
+    submitApplication,
+  } = useOnboarding();
+
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedAssetType, setSelectedAssetType] = useState<AssetType>('real-estate');
   const [selectedReg, setSelectedReg] = useState('reg-d-506c');
@@ -147,13 +189,238 @@ export default function OnboardingPage() {
   const [selectedCustodian, setSelectedCustodian] = useState('anchorage');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const [directorsNotes, setDirectorsNotes] = useState(
-    `Marcus Vance — Managing Partner\nDOB: 1979-03-14 | SSN last four: ••••1842\n\nPriya Nair — General Partner\nDOB: 1983-07-22 | SSN last four: ••••3901`
-  );
-  const [ubosNotes, setUbosNotes] = useState(
-    `Marcus Vance — 60% beneficial ownership\nPriya Nair — 40% beneficial ownership`
-  );
-  const [tokenHolderRightId, setTokenHolderRightId] = useState('pro-rata');
+  const [legalCompanyName, setLegalCompanyName] = useState('');
+  const [entityType, setEntityType] = useState('');
+  const [ein, setEin] = useState('');
+  const [businessAddress, setBusinessAddress] = useState('');
+  const [directorsNotes, setDirectorsNotes] = useState('');
+  const [ubosNotes, setUbosNotes] = useState('');
+  const [spvEntityName, setSpvEntityName] = useState('');
+  const [spvJurisdiction, setSpvJurisdiction] = useState('');
+  const [retainedOwnership, setRetainedOwnership] = useState('100');
+  const [proRataDistributions, setProRataDistributions] = useState(true);
+  const [votingRights, setVotingRights] = useState(false);
+  const [liquidationPreference, setLiquidationPreference] = useState(false);
+  const [informationRights, setInformationRights] = useState(true);
+  const [targetRaiseAmount, setTargetRaiseAmount] = useState('');
+  const [minimumInvestment, setMinimumInvestment] = useState('');
+  const [maximumInvestors, setMaximumInvestors] = useState('');
+  const [offeringCurrency, setOfferingCurrency] = useState('USD');
+  const [offeringOpenDate, setOfferingOpenDate] = useState('');
+  const [offeringCloseDate, setOfferingCloseDate] = useState('');
+  const [firstYieldDate, setFirstYieldDate] = useState('');
+  const [distributionFrequency, setDistributionFrequency] = useState('QUARTERLY');
+  const [lockupPeriod, setLockupPeriod] = useState('12 months');
+  const [secondaryMarket, setSecondaryMarket] = useState('RESTRICTED');
+  const [tokenName, setTokenName] = useState('');
+  const [tokenSymbol, setTokenSymbol] = useState('');
+  const [totalSupply, setTotalSupply] = useState('');
+  const [tokenPrice, setTokenPrice] = useState('');
+  const [accreditedOnly, setAccreditedOnly] = useState(true);
+  const [assetName, setAssetName] = useState('');
+  const [assetDescription, setAssetDescription] = useState('');
+  const [assetAddress, setAssetAddress] = useState('');
+  const [assetAppraisal, setAssetAppraisal] = useState('');
+  const [assetIncome, setAssetIncome] = useState('');
+  const [coldStorageRatio, setColdStorageRatio] = useState('85');
+  const [multiSigConfig, setMultiSigConfig] = useState('2-of-3 multisig');
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    if (hydrated || isLoading || !isReady) return;
+    setLegalCompanyName(hydratedEntityForm.legalCompanyName);
+    setEntityType(hydratedEntityForm.entityType);
+    setEin(hydratedEntityForm.ein);
+    setBusinessAddress(hydratedEntityForm.businessAddress);
+    if (hydratedEntityForm.directorsNotes) {
+      setDirectorsNotes(hydratedEntityForm.directorsNotes);
+    }
+    if (hydratedEntityForm.ubosNotes) {
+      setUbosNotes(hydratedEntityForm.ubosNotes);
+    }
+    setSelectedReg(hydratedRegulation);
+    setSelectedAssetType(hydratedAssetType as AssetType);
+    setSelectedCustodian(hydratedCustodian);
+    setAccreditedOnly(hydratedAccreditedOnly);
+    setAssetName(hydratedAssetForm.name);
+    setAssetDescription(hydratedAssetForm.description);
+    setAssetAddress(hydratedAssetForm.address);
+    setAssetAppraisal(hydratedAssetForm.appraisalValue);
+    setAssetIncome(hydratedAssetForm.annualIncome);
+    setColdStorageRatio(hydratedCustodyForm.coldStorageRatio);
+    setMultiSigConfig(hydratedCustodyForm.multiSigConfig);
+    setSpvEntityName(hydratedLegalForm.spvEntityName);
+    setSpvJurisdiction(hydratedLegalForm.jurisdiction);
+    setRetainedOwnership(hydratedLegalForm.retainedOwnershipPercent);
+    setProRataDistributions(hydratedLegalForm.proRataDistributions);
+    setVotingRights(hydratedLegalForm.votingRights);
+    setLiquidationPreference(hydratedLegalForm.liquidationPreference);
+    setInformationRights(hydratedLegalForm.informationRights);
+    setTargetRaiseAmount(hydratedOfferingForm.targetRaiseAmount);
+    setMinimumInvestment(hydratedOfferingForm.minimumInvestment);
+    setMaximumInvestors(hydratedOfferingForm.maximumInvestors);
+    setOfferingCurrency(hydratedOfferingForm.currency || 'USD');
+    setOfferingOpenDate(hydratedOfferingForm.offeringOpenDate);
+    setOfferingCloseDate(hydratedOfferingForm.offeringCloseDate);
+    setFirstYieldDate(hydratedOfferingForm.firstYieldDate);
+    if (hydratedOfferingForm.distributionFrequency) {
+      setDistributionFrequency(hydratedOfferingForm.distributionFrequency);
+    }
+    if (hydratedOfferingForm.lockupPeriod) {
+      setLockupPeriod(hydratedOfferingForm.lockupPeriod);
+    }
+    if (hydratedOfferingForm.secondaryMarket) {
+      setSecondaryMarket(hydratedOfferingForm.secondaryMarket);
+    }
+    setTokenName(hydratedTokenizationForm.tokenName);
+    setTokenSymbol(hydratedTokenizationForm.tokenSymbol);
+    setTotalSupply(hydratedTokenizationForm.totalSupply);
+    setTokenPrice(hydratedTokenizationForm.tokenPrice);
+    if (hydratedTokenizationForm.tokenStandard) {
+      setSelectedTokenStandard(hydratedTokenizationForm.tokenStandard);
+    }
+    if (hydratedTokenizationForm.blockchainNetwork) {
+      setSelectedNetwork(hydratedTokenizationForm.blockchainNetwork);
+    }
+    if (progressStep) {
+      setCurrentStep(progressStep);
+    } else if (onboardingState?.currentStep) {
+      setCurrentStep(onboardingState.currentStep);
+    }
+    setHydrated(true);
+  }, [
+    hydrated,
+    hydratedAccreditedOnly,
+    hydratedAssetForm,
+    hydratedAssetType,
+    hydratedCustodian,
+    hydratedCustodyForm,
+    hydratedEntityForm,
+    hydratedLegalForm,
+    hydratedOfferingForm,
+    hydratedRegulation,
+    hydratedTokenizationForm,
+    isLoading,
+    isReady,
+    onboardingState?.currentStep,
+    progressStep,
+  ]);
+
+  async function advanceFromEntity() {
+    if (onboardingId) {
+      const ok = await saveEntityDraft({
+        legalCompanyName,
+        entityType,
+        ein,
+        businessAddress,
+        directorsNotes,
+        ubosNotes,
+      });
+      if (!ok) return;
+    }
+    setCurrentStep(2);
+  }
+
+  async function advanceFromAccreditation() {
+    if (onboardingId) {
+      const ok = await saveAccreditationDraft({
+        regulation: selectedReg,
+        accreditedOnly,
+      });
+      if (!ok) return;
+    }
+    setCurrentStep(3);
+  }
+
+  async function advanceFromAsset() {
+    if (onboardingId) {
+      const ok = await saveAssetDraft({
+        assetType: selectedAssetType,
+        name: assetName || undefined,
+        description: assetDescription || undefined,
+        address: assetAddress || undefined,
+        appraisalValue: assetAppraisal || undefined,
+        annualIncome: assetIncome || undefined,
+        metadata: {},
+      });
+      if (!ok) return;
+    }
+    setCurrentStep(4);
+  }
+
+  async function advanceFromCustody() {
+    if (onboardingId) {
+      const ok = await saveCustodyDraft({
+        custodian: selectedCustodian,
+        coldStorageRatio,
+        multiSigConfig,
+      });
+      if (!ok) return;
+    }
+    setCurrentStep(8);
+  }
+
+  async function advanceFromLegal() {
+    if (onboardingId) {
+      const ok = await saveLegalDraft({
+        spvEntityName,
+        jurisdiction: spvJurisdiction,
+        retainedOwnershipPercent: retainedOwnership,
+        proRataDistributions,
+        votingRights,
+        liquidationPreference,
+        informationRights,
+      });
+      if (!ok) return;
+    }
+    setCurrentStep(5);
+  }
+
+  async function advanceFromOffering() {
+    if (onboardingId) {
+      const ok = await saveOfferingDraft(
+        {
+          targetRaiseAmount,
+          minimumInvestment,
+          maximumInvestors,
+          currency: offeringCurrency,
+          offeringOpenDate,
+          offeringCloseDate,
+          firstYieldDate,
+          distributionFrequency,
+          lockupPeriod,
+          secondaryMarket,
+        },
+        selectedReg,
+      );
+      if (!ok) return;
+    }
+    setCurrentStep(6);
+  }
+
+  async function advanceFromTokenization() {
+    if (onboardingId) {
+      const ok = await saveTokenizationDraft({
+        tokenName,
+        tokenSymbol,
+        totalSupply,
+        tokenPrice,
+        tokenStandard: selectedTokenStandard,
+        blockchainNetwork: selectedNetwork,
+        contractAddress: '',
+      });
+      if (!ok) return;
+    }
+    setCurrentStep(7);
+  }
+
+  async function handleSubmitApplication() {
+    if (onboardingId) {
+      const ok = await submitApplication();
+      if (!ok) return;
+    }
+    setIsSubmitted(true);
+  }
 
   useEffect(() => {
     if (!isSubmitted) return;
@@ -183,6 +450,50 @@ export default function OnboardingPage() {
     'commodities': 'Commodity',
   };
 
+  const reviewSummaryItems = review?.sections?.length
+    ? review.sections.map((section, index) => ({
+        name: section.title,
+        sub: section.subtitle,
+        step: index + 1,
+      }))
+    : [
+        {
+          name: 'Entity Setup',
+          sub: [legalCompanyName, entityType, ein].filter(Boolean).join(' · ') || 'Not provided',
+          step: 1,
+        },
+        {
+          name: 'Accreditation',
+          sub: `${selectedReg} · ${accreditedOnly ? 'Accredited investors only' : 'Open to eligible investors'}`,
+          step: 2,
+        },
+        {
+          name: 'Asset Details',
+          sub: [selectedAssetType, assetAddress, assetAppraisal && `$${assetAppraisal} valuation`].filter(Boolean).join(' · '),
+          step: 3,
+        },
+        {
+          name: 'Legal Structure',
+          sub: [spvEntityName, spvJurisdiction].filter(Boolean).join(' · ') || 'SPV configuration',
+          step: 4,
+        },
+        {
+          name: 'Offering Setup',
+          sub: [targetRaiseAmount && `$${targetRaiseAmount} target`, minimumInvestment && `$${minimumInvestment} minimum`].filter(Boolean).join(' · '),
+          step: 5,
+        },
+        {
+          name: 'Tokenization',
+          sub: [tokenSymbol, selectedTokenStandard, selectedNetwork].filter(Boolean).join(' · '),
+          step: 6,
+        },
+        {
+          name: 'Custody',
+          sub: `${selectedCustodian} · ${coldStorageRatio}% cold · ${multiSigConfig}`,
+          step: 7,
+        },
+      ];
+
   const renderStep1 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
@@ -211,10 +522,33 @@ export default function OnboardingPage() {
         <div className="space-y-8">
           <h3 className="text-base font-bold text-ui-strong">Entity Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-            <FormField label="Legal Company Name" placeholder="Crescent Capital Partners LLC" required fullWidth />
-            <FormField label="Entity Type" placeholder="Select Type" isSelect />
-            <FormField label="Employer Identification Number (EIN)" placeholder="82-4519302" />
-            <FormField label="Registered Business Address" placeholder="1234 Financial District Blvd, Suite 800, New York, NY 10004" fullWidth />
+            <FormField
+              label="Legal Company Name"
+              placeholder="Crescent Capital Partners LLC"
+              required
+              fullWidth
+              value={legalCompanyName}
+              onChange={setLegalCompanyName}
+            />
+            <FormField
+              label="Entity Type"
+              placeholder="LLC"
+              value={entityType}
+              onChange={setEntityType}
+            />
+            <FormField
+              label="Employer Identification Number (EIN)"
+              placeholder="82-4519302"
+              value={ein}
+              onChange={setEin}
+            />
+            <FormField
+              label="Registered Business Address"
+              placeholder="1234 Financial District Blvd, Suite 800, New York, NY 10004"
+              fullWidth
+              value={businessAddress}
+              onChange={setBusinessAddress}
+            />
           </div>
         </div>
 
@@ -250,20 +584,33 @@ export default function OnboardingPage() {
       <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <h3 className="text-base font-bold text-ui-strong">Supporting Documents</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FileUploadField label="Certificate of Formation / Incorporation" sub="Upload PDF" />
-          <FileUploadField label="Operating Agreement" sub="Upload PDF" />
-          <FileUploadField label="EIN Confirmation Letter" sub="Upload PDF" />
-          <FileUploadField label="Government-Issued ID" sub="Upload PDF" />
+          <OnboardingDocumentUpload
+            label="Certificate of Formation / Incorporation"
+            documentType="CERTIFICATE_OF_FORMATION"
+          />
+          <OnboardingDocumentUpload
+            label="Operating Agreement"
+            documentType="OPERATING_AGREEMENT"
+          />
+          <OnboardingDocumentUpload
+            label="EIN Confirmation Letter"
+            documentType="EIN_CONFIRMATION_LETTER"
+          />
+          <OnboardingDocumentUpload
+            label="Government-Issued ID"
+            documentType="GOVERNMENT_ISSUED_ID"
+          />
         </div>
       </section>
 
       <div className="flex justify-end border-t border-ui-border pt-6">
         <button
           type="button"
-          onClick={() => setCurrentStep(2)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
+          onClick={() => void advanceFromEntity()}
+          disabled={isSaving}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          Continue →
+          {isSaving ? 'Saving…' : 'Continue →'}
         </button>
       </div>
     </div>
@@ -368,10 +715,18 @@ export default function OnboardingPage() {
           <button
             type="button"
             role="switch"
-            aria-checked="true"
-            className="relative h-7 w-12 shrink-0 self-end rounded-full bg-primary shadow-inner shadow-primary/20 transition-colors sm:self-center"
+            aria-checked={accreditedOnly}
+            onClick={() => setAccreditedOnly((v) => !v)}
+            className={`relative h-7 w-12 shrink-0 self-end rounded-full shadow-inner transition-colors sm:self-center ${
+              accreditedOnly ? 'bg-primary shadow-primary/20' : 'bg-ui-border-strong'
+            }`}
           >
-            <span className="absolute right-1 top-1 h-5 w-5 rounded-full bg-ui-card shadow-sm" aria-hidden />
+            <span
+              className={`absolute top-1 h-5 w-5 rounded-full bg-ui-card shadow-sm transition-all ${
+                accreditedOnly ? 'right-1' : 'left-1'
+              }`}
+              aria-hidden
+            />
           </button>
         </div>
 
@@ -414,10 +769,11 @@ export default function OnboardingPage() {
         </button>
         <button
           type="button"
-          onClick={() => setCurrentStep(3)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
+          onClick={() => void advanceFromAccreditation()}
+          disabled={isSaving}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          Continue →
+          {isSaving ? 'Saving…' : 'Continue →'}
         </button>
       </div>
     </div>
@@ -428,31 +784,31 @@ export default function OnboardingPage() {
       case 'real-estate':
         return (
           <>
-            <FileUploadField label="MAI Appraisal Report" sub="Upload PDF" />
-            <FileUploadField label="Rent Roll (last 12 months)" sub="Upload PDF" />
-            <FileUploadField label="Title Report" sub="Upload PDF" />
-            <FileUploadField label="Environmental Assessment (Phase I)" sub="Upload PDF" />
+            <OnboardingDocumentUpload label="MAI Appraisal Report" documentType="MAI_APPRAISAL_REPORT" />
+            <OnboardingDocumentUpload label="Rent Roll (last 12 months)" documentType="RENT_ROLL" />
+            <OnboardingDocumentUpload label="Title Report" documentType="TITLE_REPORT" />
+            <OnboardingDocumentUpload label="Environmental Assessment (Phase I)" documentType="ENVIRONMENTAL_ASSESSMENT" />
           </>
         );
       case 'commodities':
         return (
           <>
-            <FileUploadField label="Vault Storage Certificate" sub="Upload PDF" />
-            <FileUploadField label="Independent Assay Report" sub="Upload PDF" />
+            <OnboardingDocumentUpload label="Vault Storage Certificate" documentType="VAULT_STORAGE_CERTIFICATE" />
+            <OnboardingDocumentUpload label="Independent Assay Report" documentType="INDEPENDENT_ASSAY_REPORT" />
           </>
         );
       case 'data-centers':
         return (
           <>
-            <FileUploadField label="Facility Appraisal Report" sub="Upload PDF" />
-            <FileUploadField label="Colocation Agreements" sub="Upload PDF" />
+            <OnboardingDocumentUpload label="Facility Appraisal Report" documentType="FACILITY_APPRAISAL_REPORT" />
+            <OnboardingDocumentUpload label="Colocation Agreements" documentType="OTHER" />
           </>
         );
       case 'private-credit':
         return (
           <>
-            <FileUploadField label="Credit Agreement" sub="Upload PDF" />
-            <FileUploadField label="Borrower Financial Statements" sub="Upload PDF" />
+            <OnboardingDocumentUpload label="Credit Agreement" documentType="LOAN_AGREEMENT" />
+            <OnboardingDocumentUpload label="Borrower Financial Statements" documentType="OTHER" />
           </>
         );
       default:
@@ -547,9 +903,26 @@ export default function OnboardingPage() {
 
           {selectedAssetType === 'real-estate' && (
             <>
-              <FormField label="Property Address" placeholder="2847 Peachtree Rd NE, Atlanta, GA 30305" fullWidth />
-              <FormField label="Appraised Valuation (USD)" placeholder="12,500,000" hint="Must be from a licensed MAI appraiser." />
-              <FormField label="Annual Rental Income (USD)" placeholder="890,000" />
+              <FormField
+                label="Property Address"
+                placeholder="2847 Peachtree Rd NE, Atlanta, GA 30305"
+                fullWidth
+                value={assetAddress}
+                onChange={setAssetAddress}
+              />
+              <FormField
+                label="Appraised Valuation (USD)"
+                placeholder="12,500,000"
+                hint="Must be from a licensed MAI appraiser."
+                value={assetAppraisal}
+                onChange={setAssetAppraisal}
+              />
+              <FormField
+                label="Annual Rental Income (USD)"
+                placeholder="890,000"
+                value={assetIncome}
+                onChange={setAssetIncome}
+              />
               <FormField label="Property Type" placeholder="Select Type" isSelect />
               <FormField label="Cap Rate (%)" placeholder="6.8" />
               <FormField label="Occupancy Rate (%)" placeholder="94.2" />
@@ -577,10 +950,11 @@ export default function OnboardingPage() {
         </button>
         <button
           type="button"
-          onClick={() => setCurrentStep(4)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
+          onClick={() => void advanceFromAsset()}
+          disabled={isSaving}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          Continue →
+          {isSaving ? 'Saving…' : 'Continue →'}
         </button>
       </div>
     </div>
@@ -615,9 +989,28 @@ export default function OnboardingPage() {
         <div className="space-y-8">
           <h3 className="text-base font-bold text-ui-strong">SPV Configuration</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="SPV Entity Name" placeholder="Crescent Peachtree Tower Holdings LLC" required fullWidth hint="Will be registered as a Delaware LLC. Format: [Asset Name] Holdings LLC" />
-            <FormField label="SPV Jurisdiction" placeholder="Select jurisdiction" isSelect />
-            <FormField label="Issuer Retained Ownership (%)" placeholder="100" hint="Remaining % is available for investor token allocation" />
+            <FormField
+              label="SPV Entity Name"
+              placeholder="Crescent Peachtree Tower Holdings LLC"
+              required
+              fullWidth
+              hint="Will be registered as a Delaware LLC. Format: [Asset Name] Holdings LLC"
+              value={spvEntityName}
+              onChange={setSpvEntityName}
+            />
+            <FormField
+              label="SPV Jurisdiction"
+              placeholder="ADGM"
+              value={spvJurisdiction}
+              onChange={setSpvJurisdiction}
+            />
+            <FormField
+              label="Issuer Retained Ownership (%)"
+              placeholder="100"
+              hint="Remaining % is available for investor token allocation"
+              value={retainedOwnership}
+              onChange={setRetainedOwnership}
+            />
           </div>
         </div>
 
@@ -629,18 +1022,18 @@ export default function OnboardingPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              { id: 'pro-rata', title: 'Pro-Rata Cash Distributions', sub: 'Holders receive proportional income distributions' },
-              { id: 'voting', title: 'Voting Rights', sub: 'Major asset decisions require token-holder vote' },
-              { id: 'liquidation', title: 'Liquidation Preference', sub: 'Priority return of capital on asset sale' },
-              { id: 'information', title: 'Information Rights', sub: 'Quarterly financials and annual audit reports' },
-            ].map((right) => {
-              const checked = tokenHolderRightId === right.id;
+            {([
+              { id: 'pro-rata', title: 'Pro-Rata Cash Distributions', sub: 'Holders receive proportional income distributions', checked: proRataDistributions, toggle: () => setProRataDistributions((v) => !v) },
+              { id: 'voting', title: 'Voting Rights', sub: 'Major asset decisions require token-holder vote', checked: votingRights, toggle: () => setVotingRights((v) => !v) },
+              { id: 'liquidation', title: 'Liquidation Preference', sub: 'Priority return of capital on asset sale', checked: liquidationPreference, toggle: () => setLiquidationPreference((v) => !v) },
+              { id: 'information', title: 'Information Rights', sub: 'Quarterly financials and annual audit reports', checked: informationRights, toggle: () => setInformationRights((v) => !v) },
+            ] as const).map((right) => {
+              const checked = right.checked;
               return (
                 <button
                   key={right.id}
                   type="button"
-                  onClick={() => setTokenHolderRightId(right.id)}
+                  onClick={right.toggle}
                   className={`text-left p-6 rounded-2xl border-2 cursor-pointer transition-all flex gap-4 w-full ${
                     checked
                       ? 'border-primary bg-ui-accent-tint'
@@ -711,10 +1104,11 @@ export default function OnboardingPage() {
         </button>
         <button
           type="button"
-          onClick={() => setCurrentStep(5)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
+          onClick={() => void advanceFromLegal()}
+          disabled={isSaving}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          Continue →
+          {isSaving ? 'Saving…' : 'Continue →'}
         </button>
       </div>
     </div>
@@ -733,28 +1127,28 @@ export default function OnboardingPage() {
           <h3 className="text-sm font-bold text-ui-strong">Offering Configuration</h3>
           <p className="text-xs text-ui-faint -mt-6">Define the capital raise parameters for this offering.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Target Raise Amount (USD)" placeholder="5,000,000" required />
-            <FormField label="Minimum Investment (USD)" placeholder="25,000" required />
-            <FormField label="Maximum Investors" placeholder="250" />
-            <FormField label="Offering Currency" placeholder="Select Currency" isSelect />
+            <FormField label="Target Raise Amount (USD)" placeholder="5,000,000" required value={targetRaiseAmount} onChange={setTargetRaiseAmount} />
+            <FormField label="Minimum Investment (USD)" placeholder="25,000" required value={minimumInvestment} onChange={setMinimumInvestment} />
+            <FormField label="Maximum Investors" placeholder="250" value={maximumInvestors} onChange={setMaximumInvestors} />
+            <FormField label="Offering Currency" placeholder="USD" value={offeringCurrency} onChange={setOfferingCurrency} />
           </div>
         </div>
 
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <h3 className="text-sm font-bold text-ui-strong">Timeline</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Offering Open Date" placeholder="Select Date" />
-            <FormField label="Offering Close Date" placeholder="Select Date" />
-            <FormField label="First Yield Distribution" placeholder="Select Date" />
-            <FormField label="Distribution Frequency" placeholder="Select Frequency" isSelect />
+            <FormField label="Offering Open Date" placeholder="2026-06-01" value={offeringOpenDate} onChange={setOfferingOpenDate} />
+            <FormField label="Offering Close Date" placeholder="2026-09-30" value={offeringCloseDate} onChange={setOfferingCloseDate} />
+            <FormField label="First Yield Distribution" placeholder="2026-10-15" value={firstYieldDate} onChange={setFirstYieldDate} />
+            <FormField label="Distribution Frequency" placeholder="QUARTERLY" value={distributionFrequency} onChange={setDistributionFrequency} />
           </div>
         </div>
 
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <h3 className="text-sm font-bold text-ui-strong">Transfer Restrictions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Lock-up Period" placeholder="Select Period" isSelect />
-            <FormField label="Secondary Market" placeholder="Select Market" isSelect />
+            <FormField label="Lock-up Period" placeholder="12 months" value={lockupPeriod} onChange={setLockupPeriod} />
+            <FormField label="Secondary Market" placeholder="RESTRICTED" value={secondaryMarket} onChange={setSecondaryMarket} />
           </div>
           <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-6 flex gap-4 items-start">
             <svg className="w-4 h-4 text-alert-info-icon shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -775,10 +1169,11 @@ export default function OnboardingPage() {
         </button>
         <button
           type="button"
-          onClick={() => setCurrentStep(6)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
+          onClick={() => void advanceFromOffering()}
+          disabled={isSaving}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          Continue →
+          {isSaving ? 'Saving…' : 'Continue →'}
         </button>
       </div>
     </div>
@@ -797,10 +1192,10 @@ export default function OnboardingPage() {
           <h3 className="text-sm font-bold text-ui-strong">Token Configuration</h3>
           <p className="text-xs text-ui-faint -mt-6">Define the on-chain token parameters for this asset.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Token Name" placeholder="Crescent Peachtree Tower Token" required />
-            <FormField label="Token Symbol" placeholder="CPTT" required />
-            <FormField label="Total Supply" placeholder="1,000,000" />
-            <FormField label="Token Price (USD)" placeholder="5.00" required />
+            <FormField label="Token Name" placeholder="Crescent Peachtree Tower Token" required value={tokenName} onChange={setTokenName} />
+            <FormField label="Token Symbol" placeholder="CPTT" required value={tokenSymbol} onChange={setTokenSymbol} />
+            <FormField label="Total Supply" placeholder="1,000,000" value={totalSupply} onChange={setTotalSupply} />
+            <FormField label="Token Price (USD)" placeholder="5.00" required value={tokenPrice} onChange={setTokenPrice} />
           </div>
         </div>
 
@@ -901,10 +1296,11 @@ export default function OnboardingPage() {
         </button>
         <button
           type="button"
-          onClick={() => setCurrentStep(7)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
+          onClick={() => void advanceFromTokenization()}
+          disabled={isSaving}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          Continue →
+          {isSaving ? 'Saving…' : 'Continue →'}
         </button>
       </div>
     </div>
@@ -970,8 +1366,18 @@ export default function OnboardingPage() {
         <div className="pt-10 border-t border-ui-divider space-y-8">
           <h3 className="text-sm font-bold text-ui-strong">Wallet Configuration</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <FormField label="Cold Storage Ratio" placeholder="Select Ratio" isSelect />
-            <FormField label="Multi-Sig Configuration" placeholder="Select Config" isSelect />
+            <FormField
+              label="Cold Storage Ratio (%)"
+              placeholder="85"
+              value={coldStorageRatio}
+              onChange={setColdStorageRatio}
+            />
+            <FormField
+              label="Multi-Sig Configuration"
+              placeholder="2-of-3 multisig"
+              value={multiSigConfig}
+              onChange={setMultiSigConfig}
+            />
           </div>
         </div>
       </section>
@@ -986,10 +1392,11 @@ export default function OnboardingPage() {
         </button>
         <button
           type="button"
-          onClick={() => setCurrentStep(8)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
+          onClick={() => void advanceFromCustody()}
+          disabled={isSaving}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          Continue →
+          {isSaving ? 'Saving…' : 'Continue →'}
         </button>
       </div>
     </div>
@@ -1020,85 +1427,21 @@ export default function OnboardingPage() {
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <h3 className="text-sm font-bold text-ui-strong">Application Summary</h3>
         <div className="space-y-3">
-          {(
-            [
-              {
-                name: 'Entity Setup',
-                sub: 'Crescent Capital Partners LLC · Delaware LLC · EIN 82-4519302',
-                badge: (
-                  <ApplicationSummaryIconBadge>
-                    <IconBuilding className="w-5 h-5" />
-                  </ApplicationSummaryIconBadge>
-                ),
-              },
-              {
-                name: 'Accreditation',
-                sub: 'Reg D Rule 506(c) · Accredited investors only · Third-party verification',
-                badge: (
-                  <ApplicationSummaryIconBadge>
-                    <IconShieldOutline className="w-5 h-5" />
-                  </ApplicationSummaryIconBadge>
-                ),
-              },
-              {
-                name: 'Asset Details',
-                sub: 'Real Estate · 2847 Peachtree Rd NE, Atlanta, GA · $12.5M valuation',
-                badge: (
-                  <ApplicationSummaryIconBadge>
-                    <IconCubeOutline className="w-5 h-5" />
-                  </ApplicationSummaryIconBadge>
-                ),
-              },
-              {
-                name: 'Legal Structure',
-                sub: 'Delaware SPV · Pro-Rata Distributions · Information Rights encoded',
-                badge: (
-                  <ApplicationSummaryIconBadge>
-                    <IconDocumentOutline className="w-5 h-5" />
-                  </ApplicationSummaryIconBadge>
-                ),
-              },
-              {
-                name: 'Offering Setup',
-                sub: '$5M target · $25K minimum · 12-month lock-up · Monthly distributions',
-                badge: (
-                  <ApplicationSummaryIconBadge>
-                    <IconTrendingUpOutline className="w-5 h-5" />
-                  </ApplicationSummaryIconBadge>
-                ),
-              },
-              {
-                name: 'Tokenization',
-                sub: 'CPTT · ERC-1400 · Ethereum Mainnet · 1,000,000 supply @ $5.00',
-                badge: (
-                  <ApplicationSummaryIconBadge>
-                    <IconCpuChipOutline className="w-5 h-5" />
-                  </ApplicationSummaryIconBadge>
-                ),
-              },
-              {
-                name: 'Custody',
-                sub: 'Anchorage Digital · 95% Cold / 5% Hot · 2-of-3 Multi-sig',
-                badge: (
-                  <ApplicationSummaryIconBadge>
-                    <IconLockClosedOutline className="w-5 h-5" />
-                  </ApplicationSummaryIconBadge>
-                ),
-              },
-            ] as const
-          ).map((item, i) => (
+          {reviewSummaryItems.map((item) => (
             <div
               key={item.name}
               className="p-6 bg-ui-card rounded-2xl border border-ui-border flex items-center gap-5 hover:bg-ui-muted-surface transition-colors group"
             >
-              {item.badge}
+              <ApplicationSummaryIconBadge>
+                <IconBuilding className="w-5 h-5" />
+              </ApplicationSummaryIconBadge>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-bold text-ui-strong mb-0.5">{item.name}</p>
                 <p className="text-[10px] text-ui-faint font-medium leading-relaxed">{item.sub}</p>
               </div>
               <button
                 type="button"
-                onClick={() => setCurrentStep(i + 1)}
+                onClick={() => setCurrentStep(item.step)}
                 className="text-[10px] font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 Edit
@@ -1137,11 +1480,12 @@ export default function OnboardingPage() {
         </button>
         <button
           type="button"
-          onClick={() => setIsSubmitted(true)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 sm:px-10 sm:py-4"
+          onClick={() => void handleSubmitApplication()}
+          disabled={isSaving}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          <span className="sm:hidden">Submit →</span>
-          <span className="hidden sm:inline">Submit Application →</span>
+          <span className="sm:hidden">{isSaving ? 'Submitting…' : 'Submit →'}</span>
+          <span className="hidden sm:inline">{isSaving ? 'Submitting…' : 'Submit Application →'}</span>
         </button>
       </div>
     </div>
@@ -1243,6 +1587,19 @@ export default function OnboardingPage() {
 
   return (
     <OnboardingLayout currentStep={currentStep} showSaved={currentStep === 2}>
+        {isLoading ? (
+          <p className="text-sm text-ui-muted-text">Loading onboarding draft…</p>
+        ) : null}
+        {isReady && !onboardingId ? (
+          <p className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            No onboarding session ID found. Sign in again to save progress to the server.
+          </p>
+        ) : null}
+        {saveError ? (
+          <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+            {saveError}
+          </p>
+        ) : null}
         {currentStep === 1 && renderStep1()}
         {currentStep === 2 && renderStep2()}
         {currentStep === 3 && renderStep3()}
@@ -1255,7 +1612,25 @@ export default function OnboardingPage() {
   );
 }
 
-function FormField({ label, placeholder, required, fullWidth, isSelect, hint }: { label: string, placeholder: string, required?: boolean, fullWidth?: boolean, isSelect?: boolean, hint?: string }) {
+function FormField({
+  label,
+  placeholder,
+  required,
+  fullWidth,
+  isSelect,
+  hint,
+  value,
+  onChange,
+}: {
+  label: string;
+  placeholder: string;
+  required?: boolean;
+  fullWidth?: boolean;
+  isSelect?: boolean;
+  hint?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+}) {
   return (
     <div className={`space-y-3 ${fullWidth ? 'md:col-span-2' : ''}`}>
       {label ? (
@@ -1266,9 +1641,11 @@ function FormField({ label, placeholder, required, fullWidth, isSelect, hint }: 
       ) : null}
       {hint ? <p className={`text-[10px] text-ui-faint leading-relaxed ${label ? '' : '-mt-1'}`}>{hint}</p> : null}
       <div className="relative">
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder={placeholder}
+          value={value ?? ''}
+          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
           className="w-full min-w-0 px-4 py-3.5 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4"
         />
         {isSelect && (

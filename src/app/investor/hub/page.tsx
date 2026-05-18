@@ -1,8 +1,41 @@
 'use client';
 
-import React, { useState, type ComponentType, type SVGProps } from 'react';
+import Link from 'next/link';
+import React, { useMemo, useState, type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
-import { HubDistributionsTab } from '@/components/issuer/HubDistributionsTab';
+import { formatRequestError } from '@/lib/formatRequestError';
+import { formatPercent } from '@/lib/investorDashboard';
+import {
+  buildPerformanceChartPaths,
+  formatAnalyticsNumber,
+  formatAnalyticsPercent,
+  formatChartCurrency,
+} from '@/lib/investorHubAnalytics';
+import {
+  buildMonthlyEarningsChartPaths,
+  formatChartCurrency as formatOverviewChartCurrency,
+  formatOverviewTrendChange,
+  formatOverviewTrendPercent,
+} from '@/lib/investorHubOverview';
+import { sectorIconClass } from '@/lib/investorHoldings';
+import {
+  buildAllocationConicGradient,
+  formatCompactCurrency,
+} from '@/lib/issuerDashboard';
+import { InvestorHubDistributionsTab } from '@/components/investor/InvestorHubDistributionsTab';
+import { InvestorHubInvestmentDocumentsTab } from '@/components/investor/InvestorHubInvestmentDocumentsTab';
+import {
+  useGetInvestorHubAnalyticsInitQuery,
+  useGetInvestorHubAnalyticsSummaryQuery,
+} from '@/store/api/investorHubAnalyticsApi';
+import { useGetInvestorHubOverviewInitQuery } from '@/store/api/investorHubOverviewApi';
+import { useListInvestorHoldingsQuery } from '@/store/api/investorHoldingsApi';
+import { useGetInvestorHubTabsQuery } from '@/store/api/investorHubTabsApi';
+import {
+  useListInvestorHubTransactionsQuery,
+  useGetInvestorHubTransactionFiltersQuery,
+  useExportInvestorHubTransactionsMutation,
+} from '@/store/api/investorHubTransactionsApi';
 import {
   AnalyticIcon,
   AnalyticsTargetIcon,
@@ -28,98 +61,266 @@ type TabType = 'overview' | 'investments' | 'transactions' | 'distributions' | '
 
 type NavSvg = ComponentType<SVGProps<SVGSVGElement>>;
 
+const ANALYTICS_PERIOD = '9m';
+const OVERVIEW_PERIOD = '9m';
+
+// Map server tab keys → client TabType
+const TAB_KEY_MAP: Record<string, TabType> = {
+  OVERVIEW: 'overview',
+  MY_INVESTMENTS: 'investments',
+  TRANSACTIONS: 'transactions',
+  DISTRIBUTIONS: 'distributions',
+  DOCUMENTS: 'documents',
+  ANALYTICS: 'analytics',
+  LEXA_AI: 'lexa',
+  ASSET_INTELLIGENCE: 'asset-intelligence',
+};
+
 export default function InvestorHubPage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  const tabs: { id: TabType; label: string; Icon: NavSvg; count?: number }[] = [
-    { id: 'overview', label: 'Overview', Icon: Overview },
-    { id: 'investments', label: 'My Investments', Icon: InvestmentIcon, count: 4 },
-    { id: 'transactions', label: 'Transactions', Icon: SecondaryMarket },
-    { id: 'distributions', label: 'Distributions', Icon: DistributionsIcon },
-    { id: 'documents', label: 'Documents', Icon: Document },
-    { id: 'analytics', label: 'Analytics', Icon: AnalyticIcon },
-    { id: 'lexa', label: 'Lexa AI', Icon: LexaAiIcon, count: 0 },
-    { id: 'asset-intelligence', label: 'Asset Intelligence', Icon: AssetIntelligenceIcon },
-  ];
+  // ── Hub Tabs API ─────────────────────────────────────────────────────────
+  const { data: hubTabsData } = useGetInvestorHubTabsQuery();
 
-  const investments = [
-    { name: 'Prime Office Tower NYC', ticker: 'PONYC', sector: 'Real Estate', Icon: SuccessIcon, iconBg: 'bg-purple-50 text-purple-500 dark:bg-purple-950/40 dark:text-purple-300', currentVal: '$92,140', gain: '+$7,140', gainPct: '+8.4%', invested: '$85,000', status: 'Active', up: true },
-    { name: 'Solar Farm Alpha TX', ticker: 'SFATX', sector: 'Renewable Energy', Icon: SuccessIcon, iconBg: 'bg-yellow-50 text-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-300', currentVal: '$44,520', gain: '+$2,520', gainPct: '+6%', invested: '$42,000', status: 'Active', up: true },
-    { name: 'Harbor Ports PE Fund', ticker: 'HPPE', sector: 'Private Equity', Icon: SuccessIcon, iconBg: 'bg-blue-50 text-blue-500 dark:bg-blue-950/40 dark:text-blue-300', currentVal: '$138,600', gain: '+$18,600', gainPct: '+15.5%', invested: '$120,000', status: 'Active', up: true },
-    { name: 'Copper Mining Royalty', ticker: 'CMRF', sector: 'Commodities', Icon: SuccessIcon, iconBg: 'bg-orange-50 text-orange-500 dark:bg-orange-950/40 dark:text-orange-300', currentVal: '$26,880', gain: '-$1,120', gainPct: '-4%', invested: '$28,000', status: 'Active', up: false },
-  ];
+  // ── Transactions API ─────────────────────────────────────────────────────
+  const [txSearch, setTxSearch] = useState('');
+  const [txType, setTxType] = useState('');
+  const [txPage, setTxPage] = useState(1);
+  const { data: txResult, isLoading: txLoading } = useListInvestorHubTransactionsQuery({
+    page: txPage,
+    limit: 20,
+    search: txSearch || undefined,
+    displayType: txType || undefined,
+  });
+  const { data: txFilters } = useGetInvestorHubTransactionFiltersQuery();
+  const [exportTx, { isLoading: exportLoading }] = useExportInvestorHubTransactionsMutation();
 
-  const transactions: {
-    name: string;
-    id: string;
-    type: string;
-    Icon: NavSvg;
-    iconClass?: string;
-    iconBg: string;
-    amount: string;
-    date: string;
-  }[] = [
-    { name: 'Prime Office Tower NYC', id: 'TX-5421', type: 'Buy', Icon: BuyIcon, iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400', amount: '+$15,000', date: 'May 1, 2026' },
-    { name: 'Harbor Ports PE Fund', id: 'TX-5420', type: 'Yield', Icon: YieldIcon, iconBg: 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400', amount: '+$2,840', date: 'Apr 30, 2026' },
-    { name: 'Solar Farm Alpha TX', id: 'TX-5419', type: 'Buy', Icon: BuyIcon, iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400', amount: '+$8,000', date: 'Apr 28, 2026' },
-    { name: 'Residential REIT Bundle', id: 'TX-5418', type: 'Sell', Icon: SellIcon, iconBg: 'bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400', amount: '-$12,000', date: 'Apr 25, 2026' },
-    { name: 'Prime Office Tower NYC', id: 'TX-5417', type: 'Yield', Icon: YieldIcon, iconBg: 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400', amount: '+$1,240', date: 'Apr 15, 2026' },
-  ];
+  const {
+    data: overviewInit,
+    isLoading: overviewLoading,
+    error: overviewError,
+  } = useGetInvestorHubOverviewInitQuery({ period: OVERVIEW_PERIOD });
 
-  const statsOverview: {
-    label: string;
-    val: string;
-    sub: string;
-    trend: string;
-    Icon: NavSvg;
-    up: boolean;
-    iconBg: string;
-  }[] = [
-    {
-      label: 'Monthly Income',
-      val: '$14,218',
-      sub: 'Passive earnings',
-      trend: '+8.2%',
-      Icon: IncomeIcon,
-      up: true,
-      iconBg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400',
-    },
-    {
-      label: 'Annual Return',
-      val: '9.45%',
-      sub: 'YTD performance',
-      trend: '+1.8%',
-      Icon: AnalyticIcon,
-      up: true,
-      iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
-    },
-    {
-      label: 'Active Investments',
-      val: '7',
-      sub: 'Across 4 sectors',
-      trend: '+2',
-      Icon: OverviewHeroPulse,
-      up: true,
-      iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400',
-    },
-    {
-      label: 'Pending Approvals',
-      val: '3',
-      sub: 'Under review',
-      trend: '',
-      Icon: PendingIcon,
-      up: false,
-      iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
-    },
-  ];
+  const { data: holdingsResult, isLoading: holdingsLoading, error: holdingsError } =
+    useListInvestorHoldingsQuery({ page: 1, limit: 50 });
+  const {
+    data: analyticsSummary,
+    isLoading: analyticsSummaryLoading,
+    error: analyticsSummaryError,
+  } = useGetInvestorHubAnalyticsSummaryQuery();
+  const {
+    data: analyticsInit,
+    isLoading: analyticsInitLoading,
+    error: analyticsInitError,
+  } = useGetInvestorHubAnalyticsInitQuery({ period: ANALYTICS_PERIOD });
+
+  const analyticsLoading = analyticsSummaryLoading || analyticsInitLoading;
+  const analyticsError = analyticsSummaryError || analyticsInitError;
+
+  const holdings = holdingsResult?.items ?? [];
+  const holdingsTotal = holdingsResult?.pagination.total ?? holdings.length;
+
+  const investments = useMemo(
+    () =>
+      holdings.map((h) => ({
+        id: h.id,
+        assetId: h.assetId,
+        name: h.name,
+        ticker: h.ticker,
+        sector: h.sector,
+        Icon: SuccessIcon,
+        iconBg: sectorIconClass(h.sector),
+        currentVal: h.currentValueFormatted,
+        gain: h.gainFormatted,
+        gainPct: h.gainPercentFormatted,
+        invested: h.investedFormatted,
+        status: h.status,
+        up: h.up,
+      })),
+    [holdings],
+  );
+
+  const performance = analyticsInit?.performance;
+
+  const analyticsMetrics = useMemo(
+    () => [
+      {
+        label: 'Total Return',
+        val: analyticsLoading ? '…' : formatAnalyticsPercent(analyticsSummary?.totalReturn.value ?? 0),
+        sub: analyticsSummary?.totalReturn.summary || 'Since inception',
+        Icon: ReturnIcon,
+        iconBg: 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400',
+      },
+      {
+        label: 'Sharpe Ratio',
+        val: analyticsLoading ? '…' : formatAnalyticsNumber(analyticsSummary?.sharpeRatio.value ?? 0),
+        sub: analyticsSummary?.sharpeRatio.summary || 'Risk-adjusted',
+        Icon: AnalyticsTargetIcon,
+        iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
+      },
+      {
+        label: 'Volatility',
+        val: analyticsLoading ? '…' : formatAnalyticsPercent(analyticsSummary?.volatility.value ?? 0),
+        sub: analyticsSummary?.volatility.summary || 'Standard deviation',
+        Icon: OverviewHeroPulse,
+        iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
+      },
+      {
+        label: 'Beta',
+        val: analyticsLoading ? '…' : formatAnalyticsNumber(analyticsSummary?.beta.value ?? 0),
+        sub: analyticsSummary?.beta.summary || 'vs. market',
+        Icon: AnalyticIcon,
+        iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400',
+      },
+    ],
+    [analyticsLoading, analyticsSummary],
+  );
+
+  const performanceChart = useMemo(
+    () => buildPerformanceChartPaths(performance?.series ?? []),
+    [performance?.series],
+  );
+
+  const performanceYLabels = useMemo(() => {
+    const series = performance?.series ?? [];
+    const max = Math.max(...series.flatMap((p) => [p.portfolio, p.benchmark]), 1);
+    const currency = performance?.currency ?? 'USD';
+    return [1, 0.75, 0.5, 0.25, 0].map((ratio) =>
+      formatChartCurrency(max * ratio, currency),
+    );
+  }, [performance]);
+
+  const TAB_ICONS: Record<TabType, NavSvg> = {
+    overview: Overview,
+    investments: InvestmentIcon,
+    transactions: SecondaryMarket,
+    distributions: DistributionsIcon,
+    documents: Document,
+    analytics: AnalyticIcon,
+    lexa: LexaAiIcon,
+    'asset-intelligence': AssetIntelligenceIcon,
+  };
+
+  // Build tabs from API response; fall back to static list
+  const tabs: { id: TabType; label: string; Icon: NavSvg; count?: number; badge?: string }[] =
+    hubTabsData?.tabs.length
+      ? hubTabsData.tabs
+          .map((t) => ({
+            id: TAB_KEY_MAP[t.key] as TabType,
+            label: t.label,
+            Icon: TAB_ICONS[TAB_KEY_MAP[t.key] as TabType] ?? Overview,
+            count: t.count ?? undefined,
+            badge: t.badge ?? undefined,
+          }))
+          .filter((t) => t.id)
+      : [
+          { id: 'overview' as TabType, label: 'Overview', Icon: Overview },
+          { id: 'investments' as TabType, label: 'My Investments', Icon: InvestmentIcon, count: holdingsTotal || undefined },
+          { id: 'transactions' as TabType, label: 'Transactions', Icon: SecondaryMarket },
+          { id: 'distributions' as TabType, label: 'Distributions', Icon: DistributionsIcon },
+          { id: 'documents' as TabType, label: 'Documents', Icon: Document },
+          { id: 'analytics' as TabType, label: 'Analytics', Icon: AnalyticIcon },
+          { id: 'lexa' as TabType, label: 'Lexa AI', Icon: LexaAiIcon, badge: 'AI' },
+          { id: 'asset-intelligence' as TabType, label: 'Asset Intelligence', Icon: AssetIntelligenceIcon },
+        ];
+
+  // Map tx type → icon + colour
+  function txIconProps(type: string): { Icon: NavSvg; iconBg: string } {
+    const t = type.toUpperCase();
+    if (t === 'BUY') return { Icon: BuyIcon, iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' };
+    if (t === 'SELL') return { Icon: SellIcon, iconBg: 'bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400' };
+    return { Icon: YieldIcon, iconBg: 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400' };
+  }
+
+  const overviewHeader = overviewInit?.header;
+  const overviewSummary = overviewInit?.summary;
+  const monthlyEarnings = overviewInit?.monthlyEarnings;
+  const overviewAllocation = overviewInit?.allocation;
+
+  const statsOverview = useMemo(() => {
+    const s = overviewSummary;
+    return [
+      {
+        label: 'Monthly Income',
+        val: overviewLoading
+          ? '…'
+          : formatCompactCurrency(
+              s?.monthlyIncome.amount ?? 0,
+              s?.monthlyIncome.currency ?? 'USD',
+              { decimals: 0 },
+            ),
+        sub: s?.monthlyIncome.summary || 'Passive earnings',
+        trend: formatOverviewTrendPercent(s?.monthlyIncome.changePercent ?? null),
+        Icon: IncomeIcon,
+        up: (s?.monthlyIncome.changePercent ?? 0) >= 0,
+        iconBg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400',
+      },
+      {
+        label: 'Annual Return',
+        val: overviewLoading ? '…' : formatPercent(s?.annualReturn.percent ?? 0),
+        sub: s?.annualReturn.summary || 'YTD performance',
+        trend: formatOverviewTrendPercent(s?.annualReturn.changePercent ?? null),
+        Icon: AnalyticIcon,
+        up: (s?.annualReturn.changePercent ?? 0) >= 0,
+        iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
+      },
+      {
+        label: 'Active Investments',
+        val: overviewLoading ? '…' : String(s?.activeInvestments.count ?? 0),
+        sub: s?.activeInvestments.summary || 'Across your portfolio',
+        trend: formatOverviewTrendChange(s?.activeInvestments.change ?? 0),
+        Icon: OverviewHeroPulse,
+        up: (s?.activeInvestments.change ?? 0) >= 0,
+        iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400',
+      },
+      {
+        label: 'Pending Approvals',
+        val: overviewLoading ? '…' : String(s?.pendingApprovals.count ?? 0),
+        sub: s?.pendingApprovals.summary || 'Under review',
+        trend: '',
+        Icon: PendingIcon,
+        up: false,
+        iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
+      },
+    ];
+  }, [overviewLoading, overviewSummary]);
+
+  const earningsChart = useMemo(
+    () => buildMonthlyEarningsChartPaths(monthlyEarnings?.series ?? []),
+    [monthlyEarnings?.series],
+  );
+
+  const earningsYLabels = useMemo(() => {
+    const series = monthlyEarnings?.series ?? [];
+    const max = Math.max(...series.flatMap((p) => [p.earnings, p.passive]), 1);
+    const currency = monthlyEarnings?.currency ?? 'USD';
+    return [1, 0.75, 0.5, 0.25, 0].map((ratio) =>
+      formatOverviewChartCurrency(max * ratio, currency),
+    );
+  }, [monthlyEarnings]);
+
+  const allocationGradient = useMemo(
+    () => buildAllocationConicGradient(overviewAllocation?.segments ?? []),
+    [overviewAllocation?.segments],
+  );
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+
+  const earningsMonthLabels =
+    earningsChart?.labels.length ? earningsChart.labels : months;
+
+  const performanceMonthLabels =
+    performanceChart?.labels.length ? performanceChart.labels : months;
 
   // ── Tab Content ──────────────────────────────────────────────────────────────
 
   const renderOverview = () => (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
-      {/* Stats */}
+      {overviewError ? (
+        <p className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+          {formatRequestError(overviewError)}
+        </p>
+      ) : null}
       <div className="grid grid-cols-2 gap-4 md:gap-6 2xl:grid-cols-4">
         {statsOverview.map((stat, i) => (
           <div
@@ -162,7 +363,9 @@ export default function InvestorHubPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
               <h3 className="text-base font-bold text-ui-strong">Monthly Earnings</h3>
-              <p className="text-xs text-ui-faint mt-0.5">Earnings vs. passive income · USD</p>
+              <p className="text-xs text-ui-faint mt-0.5">
+                Earnings vs. passive income · {monthlyEarnings?.currency ?? 'USD'}
+              </p>
             </div>
             <div className="flex gap-5">
               {[
@@ -180,50 +383,57 @@ export default function InvestorHubPage() {
           {/* Y-axis + chart */}
           <div className="relative h-48 md:h-56">
             <div className="absolute bottom-0 left-0 top-0 flex flex-col justify-between text-[9px] font-medium text-ui-placeholder">
-              {['$16k', '$12k', '$8k', '$4k', '$0k'].map(l => (
-                <span key={l}>{l}</span>
+              {earningsYLabels.map((l, i) => (
+                <span key={`${l}-${i}`}>{l}</span>
               ))}
             </div>
             <div className="absolute inset-y-0 left-8 right-0 motion-chart">
-              <svg className="absolute inset-0 h-full w-full text-primary" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden>
-                <defs>
-                  <linearGradient id="hub-earnings-area-fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.32" />
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M0,55 Q200,48 400,38 T800,22 T1000,18 L1000,100 L0,100 Z"
-                  fill="url(#hub-earnings-area-fill)"
-                />
-                <path
-                  d="M0,55 Q200,48 400,38 T800,22 T1000,18"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <svg
-                className="pointer-events-none absolute inset-0 h-full w-full text-blue-500"
-                viewBox="0 0 1000 100"
-                preserveAspectRatio="none"
-                aria-hidden
-              >
-                <path
-                  d="M0,68 Q200,62 400,55 T800,48 T1000,42"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeDasharray="6 4"
-                  strokeLinecap="round"
-                />
-              </svg>
+              {overviewLoading ? (
+                <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40 animate-pulse" />
+              ) : earningsChart ? (
+                <>
+                  <svg className="absolute inset-0 h-full w-full text-primary" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden>
+                    <defs>
+                      <linearGradient id="hub-earnings-area-fill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.32" />
+                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d={earningsChart.areaPath} fill="url(#hub-earnings-area-fill)" />
+                    <path
+                      d={earningsChart.earningsPath}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <svg
+                    className="pointer-events-none absolute inset-0 h-full w-full text-blue-500"
+                    viewBox="0 0 1000 100"
+                    preserveAspectRatio="none"
+                    aria-hidden
+                  >
+                    <path
+                      d={earningsChart.passivePath}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeDasharray="6 4"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </>
+              ) : (
+                <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40">
+                  <p className="text-xs font-medium text-ui-muted-text">No earnings data for this period</p>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex justify-between mt-4 pl-8 overflow-x-auto pb-1">
-            {months.map(m => (
+            {earningsMonthLabels.map((m) => (
               <span key={m} className="text-[9px] font-bold text-ui-placeholder uppercase tracking-widest">{m}</span>
             ))}
           </div>
@@ -234,30 +444,41 @@ export default function InvestorHubPage() {
           <h3 className="text-base font-bold text-ui-strong mb-1">Asset Allocation</h3>
           <p className="text-xs text-ui-faint mb-6">By investment type</p>
           <div className="flex flex-1 flex-col items-center justify-center gap-6">
-            <div className="relative h-36 w-36 motion-chart md:h-40 md:w-40">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--ui-divider-strong)" strokeWidth="14" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#7C3AED" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="96" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#8B5CF6" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="202" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#A78BFA" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="232" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#C4B5FD" strokeWidth="14" strokeDasharray="251.2" strokeDashoffset="252" />
-              </svg>
+            <div
+              className="relative h-36 w-36 motion-chart rounded-full md:h-40 md:w-40"
+              style={{
+                background:
+                  allocationGradient ??
+                  'conic-gradient(from -90deg, rgb(148 163 184 / 0.25) 0deg 360deg)',
+              }}
+            >
+              <div className="absolute inset-[18%] flex items-center justify-center rounded-full bg-ui-card">
+                <span className="text-lg font-bold text-ui-strong md:text-xl">
+                  {(overviewAllocation?.segments.length ?? 0) > 0 ? '100%' : '—'}
+                </span>
+              </div>
             </div>
             <div className="w-full space-y-3">
-              {[
-                { l: 'Real Estate', v: '62%', c: 'bg-primary' },
-                { l: 'Private Credit', v: '18%', c: 'bg-purple-500' },
-                { l: 'Commodities', v: '12%', c: 'bg-purple-400' },
-                { l: 'Art & Collectibles', v: '8%', c: 'bg-purple-300' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${item.c}`} />
-                    <span className="text-[11px] font-medium text-ui-muted-text">{item.l}</span>
+              {(overviewAllocation?.segments.length ?? 0) > 0 ? (
+                overviewAllocation!.segments.map((item) => (
+                  <div key={item.label} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-[11px] font-medium text-ui-muted-text">{item.label}</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-ui-strong">
+                      {item.percent > 0 ? `${Math.round(item.percent)}%` : '—'}
+                    </span>
                   </div>
-                  <span className="text-[11px] font-bold text-ui-strong">{item.v}</span>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-center text-xs font-medium text-ui-muted-text">
+                  No allocation data yet
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -269,10 +490,27 @@ export default function InvestorHubPage() {
     <div className="space-y-4 animate-in fade-in duration-500">
       <div className="mb-2">
         <h3 className="text-base font-bold text-ui-strong">All Investments</h3>
-        <p className="text-xs text-ui-faint mt-0.5">{investments.length} active positions</p>
+        <p className="text-xs text-ui-faint mt-0.5">
+          {holdingsLoading ? 'Loading…' : `${holdingsTotal} active position${holdingsTotal === 1 ? '' : 's'}`}
+        </p>
       </div>
-      {investments.map((inv, i) => (
-        <div key={i} className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-8 shadow-sm hover:shadow-md transition-all cursor-pointer group">
+      {holdingsError ? (
+        <p className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+          {formatRequestError(holdingsError)}
+        </p>
+      ) : null}
+      {holdingsLoading ? (
+        <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint animate-pulse">
+          Loading investments…
+        </p>
+      ) : investments.length === 0 ? (
+        <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+          No holdings yet.
+        </p>
+      ) : null}
+      {investments.map((inv) => {
+        const card = (
+        <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-8 shadow-sm hover:shadow-md transition-all cursor-pointer group">
           {/* Top row */}
           <div className="flex items-center justify-between gap-4 mb-5 md:mb-8">
             <div className="flex items-center gap-3 md:gap-4">
@@ -311,123 +549,146 @@ export default function InvestorHubPage() {
             </div>
           </div>
         </div>
-      ))}
+        );
+        if (inv.assetId) {
+          return (
+            <Link key={inv.id} href={`/investor/asset-detail?id=${encodeURIComponent(inv.assetId)}`} className="block">
+              {card}
+            </Link>
+          );
+        }
+        return <div key={inv.id}>{card}</div>;
+      })}
     </div>
   );
 
-  const renderTransactions = () => (
-    <div className="animate-in fade-in duration-500">
+  const renderTransactions = () => {
+    const rows = txResult?.data ?? [];
+    const pagination = txResult?.pagination;
+    return (
+    <div className="animate-in fade-in duration-500 space-y-4">
       <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
         <div className="p-5 md:p-8 border-b border-ui-divider flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-base font-bold text-ui-strong">Transaction History</h3>
-            <p className="text-xs text-ui-faint mt-0.5">All buy, sell, and yield transactions</p>
+            <p className="text-xs text-ui-faint mt-0.5">
+              {txLoading ? 'Loading…' : `${pagination?.total ?? 0} transaction${(pagination?.total ?? 0) === 1 ? '' : 's'}`}
+            </p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-[12px] font-bold text-ui-muted-text hover:bg-ui-muted-deep transition-colors">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-              Filter
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-[12px] font-bold text-primary hover:bg-primary/5 transition-colors">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Search */}
+            <input
+              value={txSearch}
+              onChange={e => { setTxSearch(e.target.value); setTxPage(1); }}
+              placeholder="Search…"
+              className="px-3 py-2 border border-ui-border rounded-xl text-[12px] font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10 w-36"
+            />
+            {/* Type filter */}
+            {(txFilters?.displayTypes.length ?? 0) > 0 && (
+              <select
+                value={txType}
+                onChange={e => { setTxType(e.target.value); setTxPage(1); }}
+                className="px-3 py-2 border border-ui-border rounded-xl text-[12px] font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10"
+              >
+                <option value="">All Types</option>
+                {txFilters!.displayTypes.map(dt => (
+                  <option key={dt.key} value={dt.key}>{dt.label}</option>
+                ))}
+              </select>
+            )}
+            {/* Export */}
+            <button
+              onClick={() => exportTx({ search: txSearch || undefined, displayType: txType || undefined })}
+              disabled={exportLoading}
+              className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-[12px] font-bold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
+            >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              Export
+              {exportLoading ? 'Exporting…' : 'Export'}
             </button>
           </div>
         </div>
-        <div className="divide-y divide-ui-divider">
-          {transactions.map((tx, i) => (
-            <div key={i} className="flex items-center gap-3 md:gap-6 px-5 md:px-8 py-4 md:py-5 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
-              <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 ${tx.iconBg}`}>
-                <tx.Icon className={`h-4 w-4 md:h-5 md:w-5 ${tx.iconClass ?? ''}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{tx.name}</p>
-                <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{tx.id} · {tx.type}</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className={`text-[13px] md:text-base font-bold ${tx.amount.startsWith('-') ? 'text-red-500' : 'text-green-500'}`}>
-                  {tx.amount}
-                </p>
-                <p className="text-[10px] text-ui-faint font-medium">{tx.date}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
-
-  const renderDocuments = () => (
-    <div className="animate-in fade-in duration-500">
-      <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
-        <div className="p-5 md:p-8 border-b border-ui-divider flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-ui-strong">Investment Documents</h3>
-            <p className="text-xs text-ui-faint mt-0.5">Statements, prospectuses, and legal documents</p>
+        {txLoading ? (
+          <div className="divide-y divide-ui-divider">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 px-5 md:px-8 py-4 animate-pulse">
+                <div className="w-9 h-9 rounded-xl bg-ui-muted-deep shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-40 rounded bg-ui-muted-deep" />
+                  <div className="h-2 w-24 rounded bg-ui-muted-deep" />
+                </div>
+                <div className="text-right space-y-2">
+                  <div className="h-3 w-16 rounded bg-ui-muted-deep" />
+                  <div className="h-2 w-20 rounded bg-ui-muted-deep" />
+                </div>
+              </div>
+            ))}
           </div>
-          <button className="flex items-center gap-2 text-[12px] font-bold text-primary hover:gap-3 transition-all">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-            Download All
+        ) : rows.length === 0 ? (
+          <p className="px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+            No transactions found.
+          </p>
+        ) : (
+          <div className="divide-y divide-ui-divider">
+            {rows.map((tx) => {
+              const { Icon, iconBg } = txIconProps(tx.type);
+              return (
+                <div key={tx.id} className="flex items-center gap-3 md:gap-6 px-5 md:px-8 py-4 md:py-5 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
+                  <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
+                    <Icon className="h-4 w-4 md:h-5 md:w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{tx.assetName}</p>
+                    <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{tx.id} · {tx.typeLabel}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className={`text-[13px] md:text-base font-bold ${tx.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                      {tx.amountFormatted}
+                    </p>
+                    <p className="text-[10px] text-ui-faint font-medium">{tx.date}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {(pagination?.totalPages ?? 0) > 1 && (
+        <div className="flex items-center justify-between">
+          <button
+            disabled={!pagination?.hasPreviousPage}
+            onClick={() => setTxPage(p => p - 1)}
+            className="px-4 py-2 rounded-xl border border-ui-border text-[12px] font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
+          >
+            ← Previous
+          </button>
+          <span className="text-[12px] font-medium text-ui-faint">
+            Page {pagination?.page} of {pagination?.totalPages}
+          </span>
+          <button
+            disabled={!pagination?.hasNextPage}
+            onClick={() => setTxPage(p => p + 1)}
+            className="px-4 py-2 rounded-xl border border-ui-border text-[12px] font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
+          >
+            Next →
           </button>
         </div>
-        <div className="divide-y divide-ui-divider">
-          {[
-            { name: 'Q1 2026 Portfolio Statement', type: 'Statement', size: '2.4 MB', date: 'Apr 1, 2026' },
-            { name: 'Prime Office Tower – Offering Memorandum', type: 'Prospectus', size: '8.7 MB', date: 'Mar 18, 2026' },
-            { name: 'Tax Document – 1099-DIV', type: 'Tax', size: '156 KB', date: 'Feb 25, 2026' },
-            { name: 'KYC Verification Certificate', type: 'Compliance', size: '89 KB', date: 'Jan 10, 2026' },
-          ].map((doc, i) => (
-            <div key={i} className="flex items-center gap-4 md:gap-6 px-5 md:px-8 py-5 md:py-6 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
-              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-ui-muted-deep text-ui-faint group-hover:bg-primary group-hover:text-white transition-all flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{doc.name}</p>
-                <p className="text-[10px] text-ui-faint font-medium">{doc.type} · {doc.size} · {doc.date}</p>
-              </div>
-              <svg className="w-4 h-4 text-ui-placeholder group-hover:text-primary transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
     </div>
-  );
+  );}
+
 
   const renderAnalytics = () => (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
-      {/* KPI row — matches analytics reference: tinted circle + icon, caps label, bold value, faint sub */}
+      {analyticsError ? (
+        <p className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+          {formatRequestError(analyticsError)}
+        </p>
+      ) : null}
       <div className="grid grid-cols-2 gap-4 md:gap-6 2xl:grid-cols-4">
-        {[
-          {
-            label: 'Total Return',
-            val: '+9.45%',
-            sub: 'Since inception',
-            Icon: ReturnIcon,
-            iconBg: 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400',
-          },
-          {
-            label: 'Sharpe Ratio',
-            val: '1.82',
-            sub: 'Risk-adjusted',
-            Icon: AnalyticsTargetIcon,
-            iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
-          },
-          {
-            label: 'Volatility',
-            val: '12.4%',
-            sub: 'Standard deviation',
-            Icon: OverviewHeroPulse,
-            iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
-          },
-          {
-            label: 'Beta',
-            val: '0.76',
-            sub: 'vs. market',
-            Icon: AnalyticIcon,
-            iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400',
-          },
-        ].map((m, i) => (
+        {analyticsMetrics.map((m, i) => (
           <div
             key={i}
             className="rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-[24px] md:p-7"
@@ -447,12 +708,14 @@ export default function InvestorHubPage() {
       {/* Portfolio performance — purple line, $65k Y ticks, faint horizontal grid */}
       <div className="rounded-[20px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-10">
         <h3 className="text-base font-bold text-ui-strong">Portfolio Performance</h3>
-        <p className="mt-0.5 text-xs text-ui-faint">Your portfolio vs. benchmark (S&amp;P 500)</p>
+        <p className="mt-0.5 text-xs text-ui-faint">
+          Your portfolio vs. benchmark ({performance?.benchmarkLabel ?? 'S&P 500'})
+        </p>
 
         <div className="relative mt-8 h-52 md:h-72">
           <div className="absolute bottom-0 left-0 top-0 flex w-11 flex-col justify-between pb-0 pt-0 text-[9px] font-medium text-ui-placeholder md:w-12">
-            {['$260k', '$195k', '$130k', '$65k', '$0k'].map(l => (
-              <span key={l}>{l}</span>
+            {performanceYLabels.map((l, i) => (
+              <span key={`${l}-${i}`}>{l}</span>
             ))}
           </div>
 
@@ -474,25 +737,26 @@ export default function InvestorHubPage() {
                   <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <path
-                d="M0,25 C180,22 420,14 700,8 S900,3 1000,2.2 L1000,100 L0,100 Z"
-                fill="url(#hub-analytics-perf-fill)"
-              />
-              <path
-                d="M0,25 C180,22 420,14 700,8 S900,3 1000,2.2"
-                fill="none"
-                stroke="#8B5CF6"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                vectorEffect="nonScalingStroke"
-              />
+              {performanceChart ? (
+                <>
+                  <path d={performanceChart.areaPath} fill="url(#hub-analytics-perf-fill)" />
+                  <path
+                    d={performanceChart.portfolioPath}
+                    fill="none"
+                    stroke="#8B5CF6"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    vectorEffect="nonScalingStroke"
+                  />
+                </>
+              ) : null}
             </svg>
           </div>
         </div>
 
         <div className="mt-4 flex justify-between overflow-x-auto pb-1 pl-11 md:pl-12">
-          {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'].map(mo => (
+          {performanceMonthLabels.map((mo) => (
             <span key={mo} className="text-[9px] font-bold uppercase tracking-widest text-ui-placeholder">
               {mo}
             </span>
@@ -646,8 +910,8 @@ export default function InvestorHubPage() {
     overview: renderOverview(),
     investments: renderInvestments(),
     transactions: renderTransactions(),
-    distributions: <HubDistributionsTab />,
-    documents: renderDocuments(),
+    distributions: <InvestorHubDistributionsTab />,
+    documents: <InvestorHubInvestmentDocumentsTab />,
     analytics: renderAnalytics(),
     lexa: renderLexa(),
     'asset-intelligence': renderAssetIntelligence(),
@@ -665,9 +929,24 @@ export default function InvestorHubPage() {
           </div>
           <div className="text-right shrink-0">
             <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest mb-1">Total Portfolio Value</p>
-            <p className="text-2xl md:text-4xl font-bold text-ui-strong">$248,650</p>
-            <p className="text-sm font-bold text-green-500 flex items-center justify-end gap-1 mt-1">
-              <ReturnIcon className="h-4 w-4 shrink-0" /> +9.45% Annual
+            <p className="text-2xl md:text-4xl font-bold text-ui-strong">
+              {overviewLoading
+                ? '…'
+                : formatCompactCurrency(
+                    overviewHeader?.totalPortfolioValue.amount ?? 0,
+                    overviewHeader?.totalPortfolioValue.currency ?? 'USD',
+                    { decimals: 0 },
+                  )}
+            </p>
+            <p
+              className={`text-sm font-bold flex items-center justify-end gap-1 mt-1 ${
+                (overviewHeader?.annualReturnPercent ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'
+              }`}
+            >
+              <ReturnIcon className="h-4 w-4 shrink-0" />
+              {overviewLoading
+                ? '…'
+                : `${formatPercent(overviewHeader?.annualReturnPercent ?? 0)} Annual`}
             </p>
           </div>
         </div>
@@ -692,8 +971,10 @@ export default function InvestorHubPage() {
                     {tab.count}
                   </span>
                 )}
-                {tab.id === 'lexa' && (
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                {tab.badge && (
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-primary text-white">
+                    {tab.badge}
+                  </span>
                 )}
               </button>
             ))}

@@ -7,9 +7,18 @@ import "./api/assetsApi";
 import "./api/onboardingApi";
 import "./api/issuerDocumentsApi";
 import "./api/issuerDashboardApi";
+import "./api/investorDashboardApi";
+import "./api/investorDocumentsApi";
+import "./api/investorHoldingsApi";
+import "./api/investorHubAnalyticsApi";
+import "./api/investorHubDistributionsApi";
+import "./api/investorHubInvestmentDocumentsApi";
+import "./api/investorHubOverviewApi";
 import "./api/issuerHubApi";
 import "./api/portfolioApi";
 import "./api/yieldApi";
+import "./api/investorMarketplaceApi";
+import "./api/secondaryMarketApi";
 
 export function makeStore() {
   return configureStore({

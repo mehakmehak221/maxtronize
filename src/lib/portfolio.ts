@@ -196,7 +196,7 @@ export function parsePortfolioAssets(payload: unknown): PortfolioListResult {
 
 export function parsePortfolioSummary(
   payload: unknown,
-  months: number,
+  months?: number,
 ): PortfolioSummary {
   const record = unwrapPayload(payload);
   if (!record || typeof record !== "object" || Array.isArray(record)) {
@@ -212,43 +212,36 @@ export function parsePortfolioSummary(
   }
 
   const root = record as Record<string, unknown>;
-  const totalNav =
-    pickNumber(root, ["totalNav", "total_nav", "nav", "totalValue"]) ?? 0;
-  const ytdPercent =
-    pickNumber(root, ["ytdPercent", "ytd_percent", "ytdChange", "growthPercent"]) ??
-    0;
-  const assetCount =
-    pickNumber(root, ["assetCount", "asset_count", "assets", "count"]) ?? 0;
 
-  const historyRaw =
-    root.navHistory ?? root.history ?? root.series ?? root.dataPoints;
-  const navHistory = Array.isArray(historyRaw)
-    ? historyRaw
-        .filter((p): p is Record<string, unknown> => Boolean(p) && typeof p === "object")
-        .map((point, index) => ({
-          label:
-            pickString(point, ["label", "month", "period"]) ??
-            `M${index + 1}`,
-          value:
-            pickNumber(point, ["value", "nav", "amount", "total"]) ?? 0,
-        }))
-    : [];
+  // Check nested or top-level totalNav
+  const totalNavObj = root.totalNav && typeof root.totalNav === "object"
+    ? (root.totalNav as Record<string, unknown>)
+    : null;
+  const totalNav = totalNavObj
+    ? (pickNumber(totalNavObj, ["amount"]) ?? 0)
+    : (pickNumber(root, ["totalNav", "total_nav", "nav", "totalValue"]) ?? 0);
 
-  const totalInvestors =
-    pickNumber(root, [
-      "totalInvestors",
-      "total_investors",
-      "investorCount",
-      "investors",
-    ]) ?? null;
-  const avgApyPercent =
-    pickNumber(root, [
-      "avgApyPercent",
-      "avg_apy_percent",
-      "averageApy",
-      "avgApy",
-      "blendedYield",
-    ]) ?? null;
+  const ytdPercent = totalNavObj
+    ? (pickNumber(totalNavObj, ["ytdGrowthPercent", "ytdPercent"]) ?? 0)
+    : (pickNumber(root, ["ytdPercent", "ytd_percent", "ytdChange", "growthPercent"]) ?? 0);
+
+  const assetCount = totalNavObj
+    ? (pickNumber(totalNavObj, ["assetCount"]) ?? 0)
+    : (pickNumber(root, ["assetCount", "asset_count", "assets", "count"]) ?? 0);
+
+  const totalInvestorsObj = root.totalInvestors && typeof root.totalInvestors === "object"
+    ? (root.totalInvestors as Record<string, unknown>)
+    : null;
+  const totalInvestors = totalInvestorsObj
+    ? pickNumber(totalInvestorsObj, ["count", "total"])
+    : pickNumber(root, ["totalInvestors", "total_investors", "investorCount", "investors"]);
+
+  const avgApyObj = root.avgTokenYield && typeof root.avgTokenYield === "object"
+    ? (root.avgTokenYield as Record<string, unknown>)
+    : null;
+  const avgApyPercent = avgApyObj
+    ? pickNumber(avgApyObj, ["percent", "percentValue"])
+    : pickNumber(root, ["avgApyPercent", "avg_apy_percent", "averageApy", "avgApy", "blendedYield"]);
 
   return {
     totalNav,
@@ -257,8 +250,38 @@ export function parsePortfolioSummary(
     assetCount,
     totalInvestors,
     avgApyPercent,
-    navHistory,
+    navHistory: [],
   };
+}
+
+export function parsePortfolioNavHistory(payload: unknown): PortfolioNavPoint[] {
+  const record = unwrapPayload(payload);
+  if (!record || typeof record !== "object") return [];
+  const root = record as Record<string, unknown>;
+  const series = root.series ?? root.history ?? root.navHistory ?? [];
+  if (!Array.isArray(series)) return [];
+
+  return series
+    .filter((p): p is Record<string, unknown> => Boolean(p) && typeof p === "object")
+    .map((point, index) => {
+      const recordedAt = pickString(point, ["recordedAt", "date", "label", "month"]) ?? `M${index + 1}`;
+      let label = recordedAt;
+      if (recordedAt.includes("-")) {
+        try {
+          const date = new Date(recordedAt);
+          if (!isNaN(date.getTime())) {
+            label = date.toLocaleDateString("en-US", { month: "short" });
+          }
+        } catch {
+          // ignore
+        }
+      }
+      const nav = pickNumber(point, ["nav", "value", "amount"]) ?? 0;
+      return {
+        label,
+        value: nav,
+      };
+    });
 }
 
 export function categoryKeyToFilterLabel(

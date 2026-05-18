@@ -76,6 +76,15 @@ const STATUS_STYLES: Record<DocStatus, { pill: string; Icon: LucideIcon }> = {
   expired: { pill: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300', Icon: XCircle },
 };
 
+interface DocStatCardProps {
+  label: string;
+  value: string;
+  sub: string;
+  Icon: LucideIcon;
+  iconClass: string;
+  highlight?: boolean;
+}
+
 function DocStatCard({
   label,
   value,
@@ -83,7 +92,7 @@ function DocStatCard({
   Icon,
   iconClass,
   highlight,
-}: (typeof DOC_STATS)[number]) {
+}: DocStatCardProps) {
   return (
     <div
       className={

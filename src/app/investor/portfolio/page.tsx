@@ -18,10 +18,9 @@ import { aggregatePortfolioAssetStats, filterLabelToCategoryKey } from '@/lib/po
 import {
   useGetPortfolioFiltersQuery,
   useGetPortfolioSummaryQuery,
+  useGetPortfolioNavHistoryQuery,
   useListPortfolioAssetsQuery,
 } from '@/store/api/portfolioApi';
-
-const SUMMARY_MONTHS = 7;
 
 function chartX(left: number, width: number, index: number, count: number): number {
   if (count <= 1) return left + width / 2;
@@ -74,7 +73,8 @@ function buildNavAreaPath(
 export default function MyPortfolioPage() {
   const [activeFilter, setActiveFilter] = useState('All Assets');
   const { data: categories = [] } = useGetPortfolioFiltersQuery();
-  const { data: summary } = useGetPortfolioSummaryQuery({ months: SUMMARY_MONTHS });
+  const { data: summary } = useGetPortfolioSummaryQuery();
+  const { data: navHistory = [] } = useGetPortfolioNavHistoryQuery();
   const categoryKey = filterLabelToCategoryKey(categories, activeFilter);
   const { data: assetsResult, isLoading: assetsLoading } = useListPortfolioAssetsQuery({
     page: 1,
@@ -88,7 +88,6 @@ export default function MyPortfolioPage() {
   );
 
   const assets = assetsResult?.items ?? [];
-  const navHistory = summary?.navHistory ?? [];
   const navValues = navHistory.map((p) => p.value);
   const months = navHistory.map((p) => p.label);
   const yMax = navValues.length > 0 ? Math.max(...navValues, 1) * 1.1 : 1;

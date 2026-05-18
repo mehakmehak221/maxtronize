@@ -27,10 +27,13 @@ import React, { Suspense, useMemo, useState } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
 import type { AssetDocument, AssetOffering, AssetTokenization } from '@/lib/assets';
 import {
-  useGetAssetDocumentsQuery,
-  useGetAssetOfferingQuery,
-  useGetAssetQuery,
-  useGetAssetTokenizationQuery,
+  useGetMarketplaceOpportunityQuery,
+  useGetMarketplaceOpportunityDocumentsQuery,
+  useGetMarketplaceOpportunityFinancialsQuery,
+  useGetMarketplaceOpportunityInitQuery,
+  useGetMarketplaceOpportunityOverviewQuery,
+  useAddOpportunityToWatchlistMutation,
+  useRemoveOpportunityFromWatchlistMutation,
 } from '@/store';
 
 const iconStroke = 1.75;
@@ -115,18 +118,40 @@ function AssetDetailContent() {
   const searchParams = useSearchParams();
   const assetId = searchParams.get('id') ?? '';
   const [activeTab, setActiveTab] = useState<TabId>('overview');
-  const [favorited, setFavorited] = useState(false);
 
   const skip = !assetId;
-  const { data: asset, isLoading: assetLoading, isError: assetError } = useGetAssetQuery(assetId, { skip });
-  const { data: offering } = useGetAssetOfferingQuery(assetId, { skip });
-  const { data: tokenization } = useGetAssetTokenizationQuery(assetId, { skip });
-  const { data: documents = [], isLoading: docsLoading } = useGetAssetDocumentsQuery(assetId, { skip });
+  const { data: asset, isLoading: assetLoading, isError: assetError } =
+    useGetMarketplaceOpportunityQuery(assetId, { skip });
+  const { data: initData } = useGetMarketplaceOpportunityInitQuery(assetId, { skip });
+  const { data: overviewData } = useGetMarketplaceOpportunityOverviewQuery(assetId, { skip });
+  const { data: financialsData } = useGetMarketplaceOpportunityFinancialsQuery(assetId, { skip });
+  const { data: documents = [], isLoading: docsLoading } =
+    useGetMarketplaceOpportunityDocumentsQuery(assetId, { skip });
+
+  const [addWatchlist, { isLoading: addLoading }] = useAddOpportunityToWatchlistMutation();
+  const [removeWatchlist, { isLoading: removeLoading }] = useRemoveOpportunityFromWatchlistMutation();
+
+  const offering = initData?.offering;
+  const tokenization = initData?.tokenization;
+
+  const favorited = asset?.watchlist ?? false;
+
+  const handleFavoriteToggle = async () => {
+    if (addLoading || removeLoading) return;
+    if (favorited) {
+      await removeWatchlist(assetId);
+    } else {
+      await addWatchlist(assetId);
+    }
+  };
 
   const progress = useMemo(() => {
     if (!asset) return { pct: 0, raised: 0, target: 0 };
-    return mergeOffering(asset.pct, asset.raised, asset.target, offering);
-  }, [asset, offering]);
+    const rawRaised = overviewData?.progress.raised ?? asset.raised;
+    const rawTarget = overviewData?.progress.target ?? asset.target;
+    const rawPct = overviewData?.progress.pct ?? asset.pct;
+    return mergeOffering(rawPct, rawRaised, rawTarget, offering);
+  }, [asset, offering, overviewData]);
 
   const heroMetrics = useMemo(() => {
     if (!asset) return [];
@@ -143,13 +168,19 @@ function AssetDetailContent() {
   }, [asset, offering, tokenization]);
 
   const highlights = useMemo(() => {
+    const fromOverview = overviewData?.highlights ?? [];
     const fromAsset = asset?.highlights ?? [];
     const fromOffering = offering?.highlights ?? [];
-    const merged = [...fromAsset, ...fromOffering];
+    const merged = [...fromOverview, ...fromAsset, ...fromOffering];
     return merged.length > 0 ? [...new Set(merged)] : [];
-  }, [asset, offering]);
+  }, [asset, offering, overviewData]);
 
-  const financials = asset?.financials?.length ? asset.financials : FALLBACK_FINANCIALS;
+  const financials = useMemo(() => {
+    if (financialsData?.length) return financialsData;
+    return asset?.financials?.length ? asset.financials : FALLBACK_FINANCIALS;
+  }, [financialsData, asset]);
+
+  const description = overviewData?.description ?? asset?.description;
   const { raisedLabel, targetLabel } = formatRaisedMillions(progress.raised, progress.target);
 
   if (!assetId) {
@@ -228,8 +259,9 @@ function AssetDetailContent() {
         <div className="flex items-center gap-2.5 md:gap-3">
           <button
             type="button"
-            onClick={() => setFavorited((f) => !f)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-ui-border text-ui-faint transition-colors hover:border-primary/30 hover:text-primary"
+            onClick={handleFavoriteToggle}
+            disabled={addLoading || removeLoading}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-ui-border text-ui-faint transition-colors hover:border-primary/30 hover:text-primary disabled:opacity-50"
             aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Heart
@@ -320,7 +352,7 @@ function AssetDetailContent() {
               <div>
                 <h3 className="mb-3 text-base font-bold text-ui-strong md:text-lg">About This Asset</h3>
                 <p className="text-[13px] font-medium leading-relaxed text-ui-muted-text md:text-sm">
-                  {asset.description ??
+                  {description ??
                     'Details for this asset will appear here once provided by the issuer.'}
                 </p>
               </div>

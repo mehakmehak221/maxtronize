@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, type ComponentType, type SVGProps } from 'react';
+import React, { useEffect, useMemo, useState, type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
 import { FileUploadZone } from '@/components/FileUploadZone';
 import {
@@ -12,6 +12,14 @@ import {
   WalletTransferIcon,
   WalletWithdrawIcon,
 } from '@/app/VectorImages';
+import { formatRequestError } from '@/lib/formatRequestError';
+import { categoryQueryFromKey, type IssuerDocument, type IssuerDocumentCategoryLabel } from '@/lib/issuerDocuments';
+import {
+  useGetInvestorDocumentCategoriesQuery,
+  useGetInvestorDocumentsSummaryQuery,
+  useListInvestorDocumentsQuery,
+  useSignInvestorDocumentMutation,
+} from '@/store/api/investorDocumentsApi';
 
 type NavSvg = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -28,96 +36,188 @@ function ShieldOutlineMini(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-type Category = 'All Documents' | 'Legal' | 'Compliance' | 'Asset Docs' | 'Reports';
-type DocStatus = 'signed' | 'pending' | 'draft' | 'expired';
+type CategoryLabel = 'All Documents' | 'Legal' | 'Compliance' | 'Asset Docs' | 'Reports';
 
-interface Doc {
+function categoryUiFromLabel(label: IssuerDocumentCategoryLabel): CategoryLabel {
+  switch (label) {
+    case 'LEGAL':
+      return 'Legal';
+    case 'COMPLIANCE':
+      return 'Compliance';
+    case 'ASSET DOCS':
+      return 'Asset Docs';
+    case 'REPORTS':
+      return 'Reports';
+    default:
+      return 'Legal';
+  }
+}
+
+type Doc = {
   name: string;
   id: string;
-  cat: 'Legal' | 'Compliance' | 'Asset Docs' | 'Reports';
-  catLabel: string;
+  cat: CategoryLabel;
+  catLabel: IssuerDocumentCategoryLabel;
   asset: string;
   status: string;
-  statusType: DocStatus;
+  statusType: IssuerDocument['statusType'];
   date: string;
   size: string;
+};
+
+function mapApiDoc(doc: IssuerDocument): Doc {
+  return {
+    name: doc.name,
+    id: doc.id,
+    cat: categoryUiFromLabel(doc.categoryLabel),
+    catLabel: doc.categoryLabel,
+    asset: doc.assetName,
+    status: doc.status,
+    statusType: doc.statusType,
+    date: doc.date,
+    size: doc.size,
+  };
+}
+
+function SignDocumentButton({
+  docId,
+  pending,
+  signingId,
+  isSigning,
+  onSign,
+}: {
+  docId: string;
+  pending: boolean;
+  signingId: string | null;
+  isSigning: boolean;
+  onSign: (id: string) => void;
+}) {
+  if (!pending) return null;
+
+  const busy = isSigning && signingId === docId;
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onSign(docId);
+      }}
+      disabled={isSigning}
+      className="inline-flex items-center justify-center rounded-xl bg-primary px-3 py-1.5 text-[10px] font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {busy ? 'Signing…' : 'Sign'}
+    </button>
+  );
 }
 
 export default function InvestorDocumentsPage() {
-  const [activeCategory, setActiveCategory] = useState<Category>('All Documents');
+  const [activeTabKey, setActiveTabKey] = useState('ALL');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [signingId, setSigningId] = useState<string | null>(null);
+  const [signError, setSignError] = useState<string | null>(null);
 
-  const stats: {
-    label: string;
-    val: string;
-    sub: string;
-    Icon: NavSvg;
-    iconRing: string;
-    iconShape?: 'square' | 'circle';
-    highlight?: boolean;
-  }[] = [
-    {
-      label: 'Total Documents',
-      val: '12',
-      sub: 'Across all assets',
-      Icon: Document,
-      iconRing: 'bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300',
-    },
-    {
-      label: 'Fully Signed',
-      val: '8',
-      sub: '67% completion rate',
-      Icon: SuccessIcon,
-      iconRing: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300',
-      iconShape: 'circle',
-    },
-    {
-      label: 'Pending Signature',
-      val: '2',
-      sub: 'Action required',
-      Icon: PendingIcon,
-      iconRing: 'bg-orange-100 text-orange-600 dark:bg-orange-950/40 dark:text-orange-300',
-      highlight: true,
-    },
-    {
-      label: 'Compliance Score',
-      val: '94%',
-      sub: '2 items need attention',
-      Icon: ShieldOutlineMini,
-      iconRing: 'bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300',
-    },
-  ];
+  const [signInvestorDocument, { isLoading: isSigning }] = useSignInvestorDocumentMutation();
 
-  const categories: { name: Category; count: number }[] = [
-    { name: 'All Documents', count: 12 },
-    { name: 'Legal', count: 3 },
-    { name: 'Compliance', count: 4 },
-    { name: 'Asset Docs', count: 3 },
-    { name: 'Reports', count: 2 },
-  ];
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
-  const allDocs: Doc[] = [
-    { name: 'Limited Partnership Agreement', id: 'DOC-001', cat: 'Legal', catLabel: 'LEGAL', asset: 'Prime Office Tower NYC', status: 'Signed (3/3)', statusType: 'signed', date: 'Sep 15, 2026', size: '2.4 MB' },
-    { name: 'SEC Regulation D Filing (506c)', id: 'DOC-002', cat: 'Compliance', catLabel: 'COMPLIANCE', asset: 'Prime Office Tower NYC', status: 'Signed', statusType: 'signed', date: 'Sep 01, 2026', size: '1.1 MB' },
-    { name: 'Property Appraisal Report', id: 'DOC-003', cat: 'Asset Docs', catLabel: 'ASSET DOCS', asset: 'Prime Office Tower NYC', status: 'Signed', statusType: 'signed', date: 'Aug 20, 2026', size: '8.7 MB' },
-    { name: 'Q3 Investor Report 2026', id: 'DOC-004', cat: 'Reports', catLabel: 'REPORTS', asset: 'All Assets', status: 'Signed', statusType: 'signed', date: 'Oct 05, 2026', size: '3.2 MB' },
-    { name: 'Subscription Agreement', id: 'DOC-005', cat: 'Legal', catLabel: 'LEGAL', asset: 'Solar Farm Alpha TX', status: 'Awaiting Signature (1/2)', statusType: 'pending', date: 'Oct 12, 2026', size: '0.9 MB' },
-    { name: 'MiCA Compliance Certificate', id: 'DOC-006', cat: 'Compliance', catLabel: 'COMPLIANCE', asset: 'Riviera Residences', status: 'Awaiting Signature', statusType: 'pending', date: 'Oct 18, 2026', size: '0.5 MB' },
-    { name: 'Token Offering Memorandum', id: 'DOC-007', cat: 'Legal', catLabel: 'LEGAL', asset: 'Harbor Ports PE Fund', status: 'Signed (4/4)', statusType: 'signed', date: 'Aug 01, 2026', size: '4.8 MB' },
-    { name: 'Asset Valuation Certificate', id: 'DOC-008', cat: 'Asset Docs', catLabel: 'ASSET DOCS', asset: 'Alpine Art Collection', status: 'Draft', statusType: 'draft', date: 'Oct 20, 2026', size: '1.6 MB' },
-    { name: 'AML/KYC Compliance Report', id: 'DOC-009', cat: 'Compliance', catLabel: 'COMPLIANCE', asset: 'All Assets', status: 'Signed', statusType: 'signed', date: 'Oct 01, 2026', size: '0.7 MB' },
-    { name: 'Smart Contract Audit Report', id: 'DOC-010', cat: 'Compliance', catLabel: 'COMPLIANCE', asset: 'Harbor Ports PE Fund', status: 'Signed', statusType: 'signed', date: 'Jul 20, 2026', size: '2.1 MB' },
-    { name: 'Quarterly Financial Statement', id: 'DOC-011', cat: 'Reports', catLabel: 'REPORTS', asset: 'Logistics Hub DE', status: 'Signed', statusType: 'signed', date: 'Oct 05, 2026', size: '1.4 MB' },
-    { name: 'Land Registry Certificate', id: 'DOC-012', cat: 'Asset Docs', catLabel: 'ASSET DOCS', asset: 'Riviera Residences', status: 'Expired', statusType: 'expired', date: 'Mar 01, 2026', size: '0.3 MB' },
-  ];
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    isError: summaryError,
+    refetch: refetchSummary,
+  } = useGetInvestorDocumentsSummaryQuery();
+  const {
+    data: categoryTabs = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+    refetch: refetchCategories,
+  } = useGetInvestorDocumentCategoriesQuery();
 
-  const filteredDocs = allDocs.filter(d => {
-    const matchCat = activeCategory === 'All Documents' || d.cat === activeCategory;
-    const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase()) || d.asset.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
+  const { data: listResult, isLoading, isError, refetch } = useListInvestorDocumentsQuery({
+    page: 1,
+    limit: 50,
+    search: debouncedSearch || undefined,
+    category: categoryQueryFromKey(activeTabKey),
   });
 
-  const statusStyle: Record<DocStatus, string> = {
+  const allDocs = useMemo(
+    () => (listResult?.items ?? []).map(mapApiDoc),
+    [listResult?.items],
+  );
+
+  const filteredDocs = allDocs;
+
+  async function handleSignDocument(docId: string) {
+    setSignError(null);
+    setSigningId(docId);
+    try {
+      await signInvestorDocument(docId).unwrap();
+    } catch (err) {
+      setSignError(formatRequestError(err));
+    } finally {
+      setSigningId(null);
+    }
+  }
+
+  const pageError = summaryError || categoriesError || isError;
+  const statsLoading = summaryLoading || categoriesLoading;
+
+  const stats = useMemo(() => {
+    const pendingCount = summary?.pendingSignature.count ?? 0;
+    const attentionCount = summary?.complianceScore.itemsNeedingAttention ?? 0;
+
+    return [
+      {
+        label: 'Total Documents',
+        val: statsLoading ? '…' : String(summary?.totalDocuments.count ?? 0),
+        sub: summary?.totalDocuments.summary || 'Across your portfolio',
+        Icon: Document,
+        iconRing: 'bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300',
+      },
+      {
+        label: 'Fully Signed',
+        val: statsLoading ? '…' : String(summary?.fullySigned.count ?? 0),
+        sub: `${summary?.fullySigned.completionRate ?? 0}% completion rate`,
+        Icon: SuccessIcon,
+        iconRing: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300',
+        iconShape: 'circle' as const,
+      },
+      {
+        label: 'Pending Signature',
+        val: statsLoading ? '…' : String(pendingCount),
+        sub: summary?.pendingSignature.summary || (pendingCount > 0 ? 'Action required' : 'None pending'),
+        Icon: PendingIcon,
+        iconRing: 'bg-orange-100 text-orange-600 dark:bg-orange-950/40 dark:text-orange-300',
+        highlight: pendingCount > 0,
+      },
+      {
+        label: 'Needs Attention',
+        val: statsLoading ? '…' : String(attentionCount),
+        sub: summary?.complianceScore.summary || (attentionCount > 0 ? `${attentionCount} item${attentionCount === 1 ? '' : 's'}` : 'All clear'),
+        Icon: ShieldOutlineMini,
+        iconRing: 'bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300',
+        highlight: attentionCount > 0,
+      },
+    ];
+  }, [summary, statsLoading]);
+
+  const categories = useMemo(() => {
+    if (categoryTabs.length > 0) {
+      return categoryTabs.map((tab) => ({
+        key: tab.key,
+        name: tab.label,
+        count: tab.count,
+      }));
+    }
+    return [{ key: 'ALL', name: 'All Documents', count: listResult?.pagination.total ?? 0 }];
+  }, [categoryTabs, listResult?.pagination.total]);
+
+  const statusStyle: Record<IssuerDocument['statusType'], string> = {
     signed: 'bg-green-50 text-green-600 border-green-100',
     pending: 'bg-amber-50 text-amber-600 border-amber-100',
     draft: 'bg-ui-muted-deep text-ui-muted-text border-ui-border-strong',
@@ -147,7 +247,7 @@ export default function InvestorDocumentsPage() {
     }
   }
 
-  function StatusGlyph({ statusType }: { statusType: DocStatus }) {
+  function StatusGlyph({ statusType }: { statusType: IssuerDocument['statusType'] }) {
     const cls = 'h-3.5 w-3.5 shrink-0';
     switch (statusType) {
       case 'signed':
@@ -166,24 +266,28 @@ export default function InvestorDocumentsPage() {
   return (
     <InvestorLayout pageTitle="Documents">
       <div className="space-y-6 md:space-y-8 animate-in fade-in duration-700">
-
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Documents</h1>
-            <p className="text-sm text-ui-faint mt-1 font-medium">Legal agreements, compliance filings, and asset documentation — all in one secure vault.</p>
+            <p className="text-sm text-ui-faint mt-1 font-medium">
+              Legal agreements, compliance filings, and asset documentation — all in one secure vault.
+            </p>
           </div>
-          <button className="self-start sm:self-auto px-5 md:px-7 py-3 bg-primary text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+          <button
+            type="button"
+            className="self-start sm:self-auto px-5 md:px-7 py-3 bg-primary text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
             Upload Document
           </button>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-5 2xl:grid-cols-4">
-          {stats.map((s, i) => (
+          {stats.map((s) => (
             <div
-              key={i}
+              key={s.label}
               className={`rounded-[20px] border p-4 shadow-sm md:rounded-[28px] md:p-6 ${
                 s.highlight
                   ? 'border-amber-100/80 bg-amber-50/90 dark:border-amber-900/40 dark:bg-amber-950/25'
@@ -199,7 +303,9 @@ export default function InvestorDocumentsPage() {
                   <s.Icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="mb-0.5 text-[9px] font-bold uppercase leading-snug tracking-wide text-ui-faint sm:tracking-widest">{s.label}</p>
+                  <p className="mb-0.5 text-[9px] font-bold uppercase leading-snug tracking-wide text-ui-faint sm:tracking-widest">
+                    {s.label}
+                  </p>
                   <p className={`text-xl font-bold md:text-2xl ${s.highlight ? 'text-amber-600' : 'text-ui-strong'}`}>
                     {s.val}
                   </p>
@@ -214,15 +320,15 @@ export default function InvestorDocumentsPage() {
           ))}
         </div>
 
-        {/* Filters + Search */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide max-w-full">
             {categories.map((cat) => (
               <button
-                key={cat.name}
-                onClick={() => setActiveCategory(cat.name)}
+                key={cat.key}
+                type="button"
+                onClick={() => setActiveTabKey(cat.key)}
                 className={`flex items-center gap-1.5 px-3 md:px-5 py-2 rounded-full text-[12px] font-bold transition-all whitespace-nowrap shrink-0 ${
-                  activeCategory === cat.name
+                  activeTabKey === cat.key
                     ? 'bg-slate-900 text-white shadow-md dark:bg-slate-900 dark:text-white'
                     : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100'
                 }`}
@@ -230,7 +336,7 @@ export default function InvestorDocumentsPage() {
                 {cat.name}
                 <span
                   className={`rounded-md px-1.5 py-0.5 text-[9px] font-bold ${
-                    activeCategory === cat.name
+                    activeTabKey === cat.key
                       ? 'bg-white/20 text-white'
                       : 'bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-400'
                   }`}
@@ -241,139 +347,206 @@ export default function InvestorDocumentsPage() {
             ))}
           </div>
           <div className="relative w-full shrink-0 lg:w-72">
-            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ui-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <svg
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ui-faint"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             <input
               value={search}
-              onChange={e => setSearch(e.target.value)}
-              type="text"
+              onChange={(e) => setSearch(e.target.value)}
+              type="search"
               placeholder="Search documents..."
               className="w-full pl-10 pr-4 py-2.5 bg-ui-card border border-ui-border rounded-2xl text-[13px] font-medium outline-none focus:ring-4 focus:ring-primary/5 shadow-sm"
             />
           </div>
         </div>
 
+        {pageError ? (
+          <div className="rounded-2xl border border-ui-border bg-ui-card px-6 py-8 text-center">
+            <p className="text-sm font-medium text-ui-muted-text">Could not load documents.</p>
+            <button
+              type="button"
+              onClick={() => {
+                void refetch();
+                void refetchSummary();
+                void refetchCategories();
+              }}
+              className="mt-3 text-[11px] font-bold uppercase tracking-widest text-primary"
+            >
+              Retry
+            </button>
+          </div>
+        ) : null}
+
+        {signError ? (
+          <div
+            role="alert"
+            className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300"
+          >
+            {signError}
+          </div>
+        ) : null}
+
         <FileUploadZone />
 
-        {/* Documents — cards on tablet */}
         <div className="space-y-3 xl:hidden">
-          {filteredDocs.length === 0 ? (
+          {isLoading ? (
+            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint animate-pulse">
+              Loading documents…
+            </p>
+          ) : filteredDocs.length === 0 ? (
             <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
               No documents found matching your search.
             </p>
           ) : (
-            filteredDocs.map((doc, i) => (
-            <article
-              key={i}
-              className="rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900/70"
-            >
-              <div className="mb-3 flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ui-muted-deep text-ui-faint">
-                  <Document className="h-5 w-5" />
+            filteredDocs.map((doc) => (
+              <article
+                key={doc.id}
+                className="rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900/70"
+              >
+                <div className="mb-3 flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ui-muted-deep text-ui-faint">
+                    <Document className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-bold leading-snug text-ui-strong">{doc.name}</p>
+                    <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{doc.id}</p>
+                  </div>
+                  <SignDocumentButton
+                    docId={doc.id}
+                    pending={doc.statusType === 'pending'}
+                    signingId={signingId}
+                    isSigning={isSigning}
+                    onSign={handleSignDocument}
+                  />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-bold leading-snug text-ui-strong">{doc.name}</p>
-                  <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{doc.id}</p>
+                <div className="flex flex-wrap items-center gap-2 border-t border-ui-divider pt-3">
+                  <span className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[9px] font-bold ${catStyle[doc.catLabel]}`}>
+                    <CategoryGlyph catLabel={doc.catLabel} />
+                    {doc.catLabel}
+                  </span>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold ${statusStyle[doc.statusType]}`}>
+                    <StatusGlyph statusType={doc.statusType} />
+                    {doc.status}
+                  </span>
                 </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 border-t border-ui-divider pt-3">
-                <span className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[9px] font-bold ${catStyle[doc.catLabel]}`}>
-                  <CategoryGlyph catLabel={doc.catLabel} />
-                  {doc.catLabel}
-                </span>
-                <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold ${statusStyle[doc.statusType]}`}>
-                  <StatusGlyph statusType={doc.statusType} />
-                  {doc.status}
-                </span>
-              </div>
-              <div className="mt-3 grid grid-cols-3 gap-4 text-[11px]">
-                <div className="min-w-0">
-                  <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Asset</p>
-                  <p className="line-clamp-2 font-medium text-ui-muted-text">{doc.asset}</p>
+                <div className="mt-3 grid grid-cols-3 gap-4 text-[11px]">
+                  <div className="min-w-0">
+                    <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Asset</p>
+                    <p className="line-clamp-2 font-medium text-ui-muted-text">{doc.asset}</p>
+                  </div>
+                  <div>
+                    <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Date</p>
+                    <p className="font-medium text-ui-faint">{doc.date}</p>
+                  </div>
+                  <div>
+                    <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Size</p>
+                    <p className="font-medium text-ui-faint">{doc.size}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Date</p>
-                  <p className="font-medium text-ui-faint">{doc.date}</p>
-                </div>
-                <div>
-                  <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Size</p>
-                  <p className="font-medium text-ui-faint">{doc.size}</p>
-                </div>
-              </div>
-            </article>
+              </article>
             ))
           )}
         </div>
 
-        {/* Documents table — desktop */}
         <div className="hidden overflow-hidden rounded-[20px] border border-ui-border bg-ui-card/95 shadow-sm md:rounded-[32px] xl:block dark:border-zinc-800 dark:bg-zinc-900/70">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px] text-left">
               <thead>
                 <tr className="border-b border-ui-divider">
-                  {['Document', 'Category', 'Asset', 'Status', 'Date', 'Size'].map(h => (
-                    <th key={h} className="px-4 md:px-8 py-4 text-[9px] font-bold text-ui-faint uppercase tracking-widest bg-transparent">{h}</th>
+                  {['Document', 'Category', 'Asset', 'Status', 'Date', 'Size', ''].map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 md:px-8 py-4 text-[9px] font-bold text-ui-faint uppercase tracking-widest bg-transparent"
+                    >
+                      {h}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-ui-divider">
-                {filteredDocs.length === 0 ? (
+                {isLoading ? (
                   <tr>
-                    <td colSpan={6} className="px-8 py-12 text-center">
+                    <td colSpan={7} className="px-8 py-12 text-center">
+                      <p className="text-[13px] font-medium text-ui-faint animate-pulse">Loading documents…</p>
+                    </td>
+                  </tr>
+                ) : filteredDocs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-8 py-12 text-center">
                       <p className="text-[13px] font-medium text-ui-faint">No documents found matching your search.</p>
                     </td>
                   </tr>
-                ) : filteredDocs.map((doc, i) => (
-                  <tr key={i} className="hover:bg-ui-muted-deep/40 transition-colors group cursor-pointer">
-                    <td className="px-4 md:px-8 py-4 md:py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-ui-muted-deep text-ui-faint group-hover:bg-primary group-hover:text-white transition-all flex items-center justify-center shrink-0">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                ) : (
+                  filteredDocs.map((doc) => (
+                    <tr
+                      key={doc.id}
+                      className="hover:bg-ui-muted-deep/40 transition-colors group cursor-pointer"
+                    >
+                      <td className="px-4 md:px-8 py-4 md:py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-ui-muted-deep text-ui-faint group-hover:bg-primary group-hover:text-white transition-all flex items-center justify-center shrink-0">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[12px] md:text-[13px] font-bold text-ui-strong truncate max-w-[140px] md:max-w-[220px] group-hover:text-primary transition-colors">
+                              {doc.name}
+                            </p>
+                            <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest">{doc.id}</p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-[12px] md:text-[13px] font-bold text-ui-strong truncate max-w-[140px] md:max-w-[220px] group-hover:text-primary transition-colors">{doc.name}</p>
-                          <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest">{doc.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 md:px-8 py-4 md:py-5">
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[9px] font-bold whitespace-nowrap ${catStyle[doc.catLabel]}`}
-                      >
-                        <CategoryGlyph catLabel={doc.catLabel} />
-                        {doc.catLabel}
-                      </span>
-                    </td>
-                    <td className="px-4 md:px-8 py-4 md:py-5">
-                      <div className="flex items-center gap-2 whitespace-nowrap">
-                        {doc.asset === 'All Assets' ? (
-                          <WalletCustodyBarsIcon className="h-3.5 w-2.5 shrink-0 text-ui-placeholder" aria-hidden />
-                        ) : (
+                      </td>
+                      <td className="px-4 md:px-8 py-4 md:py-5">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[9px] font-bold whitespace-nowrap ${catStyle[doc.catLabel]}`}
+                        >
+                          <CategoryGlyph catLabel={doc.catLabel} />
+                          {doc.catLabel}
+                        </span>
+                      </td>
+                      <td className="px-4 md:px-8 py-4 md:py-5">
+                        <div className="flex items-center gap-2 whitespace-nowrap">
                           <WalletPolygonIcon className="h-3.5 w-3 shrink-0 text-violet-500 dark:text-violet-400" aria-hidden />
-                        )}
-                        <p className="text-[12px] font-medium text-ui-muted-text">{doc.asset}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 md:px-8 py-4 md:py-5">
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold whitespace-nowrap ${statusStyle[doc.statusType]}`}
-                      >
-                        <StatusGlyph statusType={doc.statusType} />
-                        {doc.status}
-                      </span>
-                    </td>
-                    <td className="px-4 md:px-8 py-4 md:py-5">
-                      <span className="text-[11px] font-medium text-ui-faint whitespace-nowrap">{doc.date}</span>
-                    </td>
-                    <td className="px-4 md:px-8 py-4 md:py-5">
-                      <span className="text-[11px] font-medium text-ui-faint">{doc.size}</span>
-                    </td>
-                  </tr>
-                ))}
+                          <p className="text-[12px] font-medium text-ui-muted-text">{doc.asset}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 md:px-8 py-4 md:py-5">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold whitespace-nowrap ${statusStyle[doc.statusType]}`}
+                        >
+                          <StatusGlyph statusType={doc.statusType} />
+                          {doc.status}
+                        </span>
+                      </td>
+                      <td className="px-4 md:px-8 py-4 md:py-5">
+                        <span className="text-[11px] font-medium text-ui-faint whitespace-nowrap">{doc.date}</span>
+                      </td>
+                      <td className="px-4 md:px-8 py-4 md:py-5">
+                        <span className="text-[11px] font-medium text-ui-faint">{doc.size}</span>
+                      </td>
+                      <td className="px-4 md:px-8 py-4 md:py-5 text-right">
+                        <SignDocumentButton
+                          docId={doc.id}
+                          pending={doc.statusType === 'pending'}
+                          signingId={signingId}
+                          isSigning={isSigning}
+                          onSign={handleSignDocument}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
-
       </div>
     </InvestorLayout>
   );

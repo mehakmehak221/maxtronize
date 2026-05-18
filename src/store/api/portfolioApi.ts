@@ -2,9 +2,11 @@ import {
   parsePortfolioAssets,
   parsePortfolioFilters,
   parsePortfolioSummary,
+  parsePortfolioNavHistory,
   type PortfolioCategory,
   type PortfolioListResult,
   type PortfolioSummary,
+  type PortfolioNavPoint,
 } from "@/lib/portfolio";
 import { baseApi } from "./baseApi";
 
@@ -19,23 +21,31 @@ export const portfolioApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
     getPortfolioFilters: build.query<PortfolioCategory[], void>({
-      query: () => ({ url: "/portfolio/filters", method: "GET" }),
+      query: () => ({ url: "/investor/portfolio/filters", method: "GET" }),
       transformResponse: (response: unknown) => parsePortfolioFilters(response),
       providesTags: [{ type: "Portfolio", id: "FILTERS" }],
     }),
-    getPortfolioSummary: build.query<PortfolioSummary, { months: number }>({
-      query: ({ months }) => ({
-        url: "/portfolio/summary",
+    getPortfolioSummary: build.query<PortfolioSummary, void>({
+      query: () => ({
+        url: "/investor/portfolio/summary",
         method: "GET",
-        params: { months },
       }),
-      transformResponse: (response: unknown, _meta, { months }) =>
-        parsePortfolioSummary(response, months),
+      transformResponse: (response: unknown) =>
+        parsePortfolioSummary(response),
       providesTags: [{ type: "Portfolio", id: "SUMMARY" }],
+    }),
+    getPortfolioNavHistory: build.query<PortfolioNavPoint[], void>({
+      query: () => ({
+        url: "/investor/portfolio/nav-history",
+        method: "GET",
+      }),
+      transformResponse: (response: unknown) =>
+        parsePortfolioNavHistory(response),
+      providesTags: [{ type: "Portfolio", id: "NAV_HISTORY" }],
     }),
     listPortfolioAssets: build.query<PortfolioListResult, ListPortfolioAssetsParams>({
       query: ({ page = 1, limit = 20, search, category }) => ({
-        url: "/portfolio/assets",
+        url: "/investor/portfolio/assets",
         method: "GET",
         params: {
           page,
@@ -53,5 +63,6 @@ export const portfolioApi = baseApi.injectEndpoints({
 export const {
   useGetPortfolioFiltersQuery,
   useGetPortfolioSummaryQuery,
+  useGetPortfolioNavHistoryQuery,
   useListPortfolioAssetsQuery,
 } = portfolioApi;

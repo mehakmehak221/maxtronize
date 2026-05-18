@@ -22,6 +22,7 @@ export type MarketplaceAsset = {
   image: string;
   featured: boolean;
   description: string | null;
+  watchlist?: boolean;
 };
 
 export type AssetDocument = {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import AuthLayout from "@/components/AuthLayout";
 import { formatRequestError } from "@/lib/formatRequestError";
 import { uiPersonaToApiRole } from "@/lib/authUi";
@@ -10,7 +10,7 @@ import { getPostAuthRedirect } from "@/lib/authSession";
 import { useLoginMutation } from "@/store/api/authApi";
 import { useAppDispatch } from "@/store/hooks";
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const passwordResetSuccess = searchParams.get("reset") === "1";
@@ -274,5 +274,24 @@ export default function SignInPage() {
         </div>
       </div>
     </AuthLayout>
+  );
+}
+
+function SignInFallback() {
+  return (
+    <AuthLayout isSignUp={false} onToggle={() => {}}>
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="h-28 animate-pulse rounded-2xl bg-ui-muted-deep" />
+        <div className="h-64 animate-pulse rounded-2xl bg-ui-muted-deep" />
+      </div>
+    </AuthLayout>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInFallback />}>
+      <SignInContent />
+    </Suspense>
   );
 }

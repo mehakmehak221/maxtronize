@@ -35,6 +35,10 @@ export const yieldApi = baseApi.injectEndpoints({
       transformResponse: (response: unknown) => parseUpcomingPayouts(response),
       providesTags: [{ type: "Yield", id: "UPCOMING" }],
     }),
+    getYieldAssetBreakdown: build.query<any[], void>({
+      query: () => ({ url: "/yield/asset-breakdown", method: "GET" }),
+      providesTags: [{ type: "Yield", id: "BREAKDOWN" }],
+    }),
   }),
 });
 
@@ -42,4 +46,5 @@ export const {
   useGetYieldSummaryQuery,
   useGetDistributionScheduleQuery,
   useGetUpcomingPayoutsQuery,
+  useGetYieldAssetBreakdownQuery,
 } = yieldApi;

@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useMemo, useState, type ComponentType, type SVGProps } from 'react';
+import { useSearchParams } from 'next/navigation';
+import React, { Suspense, useEffect, useMemo, useState, type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
 import { formatRequestError } from '@/lib/formatRequestError';
 import { formatPercent } from '@/lib/investorDashboard';
@@ -76,8 +77,27 @@ const TAB_KEY_MAP: Record<string, TabType> = {
   ASSET_INTELLIGENCE: 'asset-intelligence',
 };
 
-export default function InvestorHubPage() {
+function InvestorHubContent() {
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+
+  useEffect(() => {
+    if (!requestedTab) return;
+    const validTab = requestedTab as TabType;
+    if (
+      validTab === 'overview' ||
+      validTab === 'investments' ||
+      validTab === 'transactions' ||
+      validTab === 'distributions' ||
+      validTab === 'documents' ||
+      validTab === 'analytics' ||
+      validTab === 'lexa' ||
+      validTab === 'asset-intelligence'
+    ) {
+      setActiveTab(validTab);
+    }
+  }, [requestedTab]);
 
   // ── Hub Tabs API ─────────────────────────────────────────────────────────
   const { data: hubTabsData } = useGetInvestorHubTabsQuery();
@@ -918,73 +938,97 @@ export default function InvestorHubPage() {
   };
 
   return (
-    <InvestorLayout pageTitle="Investor Hub">
-      <div className="space-y-6 animate-in fade-in duration-700">
+    <div className="space-y-6 animate-in fade-in duration-700">
 
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Investor Hub</h1>
-            <p className="text-sm text-ui-faint mt-1 font-medium">Manage your portfolio, track performance, and access AI-powered insights</p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest mb-1">Total Portfolio Value</p>
-            <p className="text-2xl md:text-4xl font-bold text-ui-strong">
-              {overviewLoading
-                ? '…'
-                : formatCompactCurrency(
-                    overviewHeader?.totalPortfolioValue.amount ?? 0,
-                    overviewHeader?.totalPortfolioValue.currency ?? 'USD',
-                    { decimals: 0 },
-                  )}
-            </p>
-            <p
-              className={`text-sm font-bold flex items-center justify-end gap-1 mt-1 ${
-                (overviewHeader?.annualReturnPercent ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Investor Hub</h1>
+          <p className="text-sm text-ui-faint mt-1 font-medium">Manage your portfolio, track performance, and access AI-powered insights</p>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest mb-1">Total Portfolio Value</p>
+          <p className="text-2xl md:text-4xl font-bold text-ui-strong">
+            {overviewLoading
+              ? '…'
+              : formatCompactCurrency(
+                  overviewHeader?.totalPortfolioValue.amount ?? 0,
+                  overviewHeader?.totalPortfolioValue.currency ?? 'USD',
+                  { decimals: 0 },
+                )}
+          </p>
+          <p
+            className={`text-sm font-bold flex items-center justify-end gap-1 mt-1 ${
+              (overviewHeader?.annualReturnPercent ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'
+            }`}
+          >
+            <ReturnIcon className="h-4 w-4 shrink-0" />
+            {overviewLoading
+              ? '…'
+              : `${formatPercent(overviewHeader?.annualReturnPercent ?? 0)} Annual`}
+          </p>
+        </div>
+      </div>
+
+      {/* Tab Bar */}
+      <div className="border-b border-ui-border overflow-x-auto scrollbar-hide -mx-4 md:-mx-0">
+        <div className="flex items-center px-4 md:px-0 min-w-max">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 md:px-6 py-4 border-b-2 text-[13px] font-bold transition-all whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-ui-faint hover:text-ui-body hover:border-ui-border-strong'
               }`}
             >
-              <ReturnIcon className="h-4 w-4 shrink-0" />
-              {overviewLoading
-                ? '…'
-                : `${formatPercent(overviewHeader?.annualReturnPercent ?? 0)} Annual`}
-            </p>
-          </div>
+              <tab.Icon className="h-4 w-4 shrink-0" />
+              <span>{tab.label}</span>
+              {tab.count !== undefined && tab.count > 0 && (
+                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${activeTab === tab.id ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-ui-faint'}`}>
+                  {tab.count}
+                </span>
+              )}
+              {tab.badge && (
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-primary text-white">
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
-
-        {/* Tab Bar */}
-        <div className="border-b border-ui-border overflow-x-auto scrollbar-hide -mx-4 md:-mx-0">
-          <div className="flex items-center px-4 md:px-0 min-w-max">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 md:px-6 py-4 border-b-2 text-[13px] font-bold transition-all whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-ui-faint hover:text-ui-body hover:border-ui-border-strong'
-                }`}
-              >
-                <tab.Icon className="h-4 w-4 shrink-0" />
-                <span>{tab.label}</span>
-                {tab.count !== undefined && tab.count > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${activeTab === tab.id ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-ui-faint'}`}>
-                    {tab.count}
-                  </span>
-                )}
-                {tab.badge && (
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-primary text-white">
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        <div>{tabContent[activeTab]}</div>
-
       </div>
+
+      {/* Tab Content */}
+      <div>{tabContent[activeTab]}</div>
+    </div>
+  );
+}
+
+function InvestorHubFallback() {
+  return (
+    <div className="space-y-6 animate-in fade-in duration-700">
+      <div className="flex flex-col gap-4">
+        <div className="h-10 w-48 animate-pulse rounded-xl bg-ui-muted-deep" />
+        <div className="h-5 w-96 max-w-full animate-pulse rounded-xl bg-ui-muted-deep" />
+      </div>
+      <div className="h-16 animate-pulse rounded-2xl bg-ui-muted-deep" />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, idx) => (
+          <div key={idx} className="h-40 animate-pulse rounded-[24px] bg-ui-muted-deep" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function InvestorHubPage() {
+  return (
+    <InvestorLayout pageTitle="Investor Hub">
+      <Suspense fallback={<InvestorHubFallback />}>
+        <InvestorHubContent />
+      </Suspense>
     </InvestorLayout>
   );
 }

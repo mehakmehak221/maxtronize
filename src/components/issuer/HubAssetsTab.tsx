@@ -3,7 +3,11 @@
 import { Building2 } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { countActiveOfferings, type HubAsset } from '@/lib/issuerHub';
+import {
+  countActiveOfferings,
+  type HubAsset,
+  type HubAssetDisplayStatusApi,
+} from '@/lib/issuerHub';
 import {
   useGetIssuerHubAssetsSummaryQuery,
   useListIssuerHubAssetsQuery,
@@ -18,12 +22,15 @@ const ASSET_BAR_CLASS: Record<string, string> = {
   draft: 'bg-issuer-asset-bar-draft',
 };
 
-const HUB_ASSET_STATUS_FILTERS = [
+const HUB_ASSET_STATUS_FILTERS: {
+  label: string;
+  value: HubAssetDisplayStatusApi | undefined;
+}[] = [
   { label: 'All', value: undefined },
-  { label: 'Live', value: 'Live' },
-  { label: 'Funded', value: 'Funded' },
-  { label: 'Draft', value: 'Draft' },
-] as const;
+  { label: 'Live', value: 'LIVE' },
+  { label: 'Funded', value: 'FUNDED' },
+  { label: 'Draft', value: 'DRAFT' },
+];
 
 function MetricIconCircle({
   children,
@@ -42,14 +49,16 @@ function MetricIconCircle({
 }
 
 function HubAssetStatusBadge({ status }: { status: HubAsset['displayStatus'] }) {
-  if (status === 'Live') {
+  const normalized =
+    typeof status === 'string' ? status.trim().toLowerCase() : '';
+  if (normalized === 'live') {
     return (
       <span className="rounded-md border border-status-live-border bg-status-live-bg px-2 py-0.5 text-[10px] font-bold text-status-live-text">
         Live
       </span>
     );
   }
-  if (status === 'Funded') {
+  if (normalized === 'funded') {
     return (
       <span className="rounded-md border border-status-funded-border bg-status-funded-bg px-2 py-0.5 text-[10px] font-bold text-status-funded-text">
         Funded
@@ -70,7 +79,9 @@ type HubAssetsTabProps = {
 
 export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [displayStatus, setDisplayStatus] = useState<string | undefined>();
+  const [displayStatus, setDisplayStatus] = useState<
+    HubAssetDisplayStatusApi | undefined
+  >();
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -103,7 +114,7 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
           </p>
         </div>
         <Link
-          href="/issuer/tokenize-asset"
+          href="/issuer/onboarding"
           className="inline-flex justify-center rounded-full bg-primary px-6 py-2 text-[13px] font-bold text-white transition-colors hover:bg-issuer-primary-hover"
         >
           + New Asset

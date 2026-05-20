@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Hexagon, Triangle, type LucideIcon } from 'lucide-react';
+import Badge from '@/app/components/ui/Badge';
 import OnboardingLayout from '@/components/OnboardingLayout';
 import {
   OnboardingProvider,
   useOnboarding,
 } from '@/components/onboarding/OnboardingContext';
 import { OnboardingDocumentUpload } from '@/components/onboarding/OnboardingDocumentUpload';
+import { resolveOnboardingApplicationStatus } from '@/lib/onboarding';
 
 const iconStroke = 1.75;
 
@@ -162,6 +165,7 @@ function IssuerOnboardingWizard() {
     hydratedAssetType,
     hydratedCustodian,
     hydratedAccreditedOnly,
+    hydratedVerificationMethod,
     hydratedAssetForm,
     hydratedCustodyForm,
     hydratedEntityForm,
@@ -169,8 +173,10 @@ function IssuerOnboardingWizard() {
     hydratedOfferingForm,
     hydratedTokenizationForm,
     progressStep,
+    progress,
     review,
     onboardingState,
+    isApprovedOrLocked,
     saveEntityDraft,
     saveAccreditationDraft,
     saveAssetDraft,
@@ -217,11 +223,13 @@ function IssuerOnboardingWizard() {
   const [totalSupply, setTotalSupply] = useState('');
   const [tokenPrice, setTokenPrice] = useState('');
   const [accreditedOnly, setAccreditedOnly] = useState(true);
+  const [verificationMethod, setVerificationMethod] = useState('parallel-markets');
   const [assetName, setAssetName] = useState('');
   const [assetDescription, setAssetDescription] = useState('');
   const [assetAddress, setAssetAddress] = useState('');
   const [assetAppraisal, setAssetAppraisal] = useState('');
   const [assetIncome, setAssetIncome] = useState('');
+  const [assetMetadata, setAssetMetadata] = useState<Record<string, string>>({});
   const [coldStorageRatio, setColdStorageRatio] = useState('85');
   const [multiSigConfig, setMultiSigConfig] = useState('2-of-3 multisig');
   const [hydrated, setHydrated] = useState(false);
@@ -242,6 +250,9 @@ function IssuerOnboardingWizard() {
     setSelectedAssetType(hydratedAssetType as AssetType);
     setSelectedCustodian(hydratedCustodian);
     setAccreditedOnly(hydratedAccreditedOnly);
+    if (hydratedVerificationMethod) {
+      setVerificationMethod(hydratedVerificationMethod);
+    }
     setAssetName(hydratedAssetForm.name);
     setAssetDescription(hydratedAssetForm.description);
     setAssetAddress(hydratedAssetForm.address);
@@ -291,6 +302,7 @@ function IssuerOnboardingWizard() {
   }, [
     hydrated,
     hydratedAccreditedOnly,
+    hydratedVerificationMethod,
     hydratedAssetForm,
     hydratedAssetType,
     hydratedCustodian,
@@ -307,7 +319,7 @@ function IssuerOnboardingWizard() {
   ]);
 
   async function advanceFromEntity() {
-    if (onboardingId) {
+    if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveEntityDraft({
         legalCompanyName,
         entityType,
@@ -322,10 +334,11 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromAccreditation() {
-    if (onboardingId) {
+    if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveAccreditationDraft({
         regulation: selectedReg,
         accreditedOnly,
+        verificationMethod,
       });
       if (!ok) return;
     }
@@ -333,7 +346,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromAsset() {
-    if (onboardingId) {
+    if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveAssetDraft({
         assetType: selectedAssetType,
         name: assetName || undefined,
@@ -341,7 +354,7 @@ function IssuerOnboardingWizard() {
         address: assetAddress || undefined,
         appraisalValue: assetAppraisal || undefined,
         annualIncome: assetIncome || undefined,
-        metadata: {},
+        metadata: assetMetadata,
       });
       if (!ok) return;
     }
@@ -349,7 +362,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromCustody() {
-    if (onboardingId) {
+    if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveCustodyDraft({
         custodian: selectedCustodian,
         coldStorageRatio,
@@ -361,7 +374,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromLegal() {
-    if (onboardingId) {
+    if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveLegalDraft({
         spvEntityName,
         jurisdiction: spvJurisdiction,
@@ -377,7 +390,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromOffering() {
-    if (onboardingId) {
+    if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveOfferingDraft(
         {
           targetRaiseAmount,
@@ -399,7 +412,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromTokenization() {
-    if (onboardingId) {
+    if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveTokenizationDraft({
         tokenName,
         tokenSymbol,
@@ -415,6 +428,10 @@ function IssuerOnboardingWizard() {
   }
 
   async function handleSubmitApplication() {
+    if (isApprovedOrLocked) {
+      router.push('/issuer/dashboard');
+      return;
+    }
     if (onboardingId) {
       const ok = await submitApplication();
       if (!ok) return;
@@ -449,6 +466,24 @@ function IssuerOnboardingWizard() {
     'data-centers': 'Data Center',
     'commodities': 'Commodity',
   };
+
+  const applicationStatus = useMemo(
+    () =>
+      resolveOnboardingApplicationStatus(
+        [
+          onboardingState?.status,
+          progress?.status,
+          review?.status,
+        ],
+        { forceUnderReview: isSubmitted },
+      ),
+    [
+      isSubmitted,
+      onboardingState?.status,
+      progress?.status,
+      review?.status,
+    ],
+  );
 
   const reviewSummaryItems = review?.sections?.length
     ? review.sections.map((section, index) => ({
@@ -561,7 +596,8 @@ function IssuerOnboardingWizard() {
                 value={directorsNotes}
                 onChange={(e) => setDirectorsNotes(e.target.value)}
                 rows={6}
-                className="w-full min-h-[160px] px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y"
+                disabled={isApprovedOrLocked}
+                className="w-full min-h-[160px] px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed"
                 placeholder="Full legal name, title, and identification details for each director or officer."
               />
             </label>
@@ -573,7 +609,8 @@ function IssuerOnboardingWizard() {
                 value={ubosNotes}
                 onChange={(e) => setUbosNotes(e.target.value)}
                 rows={5}
-                className="w-full min-h-[120px] px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y"
+                disabled={isApprovedOrLocked}
+                className="w-full min-h-[120px] px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed"
                 placeholder="List each beneficial owner and ownership percentage (must total 100%)."
               />
             </label>
@@ -594,11 +631,11 @@ function IssuerOnboardingWizard() {
           />
           <OnboardingDocumentUpload
             label="EIN Confirmation Letter"
-            documentType="EIN_CONFIRMATION_LETTER"
+            documentType="EIN_CONFIRMATION"
           />
           <OnboardingDocumentUpload
             label="Government-Issued ID"
-            documentType="GOVERNMENT_ISSUED_ID"
+            documentType="GOVERNMENT_ID"
           />
         </div>
       </section>
@@ -663,13 +700,17 @@ function IssuerOnboardingWizard() {
             return (
             <div
               key={reg.id}
-              onClick={() => setSelectedReg(reg.id)}
-              className={`flex cursor-pointer flex-col gap-4 rounded-2xl border-2 p-5 transition-all relative group sm:gap-5 sm:rounded-3xl sm:p-6 md:gap-6 md:p-8 ${
+              onClick={isApprovedOrLocked ? undefined : () => setSelectedReg(reg.id)}
+              className={`flex flex-col gap-4 rounded-2xl border-2 p-5 transition-all relative group sm:gap-5 sm:rounded-3xl sm:p-6 md:gap-6 md:p-8 ${
+                isApprovedOrLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+              } ${
                 is506cBlue
                   ? 'border-sky-500 bg-sky-50'
                   : isSel
                     ? 'border-primary bg-ui-accent-tint'
-                    : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+                    : isApprovedOrLocked
+                      ? 'border-ui-border bg-ui-card'
+                      : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
               }`}
             >
               <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
@@ -716,8 +757,9 @@ function IssuerOnboardingWizard() {
             type="button"
             role="switch"
             aria-checked={accreditedOnly}
-            onClick={() => setAccreditedOnly((v) => !v)}
-            className={`relative h-7 w-12 shrink-0 self-end rounded-full shadow-inner transition-colors sm:self-center ${
+            disabled={isApprovedOrLocked}
+            onClick={isApprovedOrLocked ? undefined : () => setAccreditedOnly((v) => !v)}
+            className={`relative h-7 w-12 shrink-0 self-end rounded-full shadow-inner transition-colors sm:self-center disabled:opacity-75 disabled:cursor-not-allowed ${
               accreditedOnly ? 'bg-primary shadow-primary/20' : 'bg-ui-border-strong'
             }`}
           >
@@ -744,7 +786,17 @@ function IssuerOnboardingWizard() {
             </svg>
             <span>Accreditation Verification Method</span>
           </label>
-          <FormField label="" placeholder="Select Method" isSelect />
+          <FormField 
+            label="" 
+            placeholder="Select Method" 
+            value={verificationMethod}
+            onChange={setVerificationMethod}
+            options={[
+              { label: 'Parallel Markets', value: 'parallel-markets' },
+              { label: 'Internal KYC/AML', value: 'internal' },
+              { label: 'Third-Party Legal', value: 'legal-opinion' },
+            ]}
+          />
         </div>
 
         <div className="flex flex-col gap-3 rounded-2xl border-2 border-dashed border-[#C4B5FD] bg-ui-purple-banner-bg p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-6">
@@ -784,31 +836,31 @@ function IssuerOnboardingWizard() {
       case 'real-estate':
         return (
           <>
-            <OnboardingDocumentUpload label="MAI Appraisal Report" documentType="MAI_APPRAISAL_REPORT" />
+            <OnboardingDocumentUpload label="MAI Appraisal Report" documentType="APPRAISAL_REPORT" />
             <OnboardingDocumentUpload label="Rent Roll (last 12 months)" documentType="RENT_ROLL" />
             <OnboardingDocumentUpload label="Title Report" documentType="TITLE_REPORT" />
-            <OnboardingDocumentUpload label="Environmental Assessment (Phase I)" documentType="ENVIRONMENTAL_ASSESSMENT" />
+            <OnboardingDocumentUpload label="Environmental Assessment (Phase I)" documentType="ENVIRONMENTAL_REPORT" />
           </>
         );
       case 'commodities':
         return (
           <>
-            <OnboardingDocumentUpload label="Vault Storage Certificate" documentType="VAULT_STORAGE_CERTIFICATE" />
-            <OnboardingDocumentUpload label="Independent Assay Report" documentType="INDEPENDENT_ASSAY_REPORT" />
+            <OnboardingDocumentUpload label="Vault Storage Certificate" documentType="VAULT_CERTIFICATE" />
+            <OnboardingDocumentUpload label="Independent Assay Report" documentType="ASSAY_REPORT" />
           </>
         );
       case 'data-centers':
         return (
           <>
-            <OnboardingDocumentUpload label="Facility Appraisal Report" documentType="FACILITY_APPRAISAL_REPORT" />
-            <OnboardingDocumentUpload label="Colocation Agreements" documentType="OTHER" />
+            <OnboardingDocumentUpload label="Facility Appraisal Report" documentType="FACILITY_APPRAISAL" />
+            <OnboardingDocumentUpload label="Colocation Agreements" documentType="COLOCATION_AGREEMENT" />
           </>
         );
       case 'private-credit':
         return (
           <>
-            <OnboardingDocumentUpload label="Credit Agreement" documentType="LOAN_AGREEMENT" />
-            <OnboardingDocumentUpload label="Borrower Financial Statements" documentType="OTHER" />
+            <OnboardingDocumentUpload label="Credit Agreement" documentType="CREDIT_AGREEMENT" />
+            <OnboardingDocumentUpload label="Borrower Financial Statements" documentType="FINANCIAL_STATEMENT" />
           </>
         );
       default:
@@ -838,15 +890,20 @@ function IssuerOnboardingWizard() {
             <button
               type="button"
               key={type.id}
-              onClick={() => setSelectedAssetType(type.id as AssetType)}
-              className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 group select-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 min-w-0 ${
+              disabled={isApprovedOrLocked}
+              onClick={isApprovedOrLocked ? undefined : () => setSelectedAssetType(type.id as AssetType)}
+              className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 group select-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 min-w-0 disabled:opacity-75 disabled:cursor-not-allowed ${
                 selectedAssetType === type.id 
                   ? 'border-primary bg-ui-accent-tint' 
-                  : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+                  : isApprovedOrLocked
+                    ? 'border-ui-border bg-ui-card'
+                    : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
               }`}
             >
               <div
-                className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl shadow-sm overflow-hidden transition-transform duration-200 motion-safe:group-hover:scale-[1.06] motion-safe:group-focus-visible:scale-100 ${
+                className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl shadow-sm overflow-hidden transition-transform duration-200 ${
+                  !isApprovedOrLocked ? 'motion-safe:group-hover:scale-[1.06] motion-safe:group-focus-visible:scale-100' : ''
+                } ${
                   selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
                 }`}
               >
@@ -870,34 +927,34 @@ function IssuerOnboardingWizard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
           {selectedAssetType === 'commodities' && (
             <>
-              <FormField label="Asset Name" placeholder="Gold Bullion Reserve Series I" required />
-              <FormField label="Commodity Type" placeholder="Select Type" isSelect />
-              <FormField label="Storage Location" placeholder="London, UK (LBMA Vault)" />
-              <FormField label="Total Value (USD)" placeholder="50,000,000" />
-              <FormField label="Purity / Grade" placeholder="99.99% Fine Gold" />
-              <FormField label="Vault Provider" placeholder="Brinks / Loomis International" />
+              <FormField label="Asset Name" placeholder="Gold Bullion Reserve Series I" required value={assetName} onChange={setAssetName} />
+              <FormField label="Commodity Type" placeholder="Select Type" options={[{label: 'Precious Metals', value: 'precious-metals'}, {label: 'Base Metals', value: 'base-metals'}, {label: 'Energy', value: 'energy'}, {label: 'Agriculture', value: 'agriculture'}]} value={assetMetadata?.commodityType} onChange={(v) => setAssetMetadata(prev => ({...prev, commodityType: v}))} />
+              <FormField label="Storage Location" placeholder="London, UK (LBMA Vault)" value={assetAddress} onChange={setAssetAddress} />
+              <FormField label="Total Value (USD)" placeholder="50,000,000" value={assetAppraisal} onChange={setAssetAppraisal} />
+              <FormField label="Purity / Grade" placeholder="99.99% Fine Gold" value={assetMetadata?.purity} onChange={(v) => setAssetMetadata(prev => ({...prev, purity: v}))} />
+              <FormField label="Vault Provider" placeholder="Brinks / Loomis International" value={assetMetadata?.vaultProvider} onChange={(v) => setAssetMetadata(prev => ({...prev, vaultProvider: v}))} />
             </>
           )}
 
           {selectedAssetType === 'data-centers' && (
             <>
-              <FormField label="Facility Name" placeholder="Ashburn DC Campus Alpha" required />
-              <FormField label="Total Capacity (MW)" placeholder="48" />
-              <FormField label="Location" placeholder="Ashburn, VA, USA" />
-              <FormField label="Appraised Value (USD)" placeholder="250,000,000" />
-              <FormField label="Annual NOI (USD)" placeholder="18,500,000" />
-              <FormField label="Tier Level" placeholder="Select Tier" isSelect />
+              <FormField label="Facility Name" placeholder="Ashburn DC Campus Alpha" required value={assetName} onChange={setAssetName} />
+              <FormField label="Total Capacity (MW)" placeholder="48" value={assetMetadata?.capacity} onChange={(v) => setAssetMetadata(prev => ({...prev, capacity: v}))} />
+              <FormField label="Location" placeholder="Ashburn, VA, USA" value={assetAddress} onChange={setAssetAddress} />
+              <FormField label="Appraised Value (USD)" placeholder="250,000,000" value={assetAppraisal} onChange={setAssetAppraisal} />
+              <FormField label="Annual NOI (USD)" placeholder="18,500,000" value={assetIncome} onChange={setAssetIncome} />
+              <FormField label="Tier Level" placeholder="Select Tier" options={[{label: 'Tier I', value: 'tier-1'}, {label: 'Tier II', value: 'tier-2'}, {label: 'Tier III', value: 'tier-3'}, {label: 'Tier IV', value: 'tier-4'}]} value={assetMetadata?.tierLevel} onChange={(v) => setAssetMetadata(prev => ({...prev, tierLevel: v}))} />
             </>
           )}
 
           {selectedAssetType === 'private-credit' && (
             <>
-              <FormField label="Loan / Bond Name" placeholder="Senior Secured Term Loan A" required />
-              <FormField label="Principal Amount (USD)" placeholder="25,000,000" required />
-              <FormField label="Credit Type" placeholder="Select Type" isSelect />
-              <FormField label="Interest Rate (%)" placeholder="SOFR + 450bps" />
-              <FormField label="Maturity Date" placeholder="Select Date" />
-              <FormField label="Credit Rating" placeholder="BB+ / Ba1" />
+              <FormField label="Loan / Bond Name" placeholder="Senior Secured Term Loan A" required value={assetName} onChange={setAssetName} />
+              <FormField label="Principal Amount (USD)" placeholder="25,000,000" required value={assetAppraisal} onChange={setAssetAppraisal} />
+              <FormField label="Credit Type" placeholder="Select Type" options={[{label: 'Senior Secured Term Loan', value: 'senior-secured'}, {label: 'Mezzanine Debt', value: 'mezzanine'}, {label: 'Unitranche', value: 'unitranche'}, {label: 'Convertible Note', value: 'convertible'}]} value={assetMetadata?.creditType} onChange={(v) => setAssetMetadata(prev => ({...prev, creditType: v}))} />
+              <FormField label="Interest Rate (%)" placeholder="SOFR + 450bps" value={assetMetadata?.interestRate} onChange={(v) => setAssetMetadata(prev => ({...prev, interestRate: v}))} />
+              <FormField label="Maturity Date" placeholder="Select Date" value={assetMetadata?.maturityDate} onChange={(v) => setAssetMetadata(prev => ({...prev, maturityDate: v}))} />
+              <FormField label="Credit Rating" placeholder="BB+ / Ba1" value={assetMetadata?.creditRating} onChange={(v) => setAssetMetadata(prev => ({...prev, creditRating: v}))} />
             </>
           )}
 
@@ -923,10 +980,10 @@ function IssuerOnboardingWizard() {
                 value={assetIncome}
                 onChange={setAssetIncome}
               />
-              <FormField label="Property Type" placeholder="Select Type" isSelect />
-              <FormField label="Cap Rate (%)" placeholder="6.8" />
-              <FormField label="Occupancy Rate (%)" placeholder="94.2" />
-              <FormField label="Year Built / Renovated" placeholder="2018 / 2023" />
+              <FormField label="Property Type" placeholder="Select Type" options={[{label: 'Residential', value: 'residential'}, {label: 'Commercial', value: 'commercial'}, {label: 'Industrial', value: 'industrial'}, {label: 'Mixed-Use', value: 'mixed-use'}, {label: 'Land', value: 'land'}]} value={assetMetadata?.propertyType} onChange={(v) => setAssetMetadata(prev => ({...prev, propertyType: v}))} />
+              <FormField label="Cap Rate (%)" placeholder="6.8" value={assetMetadata?.capRate} onChange={(v) => setAssetMetadata(prev => ({...prev, capRate: v}))} />
+              <FormField label="Occupancy Rate (%)" placeholder="94.2" value={assetMetadata?.occupancyRate} onChange={(v) => setAssetMetadata(prev => ({...prev, occupancyRate: v}))} />
+              <FormField label="Year Built / Renovated" placeholder="2018 / 2023" value={assetMetadata?.yearBuilt} onChange={(v) => setAssetMetadata(prev => ({...prev, yearBuilt: v}))} />
             </>
           )}
         </div>
@@ -1033,11 +1090,16 @@ function IssuerOnboardingWizard() {
                 <button
                   key={right.id}
                   type="button"
-                  onClick={right.toggle}
-                  className={`text-left p-6 rounded-2xl border-2 cursor-pointer transition-all flex gap-4 w-full ${
+                  disabled={isApprovedOrLocked}
+                  onClick={isApprovedOrLocked ? undefined : right.toggle}
+                  className={`text-left p-6 rounded-2xl border-2 transition-all flex gap-4 w-full disabled:opacity-75 disabled:cursor-not-allowed ${
+                    isApprovedOrLocked ? 'cursor-not-allowed' : 'cursor-pointer'
+                  } ${
                     checked
                       ? 'border-primary bg-ui-accent-tint'
-                      : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'
+                      : isApprovedOrLocked
+                        ? 'border-ui-divider bg-ui-muted-surface'
+                        : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'
                   }`}
                 >
                   <div
@@ -1137,9 +1199,9 @@ function IssuerOnboardingWizard() {
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <h3 className="text-sm font-bold text-ui-strong">Timeline</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Offering Open Date" placeholder="2026-06-01" value={offeringOpenDate} onChange={setOfferingOpenDate} />
-            <FormField label="Offering Close Date" placeholder="2026-09-30" value={offeringCloseDate} onChange={setOfferingCloseDate} />
-            <FormField label="First Yield Distribution" placeholder="2026-10-15" value={firstYieldDate} onChange={setFirstYieldDate} />
+            <FormField label="Offering Open Date" placeholder="2026-06-01" inputType="date" value={offeringOpenDate} onChange={setOfferingOpenDate} />
+            <FormField label="Offering Close Date" placeholder="2026-09-30" inputType="date" value={offeringCloseDate} onChange={setOfferingCloseDate} />
+            <FormField label="First Yield Distribution" placeholder="2026-10-15" inputType="date" value={firstYieldDate} onChange={setFirstYieldDate} />
             <FormField label="Distribution Frequency" placeholder="QUARTERLY" value={distributionFrequency} onChange={setDistributionFrequency} />
           </div>
         </div>
@@ -1402,25 +1464,122 @@ function IssuerOnboardingWizard() {
     </div>
   );
 
+  const step8BannerCopy: Record<
+    typeof applicationStatus.key,
+    { title: string; body: string; tone: 'purple' | 'amber' | 'emerald' | 'rose' }
+  > = {
+    draft: {
+      title: 'Final Review — Almost There',
+      body: 'Please review all information before submitting. Once submitted, your application will be reviewed by our compliance team within 2 business days.',
+      tone: 'purple',
+    },
+    under_review: {
+      title: 'Application Submitted',
+      body: 'Your application is with our compliance team. You will be notified when the review is complete — typically within 2 business days.',
+      tone: 'amber',
+    },
+    approved: {
+      title: 'Application Approved',
+      body: 'Your issuer application has been approved. Continue to your dashboard to manage offerings and investors.',
+      tone: 'emerald',
+    },
+    locked: {
+      title: 'Application Approved',
+      body: 'Your issuer application has been approved and is locked for compliance. Continue to your dashboard.',
+      tone: 'emerald',
+    },
+    rejected: {
+      title: 'Application Not Approved',
+      body: 'Your application was not approved. Please contact our compliance team for next steps.',
+      tone: 'rose',
+    },
+  };
+
+  const step8Banner = step8BannerCopy[applicationStatus.key];
+  const step8BannerToneClass =
+    step8Banner.tone === 'amber'
+      ? 'bg-amber-50 border-amber-200 text-amber-900'
+      : step8Banner.tone === 'emerald'
+        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+        : step8Banner.tone === 'rose'
+          ? 'bg-rose-50 border-rose-200 text-rose-900'
+          : 'bg-ui-purple-banner-bg border-ui-purple-banner-border text-primary';
+
   const renderStep8 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
         <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 8 of 8 — Review & Submit</p>
-        <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Review & Submit</h1>
-        <p className="text-ui-muted-text text-sm">Review all submitted information before final submission.</p>
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <h1 className="text-4xl font-bold text-ui-strong tracking-tight">Review & Submit</h1>
+          <Badge variant={applicationStatus.badgeVariant} dot={applicationStatus.key === 'under_review'}>
+            {applicationStatus.label}
+          </Badge>
+        </div>
+        <p className="text-ui-muted-text text-sm">{applicationStatus.description}</p>
+        {applicationStatus.rawStatus ? (
+          <p className="text-[10px] font-medium text-ui-faint mt-2 uppercase tracking-widest">
+            Status: {applicationStatus.rawStatus.replace(/_/g, ' ')}
+          </p>
+        ) : null}
       </header>
 
-      <div className="bg-ui-purple-banner-bg border border-ui-purple-banner-border rounded-3xl p-8 flex gap-5 items-start">
-        <div className="w-10 h-10 rounded-2xl bg-ui-purple-banner-icon-bg border border-ui-purple-banner-border flex items-center justify-center shrink-0 animate-pulse">
-          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <section className="bg-ui-card border border-ui-border rounded-3xl p-8 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-1 min-w-0">
+            <h3 className="text-sm font-bold text-ui-strong">Application Status</h3>
+            <p className="text-xs text-ui-muted-text leading-relaxed max-w-xl">
+              {applicationStatus.description}
+            </p>
+          </div>
+          <Badge variant={applicationStatus.badgeVariant} dot={applicationStatus.key === 'under_review'}>
+            {applicationStatus.label}
+          </Badge>
+        </div>
+        {applicationStatus.key === 'under_review' ? (
+          <ul className="mt-6 space-y-2 border-t border-ui-border pt-6 text-[11px] text-ui-muted-text">
+            <li className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              KYB verification — in progress
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-ui-faint" />
+              Compliance review — pending
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-ui-faint" />
+              Smart contract deployment — upon approval
+            </li>
+          </ul>
+        ) : null}
+        {applicationStatus.key === 'approved' || applicationStatus.key === 'locked' ? (
+          <ul className="mt-6 space-y-2 border-t border-ui-border pt-6 text-[11px] text-ui-muted-text">
+            <li className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Compliance review — complete
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Issuer access — enabled
+            </li>
+          </ul>
+        ) : null}
+      </section>
+
+      <div className={`rounded-3xl p-8 flex gap-5 items-start border ${step8BannerToneClass}`}>
+        <div
+          className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
+            step8Banner.tone === 'purple'
+              ? 'bg-ui-purple-banner-icon-bg border-ui-purple-banner-border animate-pulse'
+              : 'bg-white/60 border-current/20'
+          }`}
+        >
+          <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </div>
-        <div className="space-y-1">
-          <h4 className="text-sm font-bold text-primary">Final Review — Almost There</h4>
-          <p className="text-xs text-primary/70 leading-relaxed">
-            Please review all information before submitting. Once submitted, your application will be reviewed by our compliance team within 2 business days.
-          </p>
+        <div className="space-y-1 min-w-0">
+          <h4 className="text-sm font-bold">{step8Banner.title}</h4>
+          <p className="text-xs opacity-80 leading-relaxed">{step8Banner.body}</p>
         </div>
       </div>
 
@@ -1481,11 +1640,19 @@ function IssuerOnboardingWizard() {
         <button
           type="button"
           onClick={() => void handleSubmitApplication()}
-          disabled={isSaving}
+          disabled={isSaving || (!applicationStatus.canSubmit && !isApprovedOrLocked)}
           className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
-          <span className="sm:hidden">{isSaving ? 'Submitting…' : 'Submit →'}</span>
-          <span className="hidden sm:inline">{isSaving ? 'Submitting…' : 'Submit Application →'}</span>
+          {isApprovedOrLocked ? (
+            <span>Go to Dashboard →</span>
+          ) : applicationStatus.key === 'under_review' ? (
+            <span>Submitted — Awaiting Review</span>
+          ) : (
+            <>
+              <span className="sm:hidden">{isSaving ? 'Submitting…' : 'Submit →'}</span>
+              <span className="hidden sm:inline">{isSaving ? 'Submitting…' : 'Submit Application →'}</span>
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -1590,12 +1757,7 @@ function IssuerOnboardingWizard() {
         {isLoading ? (
           <p className="text-sm text-ui-muted-text">Loading onboarding draft…</p>
         ) : null}
-        {isReady && !onboardingId ? (
-          <p className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            No onboarding session ID found. Sign in again to save progress to the server.
-          </p>
-        ) : null}
-        {saveError ? (
+        {isReady && saveError && !saveError.includes('No onboarding session') ? (
           <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
             {saveError}
           </p>
@@ -1621,6 +1783,8 @@ function FormField({
   hint,
   value,
   onChange,
+  options,
+  inputType = 'text',
 }: {
   label: string;
   placeholder: string;
@@ -1630,7 +1794,11 @@ function FormField({
   hint?: string;
   value?: string;
   onChange?: (value: string) => void;
+  options?: { label: string; value: string }[];
+  inputType?: string;
 }) {
+  const { isApprovedOrLocked } = useOnboarding();
+
   return (
     <div className={`space-y-3 ${fullWidth ? 'md:col-span-2' : ''}`}>
       {label ? (
@@ -1641,14 +1809,29 @@ function FormField({
       ) : null}
       {hint ? <p className={`text-[10px] text-ui-faint leading-relaxed ${label ? '' : '-mt-1'}`}>{hint}</p> : null}
       <div className="relative">
-        <input
-          type="text"
-          placeholder={placeholder}
-          value={value ?? ''}
-          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-          className="w-full min-w-0 px-4 py-3.5 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4"
-        />
-        {isSelect && (
+        {options ? (
+          <select
+            value={value ?? ''}
+            onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+            disabled={isApprovedOrLocked}
+            className="w-full min-w-0 px-4 py-3.5 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 appearance-none disabled:opacity-75 disabled:cursor-not-allowed"
+          >
+            <option value="" disabled>{placeholder}</option>
+            {options.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type={inputType}
+            placeholder={placeholder}
+            value={value ?? ''}
+            onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+            disabled={isApprovedOrLocked}
+            className="w-full min-w-0 px-4 py-3.5 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 disabled:opacity-75 disabled:cursor-not-allowed"
+          />
+        )}
+        {(isSelect || options) && (
           <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
             <svg className="w-4 h-4 text-ui-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />

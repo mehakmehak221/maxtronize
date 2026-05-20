@@ -24,6 +24,7 @@ export function OnboardingDocumentUpload({
     deleteOnboardingDocument,
     isSaving,
     saveError,
+    isApprovedOrLocked,
   } = useOnboarding();
   const [status, setStatus] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -80,22 +81,26 @@ export function OnboardingDocumentUpload({
                 View
               </a>
             ) : null}
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void handleDelete()}
-              className="text-[10px] font-bold text-rose-600 hover:underline disabled:opacity-60"
-            >
-              {isDeleting ? "Removing…" : "Remove"}
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => inputRef.current?.click()}
-              className="text-[10px] font-bold text-ui-muted-text hover:underline disabled:opacity-60"
-            >
-              Replace
-            </button>
+            {!isApprovedOrLocked && (
+              <>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void handleDelete()}
+                  className="text-[10px] font-bold text-rose-600 hover:underline disabled:opacity-60"
+                >
+                  {isDeleting ? "Removing…" : "Remove"}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => inputRef.current?.click()}
+                  className="text-[10px] font-bold text-ui-muted-text hover:underline disabled:opacity-60"
+                >
+                  Replace
+                </button>
+              </>
+            )}
           </div>
         </div>
       ) : null}
@@ -105,19 +110,20 @@ export function OnboardingDocumentUpload({
         type="file"
         className="hidden"
         accept=".pdf,.jpg,.jpeg,.png"
+        disabled={isApprovedOrLocked}
         onChange={(e) => void handleFiles(e.target.files)}
       />
 
       {!existing ? (
         <button
           type="button"
-          disabled={busy}
+          disabled={busy || isApprovedOrLocked}
           onClick={() => inputRef.current?.click()}
           className="w-full p-6 border-2 border-dashed border-ui-border rounded-3xl bg-ui-muted-surface flex flex-col items-center justify-center gap-2 hover:bg-ui-muted-deep hover:border-ui-border-strong transition-all disabled:opacity-60"
         >
           <p className="text-[10px] font-bold text-ui-faint uppercase tracking-wide">{sub}</p>
           <p className="text-[11px] font-bold text-primary">
-            {isSaving ? "Uploading…" : "Click to upload PDF / JPG"}
+            {isApprovedOrLocked ? "Onboarding Locked" : isSaving ? "Uploading…" : "Click to upload PDF / JPG"}
           </p>
         </button>
       ) : null}

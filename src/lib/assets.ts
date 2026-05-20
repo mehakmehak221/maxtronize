@@ -146,6 +146,13 @@ function parseAssetRecord(record: Record<string, unknown>): MarketplaceAsset {
     image,
     featured,
     description: pickString(record, ["description", "summary", "about"]),
+    watchlist: Boolean(
+      record.watchlist ??
+        record.isWatchlisted ??
+        record.inWatchlist ??
+        record.in_watchlist ??
+        record.is_watchlisted,
+    ),
   };
 }
 

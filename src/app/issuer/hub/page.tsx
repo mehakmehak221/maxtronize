@@ -60,34 +60,18 @@ function MetricIconCircle({
   );
 }
 
-const REGISTRY_CHIP_CLASS: Record<number, string> = {
-  1: 'bg-inv-chip-1-bg text-inv-chip-1-fg',
-  2: 'bg-inv-chip-2-bg text-inv-chip-2-fg',
-  3: 'bg-inv-chip-3-bg text-inv-chip-3-fg',
-  4: 'bg-inv-chip-4-bg text-inv-chip-4-fg',
-  5: 'bg-inv-chip-5-bg text-inv-chip-5-fg',
-  6: 'bg-inv-chip-6-bg text-inv-chip-6-fg',
-};
+type TabType =
+  | 'overview'
+  | 'assets'
+  | 'cap-table'
+  | 'investors'
+  | 'distributions'
+  | 'compliance'
+  | 'analytics'
+  | 'ai-assistant';
 
-const CAP_CHIP_CLASS: Record<string, string> = {
-  yt: 'bg-cap-chip-yt-bg text-cap-chip-yt-fg',
-  sl: 'bg-cap-chip-sl-bg text-cap-chip-sl-fg',
-  ad: 'bg-cap-chip-ad-bg text-cap-chip-ad-fg',
-  ro: 'bg-cap-chip-ro-bg text-cap-chip-ro-fg',
-  mo: 'bg-cap-chip-mo-bg text-cap-chip-mo-fg',
-  cw: 'bg-cap-chip-cw-bg text-cap-chip-cw-fg',
-  eh: 'bg-cap-chip-eh-bg text-cap-chip-eh-fg',
-};
-
-const ASSET_BAR_CLASS: Record<string, string> = {
-  a: 'bg-issuer-asset-bar-1',
-  b: 'bg-issuer-asset-bar-2',
-  c: 'bg-issuer-asset-bar-3',
-  draft: 'bg-issuer-asset-bar-draft',
-};
-
-type TabType = 'overview' | 'assets' | 'cap-table' | 'investors' | 'distributions' | 'compliance' | 'analytics' | 'ai-assistant';
-
+// Keep the richer analytics and AI assistant UI visible by request.
+// These surfaces are preserved as preview UI even where the live backend workflow is still evolving.
 const HUB_TABS: { id: TabType; name: string; icon: LucideIcon; showDot?: boolean }[] = [
   { id: 'overview', name: 'Overview', icon: LayoutGrid },
   { id: 'assets', name: 'Assets', icon: Building2 },
@@ -156,7 +140,6 @@ export default function IssuerHubPage() {
     <HubComplianceTab search={complianceSearch} onSearchChange={setComplianceSearch} />
   );
 
-
   const growthY = [24, 38, 52, 68, 88, 110, 132, 148];
   const growthLabels = ['Oct 25', 'Nov 25', 'Dec 25', 'Jan 26', 'Feb 26', 'Mar 26', 'Apr 26'];
 
@@ -180,10 +163,10 @@ export default function IssuerHubPage() {
     const gH = 140;
     const gMax = 160;
     const growthPath = growthY
-      .map((v, i) => {
-        const x = gLeft + (i / (growthY.length - 1)) * gW;
-        const y = gTop + gH - (v / gMax) * gH;
-        return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+      .map((value, index) => {
+        const x = gLeft + (index / (growthY.length - 1)) * gW;
+        const y = gTop + gH - (value / gMax) * gH;
+        return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
       })
       .join(' ');
 
@@ -220,14 +203,14 @@ export default function IssuerHubPage() {
           ).map((card) => {
             const CardIcon = card.Icon;
             return (
-            <div key={card.label} className="rounded-[24px] border border-card-border bg-card p-6 shadow-sm">
-              <MetricIconCircle className="mb-4 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
-                <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
-              </MetricIconCircle>
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">{card.label}</p>
-              <p className="text-2xl font-bold tracking-tight text-foreground">{card.value}</p>
-              <p className="mt-2 text-xs text-text-muted">{card.sub}</p>
-            </div>
+              <div key={card.label} className="rounded-[24px] border border-card-border bg-card p-6 shadow-sm">
+                <MetricIconCircle className="mb-4 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
+                  <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
+                </MetricIconCircle>
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">{card.label}</p>
+                <p className="text-2xl font-bold tracking-tight text-foreground">{card.value}</p>
+                <p className="mt-2 text-xs text-text-muted">{card.sub}</p>
+              </div>
             );
           })}
         </div>
@@ -237,10 +220,10 @@ export default function IssuerHubPage() {
             <h3 className="text-lg font-bold text-foreground">Investor Growth</h3>
             <p className="mb-8 text-xs text-text-muted">Cumulative accredited investors onboarded.</p>
             <svg className="h-52 w-full" viewBox="0 0 560 200" preserveAspectRatio="xMidYMid meet">
-              {[0, 40, 80, 120, 160].map((v) => {
-                const y = gTop + gH - (v / gMax) * gH;
+              {[0, 40, 80, 120, 160].map((value) => {
+                const y = gTop + gH - (value / gMax) * gH;
                 return (
-                  <g key={v}>
+                  <g key={value}>
                     <line
                       x1={gLeft}
                       y1={y}
@@ -251,7 +234,7 @@ export default function IssuerHubPage() {
                       strokeDasharray="3 5"
                     />
                     <text x="44" y={y + 4} textAnchor="end" fill="var(--text-muted)" className="text-[10px] font-bold">
-                      {v}
+                      {value}
                     </text>
                   </g>
                 );
@@ -264,13 +247,13 @@ export default function IssuerHubPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              {growthY.map((v, i) => {
-                const x = gLeft + (i / (growthY.length - 1)) * gW;
-                const y = gTop + gH - (v / gMax) * gH;
-                return <circle key={i} cx={x} cy={y} r="5" fill="var(--card)" stroke="var(--primary)" strokeWidth="2" />;
+              {growthY.map((value, index) => {
+                const x = gLeft + (index / (growthY.length - 1)) * gW;
+                const y = gTop + gH - (value / gMax) * gH;
+                return <circle key={index} cx={x} cy={y} r="5" fill="var(--card)" stroke="var(--primary)" strokeWidth="2" />;
               })}
-              {growthLabels.map((label, i) => {
-                const x = gLeft + (i / (growthLabels.length - 1)) * gW;
+              {growthLabels.map((label, index) => {
+                const x = gLeft + (index / (growthLabels.length - 1)) * gW;
                 return (
                   <text
                     key={label}
@@ -301,21 +284,21 @@ export default function IssuerHubPage() {
               </div>
             </div>
             <div className="flex h-48 items-end justify-around gap-4 px-2">
-              {yieldBars.map((b) => (
-                <div key={b.name} className="flex flex-1 flex-col items-center gap-2">
+              {yieldBars.map((bar) => (
+                <div key={bar.name} className="flex flex-1 flex-col items-center gap-2">
                   <div className="flex h-40 w-full max-w-[72px] items-end justify-center gap-1.5">
                     <div
                       className="w-4 rounded-t-md bg-border"
-                      style={{ height: `${b.target}%` }}
+                      style={{ height: `${bar.target}%` }}
                       title="Target"
                     />
                     <div
                       className="w-4 rounded-t-md bg-primary"
-                      style={{ height: `${b.actual}%` }}
+                      style={{ height: `${bar.actual}%` }}
                       title="Actual"
                     />
                   </div>
-                  <span className="text-center text-[10px] font-bold text-text-muted">{b.name}</span>
+                  <span className="text-center text-[10px] font-bold text-text-muted">{bar.name}</span>
                 </div>
               ))}
             </div>
@@ -337,14 +320,14 @@ export default function IssuerHubPage() {
               <div className="absolute inset-[18%] rounded-full bg-card shadow-inner" />
             </div>
             <div className="w-full max-w-md flex-1 space-y-4">
-              {geo.map((g) => (
-                <div key={g.label}>
+              {geo.map((item) => (
+                <div key={item.label}>
                   <div className="mb-1 flex justify-between text-xs font-semibold">
-                    <span className="text-foreground">{g.label}</span>
-                    <span className="text-text-muted">{g.pct}%</span>
+                    <span className="text-foreground">{item.label}</span>
+                    <span className="text-text-muted">{item.pct}%</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-surface">
-                    <div className={`h-full rounded-full ${g.bar}`} style={{ width: `${g.pct}%` }} />
+                    <div className={`h-full rounded-full ${item.bar}`} style={{ width: `${item.pct}%` }} />
                   </div>
                 </div>
               ))}
@@ -355,6 +338,7 @@ export default function IssuerHubPage() {
     );
   };
 
+  // Keep this issuer AI assistant surface visible in the hub UI even while the live assistant flow is still being finalized.
   const renderAiAssistant = () => (
     <div className="min-w-0 max-w-full px-3 animate-in fade-in duration-500 sm:px-4 md:px-5">
       <div className="w-full min-w-0 overflow-hidden rounded-[28px] border border-card-border bg-card shadow-sm">
@@ -417,7 +401,7 @@ export default function IssuerHubPage() {
             <input
               type="text"
               value={aiDraft}
-              onChange={(e) => setAiDraft(e.target.value)}
+              onChange={(event) => setAiDraft(event.target.value)}
               placeholder="Ask about offering structure, pricing, compliance, investor insights..."
               className="min-w-0 flex-1 bg-transparent py-0.5 text-sm text-foreground outline-none placeholder:text-text-muted sm:text-[15px]"
             />
@@ -439,7 +423,7 @@ export default function IssuerHubPage() {
       <div className="max-w-full min-w-0 space-y-6 animate-in fade-in duration-700 sm:space-y-8 xl:space-y-10">
         <header className="-mx-5 mb-6 flex flex-col gap-3 px-5 py-4 sm:-mx-6 sm:px-6 md:-mx-8 md:mb-8 md:flex md:h-16 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-0 lg:mb-10">
           <div className="flex min-w-0 flex-col gap-0.5 md:flex-row md:items-baseline md:gap-2.5">
-            <h1 className="truncate text-lg font-bold tracking-tight text-foreground">Issuer Dashboard</h1>
+            <h1 className="truncate text-lg font-bold tracking-tight text-foreground">Issuer Hub</h1>
             <span className="truncate text-xs font-semibold text-primary">
               {overviewSummary?.organizationName?.trim() || 'Issuer Hub'}
             </span>
@@ -468,7 +452,7 @@ export default function IssuerHubPage() {
               <input
                 type="search"
                 value={hubSearchValue}
-                onChange={(e) => onHubSearchChange(e.target.value)}
+                onChange={(event) => onHubSearchChange(event.target.value)}
                 placeholder={hubSearchPlaceholder}
                 className="h-9 w-full rounded-full border border-card-border bg-card py-1.5 pl-9 pr-4 text-xs text-foreground outline-none focus:border-primary md:w-64"
               />
@@ -480,25 +464,25 @@ export default function IssuerHubPage() {
           {HUB_TABS.map((tab) => {
             const active = activeTab === tab.id;
             return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex shrink-0 items-center gap-2 border-b-2 px-5 py-3.5 transition-colors sm:px-6 ${
-                active
-                  ? 'border-primary font-semibold text-primary'
-                  : 'border-transparent font-medium text-text-muted hover:text-foreground'
-              }`}
-            >
-              <TabIcon Icon={tab.icon} active={active} />
-              <span className="whitespace-nowrap text-[13px]">{tab.name}</span>
-              {tab.showDot && (
-                <span
-                  className="ml-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary ring-2 ring-card"
-                  aria-hidden
-                />
-              )}
-            </button>
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex shrink-0 items-center gap-2 border-b-2 px-5 py-3.5 transition-colors sm:px-6 ${
+                  active
+                    ? 'border-primary font-semibold text-primary'
+                    : 'border-transparent font-medium text-text-muted hover:text-foreground'
+                }`}
+              >
+                <TabIcon Icon={tab.icon} active={active} />
+                <span className="whitespace-nowrap text-[13px]">{tab.name}</span>
+                {tab.showDot ? (
+                  <span
+                    className="ml-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary ring-2 ring-card"
+                    aria-hidden
+                  />
+                ) : null}
+              </button>
             );
           })}
         </div>

@@ -34,6 +34,14 @@ export type PortfolioAsset = {
   image: string;
   categoryKey: string;
   categoryLabel: string;
+  tokenPriceRaw: number;
+  navRaw: number;
+  apyPercent: number;
+  investorCount: number;
+  priceChangePercent: number;
+  currency: string;
+  blockchainNetwork: string;
+  updatedAt: string | null;
 };
 
 export type PortfolioNavPoint = {
@@ -126,6 +134,12 @@ function parseAsset(record: Record<string, unknown>, index: number): PortfolioAs
   const navNum = pickNumber(record, ["nav", "navUsd", "totalNav"]) ?? 0;
   const apyNum =
     pickNumber(record, ["apy", "apyPercent", "yieldPercent", "targetApy"]) ?? 0;
+  const investorCount =
+    pickNumber(record, ["investors", "investorCount", "holders"]) ?? 0;
+  const currency = pickString(record, ["currency"]) ?? "USD";
+  const blockchainNetwork =
+    pickString(record, ["blockchainNetwork", "blockchain_network"]) ?? "—";
+  const updatedAt = pickString(record, ["updatedAt", "updated_at"]);
 
   return {
     id: pickString(record, ["id", "_id"]) ?? `asset-${index}`,
@@ -133,7 +147,13 @@ function parseAsset(record: Record<string, unknown>, index: number): PortfolioAs
       pickString(record, ["name", "assetName", "title"]) ?? `Asset ${index + 1}`,
     ticker: pickString(record, ["ticker", "symbol", "tokenSymbol"]) ?? "—",
     location:
-      pickString(record, ["location", "address", "jurisdiction"]) ?? "—",
+      pickString(record, [
+        "location",
+        "locationLabel",
+        "location_label",
+        "address",
+        "jurisdiction",
+      ]) ?? "—",
     compliance:
       pickString(record, ["compliance", "regulation", "regulatoryLabel"]) ??
       "—",
@@ -143,16 +163,63 @@ function parseAsset(record: Record<string, unknown>, index: number): PortfolioAs
     up: priceChangeNum >= 0,
     nav: formatCurrency(navNum),
     apy: `${apyNum.toFixed(1)}%`,
-    investors: String(
-      pickNumber(record, ["investors", "investorCount", "holders"]) ?? 0,
-    ),
-    lockup: pickString(record, ["lockup", "lockupPeriod"]) ?? "—",
+    investors: String(investorCount),
+    lockup:
+      pickString(record, ["lockup", "lockupPeriod", "lockLabel", "lock_label"]) ??
+      "—",
     image:
-      pickString(record, ["image", "imageUrl", "coverImage", "cover_image"]) ??
+      pickString(record, [
+        "image",
+        "imageUrl",
+        "coverImage",
+        "cover_image",
+        "coverImageUrl",
+        "cover_image_url",
+      ]) ??
       "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80",
     categoryKey,
     categoryLabel,
+    tokenPriceRaw: tokenPriceNum,
+    navRaw: navNum,
+    apyPercent: apyNum,
+    investorCount,
+    priceChangePercent: priceChangeNum,
+    currency,
+    blockchainNetwork,
+    updatedAt,
   };
+}
+
+export function parsePortfolioAssetDetail(payload: unknown): PortfolioAsset | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as Record<string, unknown>;
+
+  if (Array.isArray(root.data) && root.data[0] && typeof root.data[0] === "object") {
+    return parseAsset(root.data[0] as Record<string, unknown>, 0);
+  }
+  if (root.data && typeof root.data === "object" && !Array.isArray(root.data)) {
+    return parseAsset(root.data as Record<string, unknown>, 0);
+  }
+  if (pickString(root, ["id", "_id", "title", "name"])) {
+    return parseAsset(root, 0);
+  }
+  return null;
+}
+
+export function formatPortfolioTokenPrice(
+  value: number,
+  currency = "USD",
+): string {
+  if (value <= 0) return "—";
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: value >= 1000 ? 0 : 2,
+    }).format(value);
+  } catch {
+    return formatCurrency(value);
+  }
 }
 
 export function parsePortfolioFilters(payload: unknown): PortfolioCategory[] {
@@ -179,13 +246,26 @@ export function parsePortfolioFilters(payload: unknown): PortfolioCategory[] {
 }
 
 export function parsePortfolioAssets(payload: unknown): PortfolioListResult {
-  const record = unwrapPayload(payload);
-  if (!record || typeof record !== "object" || Array.isArray(record)) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return { items: [], pagination: DEFAULT_PAGINATION };
   }
 
-  const root = record as Record<string, unknown>;
-  const itemsRaw = root.items ?? root.data ?? root.assets ?? root.results;
+  // Do not use unwrapPayload here: { data: Asset[], pagination } would unwrap to
+  // the array only and drop pagination, then fail the object guard below.
+  const root = payload as Record<string, unknown>;
+  const nested =
+    root.data &&
+    typeof root.data === "object" &&
+    !Array.isArray(root.data)
+      ? (root.data as Record<string, unknown>)
+      : null;
+  const itemsRaw =
+    root.items ??
+    root.data ??
+    root.assets ??
+    root.results ??
+    nested?.items ??
+    nested?.assets;
   const items = unwrapList(itemsRaw).map(parseAsset);
 
   return {

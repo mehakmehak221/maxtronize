@@ -1,5 +1,16 @@
 "use client";
 
+import React from "react";
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  helper?: string;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  className?: string;
+}
+
 export default function Input({
   label,
   error,
@@ -9,7 +20,7 @@ export default function Input({
   id,
   className = "",
   ...props
-}) {
+}: InputProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
 
   return (

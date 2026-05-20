@@ -27,6 +27,7 @@ import {
   parseCustodyFormFromDraft,
   parseEntityFormFromDraft,
   regulationFromDraft,
+  verificationMethodFromDraft,
   type EntityFormState,
   type OnboardingDocumentType,
 } from "@/lib/onboarding";
@@ -358,6 +359,7 @@ export function useIssuerOnboarding() {
   const hydratedAssetType = assetTypeFromDraft(assetRecord);
   const hydratedCustodian = custodianFromDraft(custodyRecord);
   const hydratedAccreditedOnly = accreditedOnlyFromDraft(accreditationRecord);
+  const hydratedVerificationMethod = verificationMethodFromDraft(accreditationRecord);
   const hydratedAssetForm = parseAssetFormFromDraft(assetRecord);
   const hydratedLegalForm = parseLegalFormFromDraft(
     legalRecord && typeof legalRecord === "object" ? legalRecord : {},
@@ -367,6 +369,26 @@ export function useIssuerOnboarding() {
     parseTokenizationFormFromDraft(tokenizationRecord);
   const hydratedCustodyForm = parseCustodyFormFromDraft(custodyRecord);
   const progressStep = stepNumberFromProgress(progress ?? null);
+
+  const isApprovedOrLocked = useMemo(() => {
+    const statusUpper = onboardingState?.status?.toUpperCase() ?? "";
+    const progressStatusUpper = progress?.status?.toUpperCase() ?? "";
+    const reviewStatusUpper = review?.status?.toUpperCase() ?? "";
+    const errorLower = saveError?.toLowerCase() ?? "";
+
+    return (
+      statusUpper === "APPROVED" ||
+      statusUpper === "COMPLETED" ||
+      statusUpper === "LOCKED" ||
+      progressStatusUpper === "APPROVED" ||
+      progressStatusUpper === "COMPLETED" ||
+      progressStatusUpper === "LOCKED" ||
+      reviewStatusUpper === "APPROVED" ||
+      reviewStatusUpper === "COMPLETED" ||
+      reviewStatusUpper === "LOCKED" ||
+      (errorLower.includes("approved") && errorLower.includes("locked"))
+    );
+  }, [onboardingState?.status, progress?.status, review?.status, saveError]);
 
   return {
     onboardingId,
@@ -379,6 +401,7 @@ export function useIssuerOnboarding() {
     onboardingState,
     progress,
     progressStep,
+    isApprovedOrLocked,
     review,
     entityDraft: entityRecord,
     accreditationDraft: accreditationRecord,
@@ -394,6 +417,7 @@ export function useIssuerOnboarding() {
     hydratedAssetType,
     hydratedCustodian,
     hydratedAccreditedOnly,
+    hydratedVerificationMethod,
     hydratedAssetForm,
     hydratedLegalForm,
     hydratedOfferingForm,

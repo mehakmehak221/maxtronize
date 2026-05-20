@@ -10,8 +10,12 @@ import {
   normalizeIssuerDocumentFile,
   validateIssuerDocumentFile,
 } from "@/lib/issuerDocumentUpload";
-import type { DocumentCategoryTab } from "@/lib/issuerDocuments";
+import {
+  isDocumentAssetUuid,
+  type DocumentCategoryTab,
+} from "@/lib/issuerDocuments";
 import { useUploadIssuerDocumentMutation } from "@/store/api/issuerDocumentsApi";
+import { useListIssuerHubAssetsQuery } from "@/store/api/issuerHubApi";
 
 const iconStroke = 1.75;
 
@@ -70,6 +74,14 @@ export function IssuerDocumentUploadModal({
   const [success, setSuccess] = useState<string | null>(null);
 
   const [upload, { isLoading }] = useUploadIssuerDocumentMutation();
+  const { data: hubAssetsData } = useListIssuerHubAssetsQuery(
+    { page: 1, limit: 100 },
+    { skip: !open },
+  );
+
+  const linkableAssets = (hubAssetsData?.items ?? []).filter(
+    (asset) => asset.id && isDocumentAssetUuid(asset.id),
+  );
 
   const uploadCategories = categoryOptions.filter((tab) => tab.key !== "ALL");
 
@@ -149,6 +161,14 @@ export function IssuerDocumentUploadModal({
       return;
     }
 
+    const trimmedAssetId = assetId.trim();
+    if (trimmedAssetId && !isDocumentAssetUuid(trimmedAssetId)) {
+      setFormError(
+        "Linked asset must be selected from your portfolio (valid asset UUID).",
+      );
+      return;
+    }
+
     const signatures = Number(signaturesRequired);
     if (Number.isNaN(signatures) || signatures < 0) {
       setFormError("Signatures required must be 0 or greater.");
@@ -160,7 +180,7 @@ export function IssuerDocumentUploadModal({
         file: normalizeIssuerDocumentFile(file),
         title: title.trim(),
         category: resolvedCategory,
-        assetId: assetId.trim() || undefined,
+        assetId: trimmedAssetId || undefined,
         documentDate: documentDate || undefined,
         expiresAt: expiresAt || undefined,
         signaturesRequired: signatures,
@@ -357,13 +377,28 @@ export function IssuerDocumentUploadModal({
               <div className="space-y-4">
                 <div className="space-y-2">
                   <FieldLabel>Linked asset</FieldLabel>
-                  <input
-                    type="text"
+                  <select
                     value={assetId}
                     onChange={(e) => setAssetId(e.target.value)}
-                    className={inputClass}
-                    placeholder="Asset ID (optional)"
-                  />
+                    className={`${inputClass} cursor-pointer appearance-none bg-size-[16px] bg-position-[right_1rem_center] bg-no-repeat pr-10`}
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+                    }}
+                  >
+                    <option value="">No linked asset</option>
+                    {linkableAssets.map((asset) => (
+                      <option key={asset.id} value={asset.id}>
+                        {asset.name}
+                        {asset.tag && asset.tag !== "—" ? ` · ${asset.tag}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  {linkableAssets.length === 0 ? (
+                    <p className="text-[11px] font-medium text-ui-faint">
+                      No tokenized assets yet. You can upload without linking an
+                      asset.
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Network, Terms, AI } from "@/components/VectorImages";
+import { Network, Terms, AI } from "../VectorImages";
 import Image from "next/image";
 
 const fadeInUp = {

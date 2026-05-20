@@ -61,6 +61,7 @@ export {
   useGetPortfolioSummaryQuery,
   useGetPortfolioNavHistoryQuery,
   useListPortfolioAssetsQuery,
+  useGetPortfolioAssetQuery,
 } from "./api/portfolioApi";
 export type { ListPortfolioAssetsParams } from "./api/portfolioApi";
 export type {
@@ -74,6 +75,7 @@ export {
   useGetDistributionScheduleQuery,
   useGetUpcomingPayoutsQuery,
   useGetYieldSummaryQuery,
+  useGetYieldAssetBreakdownQuery,
 } from "./api/yieldApi";
 export type {
   DistributionSchedule,
@@ -263,6 +265,28 @@ export type {
 } from "@/lib/secondaryMarket";
 export type { PlaceSecondaryOrderParams } from "./api/secondaryMarketApi";
 export type { AuthRole } from "./api/auth.types";
+export {
+  investorWalletApi,
+  useGetInvestorWalletInitQuery,
+  useGetInvestorWalletSummaryQuery,
+  useGetInvestorWalletsQuery,
+  useGetInvestorWalletHoldingsQuery,
+  useGetInvestorWalletTransactionsQuery,
+  useConnectInvestorWalletMutation,
+  useDepositInvestorFundsMutation,
+  useWithdrawInvestorFundsMutation,
+  useTransferInvestorFundsMutation,
+} from "./api/investorWalletApi";
+export {
+  issuerWalletApi,
+  useGetIssuerWalletSummaryQuery,
+  useGetIssuerWalletsQuery,
+  useGetIssuerWalletHoldingsQuery,
+  useGetIssuerWalletTransactionsQuery,
+  useDepositIssuerFundsMutation,
+  useWithdrawIssuerFundsMutation,
+  useTransferIssuerFundsMutation,
+} from "./api/issuerWalletApi";
 export { makeStore } from "./store";
 export type { AppDispatch, AppStore, RootState } from "./store";
 export { useAppDispatch, useAppSelector, useAppStore } from "./hooks";

@@ -53,6 +53,23 @@ export type UploadIssuerDocumentRequest = {
   signaturesRequired?: number;
 };
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** POST /documents/upload requires assetId to be a UUID when provided. */
+export function isDocumentAssetUuid(value: string): boolean {
+  return UUID_RE.test(value.trim());
+}
+
+/** Omit assetId unless it is a valid UUID (avoids 400 from API). */
+export function sanitizeDocumentAssetId(
+  value: string | undefined | null,
+): string | undefined {
+  if (!value?.trim()) return undefined;
+  const trimmed = value.trim();
+  return isDocumentAssetUuid(trimmed) ? trimmed : undefined;
+}
+
 const DEFAULT_PAGINATION: PaginationMeta = {
   page: 1,
   limit: 20,

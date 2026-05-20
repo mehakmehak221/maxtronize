@@ -272,8 +272,8 @@ export function IssuerNavIcon({ id, className }: { id: IssuerNavIconId; classNam
       return <NavLucideIcon Icon={Brain} className={className} />;
     case 'portfolio':
       return <NavLucideIcon Icon={Briefcase} className={className} />;
-    case 'investors':
-      return <NavLucideIcon Icon={User} className={className} />;
+    // case 'investors':
+    //   return <NavLucideIcon Icon={User} className={className} />;
     case 'yield':
       return <NavLucideIcon Icon={TrendingUp} className={className} />;
     case 'wallet':

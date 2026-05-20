@@ -9,6 +9,7 @@ import {
   type IssuerDocumentsSummary,
   type ListIssuerDocumentsParams,
   type UploadIssuerDocumentRequest,
+  sanitizeDocumentAssetId,
 } from "@/lib/issuerDocuments";
 import { baseApi } from "./baseApi";
 
@@ -72,8 +73,9 @@ export const issuerDocumentsApi = baseApi.injectEndpoints({
         formData.append("file", body.file);
         formData.append("title", body.title.trim());
         formData.append("category", body.category);
-        if (body.assetId?.trim()) {
-          formData.append("assetId", body.assetId.trim());
+        const assetId = sanitizeDocumentAssetId(body.assetId);
+        if (assetId) {
+          formData.append("assetId", assetId);
         }
         if (body.documentDate) {
           formData.append("documentDate", body.documentDate);

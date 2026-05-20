@@ -27,6 +27,13 @@ export type PlaceSecondaryOrderParams = {
   pricePerToken: number;
 };
 
+export type GetSecondaryAssetChartParams =
+  | string
+  | {
+      assetId: string;
+      interval?: string;
+    };
+
 export const secondaryMarketApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
@@ -80,13 +87,21 @@ export const secondaryMarketApi = baseApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "SecondaryMarket", id }],
     }),
 
-    getSecondaryAssetChart: build.query<SecondaryChartResult, string>({
-      query: (assetId) => ({
-        url: `/investor/secondary-market/assets/${assetId}/chart`,
-        method: "GET",
-      }),
+    getSecondaryAssetChart: build.query<SecondaryChartResult, GetSecondaryAssetChartParams>({
+      query: (params) => {
+        const assetId = typeof params === "string" ? params : params.assetId;
+        const interval = typeof params === "string" ? undefined : params.interval;
+        return {
+          url: `/investor/secondary-market/assets/${assetId}/chart`,
+          method: "GET",
+          params: interval ? { interval } : undefined,
+        };
+      },
       transformResponse: (response: unknown) => parseSecondaryChart(response),
-      providesTags: (result, error, assetId) => [{ type: "SecondaryMarket", id: `CHART_${assetId}` }],
+      providesTags: (result, error, params) => {
+        const assetId = typeof params === "string" ? params : params.assetId;
+        return [{ type: "SecondaryMarket", id: `CHART_${assetId}` }];
+      },
     }),
 
     getSecondaryStats: build.query<SecondaryMarketStats, void>({

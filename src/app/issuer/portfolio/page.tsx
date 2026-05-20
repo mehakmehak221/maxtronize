@@ -414,7 +414,7 @@ export default function IssuerPortfolioPage() {
                       <span className="truncate text-[11px] font-semibold">{asset.lockup}</span>
                     </div>
                     <Link
-                      href="/issuer/hub"
+                      href={`/issuer/portfolio/${asset.id}`}
                       className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-violet-500/70 bg-transparent px-4 py-2 text-[12px] font-bold text-violet-600 transition-colors hover:bg-violet-500/10 dark:border-violet-400/60 dark:text-violet-300 dark:hover:bg-violet-500/15"
                     >
                       View Details

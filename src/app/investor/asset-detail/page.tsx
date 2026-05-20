@@ -19,11 +19,13 @@ import {
   Target,
   TrendingUp,
   Users,
+  X,
+  ShoppingBag,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense, useMemo, useState, useEffect } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
 import type { AssetDocument, AssetOffering, AssetTokenization } from '@/lib/assets';
 import {
@@ -34,6 +36,8 @@ import {
   useGetMarketplaceOpportunityOverviewQuery,
   useAddOpportunityToWatchlistMutation,
   useRemoveOpportunityFromWatchlistMutation,
+  useListSecondaryListingsQuery,
+  usePlaceSecondaryOrderMutation,
 } from '@/store';
 
 const iconStroke = 1.75;
@@ -118,6 +122,8 @@ function AssetDetailContent() {
   const searchParams = useSearchParams();
   const assetId = searchParams.get('id') ?? '';
   const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const [isInvestModalOpen, setIsInvestModalOpen] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const skip = !assetId;
   const { data: asset, isLoading: assetLoading, isError: assetError } =
@@ -142,6 +148,17 @@ function AssetDetailContent() {
       await removeWatchlist(assetId);
     } else {
       await addWatchlist(assetId);
+    }
+  };
+
+  const handleShare = async () => {
+    if (typeof window === 'undefined') return;
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShareCopied(true);
+      window.setTimeout(() => setShareCopied(false), 1600);
+    } catch {
+      setShareCopied(false);
     }
   };
 
@@ -219,72 +236,79 @@ function AssetDetailContent() {
   const daysLeft = offering?.closingDays ?? asset.daysLeft;
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
-      <Link
-        href="/investor/marketplace"
-        className="inline-flex w-fit items-center gap-2 text-[13px] font-bold text-ui-muted-text transition-colors hover:text-ui-strong"
-      >
-        <ArrowLeft className="h-4 w-4" strokeWidth={iconStroke} />
-        Back
-      </Link>
+    <>
+      <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
+        <Link
+          href="/investor/marketplace"
+          className="inline-flex w-fit items-center gap-2 text-[13px] font-bold text-ui-muted-text transition-colors hover:text-ui-strong"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={iconStroke} />
+          Back
+        </Link>
 
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15 md:h-16 md:w-16 md:rounded-[18px]">
-            <Building2 className="h-7 w-7 md:h-8 md:w-8" strokeWidth={iconStroke} />
-          </div>
-          <div className="min-w-0 pt-0.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl">{asset.name}</h1>
-              {asset.verified ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
-                  <BadgeCheck className="h-3.5 w-3.5" strokeWidth={iconStroke} />
-                  Verified
-                </span>
-              ) : null}
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15 md:h-16 md:w-16 md:rounded-[18px]">
+              <Building2 className="h-7 w-7 md:h-8 md:w-8" strokeWidth={iconStroke} />
             </div>
-            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] font-medium text-ui-muted-text">
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 shrink-0 text-ui-faint" strokeWidth={iconStroke} />
-                {asset.location}
-              </span>
-              <span className="text-ui-placeholder" aria-hidden>
-                ·
-              </span>
-              <span>{asset.type}</span>
-            </p>
+            <div className="min-w-0 pt-0.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl">{asset.name}</h1>
+                {asset.verified ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
+                    <BadgeCheck className="h-3.5 w-3.5" strokeWidth={iconStroke} />
+                    Verified
+                  </span>
+                ) : null}
+              </div>
+              <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] font-medium text-ui-muted-text">
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-ui-faint" strokeWidth={iconStroke} />
+                  {asset.location}
+                </span>
+                <span className="text-ui-placeholder" aria-hidden>
+                  ·
+                </span>
+                <span>{asset.type}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 md:gap-3">
+            <button
+              type="button"
+              onClick={handleFavoriteToggle}
+              disabled={addLoading || removeLoading}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-ui-border text-ui-faint transition-colors hover:border-primary/30 hover:text-primary disabled:opacity-50"
+              aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              <Heart
+                className={`h-4 w-4 ${favorited ? 'fill-primary text-primary' : ''}`}
+                strokeWidth={iconStroke}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleShare()}
+              className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${
+                shareCopied
+                  ? 'border-primary/40 bg-primary/10 text-primary'
+                  : 'border-ui-border text-ui-faint hover:border-primary/30 hover:text-primary'
+              }`}
+              aria-label={shareCopied ? 'Link copied' : 'Share'}
+            >
+              <Share2 className="h-4 w-4" strokeWidth={iconStroke} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsInvestModalOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105"
+            >
+              <DollarSign className="h-4 w-4" strokeWidth={iconStroke} />
+              Invest Now
+            </button>
           </div>
         </div>
-
-        <div className="flex items-center gap-2.5 md:gap-3">
-          <button
-            type="button"
-            onClick={handleFavoriteToggle}
-            disabled={addLoading || removeLoading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-ui-border text-ui-faint transition-colors hover:border-primary/30 hover:text-primary disabled:opacity-50"
-            aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Heart
-              className={`h-4 w-4 ${favorited ? 'fill-primary text-primary' : ''}`}
-              strokeWidth={iconStroke}
-            />
-          </button>
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-ui-border text-ui-faint transition-colors hover:border-primary/30 hover:text-primary"
-            aria-label="Share"
-          >
-            <Share2 className="h-4 w-4" strokeWidth={iconStroke} />
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105"
-          >
-            <DollarSign className="h-4 w-4" strokeWidth={iconStroke} />
-            Invest Now
-          </button>
-        </div>
-      </div>
 
       <div className="relative h-52 overflow-hidden rounded-[24px] shadow-xl md:h-72 md:rounded-[32px]">
         <Image
@@ -317,7 +341,7 @@ function AssetDetailContent() {
         </div>
       </div>
 
-      <div className="-mt-4 rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:-mt-6 md:rounded-[28px] dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+        <div className="-mt-4 rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:-mt-6 md:rounded-[28px] dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
         <div className="border-b border-ui-border p-4 md:p-6">
           <div className="flex flex-wrap gap-2">
             {TABS.map((tab) => {
@@ -484,6 +508,253 @@ function AssetDetailContent() {
           {activeTab === 'documents' && (
             <DocumentsTab documents={documents} loading={docsLoading} />
           )}
+        </div>
+        </div>
+      </div>
+
+      {isInvestModalOpen && asset && (
+        <InvestModal
+          assetId={assetId}
+          assetName={asset.name}
+          tokenization={tokenization}
+          onClose={() => setIsInvestModalOpen(false)}
+        />
+      )}
+    </>
+  );
+}
+
+// ── InvestModal ─────────────────────────────────────────────────────────────────
+function InvestModal({
+  assetId,
+  assetName,
+  tokenization,
+  onClose,
+}: {
+  assetId: string;
+  assetName: string;
+  tokenization: import('@/lib/assets').AssetTokenization | null | undefined;
+  onClose: () => void;
+}) {
+  const [selectedListingId, setSelectedListingId] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const { data: listingsResult, isLoading: listingsLoading } = useListSecondaryListingsQuery({
+    limit: 50,
+  });
+  const [placeOrder, { isLoading: isPlacing }] = usePlaceSecondaryOrderMutation();
+
+  // Filter listings that match this asset's id
+  const assetListings = useMemo(() => {
+    const all = listingsResult?.items ?? [];
+    return all.filter((l) => l.assetId === assetId);
+  }, [listingsResult, assetId]);
+
+  const selectedListing = assetListings.find((l) => l.id === selectedListingId) ?? assetListings[0] ?? null;
+
+  // Auto-select first listing
+  useEffect(() => {
+    if (!selectedListingId && assetListings.length > 0) {
+      setSelectedListingId(assetListings[0].id);
+    }
+  }, [assetListings, selectedListingId]);
+
+  const priceNum = selectedListing
+    ? parseFloat(selectedListing.pricePerToken.replace(/[^0-9.]/g, '')) || 0
+    : parseFloat(String(tokenization?.tokenPrice ?? '').replace(/[^0-9.]/g, '')) || 0;
+
+  const total = quantity ? (parseFloat(quantity) * priceNum).toFixed(2) : '0.00';
+  const displayTicker = selectedListing?.ticker ?? tokenization?.ticker ?? 'TOKEN';
+
+  // Reset status on input changes
+  useEffect(() => { setStatusMsg(null); }, [selectedListingId, quantity]);
+
+  const handleInvest = async () => {
+    if (!selectedListing || !quantity || isPlacing) return;
+    setStatusMsg(null);
+    try {
+      await placeOrder({
+        id: selectedListing.id,
+        side: 'BUY',
+        orderType: 'MARKET',
+        tokenAmount: parseFloat(quantity),
+        pricePerToken: priceNum,
+      }).unwrap();
+      setStatusMsg({
+        type: 'success',
+        text: `Successfully placed a BUY order for ${quantity} ${displayTicker} tokens at $${priceNum.toFixed(2)} per token.`,
+      });
+      setQuantity('');
+    } catch (err: any) {
+      setStatusMsg({
+        type: 'error',
+        text: err?.data?.message || err?.message || 'Failed to place order. Please try again.',
+      });
+    }
+  };
+
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Invest in asset"
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden
+      />
+
+      {/* Panel */}
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-[#0f1117] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] ring-1 ring-primary/15">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-white/8 bg-gradient-to-r from-primary/15 via-violet-600/10 to-transparent px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20 text-primary">
+              <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
+            </div>
+            <div>
+              <h2 className="text-[15px] font-bold text-white">Invest Now</h2>
+              <p className="text-[11px] font-medium text-white/50">{assetName}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 text-white/50 transition-colors hover:border-white/20 hover:text-white"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" strokeWidth={iconStroke} />
+          </button>
+        </div>
+
+        <div className="space-y-5 p-6">
+          {/* Status */}
+          {statusMsg && (
+            <div
+              className={`rounded-xl border px-4 py-3.5 text-[12px] font-semibold leading-relaxed ${
+                statusMsg.type === 'success'
+                  ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400'
+                  : 'border-rose-500/25 bg-rose-500/10 text-rose-400'
+              }`}
+            >
+              {statusMsg.text}
+            </div>
+          )}
+
+          {/* Listing selector */}
+          <div>
+            <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
+              Select Seller Listing
+            </label>
+            {listingsLoading ? (
+              <div className="h-12 animate-pulse rounded-xl bg-white/5" />
+            ) : assetListings.length === 0 ? (
+              <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-400">
+                <p>No active secondary listings found for this asset right now.</p>
+                <Link
+                  href="/investor/secondary-market"
+                  className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-300 transition-colors hover:text-white"
+                >
+                  Browse all live listings
+                  <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                </Link>
+              </div>
+            ) : (
+              <select
+                value={selectedListingId}
+                onChange={(e) => setSelectedListingId(e.target.value)}
+                className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[13px] font-bold text-white outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+              >
+                {assetListings.map((l) => (
+                  <option key={l.id} value={l.id} className="bg-[#0f1117]">
+                    {l.ticker} — {l.pricePerToken} / token · {l.available} available (Seller: {l.seller})
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Price info */}
+          {selectedListing && (
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: 'Price / Token', val: selectedListing.pricePerToken },
+                { label: '24h Change', val: selectedListing.change, up: selectedListing.up },
+                { label: 'Available', val: selectedListing.available },
+              ].map((s) => (
+                <div key={s.label} className="rounded-xl border border-white/8 bg-white/4 p-3 text-center">
+                  <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-white/35">{s.label}</p>
+                  <p className={`text-[13px] font-bold ${'up' in s ? (s.up ? 'text-emerald-400' : 'text-rose-400') : 'text-white'}`}>
+                    {s.val}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Quantity input */}
+          <div>
+            <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
+              Quantity (Tokens)
+            </label>
+            <div className="flex items-center overflow-hidden rounded-xl border border-white/10 bg-white/5 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30 transition-colors">
+              <input
+                type="number"
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="Enter number of tokens"
+                className="flex-1 bg-transparent px-4 py-3.5 text-[14px] font-bold text-white outline-none placeholder:text-white/25"
+              />
+              <span className="px-4 text-[11px] font-bold text-white/35">{displayTicker}</span>
+            </div>
+            <div className="mt-2 grid grid-cols-4 gap-2">
+              {['1', '5', '10', '25'].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setQuantity(val)}
+                  className="rounded-lg border border-white/8 bg-white/5 py-1.5 text-[11px] font-bold text-white/50 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                >
+                  +{val}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Total */}
+          <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/4 px-5 py-4">
+            <span className="text-[12px] font-bold text-white/50">Total Cost</span>
+            <span className="text-2xl font-bold tabular-nums text-white">
+              ${parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </div>
+
+          {/* CTA */}
+          <button
+            type="button"
+            onClick={handleInvest}
+            disabled={!selectedListing || !quantity || isPlacing || assetListings.length === 0}
+            className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
+            {isPlacing ? 'Processing Order…' : `Buy ${displayTicker} Tokens`}
+          </button>
+
+          <p className="text-center text-[10px] font-medium text-white/30">
+            Orders are executed via the secondary market at the listed price. Market conditions may affect final execution price.
+          </p>
         </div>
       </div>
     </div>

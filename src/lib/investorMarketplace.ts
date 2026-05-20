@@ -1,4 +1,10 @@
-import { pickNumber, pickString, unwrapList, pickStringArray } from "@/lib/apiParse";
+import {
+  pickNumber,
+  pickString,
+  pickStringArray,
+  unwrapList,
+  unwrapPayload,
+} from "@/lib/apiParse";
 import {
   parseAssetDetail,
   parseAssetDocuments,
@@ -208,13 +214,14 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
 // ── Parsers ───────────────────────────────────────────────────────────────────
 
 export function parseMarketplaceFilters(payload: unknown): MarketplaceFilters {
-  if (!payload || typeof payload !== "object") {
+  const root = unwrapPayload(payload);
+  if (!root || typeof root !== "object" || Array.isArray(root)) {
     return { assetTypes: [], riskLevels: [], minInvestmentBuckets: [] };
   }
-  const root = payload as Record<string, unknown>;
+  const record = root as Record<string, unknown>;
 
   function parseOptions(key: string): MarketplaceFilterOption[] {
-    const arr = root[key];
+    const arr = record[key];
     if (!Array.isArray(arr)) return [];
     return arr
       .filter(
@@ -236,8 +243,23 @@ export function parseMarketplaceFilters(payload: unknown): MarketplaceFilters {
 }
 
 export function parseMarketplaceFeatured(payload: unknown): MarketplaceAsset[] {
-  if (Array.isArray(payload)) {
-    return payload
+  const root = unwrapPayload(payload);
+  if (Array.isArray(root)) {
+    return root
+      .filter(
+        (item): item is Record<string, unknown> =>
+          Boolean(item) && typeof item === "object",
+      )
+      .map(parseOpportunity);
+  }
+  if (payload && typeof payload === "object") {
+    const record = payload as Record<string, unknown>;
+    const items = Array.isArray(record.data)
+      ? record.data
+      : Array.isArray(record.items)
+        ? record.items
+        : [];
+    return items
       .filter(
         (item): item is Record<string, unknown> =>
           Boolean(item) && typeof item === "object",
@@ -337,14 +359,15 @@ export function parseOpportunityInit(payload: unknown): OpportunityInit {
 }
 
 export function parseOpportunityOverview(payload: unknown): OpportunityOverview {
-  if (!payload || typeof payload !== "object") {
+  const root = unwrapPayload(payload);
+  if (!root || typeof root !== "object" || Array.isArray(root)) {
     return {
       description: null,
       highlights: [],
       progress: { pct: 0, raised: 0, target: 0 },
     };
   }
-  const o = payload as Record<string, unknown>;
+  const o = root as Record<string, unknown>;
   const raised =
     pickNumber(o, ["raised", "raisedAmount", "raised_amount", "amountRaised"]) ?? 0;
   const target =
@@ -362,15 +385,16 @@ export function parseOpportunityOverview(payload: unknown): OpportunityOverview 
 }
 
 export function parseMarketplaceStats(payload: unknown): MarketplaceStats {
-  if (!payload || typeof payload !== "object") {
+  const root = unwrapPayload(payload);
+  if (!root || typeof root !== "object" || Array.isArray(root)) {
     return { availableOpportunities: 0, newListings30d: 0, totalRaised30d: 0 };
   }
-  const root = payload as Record<string, unknown>;
+  const record = root as Record<string, unknown>;
   return {
     availableOpportunities:
-      pickNumber(root, ["availableOpportunities", "available_opportunities"]) ?? 0,
-    newListings30d: pickNumber(root, ["newListings30d", "new_listings_30d"]) ?? 0,
-    totalRaised30d: pickNumber(root, ["totalRaised30d", "total_raised_30d"]) ?? 0,
+      pickNumber(record, ["availableOpportunities", "available_opportunities"]) ?? 0,
+    newListings30d: pickNumber(record, ["newListings30d", "new_listings_30d"]) ?? 0,
+    totalRaised30d: pickNumber(record, ["totalRaised30d", "total_raised_30d"]) ?? 0,
   };
 }
 

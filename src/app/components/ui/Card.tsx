@@ -1,5 +1,17 @@
 "use client";
 
+import React from "react";
+
+type CardVariant = "default" | "elevated" | "bordered" | "glass";
+type CardPadding = "none" | "sm" | "md" | "lg";
+
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  variant?: CardVariant;
+  padding?: CardPadding;
+  className?: string;
+}
+
 export default function Card({
   children,
   variant = "default",
@@ -7,7 +19,7 @@ export default function Card({
   className = "",
   onClick,
   ...props
-}) {
+}: CardProps) {
   const variants = {
     default: "bg-[var(--color-bg-dark-alt)] border border-white/8",
     elevated: "bg-[var(--color-bg-dark-alt)] border border-white/8 shadow-xl",

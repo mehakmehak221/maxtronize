@@ -27,6 +27,7 @@ import {
   type ListHubRegulatoryStatusParams,
   type ListHubInvestorsParams,
   type ListIssuerHubAssetsParams,
+  toHubAssetDisplayStatusApi,
 } from "@/lib/issuerHub";
 import {
   downloadBlob,
@@ -103,7 +104,9 @@ export const issuerHubApi = baseApi.injectEndpoints({
           page: p.page,
           limit: p.limit,
           search: p.search,
-          displayStatus: p.displayStatus,
+          displayStatus: p.displayStatus
+            ? toHubAssetDisplayStatusApi(p.displayStatus)
+            : undefined,
         });
       },
       transformResponse: (response: unknown) => parseIssuerHubAssetsList(response),

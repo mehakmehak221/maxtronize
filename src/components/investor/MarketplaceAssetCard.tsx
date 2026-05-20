@@ -1,9 +1,15 @@
 "use client";
 
+import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { MarketplaceAsset } from "@/lib/assets";
 import { BuildingIcon, InvestorHub } from "@/app/VectorImages";
+import {
+  useAddOpportunityToWatchlistMutation,
+  useRemoveOpportunityFromWatchlistMutation,
+} from "@/store";
 
 function HeartOutlineIcon() {
   return (
@@ -30,6 +36,26 @@ export function MarketplaceAssetCard({
 }: MarketplaceAssetCardProps) {
   const detailHref = `/investor/asset-detail?id=${encodeURIComponent(asset.id)}`;
   const showFeatured = featured || asset.featured;
+  const [isWatchlisted, setIsWatchlisted] = useState(Boolean(asset.watchlist));
+  const [addWatchlist, { isLoading: isAdding }] =
+    useAddOpportunityToWatchlistMutation();
+  const [removeWatchlist, { isLoading: isRemoving }] =
+    useRemoveOpportunityFromWatchlistMutation();
+
+  useEffect(() => {
+    setIsWatchlisted(Boolean(asset.watchlist));
+  }, [asset.watchlist]);
+
+  async function handleWatchlistToggle() {
+    if (isAdding || isRemoving) return;
+    if (isWatchlisted) {
+      await removeWatchlist(asset.id).unwrap();
+      setIsWatchlisted(false);
+      return;
+    }
+    await addWatchlist(asset.id).unwrap();
+    setIsWatchlisted(true);
+  }
 
   return (
     <article className="card-lift group flex h-full flex-col overflow-hidden rounded-[20px] border border-ui-border bg-ui-card shadow-sm md:rounded-[24px]">
@@ -52,10 +78,16 @@ export function MarketplaceAssetCard({
 
         <button
           type="button"
+          onClick={() => void handleWatchlistToggle()}
+          disabled={isAdding || isRemoving}
           className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-400 shadow-md transition-colors hover:text-rose-500 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:text-rose-400"
-          aria-label="Save listing"
+          aria-label={isWatchlisted ? "Remove from watchlist" : "Save listing"}
         >
-          <HeartOutlineIcon />
+          {isWatchlisted ? (
+            <Heart className="h-4 w-4 fill-rose-500 text-rose-500" />
+          ) : (
+            <HeartOutlineIcon />
+          )}
         </button>
 
         <div className="absolute bottom-3 left-3 flex max-w-[calc(100%-5.5rem)] items-center gap-1.5 rounded-lg bg-white/95 px-2.5 py-1.5 text-[10px] font-semibold text-ui-strong shadow-sm backdrop-blur-sm dark:bg-zinc-900/95 dark:text-zinc-100">

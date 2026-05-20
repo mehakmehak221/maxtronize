@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar, CheckCircle2, ChevronRight, Clock, TrendingUp, Wallet } from 'lucide-react';
+import Link from 'next/link';
 import React, { useMemo } from 'react';
 import { OverviewHero } from '@/components/dashboard/OverviewHero';
 import type { KpiCard } from '@/components/dashboard/OverviewKpiGrid';
@@ -342,13 +343,13 @@ export default function InvestorOverviewPage() {
                 <h3 className="text-lg font-bold text-ui-strong md:text-xl">Recent Activity</h3>
                 <p className="mt-0.5 text-xs font-medium text-ui-muted-text">Capital flows & distributions</p>
               </div>
-              <button
-                type="button"
+              <Link
+                href="/investor/hub?tab=transactions"
                 className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-primary transition-colors hover:text-primary/80"
               >
                 View all
                 <ChevronRight className="h-4 w-4" strokeWidth={iconStroke} />
-              </button>
+              </Link>
             </div>
 
             <div className="space-y-1">
@@ -427,13 +428,13 @@ export default function InvestorOverviewPage() {
               )}
             </div>
 
-            <button
-              type="button"
+            <Link
+              href="/investor/hub?tab=overview"
               className="mt-6 flex w-full items-center justify-center gap-1 rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-[11px] font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
             >
               Full Calendar
               <ChevronRight className="h-4 w-4" strokeWidth={iconStroke} />
-            </button>
+            </Link>
           </div>
         </section>
       </div>

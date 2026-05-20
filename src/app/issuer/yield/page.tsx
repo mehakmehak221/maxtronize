@@ -24,6 +24,7 @@ import {
   useGetDistributionScheduleQuery,
   useGetUpcomingPayoutsQuery,
   useGetYieldSummaryQuery,
+  useGetYieldAssetBreakdownQuery,
 } from '@/store/api/yieldApi';
 
 const iconStroke = 1.75;
@@ -327,6 +328,7 @@ export default function YieldPage() {
     page: 1,
     limit: 100,
   });
+  const { data: yieldBreakdown = [], isLoading: breakdownLoading } = useGetYieldAssetBreakdownQuery();
 
   const yieldStats = useMemo((): YieldStatCard[] => {
     const loading = summaryLoading;
@@ -431,6 +433,24 @@ export default function YieldPage() {
   );
 
   const breakdownRows = useMemo((): BreakdownRow[] => {
+    if (yieldBreakdown && yieldBreakdown.length > 0) {
+      return yieldBreakdown.map((item: any, index: number) => {
+        const palette = APY_BAR_PALETTE[index % APY_BAR_PALETTE.length];
+        const status = item.status || 'On Track';
+        return {
+          name: item.assetName || item.name || '—',
+          tag: item.ticker || '—',
+          dot: palette.dot,
+          apy: item.apy != null ? `${item.apy}%` : '—',
+          total: item.totalDistributedFormatted || (item.totalDistributed != null ? formatCompactCurrency(item.totalDistributed, item.currency || 'USD') : '—'),
+          freq: item.frequency || '—',
+          last: item.lastPayoutDate ? formatShortPayoutDate(item.lastPayoutDate) : '—',
+          next: item.nextPayoutDate ? formatShortPayoutDate(item.nextPayoutDate) : '—',
+          status: status as BreakdownStatus,
+        };
+      });
+    }
+
     const portfolio = portfolioAssets?.items ?? [];
     const portfolioAvg = summary?.portfolioAvgApy.percent ?? 0;
     const byAsset = new Map<string, BreakdownRow>();
@@ -481,7 +501,7 @@ export default function YieldPage() {
     return Array.from(byAsset.values()).sort(
       (a, b) => parseApyPercent(b.apy) - parseApyPercent(a.apy),
     );
-  }, [portfolioAssets, upcoming, summary]);
+  }, [portfolioAssets, upcoming, summary, yieldBreakdown]);
 
   const highlightPayoutId = upcoming[0]?.id;
 

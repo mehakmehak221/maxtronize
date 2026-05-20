@@ -273,15 +273,15 @@ export default function InvestorDocumentsPage() {
               Legal agreements, compliance filings, and asset documentation — all in one secure vault.
             </p>
           </div>
-          <button
-            type="button"
+          <a
+            href="#investor-document-upload"
             className="self-start sm:self-auto px-5 md:px-7 py-3 bg-primary text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             Upload Document
-          </button>
+          </a>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-5 2xl:grid-cols-4">
@@ -392,7 +392,9 @@ export default function InvestorDocumentsPage() {
           </div>
         ) : null}
 
-        <FileUploadZone />
+        <div id="investor-document-upload">
+          <FileUploadZone />
+        </div>
 
         <div className="space-y-3 xl:hidden">
           {isLoading ? (

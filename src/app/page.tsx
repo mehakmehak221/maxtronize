@@ -22,6 +22,7 @@ import Bridge from "@/app/components/sections/Bridge";
 import Future from "@/app/components/sections/Future";
 import AppDownloadSection from "@/app/components/sections/AppDownloadSection";
 
+
 export default function Home() {
   return (
     <main className="w-full relative min-h-screen overflow-x-hidden">

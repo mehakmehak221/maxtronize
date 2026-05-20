@@ -31,13 +31,6 @@ type StatCard = {
   up: boolean;
 };
 
-const STATS_FALLBACK: StatCard[] = [
-  { label: '24H Volume', val: '$2.8M', trend: '+12.4%', up: true },
-  { label: 'Total Listings', val: '847', trend: '+42', up: true },
-  { label: 'Avg. Price Change', val: '+3.2%', trend: '+0.8%', up: true },
-  { label: 'Active Traders', val: '1,284', trend: '+156', up: true },
-];
-
 const LIQUIDITY_STYLES: Record<LiquidityLevel, string> = {
   'High Liquidity':
     'border-emerald-200/80 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400',
@@ -89,6 +82,25 @@ function StatKpiCard({ stat }: { stat: StatCard }) {
   );
 }
 
+function formatVolume(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value) || value <= 0) return '—';
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
+  return `$${value.toLocaleString()}`;
+}
+
+function formatSignedValue(value: number | null | undefined, suffix = ''): string {
+  if (value == null || Number.isNaN(value)) return '—';
+  const sign = value >= 0 ? '+' : '';
+  return `${sign}${value}${suffix}`;
+}
+
+function formatSignedPercent(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return '—';
+  const sign = value >= 0 ? '+' : '';
+  return `${sign}${value}%`;
+}
+
 export default function SecondaryMarketPage() {
   const [search, setSearch] = useState('');
   const [selectedLiquidity, setSelectedLiquidity] = useState('');
@@ -106,43 +118,34 @@ export default function SecondaryMarketPage() {
   const liquidityLevels = filtersData?.liquidityLevels ?? [];
 
   const activeStats = useMemo(() => {
-    if (!stats) return STATS_FALLBACK;
-
-    const formatVol = (val: number) => {
-      if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
-      if (val >= 1_000) return `$${(val / 1_000).toFixed(1)}K`;
-      return `$${val}`;
-    };
-
     return [
       {
         label: '24H Volume',
-        val: formatVol(stats.volume24h.amount),
-        trend: `${stats.volume24h.changePercent >= 0 ? '+' : ''}${stats.volume24h.changePercent}%`,
-        up: stats.volume24h.changePercent >= 0,
+        val: formatVolume(stats?.volume24h.amount),
+        trend: formatSignedPercent(stats?.volume24h.changePercent),
+        up: (stats?.volume24h.changePercent ?? 0) >= 0,
       },
       {
         label: 'Total Listings',
-        val: stats.totalListings.count === 0 ? '847' : String(stats.totalListings.count),
-        trend: `${stats.totalListings.change >= 0 ? '+' : ''}${stats.totalListings.change}`,
-        up: stats.totalListings.change >= 0,
+        val: stats ? String(stats.totalListings.count) : '—',
+        trend: formatSignedValue(stats?.totalListings.change),
+        up: (stats?.totalListings.change ?? 0) >= 0,
       },
       {
         label: 'Avg. Price Change',
-        val: stats.avgPriceChange.percent === 0 ? '+3.2%' : `${stats.avgPriceChange.percent >= 0 ? '+' : ''}${stats.avgPriceChange.percent}%`,
-        trend: `${stats.avgPriceChange.changePercent >= 0 ? '+' : ''}${stats.avgPriceChange.changePercent}%`,
-        up: stats.avgPriceChange.changePercent >= 0,
+        val: formatSignedPercent(stats?.avgPriceChange.percent),
+        trend: formatSignedPercent(stats?.avgPriceChange.changePercent),
+        up: (stats?.avgPriceChange.changePercent ?? 0) >= 0,
       },
       {
         label: 'Active Traders',
-        val: stats.activeTraders.count === 0 ? '1,284' : stats.activeTraders.count.toLocaleString(),
-        trend: `${stats.activeTraders.change >= 0 ? '+' : ''}${stats.activeTraders.change}`,
-        up: stats.activeTraders.change >= 0,
+        val: stats ? stats.activeTraders.count.toLocaleString() : '—',
+        trend: formatSignedValue(stats?.activeTraders.change),
+        up: (stats?.activeTraders.change ?? 0) >= 0,
       },
     ];
   }, [stats]);
-
-  const marketIsOpen = stats?.marketOpen ?? true;
+  const marketIsOpen = stats?.marketOpen ?? false;
 
   return (
     <InvestorLayout pageTitle="Secondary Market">
@@ -315,14 +318,14 @@ export default function SecondaryMarketPage() {
                   {/* Actions — right column on laptop+ */}
                   <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row lg:min-w-[148px] lg:flex-col lg:items-stretch">
                     <Link
-                      href="/investor/marketplace-detail"
+                      href={`/investor/marketplace-detail?id=${listing.id}`}
                       className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5b21b6] to-[#4338ca] px-5 py-2.5 text-[12px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105 lg:px-4"
                     >
                       <Zap className="h-4 w-4" strokeWidth={iconStroke} />
                       Trade Now
                     </Link>
                     <Link
-                      href="/investor/marketplace-detail"
+                      href={`/investor/marketplace-detail?id=${listing.id}`}
                       className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted-deep/80 lg:px-4"
                     >
                       <BarChart3 className="h-4 w-4" strokeWidth={iconStroke} />

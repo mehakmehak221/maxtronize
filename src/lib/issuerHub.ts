@@ -11,6 +11,21 @@ const DEFAULT_PAGINATION: PaginationMeta = {
   hasPreviousPage: false,
 };
 
+/** Values accepted by GET /issuer/hub/assets?displayStatus= */
+export type HubAssetDisplayStatusApi =
+  | "LIVE"
+  | "FUNDED"
+  | "DRAFT"
+  | "OTHER";
+
+export const HUB_ASSET_DISPLAY_STATUS_API: HubAssetDisplayStatusApi[] = [
+  "LIVE",
+  "FUNDED",
+  "DRAFT",
+  "OTHER",
+];
+
+/** Title-case labels for UI badges */
 export type HubAssetDisplayStatus = "Live" | "Funded" | "Draft" | string;
 
 export type HubAsset = {
@@ -32,8 +47,23 @@ export type ListIssuerHubAssetsParams = {
   page?: number;
   limit?: number;
   search?: string;
-  displayStatus?: string;
+  displayStatus?: HubAssetDisplayStatusApi;
 };
+
+/** Map UI or legacy filter values to API query enum (uppercase). */
+export function toHubAssetDisplayStatusApi(
+  value: string | undefined,
+): HubAssetDisplayStatusApi | undefined {
+  if (!value?.trim()) return undefined;
+  const upper = value.trim().toUpperCase().replace(/[\s-]+/g, "_");
+  if (HUB_ASSET_DISPLAY_STATUS_API.includes(upper as HubAssetDisplayStatusApi)) {
+    return upper as HubAssetDisplayStatusApi;
+  }
+  if (upper === "ACTIVE" || upper.includes("LIVE")) return "LIVE";
+  if (upper.includes("FUND")) return "FUNDED";
+  if (upper.includes("DRAFT") || upper.includes("PENDING")) return "DRAFT";
+  return "OTHER";
+}
 
 export type IssuerHubAssetsListResult = {
   items: HubAsset[];
@@ -69,6 +99,11 @@ function parsePagination(payload: unknown): PaginationMeta {
 function normalizeDisplayStatus(raw: string | null): HubAssetDisplayStatus {
   const normalized = (raw ?? "").trim();
   if (!normalized) return "Draft";
+  const upper = normalized.toUpperCase();
+  if (upper === "LIVE") return "Live";
+  if (upper === "FUNDED") return "Funded";
+  if (upper === "DRAFT") return "Draft";
+  if (upper === "OTHER") return "Other";
   const lower = normalized.toLowerCase();
   if (
     lower.includes("live") ||

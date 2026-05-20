@@ -13,6 +13,13 @@ import {
 } from '@/store/api/investorMarketplaceApi';
 import type { MarketplaceFilterOption } from '@/lib/investorMarketplace';
 
+function formatStatCurrency(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return '—';
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
+  return `$${value.toLocaleString()}`;
+}
+
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [selectedAssetTypes, setSelectedAssetTypes] = useState<string[]>([]);
@@ -248,9 +255,9 @@ export default function MarketplacePage() {
                   Marketplace Stats
                 </p>
                 {[
-                  ['Total Raised (30d)', '$14.2M'],
-                  ['New Listings', String(totalShown || '—')],
-                  ['Avg. APY', '9.8%'],
+                  ['Total Raised (30d)', formatStatCurrency(stats?.totalRaised30d)],
+                  ['New Listings (30d)', stats ? String(stats.newListings30d) : '—'],
+                  ['Available Opportunities', stats ? String(stats.availableOpportunities) : String(totalShown || '—')],
                 ].map(([l, v]) => (
                   <div key={l} className="flex items-center justify-between gap-3">
                     <span className="text-[11px] text-white/70">{l}</span>

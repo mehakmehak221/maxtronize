@@ -19,6 +19,8 @@ import "./api/portfolioApi";
 import "./api/yieldApi";
 import "./api/investorMarketplaceApi";
 import "./api/secondaryMarketApi";
+import "./api/investorWalletApi";
+import "./api/issuerWalletApi";
 
 export function makeStore() {
   return configureStore({

@@ -6,8 +6,14 @@ export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl,
-    // Backend auth uses an HttpOnly `access_token` cookie (set on login/register).
     credentials: "include",
+    prepareHeaders: (headers) => {
+      const token = typeof window !== "undefined" ? window.localStorage.getItem("access_token") : null;
+      if (token && token !== "demo-session") {
+        headers.set("authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: [
     "User",

@@ -14,6 +14,7 @@ export type LiquidityLevel = "High Liquidity" | "Medium Liquidity" | "Low Liquid
 
 export type SecondaryListing = {
   id: string;
+  assetId: string;
   name: string;
   ticker: string;
   sector: string;
@@ -27,6 +28,7 @@ export type SecondaryListing = {
   available: string;
   totalVal: string;
   iconType: "building" | "energy" | "pe" | "commodities" | string;
+  watchlist?: boolean;
 };
 
 export type SecondaryMarketFilters = {
@@ -109,6 +111,7 @@ function parseListingRecord(record: Record<string, unknown>, index: number): Sec
 
   return {
     id: pickString(record, ["id", "_id"]) ?? `listing-${index}`,
+    assetId: pickString(record, ["assetId", "asset_id"]) ?? "",
     name: pickString(record, ["name", "title"]) ?? `Listing ${index + 1}`,
     ticker: pickString(record, ["ticker", "symbol"]) ?? "—",
     sector,
@@ -122,6 +125,13 @@ function parseListingRecord(record: Record<string, unknown>, index: number): Sec
     available: availableStr,
     totalVal: formatCurrency(totalValNum || (availableNum * priceNum)),
     iconType,
+    watchlist: Boolean(
+      record.watchlist ??
+        record.isWatchlisted ??
+        record.inWatchlist ??
+        record.in_watchlist ??
+        record.is_watchlisted,
+    ),
   };
 }
 
@@ -207,7 +217,12 @@ export type SecondaryMarketStats = {
 
 export function parseSecondaryStats(payload: unknown): SecondaryMarketStats {
   const root = (unwrapPayload(payload) ?? {}) as Record<string, unknown>;
-  const marketOpen = typeof root.marketOpen === "boolean" ? root.marketOpen : true;
+  const marketOpen =
+    typeof root.marketOpen === "boolean"
+      ? root.marketOpen
+      : typeof root.isOpen === "boolean"
+        ? root.isOpen
+        : false;
 
   const volObj = (root.volume24h && typeof root.volume24h === "object" ? root.volume24h : {}) as Record<string, unknown>;
   const listObj = (root.totalListings && typeof root.totalListings === "object" ? root.totalListings : {}) as Record<string, unknown>;
@@ -217,21 +232,20 @@ export function parseSecondaryStats(payload: unknown): SecondaryMarketStats {
   return {
     marketOpen,
     volume24h: {
-      amount: pickNumber(volObj, ["amount", "value"]) ?? 2800000,
-      changePercent: pickNumber(volObj, ["changePercent", "change_percent", "change"]) ?? 12.4,
+      amount: pickNumber(volObj, ["amount", "value"]) ?? 0,
+      changePercent: pickNumber(volObj, ["changePercent", "change_percent", "change"]) ?? 0,
     },
     totalListings: {
-      count: pickNumber(listObj, ["count", "total"]) ?? 847,
-      change: pickNumber(listObj, ["change", "diff"]) ?? 42,
+      count: pickNumber(listObj, ["count", "total"]) ?? 0,
+      change: pickNumber(listObj, ["change", "diff"]) ?? 0,
     },
     avgPriceChange: {
-      percent: pickNumber(priceObj, ["percent", "avgPercent", "value"]) ?? 3.2,
-      changePercent: pickNumber(priceObj, ["changePercent", "change_percent", "change"]) ?? 0.8,
+      percent: pickNumber(priceObj, ["percent", "avgPercent", "value"]) ?? 0,
+      changePercent: pickNumber(priceObj, ["changePercent", "change_percent", "change"]) ?? 0,
     },
     activeTraders: {
-      count: pickNumber(activeObj, ["count", "total"]) ?? 1284,
-      change: pickNumber(activeObj, ["change", "diff"]) ?? 156,
+      count: pickNumber(activeObj, ["count", "total"]) ?? 0,
+      change: pickNumber(activeObj, ["change", "diff"]) ?? 0,
     },
   };
 }
-

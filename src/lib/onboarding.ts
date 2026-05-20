@@ -398,9 +398,9 @@ function parseDirectorsFromNotes(text: string): EntityDirector[] {
 
       return {
         fullName,
-        title: title || undefined,
-        dateOfBirth: dobMatch?.[1],
-        ssnLast4: ssnMatch?.[1],
+        title: title || "Director",
+        dateOfBirth: dobMatch?.[1] || "1970-01-01",
+        ssnLast4: ssnMatch?.[1] || "0000",
       };
     })
     .filter((director) => director.fullName.length > 0);
@@ -640,4 +640,130 @@ export function accreditedOnlyFromDraft(draft: Record<string, unknown>): boolean
     "accredited_investors_only",
     "accreditedOnly",
   ], true);
+}
+
+export function verificationMethodFromDraft(draft: Record<string, unknown>): string {
+  const meta = metadataRecord(draft);
+  return readStringField(meta, ["verificationMethod", "verification_method"]) || "parallel-markets";
+}
+
+export type OnboardingApplicationStatusKey =
+  | "draft"
+  | "under_review"
+  | "approved"
+  | "rejected"
+  | "locked";
+
+export type OnboardingApplicationStatusDisplay = {
+  key: OnboardingApplicationStatusKey;
+  label: string;
+  description: string;
+  badgeVariant: "gray" | "yellow" | "green" | "red" | "blue";
+  rawStatus: string | null;
+  canSubmit: boolean;
+};
+
+const ONBOARDING_STATUS_APPROVED = new Set([
+  "APPROVED",
+  "COMPLETED",
+  "LOCKED",
+]);
+const ONBOARDING_STATUS_REJECTED = new Set([
+  "REJECTED",
+  "DENIED",
+  "DECLINED",
+]);
+const ONBOARDING_STATUS_UNDER_REVIEW = new Set([
+  "SUBMITTED",
+  "PENDING",
+  "PENDING_REVIEW",
+  "UNDER_REVIEW",
+  "IN_REVIEW",
+  "REVIEW",
+  "IN_PROGRESS",
+]);
+
+function normalizeOnboardingStatus(raw: string | null | undefined): string {
+  return (raw ?? "").trim().toUpperCase().replace(/[\s-]+/g, "_");
+}
+
+function pickOnboardingStatusKey(
+  normalized: string[],
+): OnboardingApplicationStatusKey {
+  if (normalized.some((s) => ONBOARDING_STATUS_REJECTED.has(s))) {
+    return "rejected";
+  }
+  if (normalized.some((s) => ONBOARDING_STATUS_APPROVED.has(s))) {
+    return normalized.includes("LOCKED") ? "locked" : "approved";
+  }
+  if (normalized.some((s) => ONBOARDING_STATUS_UNDER_REVIEW.has(s))) {
+    return "under_review";
+  }
+  return "draft";
+}
+
+const ONBOARDING_STATUS_COPY: Record<
+  OnboardingApplicationStatusKey,
+  Pick<OnboardingApplicationStatusDisplay, "label" | "description" | "badgeVariant" | "canSubmit">
+> = {
+  draft: {
+    label: "Draft",
+    description:
+      "Your application is not submitted yet. Review the summary below, then submit when ready.",
+    badgeVariant: "gray",
+    canSubmit: true,
+  },
+  under_review: {
+    label: "Under Review",
+    description:
+      "Your application has been submitted. Our compliance team is reviewing it — typically within 2 business days.",
+    badgeVariant: "yellow",
+    canSubmit: false,
+  },
+  approved: {
+    label: "Approved",
+    description:
+      "Your application is approved. Continue in the issuer dashboard to manage your offering.",
+    badgeVariant: "green",
+    canSubmit: false,
+  },
+  locked: {
+    label: "Approved",
+    description:
+      "Your application is approved and locked for compliance. Continue in the issuer dashboard.",
+    badgeVariant: "green",
+    canSubmit: false,
+  },
+  rejected: {
+    label: "Rejected",
+    description:
+      "Your application was not approved. Contact compliance for details or update your information.",
+    badgeVariant: "red",
+    canSubmit: false,
+  },
+};
+
+export function resolveOnboardingApplicationStatus(
+  statuses: Array<string | null | undefined>,
+  options?: { forceUnderReview?: boolean },
+): OnboardingApplicationStatusDisplay {
+  if (options?.forceUnderReview) {
+    return {
+      key: "under_review",
+      rawStatus: "SUBMITTED",
+      ...ONBOARDING_STATUS_COPY.under_review,
+    };
+  }
+
+  const normalized = statuses
+    .map(normalizeOnboardingStatus)
+    .filter((s) => s.length > 0);
+  const key = pickOnboardingStatusKey(normalized);
+  const rawStatus = normalized[0] ?? null;
+
+  return {
+    key,
+    rawStatus,
+    ...ONBOARDING_STATUS_COPY[key],
+  };
 }

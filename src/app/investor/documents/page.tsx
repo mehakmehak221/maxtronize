@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState, type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
-import { FileUploadZone } from '@/components/FileUploadZone';
+import { FileUploadZone, type FileUploadZoneHandle } from '@/components/FileUploadZone';
 import {
   Document,
   PendingIcon,
@@ -65,6 +65,33 @@ type Doc = {
   size: string;
 };
 
+type UploadedStorageFile = {
+  id: string;
+  name: string;
+  size: string;
+  uploadedAt: string;
+  url: string;
+};
+
+const INVESTOR_UPLOADED_FILES_STORAGE_KEY = 'investor_uploaded_storage_files';
+
+function formatUploadedAt(date: Date) {
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function formatLocalFileSize(bytes: number) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function mapApiDoc(doc: IssuerDocument): Doc {
   return {
     name: doc.name,
@@ -112,11 +139,13 @@ function SignDocumentButton({
 }
 
 export default function InvestorDocumentsPage() {
+  const uploadZoneRef = React.useRef<FileUploadZoneHandle | null>(null);
   const [activeTabKey, setActiveTabKey] = useState('ALL');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [signingId, setSigningId] = useState<string | null>(null);
   const [signError, setSignError] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedStorageFile[]>([]);
 
   const [signInvestorDocument, { isLoading: isSigning }] = useSignInvestorDocumentMutation();
 
@@ -124,6 +153,28 @@ export default function InvestorDocumentsPage() {
     const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
     return () => window.clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(INVESTOR_UPLOADED_FILES_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return;
+      setUploadedFiles(
+        parsed.filter(
+          (item): item is UploadedStorageFile =>
+            Boolean(item) &&
+            typeof item === 'object' &&
+            typeof (item as UploadedStorageFile).id === 'string' &&
+            typeof (item as UploadedStorageFile).name === 'string' &&
+            typeof (item as UploadedStorageFile).uploadedAt === 'string' &&
+            typeof (item as UploadedStorageFile).url === 'string',
+        ),
+      );
+    } catch {
+      // Ignore corrupted local storage and start fresh.
+    }
+  }, []);
 
   const {
     data: summary,
@@ -162,6 +213,25 @@ export default function InvestorDocumentsPage() {
     } finally {
       setSigningId(null);
     }
+  }
+
+  function handleUploadedToStorage(url: string, file: File) {
+    const nextUpload: UploadedStorageFile = {
+      id: `${Date.now()}-${file.name}`,
+      name: file.name,
+      size: formatLocalFileSize(file.size),
+      uploadedAt: formatUploadedAt(new Date()),
+      url,
+    };
+
+    setUploadedFiles((prev) => {
+      const next = [nextUpload, ...prev].slice(0, 12);
+      window.localStorage.setItem(
+        INVESTOR_UPLOADED_FILES_STORAGE_KEY,
+        JSON.stringify(next),
+      );
+      return next;
+    });
   }
 
   const pageError = summaryError || categoriesError || isError;
@@ -273,15 +343,16 @@ export default function InvestorDocumentsPage() {
               Legal agreements, compliance filings, and asset documentation — all in one secure vault.
             </p>
           </div>
-          <a
-            href="#investor-document-upload"
+          <button
+            type="button"
+            onClick={() => uploadZoneRef.current?.openPicker()}
             className="self-start sm:self-auto px-5 md:px-7 py-3 bg-primary text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Upload Document
-          </a>
+            Upload to Secure Storage
+          </button>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-5 2xl:grid-cols-4">
@@ -393,8 +464,53 @@ export default function InvestorDocumentsPage() {
         ) : null}
 
         <div id="investor-document-upload">
-          <FileUploadZone />
+          <FileUploadZone
+            ref={uploadZoneRef}
+            folder="general"
+            helperText="This uploads a file to secure storage. Investor vault creation and assignment are not available in the current investor documents API."
+            onUploaded={handleUploadedToStorage}
+          />
         </div>
+
+        {uploadedFiles.length > 0 ? (
+          <section className="overflow-hidden rounded-[20px] border border-ui-border bg-ui-card/95 shadow-sm md:rounded-[32px] dark:border-zinc-800 dark:bg-zinc-900/70">
+            <div className="flex flex-col gap-2 border-b border-ui-divider px-5 py-4 md:px-8 md:py-5">
+              <h2 className="text-[14px] font-bold text-ui-strong">Recent Storage Uploads</h2>
+              <p className="text-[12px] font-medium text-ui-faint">
+                Uploaded files remain visible here on this device after they are sent to secure storage.
+              </p>
+            </div>
+            <div className="divide-y divide-ui-divider">
+              {uploadedFiles.map((file) => (
+                <div
+                  key={file.id}
+                  className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-8"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-bold text-ui-strong">
+                      {file.name}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] font-medium text-ui-faint">
+                      <span>{file.size}</span>
+                      <span className="text-ui-placeholder">•</span>
+                      <span>{file.uploadedAt}</span>
+                      <span className="text-ui-placeholder">•</span>
+                      <span>Stored upload</span>
+                    </div>
+                  </div>
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-ui-border px-4 py-2.5 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+                  >
+                    Open File
+                  </a>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <div className="space-y-3 xl:hidden">
           {isLoading ? (

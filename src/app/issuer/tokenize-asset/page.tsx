@@ -23,9 +23,9 @@ type Step = {
 };
 
 const LEGAL_COMPLIANCE_FEATURES = [
-  { id: 'accredited' as const, label: 'Accredited Investors Only', desc: 'Restrict to SEC-verified accredited' },
-  { id: 'lockup' as const, label: 'Lock-up Period Enforced', desc: '12-month lock-up via smart contract' },
-  { id: 'ofac' as const, label: 'OFAC Screening', desc: 'Real-time sanctions list checking' },
+  { id: 'accredited' as const, label: 'Accredited Investors Only', desc: 'Restricted to SEC-verified accredited investors' },
+  { id: 'lockup' as const, label: 'Lock-up Period Enforced', desc: '12-month lock-up enforced through smart contracts' },
+  { id: 'ofac' as const, label: 'OFAC Screening', desc: 'Real-time sanctions screening' },
 ] as const;
 
 type LegalComplianceId = (typeof LEGAL_COMPLIANCE_FEATURES)[number]['id'];
@@ -52,7 +52,7 @@ const TOKENIZATION_SMART_FEATURES = [
   {
     id: 'investorCap' as const,
     label: 'Investor Cap per Address',
-    desc: 'Limit max tokens per wallet',
+    desc: 'Limits the maximum number of tokens per wallet',
     iconKey: 'gear' as const,
   },
 ] as const;
@@ -105,21 +105,21 @@ export default function TokenizeAssetPage() {
 
   const frameworks = [
     { id: 'Reg D', name: 'Reg D (506c)', desc: 'Accredited Investors — unlimited raise amount' },
-    { id: 'Reg S', name: 'Reg S', desc: 'Non-US investors only — no US offering' },
+    { id: 'Reg S', name: 'Reg S', desc: 'Non-U.S. investors only; no U.S. offering' },
     { id: 'Reg A+', name: 'Reg A+', desc: 'Retail investors — up to $75M per year' },
   ];
 
   const entities = [
     { id: 'DE', name: 'SPV — Delaware LLC', desc: 'Most common. Single-purpose vehicle, pass-through taxation, limited liability.' },
     { id: 'KY', name: 'Cayman Islands Ltd.', desc: 'Preferred for international investors. Exempted company structure.' },
-    { id: 'LU', name: 'Luxembourg SARL', desc: 'EU-preferred. Regulated AIF structure with AIFMD compliance.' },
+    { id: 'LU', name: 'Luxembourg SARL', desc: 'Preferred across the EU. Regulated AIF structure with AIFMD compliance.' },
     { id: 'SG_VCC', name: 'Singapore VCC', desc: 'Variable Capital Company — designed for investment funds.' },
   ];
 
   const networks = [
-    { id: 'ETH', name: 'Ethereum', standard: 'ERC-1400', desc: 'Highest liquidity & compatibility. $18–80 gas/tx.', icon: '🌐', color: 'bg-indigo-500' },
-    { id: 'POLY', name: 'Polygon', standard: 'ERC-1400', desc: 'Low fees, fast finality. Ethereum-compatible.', icon: '⬡', color: 'bg-purple-500' },
-    { id: 'ALGO', name: 'Algorand', standard: 'ASA', desc: 'Carbon-negative, instant finality, $0.001/tx.', icon: '🅰️', color: 'bg-ui-strong' },
+    { id: 'ETH', name: 'Ethereum', standard: 'ERC-1400', desc: 'Highest liquidity and broad compatibility. Approximately $18-$80 in gas per transaction.', icon: '🌐', color: 'bg-indigo-500' },
+    { id: 'POLY', name: 'Polygon', standard: 'ERC-1400', desc: 'Low fees and fast finality. Ethereum-compatible.', icon: '⬡', color: 'bg-purple-500' },
+    { id: 'ALGO', name: 'Algorand', standard: 'ASA', desc: 'Carbon-negative, instant finality, and approximately $0.001 per transaction.', icon: '🅰️', color: 'bg-ui-strong' },
   ];
 
   const renderJurisdiction = () => (
@@ -723,7 +723,7 @@ export default function TokenizeAssetPage() {
 
             <p className="max-w-3xl text-left text-[11px] font-medium leading-relaxed text-[#90A1B9]">
               Clicking &quot;Complete Setup&quot; will submit this configuration for Maxtronize compliance review. Smart
-              contract deployment occurs after approval (~48 hours).
+              contract deployment typically occurs within 48 hours of approval.
             </p>
           </div>
         </div>
@@ -838,7 +838,7 @@ export default function TokenizeAssetPage() {
             </div>
             <p className="text-[12px] font-medium leading-relaxed text-[#5b21b6]/90 md:text-[13px]">
               Please review all details carefully before submitting. Once submitted, our compliance team will review your
-              application within 48 hours. You&apos;ll receive an email confirmation.
+              application within 48 hours. You will receive an email confirmation.
             </p>
           </div>
 

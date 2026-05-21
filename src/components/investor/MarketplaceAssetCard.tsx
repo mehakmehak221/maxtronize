@@ -30,6 +30,12 @@ type MarketplaceAssetCardProps = {
   featured?: boolean;
 };
 
+function formatRaisedLine(raisedMillions: number, targetMillions: number) {
+  const raised = Number.isFinite(raisedMillions) ? raisedMillions : 0;
+  const target = Number.isFinite(targetMillions) ? targetMillions : 0;
+  return `$${raised.toFixed(1)}M raised of $${target.toFixed(1)}M`;
+}
+
 export function MarketplaceAssetCard({
   asset,
   featured = false,
@@ -141,7 +147,7 @@ export function MarketplaceAssetCard({
         <div className="mb-4">
           <div className="mb-1.5 flex justify-between gap-2 text-[10px]">
             <span className="truncate text-ui-faint">
-              ${asset.raised}M raised of ${asset.target}M
+              {formatRaisedLine(asset.raised, asset.target)}
             </span>
             <span className="shrink-0 font-bold text-primary">{asset.pct}%</span>
           </div>

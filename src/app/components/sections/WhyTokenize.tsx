@@ -8,8 +8,8 @@ import ContactModal from "./ContactModal";
 const features = [
   {
     icon: Terms,
-    title: "Programable Terms",
-    description: "Program the transfer-restrictions and investment terms that are required between different asset and investor (KYC) classifications."
+    title: "Programmable Terms",
+    description: "Program transfer restrictions and investment terms across different asset classes and investor KYC categories."
   },
   {
     icon: Accessibility,

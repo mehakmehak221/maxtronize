@@ -30,7 +30,7 @@ export const investorHubTransactionsApi = baseApi.injectEndpoints({
       ListInvestorHubTransactionsParams | void
     >({
       query: (params) => ({
-        url: `/investor/transactions${buildTransactionsQueryString(params ?? {})}`,
+        url: `/investor/hub/transactions${buildTransactionsQueryString(params ?? {})}`,
         method: "GET",
       }),
       transformResponse: (response: unknown) =>

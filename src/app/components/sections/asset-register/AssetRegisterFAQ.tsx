@@ -6,7 +6,7 @@ import { Plus, Minus } from "lucide-react";
 
 const faqs = [
   {
-    question: "What happens to my asset if your asset operates independent of Maxtronize?",
+    question: "What happens to my asset if Maxtronize ceases operations?",
     answer: "Nothing happens to your asset. The SPV holding legal title is an independent legal entity with its own director and bank accounts. If Maxtronize were to wind down, a successor administrator steps in per pre-agreed terms, and token holders retain their claim on SPV equity. The asset itself is never held by Maxtronize — it is held by the SPV and its qualified custodian."
   },
   {
@@ -14,11 +14,11 @@ const faqs = [
     answer: "Physical and financial assets are held by regulated qualified custodians — typically NYDFS-chartered trust companies for financial assets, licensed vaulting partners for commodities, and title-recorded SPVs for real estate. Custodians are disclosed in the offering memorandum before any token is issued."
   },
   {
-    question: "How are investors verified? I don't want random buyers.",
-    answer: "Every wallet that touches your token goes through KYC/AML and, where applicable, accredited-investor verification. These checks are enforced at the smart-contract level — a non-verified wallet cannot receive the token. You can also request geography-based or investor-type restrictions on the primary offering."
+    question: "How are investors verified? I do not want random buyers.",
+    answer: "Every wallet that interacts with your token goes through KYC/AML and, where applicable, accredited investor verification. These checks are enforced at the smart contract level, so an unverified wallet cannot receive the token. You can also request geography-based or investor-type restrictions for the primary offering."
   },
   {
-    question: "What's the fee structure?",
+    question: "What is the fee structure?",
     answer: "A one-time structuring fee (typically 0.75%–1.5% of asset value depending on complexity) plus ongoing administration fees (roughly 15–40 bps annually). All fees are disclosed upfront in the term sheet before engagement. No success fees, no carry."
   },
   {
@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     question: "Is this legal in my jurisdiction?",
-    answer: "Maxtronize operates under Reg-D and Reg-S in the U.S., MiCA in the EU, and tailored frameworks in the UAE, Singapore, and Switzerland. During intake we confirm jurisdictional fit and, if required, restructure the issuance (e.g. offshore SPV) to ensure compliance. We do not onboard assets where legality is unclear."
+    answer: "Maxtronize operates under Reg D and Reg S in the U.S., MiCA in the EU, and tailored frameworks in the UAE, Singapore, and Switzerland. During intake, we confirm jurisdictional fit and, if required, restructure the issuance, for example through an offshore SPV, to ensure compliance. We do not onboard assets where legality is unclear."
   }
 ];
 
@@ -85,8 +85,8 @@ const AssetRegisterFAQ = () => {
                 Frequently asked questions.
               </h2>
               <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed">
-                Everything you need to know about tokenizing your assets with Maxtronize. 
-                Can't find the answer you're looking for? Reach out to our team.
+                Everything you need to know about tokenizing your assets with Maxtronize.
+                If you cannot find the answer you are looking for, reach out to our team.
               </p>
             </motion.div>
           </div>

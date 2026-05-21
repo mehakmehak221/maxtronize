@@ -6,10 +6,10 @@ import { motion } from "framer-motion";
 
 const AssetRegisterHero = ({ onStartIssuing }: { onStartIssuing?: () => void }) => {
   const stats = [
-    { label: "ASSET CAPACITY", value: "$2.4B+" },
-    { label: "SPV JURISDICTIONS", value: "12+" },
-    { label: "KYB PASS-THROUGH", value: "94%" },
-    { label: "SETTLEMENT", value: "T+0" },
+    { label: "Asset Capacity", value: "$2.4B+" },
+    { label: "SPV Jurisdictions", value: "12+" },
+    { label: "KYB Pass Rate", value: "94%" },
+    { label: "Settlement", value: "T+0" },
   ];
 
   return (
@@ -46,8 +46,8 @@ const AssetRegisterHero = ({ onStartIssuing }: { onStartIssuing?: () => void }) 
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg md:text-xl text-[var(--color-text-secondary)] mb-10 max-w-2xl leading-relaxed"
           >
-            Maxtronize is the institutional-grade platform for US asset owners 
-            to structure, tokenize, and distribute real-world assets — with 
+            Maxtronize is an institutional-grade platform that helps asset owners
+            structure, tokenize, and distribute real-world assets globally, with
             compliance, custody, and investor management built in.
           </motion.p>
 
@@ -62,7 +62,7 @@ const AssetRegisterHero = ({ onStartIssuing }: { onStartIssuing?: () => void }) 
               onClick={onStartIssuing}
               className="px-8 py-3.5 bg-[var(--primary)] text-white rounded-lg font-semibold flex items-center gap-2 hover:opacity-90 transition-all group shadow-lg shadow-purple-500/20"
             >
-            Start Tokenising My Asset
+            Start Tokenizing My Asset
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button 

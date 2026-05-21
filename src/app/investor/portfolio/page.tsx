@@ -16,6 +16,7 @@ import React, { useMemo, useState } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
 import { aggregatePortfolioAssetStats, filterLabelToCategoryKey } from '@/lib/portfolio';
 import {
+  useGetInvestorPortfolioInitQuery,
   useGetPortfolioFiltersQuery,
   useGetPortfolioSummaryQuery,
   useGetPortfolioNavHistoryQuery,
@@ -72,6 +73,7 @@ function buildNavAreaPath(
 
 export default function MyPortfolioPage() {
   const [activeFilter, setActiveFilter] = useState('All Assets');
+  const { data: initData } = useGetInvestorPortfolioInitQuery();
   const { data: categories = [] } = useGetPortfolioFiltersQuery();
   const { data: summary } = useGetPortfolioSummaryQuery();
   const { data: navHistory = [] } = useGetPortfolioNavHistoryQuery();
@@ -82,20 +84,51 @@ export default function MyPortfolioPage() {
     category: categoryKey,
   });
 
-  const filterLabels = useMemo(
-    () => (categories.length > 0 ? categories.map((c) => c.label) : ['All Assets']),
-    [categories],
-  );
+  const effectiveCategories = useMemo(() => {
+    if (categories.length > 0) return categories;
+    return initData?.categories ?? [];
+  }, [categories, initData]);
 
-  const assets = assetsResult?.items ?? [];
-  const navValues = navHistory.map((p) => p.value);
-  const months = navHistory.map((p) => p.label);
+  const filterLabels = useMemo(() => {
+    const labels =
+      effectiveCategories.length > 0
+        ? effectiveCategories.map((c) => c.label)
+        : [];
+    return ['All Assets', ...labels.filter((label) => label !== 'All Assets')];
+  }, [effectiveCategories]);
+
+  const effectiveSummary = useMemo(() => {
+    if (!summary) return initData?.summary;
+    const hasMeaningfulSummary =
+      summary.totalNav > 0 ||
+      summary.assetCount > 0 ||
+      summary.totalInvestors != null ||
+      summary.avgApyPercent != null;
+    return hasMeaningfulSummary ? summary : (initData?.summary ?? summary);
+  }, [initData, summary]);
+
+  const effectiveNavHistory = useMemo(() => {
+    if (navHistory.length > 0) return navHistory;
+    return initData?.navHistory ?? [];
+  }, [initData, navHistory]);
+
+  const effectiveAssets = useMemo(() => {
+    if (assetsResult?.items?.length) return assetsResult.items;
+    if (activeFilter !== 'All Assets') return assetsResult?.items ?? [];
+    return initData?.assets ?? assetsResult?.items ?? [];
+  }, [activeFilter, assetsResult?.items, initData]);
+
+  const assets = effectiveAssets;
+  const navValues = effectiveNavHistory.map((p) => p.value);
+  const months = effectiveNavHistory.map((p) => p.label);
   const yMax = navValues.length > 0 ? Math.max(...navValues, 1) * 1.1 : 1;
+  const hasNavHistoryData = navValues.some((value) => value > 0);
 
   const assetStats = useMemo(() => aggregatePortfolioAssetStats(assets), [assets]);
   const totalInvestors =
-    summary?.totalInvestors ?? (assetStats.totalInvestors > 0 ? assetStats.totalInvestors : null);
-  const avgApyPercent = summary?.avgApyPercent ?? assetStats.avgApyPercent;
+    effectiveSummary?.totalInvestors ??
+    (assetStats.totalInvestors > 0 ? assetStats.totalInvestors : null);
+  const avgApyPercent = effectiveSummary?.avgApyPercent ?? assetStats.avgApyPercent;
 
   const chartGeometry = useMemo(() => {
     const chartLeft = 40;
@@ -150,17 +183,17 @@ export default function MyPortfolioPage() {
             <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-violet-300/20 blur-2xl" />
             <div className="relative z-10">
               <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/55">Total NAV</p>
-              <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">
-                {summary?.totalNavFormatted ?? '—'}
+                <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">
+                {effectiveSummary?.totalNavFormatted ?? '$0'}
               </p>
               <p className="mb-5 text-xs font-medium text-white/60">
-                {summary?.assetCount ?? assets.length} assets on-chain
+                {effectiveSummary?.assetCount ?? assets.length} assets on-chain
               </p>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-[11px] font-bold text-emerald-200">
                 ↗{' '}
-                {summary
-                  ? `${summary.ytdPercent >= 0 ? '+' : ''}${summary.ytdPercent.toFixed(1)}%`
-                  : '—'}{' '}
+                {effectiveSummary
+                  ? `${effectiveSummary.ytdPercent >= 0 ? '+' : ''}${effectiveSummary.ytdPercent.toFixed(1)}%`
+                  : '+0.0%'}{' '}
                 YTD
               </span>
             </div>
@@ -173,14 +206,14 @@ export default function MyPortfolioPage() {
                 <p className="text-[11px] font-medium text-ui-faint">USD Millions · 7-month trend</p>
               </div>
               <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
-                {summary
-                  ? `${summary.ytdPercent >= 0 ? '+' : ''}${summary.ytdPercent.toFixed(1)}%`
-                  : '—'}{' '}
+                {effectiveSummary
+                  ? `${effectiveSummary.ytdPercent >= 0 ? '+' : ''}${effectiveSummary.ytdPercent.toFixed(1)}%`
+                  : '+0.0%'}{' '}
                 YTD
               </span>
             </div>
             <div className="max-w-full min-w-0 overflow-hidden">
-              {navHistory.length === 0 ? (
+              {!hasNavHistoryData ? (
                 <p className="flex h-36 items-center justify-center text-sm font-medium text-ui-faint md:h-40">
                   No NAV history available yet.
                 </p>
@@ -274,10 +307,10 @@ export default function MyPortfolioPage() {
               </div>
               <div className="min-w-0">
                 <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
-                  Avg. Token Yield
+                  Average Token Yield
                 </p>
                 <p className="text-2xl font-bold text-primary md:text-3xl">
-                  {avgApyPercent != null ? `${avgApyPercent.toFixed(1)}%` : '—'}
+                  {avgApyPercent != null ? `${avgApyPercent.toFixed(1)}%` : '0%'}
                 </p>
                 <p className="text-[11px] font-medium text-ui-faint">Annualized APY</p>
               </div>
@@ -314,7 +347,38 @@ export default function MyPortfolioPage() {
           {assetsLoading ? (
             <p className="col-span-full text-sm text-ui-muted-text">Loading portfolio assets…</p>
           ) : assets.length === 0 ? (
-            <p className="col-span-full text-sm text-ui-muted-text">No portfolio assets yet.</p>
+            <div className="col-span-full overflow-hidden rounded-[28px] border border-ui-border bg-ui-card p-8 shadow-sm md:p-10">
+              <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary">
+                  <Briefcase className="h-8 w-8" strokeWidth={1.75} />
+                </div>
+                <h3 className="text-xl font-bold tracking-tight text-ui-strong">
+                  {activeFilter === 'All Assets'
+                    ? 'No portfolio assets yet'
+                    : `No assets in ${activeFilter} yet`}
+                </h3>
+                <p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-ui-faint">
+                  {activeFilter === 'All Assets'
+                    ? 'Once you complete an investment, your portfolio positions will appear here with token value, yield, and lockup details.'
+                    : 'Try another filter or browse available marketplace opportunities to build this part of your portfolio.'}
+                </p>
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  <Link
+                    href="/investor/marketplace"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+                  >
+                    Explore Marketplace
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter('All Assets')}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ui-border px-5 py-3 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+                  >
+                    View All Assets
+                  </button>
+                </div>
+              </div>
+            </div>
           ) : null}
           {assets.map((asset) => {
             const st =

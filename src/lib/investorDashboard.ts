@@ -422,8 +422,17 @@ export function buildInvestorGreeting(
 }
 
 export function formatYieldPercent(value: number | null | undefined): string {
-  if (value === null || value === undefined) return "—";
+  if (value === null || value === undefined) return "0.0%";
   return `${value.toFixed(1)}%`;
+}
+
+/** Human-readable trend when API has no prior-period comparison yet. */
+export function formatQuarterChangePercent(
+  value: number | null | undefined,
+): string {
+  if (value === null || value === undefined) return "No prior quarter";
+  const sign = value >= 0 ? "↗" : "↘";
+  return `${sign} ${formatPercent(value)}`;
 }
 
 export type { RecentActivityItem, TokenTickerItem, UpcomingEventItem };

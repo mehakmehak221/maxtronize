@@ -12,7 +12,10 @@ export {
   useUpdateProfileMutation,
   useVerifyForgotPasswordOtpMutation,
 } from "./api/authApi";
-export { useUploadFileMutation } from "./api/uploadApi";
+export {
+  useUploadFileMutation,
+} from "./api/uploadApi";
+export type { UploadFileRequest, UploadFileResponse } from "./api/uploadApi";
 export {
   issuerHubApi,
   useExportIssuerHubCapTableMutation,
@@ -30,6 +33,22 @@ export {
   useListIssuerHubInvestorsQuery,
   useListIssuerHubRegulatoryStatusQuery,
 } from "./api/issuerHubApi";
+export {
+  issuerHubAiAssistantApi,
+  useBootstrapIssuerHubAiAssistantMutation,
+  useGetIssuerHubAiAssistantInitQuery,
+  useGetIssuerHubAiAssistantQuery,
+  useGetIssuerHubAiSuggestedPromptsQuery,
+  useListIssuerHubAiMessagesQuery,
+  useSendIssuerHubAiMessageMutation,
+} from "./api/issuerHubAiAssistantApi";
+export type {
+  IssuerAiAssistantConfig,
+  IssuerAiAssistantInit,
+  IssuerAiAssistantMessage,
+  IssuerAiAssistantSendResponse,
+  IssuerAiAssistantSuggestedPrompt,
+} from "@/lib/issuerAiAssistant";
 export {
   onboardingApi,
   useDeleteOnboardingDocumentMutation,
@@ -57,6 +76,7 @@ export {
 } from "./api/onboardingApi";
 export {
   portfolioApi,
+  useGetInvestorPortfolioInitQuery,
   useGetPortfolioFiltersQuery,
   useGetPortfolioSummaryQuery,
   useGetPortfolioNavHistoryQuery,
@@ -65,6 +85,7 @@ export {
 } from "./api/portfolioApi";
 export type { ListPortfolioAssetsParams } from "./api/portfolioApi";
 export type {
+  InvestorPortfolioInit,
   PortfolioAsset,
   PortfolioCategory,
   PortfolioSummary,
@@ -215,6 +236,10 @@ export {
   useGetInvestorHubTransactionFiltersQuery,
   useListInvestorHubTransactionsQuery,
 } from "./api/investorHubTransactionsApi";
+export {
+  investorTransactionsApi,
+  useListInvestorTransactionsQuery,
+} from "./api/investorTransactionsApi";
 export type {
   InvestorHubTransaction,
   InvestorHubTransactionFilters,
@@ -226,6 +251,8 @@ export {
   investorMarketplaceApi,
   useGetMarketplaceFeaturedQuery,
   useGetMarketplaceFiltersQuery,
+  useGetMarketplaceInvestmentQuery,
+  useGetMarketplaceOpportunityInvestPreviewQuery,
   useGetMarketplaceStatsQuery,
   useListMarketplaceOpportunitiesQuery,
   useGetMarketplaceOpportunityQuery,
@@ -233,11 +260,15 @@ export {
   useGetMarketplaceOpportunityFinancialsQuery,
   useGetMarketplaceOpportunityInitQuery,
   useGetMarketplaceOpportunityOverviewQuery,
+  useInvestInMarketplaceOpportunityMutation,
   useAddOpportunityToWatchlistMutation,
   useRemoveOpportunityFromWatchlistMutation,
 } from "./api/investorMarketplaceApi";
 export type {
   ListMarketplaceOpportunitiesParams,
+  MarketplaceInvestment,
+  MarketplaceInvestPreview,
+  MarketplaceInvestResponse,
   MarketplaceFilterOption,
   MarketplaceFilters,
   MarketplaceOpportunitiesResult,

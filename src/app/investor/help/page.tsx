@@ -68,7 +68,7 @@ const TOPICS: { title: string; desc: string; Icon: LucideIcon; iconClass: string
   },
   {
     title: 'Investor Management',
-    desc: '7 articles · Cap table & KYC tools',
+    desc: '7 articles · Cap table and KYC tools',
     Icon: TrendingUp,
     iconClass: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400',
   },
@@ -84,37 +84,37 @@ const FAQS: { cat: FaqCategory; q: string; a: string }[] = [
   {
     cat: 'PLATFORM',
     q: 'What types of real-world assets can be tokenized on Maxtronize?',
-    a: 'Maxtronize supports a wide range of asset classes including commercial and residential real estate, private equity funds, infrastructure projects, commodities, art & collectibles, and more. Each asset undergoes a compliance review before listing to ensure it meets the jurisdictional requirements.',
+    a: 'Maxtronize supports a wide range of asset classes, including commercial and residential real estate, private equity funds, infrastructure projects, commodities, art and collectibles, and more. Each asset undergoes a compliance review before listing to ensure that it meets jurisdictional requirements.',
   },
   {
     cat: 'COMPLIANCE',
     q: 'How does investor KYC and accreditation verification work?',
-    a: 'Investors go through a multi-step KYC process including identity verification, accreditation checks, and AML screening. The process is powered by our compliance partners and typically takes 24–48 hours.',
+    a: 'Investors go through a multi-step KYC process, including identity verification, accreditation checks, and AML screening. The process is powered by our compliance partners and typically takes 24 to 48 hours.',
   },
   {
     cat: 'TECHNICAL',
     q: 'Which blockchain networks are supported for token issuance?',
-    a: 'We support Ethereum (ERC-20), Polygon, and select Layer-2 networks. The blockchain is selected during the tokenization setup process based on your jurisdictional and performance requirements.',
+    a: 'We support Ethereum (ERC-20), Polygon, and select Layer 2 networks. The blockchain is selected during the tokenization setup process based on your jurisdictional and performance requirements.',
   },
   {
     cat: 'COMPLIANCE',
     q: 'What regulatory frameworks does the platform comply with?',
-    a: 'Maxtronize is compliant with SEC Regulation D (506b/c), EU MiCA, MAS (Singapore), and FINMA (Switzerland). Our legal team continuously monitors regulatory changes across all supported jurisdictions.',
+    a: 'Maxtronize supports SEC Regulation D (Rules 506(b) and 506(c)), EU MiCA, MAS requirements in Singapore, and FINMA frameworks in Switzerland. Our legal team continuously monitors regulatory changes across all supported jurisdictions.',
   },
   {
     cat: 'YIELD',
     q: 'How are yield distributions handled on-chain?',
-    a: 'Yield distributions are automated via smart contracts. When income is received from the underlying asset, it is converted to stablecoins or native tokens and distributed proportionally to all token holders on the scheduled distribution date.',
+    a: 'Yield distributions are automated through smart contracts. When income is received from the underlying asset, it is converted to stablecoins or native tokens and distributed proportionally to token holders on the scheduled distribution date.',
   },
   {
     cat: 'PRICING',
     q: 'What fees does Maxtronize charge for tokenization?',
-    a: 'Our fee structure includes a one-time tokenization setup fee, an annual platform fee, and a small transaction fee on secondary market trades. Contact our sales team for a customized quote based on asset size.',
+    a: 'Our fee structure includes a one-time tokenization setup fee, an annual platform fee, and a small transaction fee on secondary market trades. Contact our sales team for a customized quote based on asset size and complexity.',
   },
   {
     cat: 'TOKENS',
     q: 'Can investors trade their tokens on secondary markets?',
-    a: 'Yes. Once an asset is in the secondary market phase, token holders can trade peer-to-peer through our integrated secondary market. All trades are settled on-chain with automated escrow protection and compliance checks.',
+    a: 'Yes. Once an asset enters the secondary market phase, token holders can trade peer-to-peer through our integrated secondary market. All trades are settled on-chain with automated escrow protection and compliance checks.',
   },
 ];
 
@@ -141,7 +141,7 @@ const CONTACT_OPTIONS: {
     Icon: Mail,
     iconClass: 'bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-400',
     badge: {
-      text: '24–48h',
+      text: '24-48 Hours',
       className: 'border-sky-200/80 bg-sky-50 text-sky-700 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-400',
     },
   },
@@ -153,7 +153,7 @@ const CONTACT_OPTIONS: {
   },
   {
     label: 'Documentation',
-    sub: 'Full developer & legal docs',
+    sub: 'Full developer and legal documentation',
     Icon: BookOpen,
     iconClass: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400',
   },
@@ -182,7 +182,7 @@ const TICKETS: {
   },
   {
     id: 'TK-3036',
-    title: 'SEC Reg D filing documentation needed',
+    title: 'SEC Regulation D filing documentation required',
     priority: 'LOW',
     time: 'Updated 3 days ago',
     circleClass: 'bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-400',

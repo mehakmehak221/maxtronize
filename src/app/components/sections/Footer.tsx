@@ -19,7 +19,7 @@ const Footer = () => {
           <div className="relative w-40 h-14 sm:w-56 sm:h-16">
             <Image
               src="/images/newfooterlogo.png"
-              alt="Maxtron Logo"
+              alt="Maxtronize logo"
               fill
               className="object-contain object-left"
             />

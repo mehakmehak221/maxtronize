@@ -100,7 +100,7 @@ export function HubDistributionsTab() {
               Icon: Calendar,
             },
             {
-              label: 'Portfolio Avg APY',
+              label: 'Portfolio Average APY',
               value: avgApy,
               sub: summary?.portfolioAvgApy.summary,
               Icon: TrendingUp,

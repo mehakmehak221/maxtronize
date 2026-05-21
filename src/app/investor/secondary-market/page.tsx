@@ -83,7 +83,7 @@ function StatKpiCard({ stat }: { stat: StatCard }) {
 }
 
 function formatVolume(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value) || value <= 0) return '—';
+  if (value == null || Number.isNaN(value)) return '—';
   if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
   if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
   return `$${value.toLocaleString()}`;
@@ -120,7 +120,7 @@ export default function SecondaryMarketPage() {
   const activeStats = useMemo(() => {
     return [
       {
-        label: '24H Volume',
+        label: '24-Hour Volume',
         val: formatVolume(stats?.volume24h.amount),
         trend: formatSignedPercent(stats?.volume24h.changePercent),
         up: (stats?.volume24h.changePercent ?? 0) >= 0,
@@ -132,7 +132,7 @@ export default function SecondaryMarketPage() {
         up: (stats?.totalListings.change ?? 0) >= 0,
       },
       {
-        label: 'Avg. Price Change',
+        label: 'Average Price Change',
         val: formatSignedPercent(stats?.avgPriceChange.percent),
         trend: formatSignedPercent(stats?.avgPriceChange.changePercent),
         up: (stats?.avgPriceChange.changePercent ?? 0) >= 0,
@@ -295,11 +295,11 @@ export default function SecondaryMarketPage() {
                       </p>
                       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] lg:mt-2.5">
                         <div>
-                          <span className="font-bold uppercase tracking-wider text-ui-faint">24h Vol </span>
+                          <span className="font-bold uppercase tracking-wider text-ui-faint">24h Volume </span>
                           <span className="font-bold text-ui-strong">{listing.vol24h}</span>
                         </div>
                         <div>
-                          <span className="font-bold uppercase tracking-wider text-ui-faint">Last </span>
+                          <span className="font-bold uppercase tracking-wider text-ui-faint">Last Sale </span>
                           <span className="font-bold text-ui-strong">{listing.lastSale}</span>
                         </div>
                       </div>

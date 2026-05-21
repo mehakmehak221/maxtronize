@@ -8,12 +8,12 @@ const HowItWorksFlow = () => {
     {
       id: "01",
       title: "Entity & KYB",
-      description: "Submit your LLC or C-Corp, EIN, directors and UBOs. Verified by our compliance team."
+      description: "Submit your LLC or C corporation details, EIN, directors, and UBOs for verification by our compliance team."
     },
     {
       id: "02",
       title: "Structure SPV",
-      description: "Spin up a bankruptcy-remote SPV per asset with token-holder rights mapped to equity."
+      description: "Establish a bankruptcy-remote SPV for each asset, with token holder rights mapped to equity."
     },
     {
       id: "03",
@@ -28,7 +28,7 @@ const HowItWorksFlow = () => {
     {
       id: "05",
       title: "Distribute & Manage",
-      description: "Onboard investors, automate distributions, manage cap table, and report continuously."
+      description: "Onboard investors, automate distributions, manage your cap table, and deliver ongoing reporting."
     }
   ];
 

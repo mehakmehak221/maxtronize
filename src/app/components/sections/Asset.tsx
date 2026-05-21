@@ -8,45 +8,45 @@ import Link from "next/link";
 
 const assets = [
   {
-    title: "GOLD AND GOLDMINES",
+    title: "Gold and Gold Mines",
     description:
-      "Physical Gold, Refinery-Backed Reserves, And Operating Gold Mining Asset",
+      "Physical gold, refinery-backed reserves, and operating gold mining assets.",
     image: "/images/content.webp",
   },
   {
-    title: "REAL ESTATE",
+    title: "Real Estate",
     description:
-      "Skyscrapers, commercial properties, residential developments, rental assets, and land holdings",
+      "Skyscrapers, commercial properties, residential developments, rental assets, and land holdings.",
     image: "/images/real-estate.webp",
   },
   {
-    title: "STOCKS",
+    title: "Stocks",
     description:
-      "Publicly listed equities and structured market-linked instruments",
+      "Publicly listed equities and structured market-linked instruments.",
     image: "/images/stocks.webp",
   },
   {
-    title: "BONDS",
+    title: "Bonds",
     description:
-      "Corporate bonds, government securities, and fixed-income debt instruments",
+      "Corporate bonds, government securities, and fixed-income debt instruments.",
     image: "/images/bonds.webp",
   },
   {
-    title: "COMMODITIES",
+    title: "Commodities",
     description:
-      "Access real-world assets like metals, energy, and raw materials",
+      "Access real-world assets such as metals, energy, and raw materials.",
     image: "/commodities.webp",
   },
   {
-    title: "CURATED CRYPTO",
+    title: "Curated Crypto",
     description:
-      "Digital assets backed by research, high-conviction exposure to the future of finance",
+      "Digital assets backed by research, offering high-conviction exposure to the future of finance.",
     image: "/crypto.webp",
   },
   {
-    title: "EXCLUSIVE HIGH-YIELD",
+    title: "Exclusive High Yield",
     description:
-      "Unlock elite yield strategies not accessible through traditional investment channels",
+      "Unlock premium yield strategies not typically accessible through traditional investment channels.",
     image: "/yield.webp",
   },
 ];

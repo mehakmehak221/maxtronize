@@ -21,6 +21,7 @@ export type SecondaryListing = {
   seller: string;
   liquidity: LiquidityLevel;
   pricePerToken: string;
+  pricePerTokenValue: number;
   change: string;
   up: boolean;
   vol24h: string;
@@ -92,10 +93,14 @@ function parseListingRecord(record: Record<string, unknown>, index: number): Sec
   const priceNum = pickNumber(record, ["pricePerToken", "price_per_token", "price", "tokenPrice"]) ?? 0;
   const changeNum = pickNumber(record, ["change", "priceChangePercent", "changePercent"]) ?? 0;
   const volNum = pickNumber(record, ["vol24h", "vol_24h", "volume24h", "volume"]) ?? 0;
-  const lastSaleNum = pickNumber(record, ["lastSale", "last_sale", "lastPrice"]) ?? priceNum;
-  const totalValNum = pickNumber(record, ["totalVal", "total_val", "value"]) ?? 0;
+  const lastSaleNum =
+    pickNumber(record, ["lastSale", "last_sale", "lastPrice", "lastSalePrice"]) ?? priceNum;
+  const totalValNum =
+    pickNumber(record, ["totalVal", "total_val", "value", "totalValue"]) ?? 0;
 
-  const sector = pickString(record, ["sector", "category", "assetType"]) ?? "Real Estate";
+  const sector =
+    pickString(record, ["sector", "categoryLabel", "category", "assetType"]) ??
+    "Real Estate";
   let iconType = "building";
   const sLower = sector.toLowerCase();
   if (sLower.includes("energy") || sLower.includes("solar") || sLower.includes("infra")) {
@@ -112,12 +117,15 @@ function parseListingRecord(record: Record<string, unknown>, index: number): Sec
   return {
     id: pickString(record, ["id", "_id"]) ?? `listing-${index}`,
     assetId: pickString(record, ["assetId", "asset_id"]) ?? "",
-    name: pickString(record, ["name", "title"]) ?? `Listing ${index + 1}`,
+    name: pickString(record, ["name", "title", "assetTitle"]) ?? `Listing ${index + 1}`,
     ticker: pickString(record, ["ticker", "symbol"]) ?? "—",
     sector,
-    seller: pickString(record, ["seller", "owner", "sellerName"]) ?? `Investor #${1000 + index}`,
+    seller:
+      pickString(record, ["seller", "owner", "sellerName", "sellerLabel"]) ??
+      `Investor #${1000 + index}`,
     liquidity: mapLiquidityKey(pickString(record, ["liquidity", "liquidityLevel", "liquidity_level"])),
     pricePerToken: formatCurrency(priceNum),
+    pricePerTokenValue: priceNum,
     change: formatSignedPercent(changeNum),
     up: changeNum >= 0,
     vol24h: formatCurrency(volNum),
@@ -160,18 +168,17 @@ export function parseSecondaryFilters(payload: unknown): SecondaryMarketFilters 
 }
 
 export function parseSecondaryListings(payload: unknown): SecondaryMarketListingsResult {
-  const root = unwrapPayload(payload);
-  if (!root || typeof root !== "object" || Array.isArray(root)) {
+  if (!payload || typeof payload !== "object") {
     return { items: [], pagination: DEFAULT_PAGINATION };
   }
 
-  const rObj = root as Record<string, unknown>;
-  const rawListings = rObj.items ?? rObj.listings ?? rObj.data ?? [];
+  const root = payload as Record<string, unknown>;
+  const rawListings = root.items ?? root.listings ?? root.data ?? unwrapPayload(payload);
   const items = unwrapList(rawListings).map(parseListingRecord);
 
   return {
     items,
-    pagination: parsePagination(rObj),
+    pagination: parsePagination(root),
   };
 }
 

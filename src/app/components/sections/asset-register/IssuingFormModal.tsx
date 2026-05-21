@@ -419,7 +419,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                       </div>
                       <h2 className="text-4xl font-bold text-[var(--color-text-primary)] mb-4">Submission Received</h2>
                       <p className="text-[var(--color-text-secondary)] text-lg mb-10 max-w-sm mx-auto">
-                        Our compliance team will review your application and get back to you within 24-48 hours.
+                        Our compliance team will review your application and get back to you within 24 to 48 hours.
                       </p>
                       <button
                         onClick={resetForm}

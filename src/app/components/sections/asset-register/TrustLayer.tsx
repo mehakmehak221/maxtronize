@@ -9,12 +9,12 @@ const TrustLayer = () => {
     {
       icon: <XCircle className="w-5 h-5 text-[var(--primary)]" />,
       title: "Qualified Custody",
-      description: "Assets and tokens held with regulated qualified custodians."
+      description: "Assets and tokens are held with regulated qualified custodians."
     },
     {
       icon: <Fingerprint className="w-5 h-5 text-[var(--primary)]" />,
       title: "KYC / KYB / AML",
-      description: "Continuous screening across sanctions, PEP, and adverse media."
+      description: "Continuous screening for sanctions exposure, PEP risk, and adverse media."
     },
     {
       icon: <FileBadge className="w-5 h-5 text-[var(--primary)]" />,
@@ -29,7 +29,7 @@ const TrustLayer = () => {
     {
       icon: <Scale className="w-5 h-5 text-[var(--primary)]" />,
       title: "Legal Opinions",
-      description: "Each offering ships with counsel-reviewed structuring and disclosure."
+      description: "Each offering includes counsel-reviewed structuring and disclosure documentation."
     },
     {
       icon: <ShieldCheck className="w-5 h-5 text-[var(--primary)]" />,

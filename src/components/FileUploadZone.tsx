@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { Lock, Upload } from "lucide-react";
 import { formatRequestError } from "@/lib/formatRequestError";
 import { useUploadFileMutation } from "@/store/api/uploadApi";
@@ -10,13 +10,29 @@ const iconStroke = 1.75;
 type FileUploadZoneProps = {
   onUploaded?: (url: string, file: File) => void;
   className?: string;
+  helperText?: string;
+  folder?: "kyc" | "kyb" | "assets" | "avatars" | "general";
 };
 
-export function FileUploadZone({ onUploaded, className = "" }: FileUploadZoneProps) {
+export type FileUploadZoneHandle = {
+  openPicker: () => void;
+};
+
+export const FileUploadZone = forwardRef<FileUploadZoneHandle, FileUploadZoneProps>(
+  function FileUploadZone(
+    { onUploaded, className = "", helperText, folder = "general" }: FileUploadZoneProps,
+    ref,
+  ) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [upload, { isLoading }] = useUploadFileMutation();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    openPicker: () => {
+      if (!isLoading) inputRef.current?.click();
+    },
+  }), [isLoading]);
 
   async function handleFiles(fileList: FileList | null) {
     const file = fileList?.[0];
@@ -26,7 +42,7 @@ export function FileUploadZone({ onUploaded, className = "" }: FileUploadZonePro
     setMessage(null);
 
     try {
-      const result = await upload(file).unwrap();
+      const result = await upload({ file, folder }).unwrap();
       const url = result.url || "Uploaded successfully";
       setMessage(`${file.name} uploaded`);
       onUploaded?.(url, file);
@@ -72,6 +88,11 @@ export function FileUploadZone({ onUploaded, className = "" }: FileUploadZonePro
             <p className="mt-0.5 text-[11px] font-medium text-ui-faint">
               PDF, DOCX, XLSX up to 50MB · Encrypted at rest
             </p>
+            {helperText ? (
+              <p className="mt-1 text-[10px] font-medium text-ui-placeholder">
+                {helperText}
+              </p>
+            ) : null}
           </div>
           <Lock
             className="h-5 w-5 shrink-0 text-ui-faint"
@@ -89,5 +110,6 @@ export function FileUploadZone({ onUploaded, className = "" }: FileUploadZonePro
         </p>
       ) : null}
     </div>
-  );
-}
+    );
+  },
+);

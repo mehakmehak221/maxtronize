@@ -23,6 +23,7 @@ import {
   formatCompactCurrency,
   formatOverviewDate,
   formatPercent,
+  formatQuarterChangePercent,
   formatYieldPercent,
   type InvestorDashboardSummary,
 } from '@/lib/investorDashboard';
@@ -52,11 +53,8 @@ function buildKpiCards(summary: InvestorDashboardSummary | undefined): KpiCard[]
     {
       label: 'Total Invested',
       val: formatCompactCurrency(summary.totalInvested.amount, currency),
-      trend:
-        quarterChange !== null
-          ? `${quarterChange >= 0 ? '↗' : '↘'} ${formatPercent(quarterChange)}`
-          : '—',
-      sub: 'vs prior quarter',
+      trend: formatQuarterChangePercent(quarterChange),
+      sub: 'versus prior quarter',
       up: quarterChange === null || quarterChange >= 0,
       Icon: IssuerStatIconBars,
       well: 'bg-dash-kpi-blue-soft text-dash-kpi-blue-fg ring-1 ring-dash-kpi-blue-ring',
@@ -65,7 +63,7 @@ function buildKpiCards(summary: InvestorDashboardSummary | undefined): KpiCard[]
       label: 'Unrealized Gain',
       val: formatCompactCurrency(unrealized.amount, currency),
       trend: formatPercent(unrealized.percent),
-      sub: 'mark-to-market',
+      sub: 'marked to market',
       up: unrealized.amount >= 0,
       Icon: IssuerStatIconTrend,
       well: 'bg-dash-kpi-green-soft text-dash-kpi-green-fg ring-1 ring-dash-kpi-green-ring',
@@ -74,7 +72,7 @@ function buildKpiCards(summary: InvestorDashboardSummary | undefined): KpiCard[]
       label: 'Distributions',
       val: formatCompactCurrency(dist.amount, dist.currency),
       trend: formatCompactCurrency(dist.quarterEstimate, dist.currency),
-      sub: 'est. this quarter',
+      sub: 'estimated this quarter',
       up: true,
       Icon: IssuerStatIconUsers,
       well: 'bg-dash-kpi-orange-soft text-dash-kpi-orange-fg ring-1 ring-dash-kpi-orange-ring',
@@ -114,7 +112,7 @@ export default function InvestorOverviewPage() {
         decimals: 0,
       })
     : isLoading
-      ? '—'
+      ? '…'
       : '$0';
 
   const annualReturn = overview?.hero.annualReturnPercent ?? 0;
@@ -126,14 +124,20 @@ export default function InvestorOverviewPage() {
       ? init!.tokenTicker.map((t) => ({ sym: t.sym, ch: t.change, dotClass: t.dotClass }))
       : (overview?.activeTokens.length ?? 0) > 0
         ? overview!.activeTokens.map((t) => ({ sym: t.sym, ch: t.change, dotClass: t.dotClass }))
-        : [{ sym: '—', ch: 'No tokens', dotClass: 'bg-white/30' }];
+        : [];
 
   return (
     <InvestorLayout pageTitle="Investor Overview">
       <div className="mx-auto w-full max-w-7xl space-y-6 sm:space-y-8 md:space-y-10">
         <OverviewHero
           greeting={buildInvestorGreeting(overview)}
-          date={overview ? formatOverviewDate(overview.greeting.asOf) : '—'}
+          date={
+            overview
+              ? formatOverviewDate(overview.greeting.asOf)
+              : isLoading
+                ? '…'
+                : formatOverviewDate(new Date().toISOString())
+          }
           value={heroValue}
           subtitle="Total portfolio value across all investments"
           badges={[
@@ -154,7 +158,9 @@ export default function InvestorOverviewPage() {
                     overview.quickStats.monthlyIncome.amount,
                     overview.quickStats.monthlyIncome.currency,
                   )
-                : '—',
+                : isLoading
+                  ? '…'
+                  : '$0',
               Icon: Wallet,
             },
             {
@@ -163,7 +169,7 @@ export default function InvestorOverviewPage() {
               Icon: IconPulseActivity,
             },
             {
-              label: 'Avg Yield',
+              label: 'Average Yield',
               value: formatYieldPercent(overview?.quickStats.averageYieldPercent),
               Icon: TrendingUp,
             },
@@ -302,7 +308,7 @@ export default function InvestorOverviewPage() {
               >
                 <div className="flex h-full w-full flex-col items-center justify-center rounded-full bg-ui-card">
                   <p className="text-2xl font-bold tabular-nums text-ui-strong md:text-3xl">
-                    {(allocation?.segments.length ?? 0) > 0 ? '100%' : '—'}
+                    {(allocation?.segments.length ?? 0) > 0 ? '100%' : '0%'}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">Total</p>
                 </div>

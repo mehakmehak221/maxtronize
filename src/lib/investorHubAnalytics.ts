@@ -153,34 +153,65 @@ export function buildPerformanceChartPaths(
   series: PerformanceSeriesPoint[],
 ): {
   portfolioPath: string;
+  benchmarkPath: string;
   areaPath: string;
   labels: string[];
+  yLabels: string[];
 } | null {
   if (series.length === 0) return null;
 
-  const portfolioValues = series.map((p) => p.portfolio);
-  const benchmarkValues = series.map((p) => p.benchmark);
-  const max = Math.max(...portfolioValues, ...benchmarkValues, 1);
+  const firstPortfolio =
+    series.find((point) => Number.isFinite(point.portfolio) && point.portfolio > 0)
+      ?.portfolio ?? 0;
+  const firstBenchmark =
+    series.find((point) => Number.isFinite(point.benchmark) && point.benchmark > 0)
+      ?.benchmark ?? 0;
+
+  if (firstPortfolio <= 0 || firstBenchmark <= 0) return null;
+
+  const portfolioValues = series.map((p) => ((p.portfolio / firstPortfolio) - 1) * 100);
+  const benchmarkValues = series.map((p) => ((p.benchmark / firstBenchmark) - 1) * 100);
+  const allValues = [...portfolioValues, ...benchmarkValues];
+  const rawMin = Math.min(...allValues, 0);
+  const rawMax = Math.max(...allValues, 0);
+  const padding = Math.max((rawMax - rawMin) * 0.12, 1);
+  const min = rawMin - padding;
+  const max = rawMax + padding;
+  const range = Math.max(max - min, 1);
   const lastIndex = Math.max(series.length - 1, 1);
 
   const toPoint = (value: number, index: number) => {
     const x = (index / lastIndex) * 1000;
-    const y = 12 + (1 - value / max) * 70;
+    const normalized = (value - min) / range;
+    const y = 12 + (1 - normalized) * 70;
     return { x, y };
   };
 
   const points = portfolioValues.map((v, i) => toPoint(v, i));
+  const benchmarkPoints = benchmarkValues.map((v, i) => toPoint(v, i));
   const portfolioPath = points
+    .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+    .join(" ");
+  const benchmarkPath = benchmarkPoints
     .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
     .join(" ");
   const last = points[points.length - 1];
   const first = points[0];
-  const areaPath = `${portfolioPath} L${last.x.toFixed(1)},100 L${first.x.toFixed(1)},100 Z`;
+  const baselineY = toPoint(0, 0).y;
+  const areaPath = `${portfolioPath} L${last.x.toFixed(1)},${baselineY.toFixed(1)} L${first.x.toFixed(1)},${baselineY.toFixed(1)} Z`;
+  const yLabels = [1, 0.75, 0.5, 0.25, 0].map((ratio) => {
+    const value = min + (max - min) * ratio;
+    const rounded = Math.abs(value) < 0.05 ? 0 : value;
+    const sign = rounded > 0 ? "+" : "";
+    return `${sign}${rounded.toFixed(0)}%`;
+  });
 
   return {
     portfolioPath,
+    benchmarkPath,
     areaPath,
     labels: series.map((p) => p.label),
+    yLabels,
   };
 }
 

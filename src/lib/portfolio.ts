@@ -59,6 +59,13 @@ export type PortfolioSummary = {
   navHistory: PortfolioNavPoint[];
 };
 
+export type InvestorPortfolioInit = {
+  summary: PortfolioSummary;
+  navHistory: PortfolioNavPoint[];
+  categories: PortfolioCategory[];
+  assets: PortfolioAsset[];
+};
+
 export type PortfolioListResult = {
   items: PortfolioAsset[];
   pagination: PaginationMeta;
@@ -224,7 +231,18 @@ export function formatPortfolioTokenPrice(
 
 export function parsePortfolioFilters(payload: unknown): PortfolioCategory[] {
   const record = unwrapPayload(payload);
-  if (!record || typeof record !== "object" || Array.isArray(record)) {
+  if (Array.isArray(record)) {
+    return record.map((item) => {
+      const entry = item as Record<string, unknown>;
+      const key = pickString(entry, ["key", "id", "value"]) ?? "ALL";
+      const label =
+        pickString(entry, ["label", "name", "title"]) ??
+        CATEGORY_LABELS[key] ??
+        key;
+      return { key, label };
+    });
+  }
+  if (!record || typeof record !== "object") {
     return Object.entries(CATEGORY_LABELS).map(([key, label]) => ({ key, label }));
   }
 
@@ -336,6 +354,26 @@ export function parsePortfolioSummary(
 
 export function parsePortfolioNavHistory(payload: unknown): PortfolioNavPoint[] {
   const record = unwrapPayload(payload);
+  if (Array.isArray(record)) {
+    return record
+      .filter((p): p is Record<string, unknown> => Boolean(p) && typeof p === "object")
+      .map((point, index) => {
+        const recordedAt = pickString(point, ["recordedAt", "date", "label", "month"]) ?? `M${index + 1}`;
+        let label = recordedAt;
+        if (recordedAt.includes("-")) {
+          try {
+            const date = new Date(recordedAt);
+            if (!isNaN(date.getTime())) {
+              label = date.toLocaleDateString("en-US", { month: "short" });
+            }
+          } catch {
+            // ignore
+          }
+        }
+        const nav = pickNumber(point, ["nav", "value", "amount"]) ?? 0;
+        return { label, value: nav };
+      });
+  }
   if (!record || typeof record !== "object") return [];
   const root = record as Record<string, unknown>;
   const series = root.series ?? root.history ?? root.navHistory ?? [];
@@ -362,6 +400,39 @@ export function parsePortfolioNavHistory(payload: unknown): PortfolioNavPoint[] 
         value: nav,
       };
     });
+}
+
+export function parseInvestorPortfolioInit(
+  payload: unknown,
+): InvestorPortfolioInit {
+  const root =
+    payload && typeof payload === "object"
+      ? ((payload as Record<string, unknown>).data &&
+        typeof (payload as Record<string, unknown>).data === "object" &&
+        !Array.isArray((payload as Record<string, unknown>).data)
+          ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
+          : (payload as Record<string, unknown>))
+      : {};
+
+  const summaryPayload =
+    root.summary && typeof root.summary === "object" ? root.summary : root;
+  const navPayload =
+    root.navHistory ??
+    root.history ??
+    root.series ??
+    (summaryPayload as Record<string, unknown>).navHistory ??
+    summaryPayload;
+  const filtersPayload =
+    root.filters ?? root.categories ?? root.tabs ?? summaryPayload;
+  const assetsPayload =
+    root.assets ?? root.items ?? root.portfolioAssets ?? root.results ?? root;
+
+  return {
+    summary: parsePortfolioSummary(summaryPayload),
+    navHistory: parsePortfolioNavHistory({ data: navPayload }),
+    categories: parsePortfolioFilters({ data: filtersPayload }),
+    assets: parsePortfolioAssets({ data: assetsPayload }).items,
+  };
 }
 
 export function categoryKeyToFilterLabel(

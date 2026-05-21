@@ -52,14 +52,19 @@ export default function MarketplacePage() {
 
   const allOpps = opportunitiesResult?.data ?? [];
   const isLoading = featuredLoading || oppsLoading;
+  const hasActiveFilters =
+    Boolean(search.trim()) ||
+    selectedAssetTypes.length > 0 ||
+    selectedRiskLevels.length > 0 ||
+    Boolean(selectedMinBucket);
 
   const displayFeatured =
-    featured.length > 0
+    !hasActiveFilters && featured.length > 0
       ? featured
       : allOpps.filter((a) => a.featured).slice(0, 3);
 
   const displayAll =
-    featured.length > 0
+    !hasActiveFilters && featured.length > 0
       ? allOpps.filter((a) => !featured.some((f) => f.id === a.id))
       : allOpps.filter((a) => !a.featured);
 
@@ -305,7 +310,7 @@ export default function MarketplacePage() {
               </div>
             ) : (
               <>
-                {displayFeatured.length > 0 && (
+                {!hasActiveFilters && displayFeatured.length > 0 && (
                   <section>
                     <h2 className="mb-5 flex items-center gap-2.5 text-lg font-bold text-ui-strong md:text-xl">
                       <FeaturedStarOutlineIcon

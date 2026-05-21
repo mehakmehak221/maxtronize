@@ -388,7 +388,7 @@ export default function YieldPage() {
         variant: 'default',
       },
       {
-        label: 'Portfolio Avg APY',
+        label: 'Portfolio Average APY',
         value: avgApy,
         sub: summary?.portfolioAvgApy.summary || 'Weighted by NAV',
         Icon: BarChart3,

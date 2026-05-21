@@ -42,7 +42,7 @@ export default function Future() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="text-[32px] sm:text-[36px] md:text-[48px] lg:text-[52px] font-semibold text-[#111111] leading-tight mb-12 sm:mb-16 md:mb-20 text-center lg:text-left"
         >
-          The Future Of <span className="text-[#513C9E]">RWA</span>
+          The Future of <span className="text-[#513C9E]">RWAs</span>
         </motion.h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">

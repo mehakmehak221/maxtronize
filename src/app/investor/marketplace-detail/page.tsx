@@ -77,7 +77,9 @@ function MarketplaceDetailContent() {
   // Prefill price input when listing details load
   useEffect(() => {
     if (listing) {
-      const cleanPrice = parseFloat(listing.pricePerToken.replace(/[^0-9.]/g, ''));
+      const cleanPrice =
+        listing.pricePerTokenValue ||
+        parseFloat(listing.pricePerToken.replace(/[^0-9.]/g, ''));
       setPriceInput(isNaN(cleanPrice) ? '' : String(cleanPrice));
       setFavorited(Boolean(listing.watchlist));
     }
@@ -90,7 +92,11 @@ function MarketplaceDetailContent() {
 
   const currentPriceNum = useMemo(() => {
     if (!listing) return 0;
-    return parseFloat(listing.pricePerToken.replace(/[^0-9.]/g, '')) || 0;
+    return (
+      listing.pricePerTokenValue ||
+      parseFloat(listing.pricePerToken.replace(/[^0-9.]/g, '')) ||
+      0
+    );
   }, [listing]);
 
   const activePrice = orderType === 'market' ? currentPriceNum : parseFloat(priceInput) || 0;

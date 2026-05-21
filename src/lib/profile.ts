@@ -11,6 +11,8 @@ export type UserProfile = {
   nationality: string | null;
   residentialAddress: string | null;
   profileComplete: boolean;
+  kycStatus: string | null;
+  kycVerified: boolean;
 };
 
 function pickString(
@@ -94,6 +96,28 @@ export function parseProfile(payload: unknown): UserProfile | null {
     ]) ||
     Boolean(dateOfBirth && residentialAddress);
 
+  const rawKycStatus = pickString(record, [
+    "kycStatus",
+    "kyc_status",
+    "verificationStatus",
+    "verification_status",
+    "status",
+  ]);
+  const normalizedKycStatus = rawKycStatus
+    ? rawKycStatus.replace(/[_-]+/g, " ").trim()
+    : null;
+  const kycVerified =
+    pickBool(record, [
+      "kycVerified",
+      "kyc_verified",
+      "isKycVerified",
+      "is_kyc_verified",
+    ]) ||
+    Boolean(
+      normalizedKycStatus &&
+        ["VERIFIED", "APPROVED"].includes(normalizedKycStatus.toUpperCase()),
+    );
+
   return {
     id: pickString(record, ["id", "_id", "userId", "user_id"]),
     onboardingId: pickString(record, [
@@ -111,12 +135,31 @@ export function parseProfile(payload: unknown): UserProfile | null {
     nationality: pickString(record, ["nationality"]),
     residentialAddress,
     profileComplete,
+    kycStatus: normalizedKycStatus,
+    kycVerified,
   };
 }
 
 export function isProfileComplete(profile: UserProfile | null | undefined): boolean {
   if (!profile) return false;
   return profile.profileComplete;
+}
+
+export function isKycVerified(profile: UserProfile | null | undefined): boolean {
+  if (!profile) return false;
+  return profile.kycVerified;
+}
+
+export function isKycRejected(profile: UserProfile | null | undefined): boolean {
+  const status = profile?.kycStatus?.toUpperCase() ?? "";
+  return status.includes("REJECT");
+}
+
+export function isKycPendingReview(profile: UserProfile | null | undefined): boolean {
+  if (!profile || !profile.profileComplete || profile.kycVerified) return false;
+  const status = profile.kycStatus?.toUpperCase() ?? "";
+  if (!status) return false;
+  return status.includes("PENDING") || status.includes("UNDER REVIEW") || status.includes("REVIEW");
 }
 
 export function parseUploadFileUrl(payload: unknown): string | null {

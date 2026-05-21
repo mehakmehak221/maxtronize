@@ -33,7 +33,7 @@ const YieldAndLiquidity = ({ onStartIssuing }: { onStartIssuing?: () => void }) 
               {[
                 "Scheduled or ad-hoc payouts",
                 "USD or USDC settlement",
-                "Pro-rata cap table aware"
+                "Pro-rata distributions with cap table awareness"
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-sm font-medium text-[var(--color-text-secondary)]">
                   <span className="w-5 h-5 bg-[var(--sidebar-active-bg)] rounded-full flex items-center justify-center">

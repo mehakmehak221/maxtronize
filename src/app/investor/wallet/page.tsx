@@ -13,6 +13,10 @@ import {
 } from '@/app/VectorImages';
 import {
   useGetInvestorWalletInitQuery,
+  useGetInvestorWalletSummaryQuery,
+  useGetInvestorWalletsQuery,
+  useGetInvestorWalletHoldingsQuery,
+  useGetInvestorWalletTransactionsQuery,
   useConnectInvestorWalletMutation,
   useDepositInvestorFundsMutation,
   useWithdrawInvestorFundsMutation,
@@ -299,24 +303,31 @@ export default function InvestorWalletPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: initData, isLoading } = useGetInvestorWalletInitQuery();
+  const { data: initData, isLoading: initLoading } = useGetInvestorWalletInitQuery();
+  const { data: summaryData, isLoading: summaryLoading } = useGetInvestorWalletSummaryQuery();
+  const { data: walletsData, isLoading: walletsLoading } = useGetInvestorWalletsQuery();
+  const { data: holdingsData, isLoading: holdingsLoading } = useGetInvestorWalletHoldingsQuery();
+  const { data: transactionsData, isLoading: transactionsLoading } = useGetInvestorWalletTransactionsQuery();
   const [connectWallet] = useConnectInvestorWalletMutation();
   const [depositFunds] = useDepositInvestorFundsMutation();
   const [withdrawFunds] = useWithdrawInvestorFundsMutation();
   const [transferFunds] = useTransferInvestorFundsMutation();
 
-  const summary = initData?.summary;
-  const wallets = initData?.wallets ?? [];
-  const holdings = initData?.holdings ?? [];
-  const transactions = initData?.transactions ?? [];
+  const summary = summaryData ?? initData?.summary;
+  const wallets = walletsData?.length ? walletsData : (initData?.wallets ?? []);
+  const holdings = holdingsData?.length ? holdingsData : (initData?.holdings ?? []);
+  const transactions =
+    transactionsData?.length ? transactionsData : (initData?.transactions ?? []);
+  const isLoading =
+    initLoading || summaryLoading || walletsLoading || holdingsLoading || transactionsLoading;
   const currency = summary?.currency || form.currency || 'USD';
 
   const totalValueFormatted =
-    summary?.totalValue != null ? formatCompactCurrency(summary.totalValue, currency) : '—';
+    summary?.totalValue != null ? formatCompactCurrency(summary.totalValue, currency) : '$0';
   const monthlyChangeText =
     summary?.monthlyChangeAmount != null
       ? `${formatSignedCurrency(summary.monthlyChangeAmount, currency)} (${formatSignedPercent(summary.monthlyChangePercent)}) this month`
-      : 'No monthly change data yet';
+      : '$0.0 (0.0%) this month';
 
   const copyAddress = async (address: string) => {
     await navigator.clipboard.writeText(address);

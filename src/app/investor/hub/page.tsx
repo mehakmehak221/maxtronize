@@ -7,12 +7,6 @@ import InvestorLayout from '@/components/InvestorLayout';
 import { formatRequestError } from '@/lib/formatRequestError';
 import { formatPercent } from '@/lib/investorDashboard';
 import {
-  buildPerformanceChartPaths,
-  formatAnalyticsNumber,
-  formatAnalyticsPercent,
-  formatChartCurrency,
-} from '@/lib/investorHubAnalytics';
-import {
   buildMonthlyEarningsChartPaths,
   formatChartCurrency as formatOverviewChartCurrency,
   formatOverviewTrendChange,
@@ -23,12 +17,9 @@ import {
   buildAllocationConicGradient,
   formatCompactCurrency,
 } from '@/lib/issuerDashboard';
+import { HubAnalyticsTab } from '@/components/hub/HubAnalyticsTab';
 import { InvestorHubDistributionsTab } from '@/components/investor/InvestorHubDistributionsTab';
 import { InvestorHubInvestmentDocumentsTab } from '@/components/investor/InvestorHubInvestmentDocumentsTab';
-import {
-  useGetInvestorHubAnalyticsInitQuery,
-  useGetInvestorHubAnalyticsSummaryQuery,
-} from '@/store/api/investorHubAnalyticsApi';
 import { useGetInvestorHubOverviewInitQuery } from '@/store/api/investorHubOverviewApi';
 import { useListInvestorHoldingsQuery } from '@/store/api/investorHoldingsApi';
 import { useGetInvestorHubTabsQuery } from '@/store/api/investorHubTabsApi';
@@ -39,7 +30,6 @@ import {
 } from '@/store/api/investorHubTransactionsApi';
 import {
   AnalyticIcon,
-  AnalyticsTargetIcon,
   AssetIntelligenceIcon,
   BuyIcon,
   Document,
@@ -62,7 +52,6 @@ type TabType = 'overview' | 'investments' | 'transactions' | 'distributions' | '
 
 type NavSvg = ComponentType<SVGProps<SVGSVGElement>>;
 
-const ANALYTICS_PERIOD = '9m';
 const OVERVIEW_PERIOD = '9m';
 
 // Map server tab keys → client TabType
@@ -123,20 +112,6 @@ function InvestorHubContent() {
 
   const { data: holdingsResult, isLoading: holdingsLoading, error: holdingsError } =
     useListInvestorHoldingsQuery({ page: 1, limit: 50 });
-  const {
-    data: analyticsSummary,
-    isLoading: analyticsSummaryLoading,
-    error: analyticsSummaryError,
-  } = useGetInvestorHubAnalyticsSummaryQuery();
-  const {
-    data: analyticsInit,
-    isLoading: analyticsInitLoading,
-    error: analyticsInitError,
-  } = useGetInvestorHubAnalyticsInitQuery({ period: ANALYTICS_PERIOD });
-
-  const analyticsLoading = analyticsSummaryLoading || analyticsInitLoading;
-  const analyticsError = analyticsSummaryError || analyticsInitError;
-
   const holdings = holdingsResult?.items ?? [];
   const holdingsTotal = holdingsResult?.pagination.total ?? holdings.length;
 
@@ -159,56 +134,6 @@ function InvestorHubContent() {
       })),
     [holdings],
   );
-
-  const performance = analyticsInit?.performance;
-
-  const analyticsMetrics = useMemo(
-    () => [
-      {
-        label: 'Total Return',
-        val: analyticsLoading ? '…' : formatAnalyticsPercent(analyticsSummary?.totalReturn.value ?? 0),
-        sub: analyticsSummary?.totalReturn.summary || 'Since inception',
-        Icon: ReturnIcon,
-        iconBg: 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400',
-      },
-      {
-        label: 'Sharpe Ratio',
-        val: analyticsLoading ? '…' : formatAnalyticsNumber(analyticsSummary?.sharpeRatio.value ?? 0),
-        sub: analyticsSummary?.sharpeRatio.summary || 'Risk-adjusted',
-        Icon: AnalyticsTargetIcon,
-        iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
-      },
-      {
-        label: 'Volatility',
-        val: analyticsLoading ? '…' : formatAnalyticsPercent(analyticsSummary?.volatility.value ?? 0),
-        sub: analyticsSummary?.volatility.summary || 'Standard deviation',
-        Icon: OverviewHeroPulse,
-        iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
-      },
-      {
-        label: 'Beta',
-        val: analyticsLoading ? '…' : formatAnalyticsNumber(analyticsSummary?.beta.value ?? 0),
-        sub: analyticsSummary?.beta.summary || 'vs. market',
-        Icon: AnalyticIcon,
-        iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400',
-      },
-    ],
-    [analyticsLoading, analyticsSummary],
-  );
-
-  const performanceChart = useMemo(
-    () => buildPerformanceChartPaths(performance?.series ?? []),
-    [performance?.series],
-  );
-
-  const performanceYLabels = useMemo(() => {
-    const series = performance?.series ?? [];
-    const max = Math.max(...series.flatMap((p) => [p.portfolio, p.benchmark]), 1);
-    const currency = performance?.currency ?? 'USD';
-    return [1, 0.75, 0.5, 0.25, 0].map((ratio) =>
-      formatChartCurrency(max * ratio, currency),
-    );
-  }, [performance]);
 
   const TAB_ICONS: Record<TabType, NavSvg> = {
     overview: Overview,
@@ -328,9 +253,6 @@ function InvestorHubContent() {
 
   const earningsMonthLabels =
     earningsChart?.labels.length ? earningsChart.labels : months;
-
-  const performanceMonthLabels =
-    performanceChart?.labels.length ? performanceChart.labels : months;
 
   // ── Tab Content ──────────────────────────────────────────────────────────────
 
@@ -700,91 +622,7 @@ function InvestorHubContent() {
   );}
 
 
-  const renderAnalytics = () => (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
-      {analyticsError ? (
-        <p className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
-          {formatRequestError(analyticsError)}
-        </p>
-      ) : null}
-      <div className="grid grid-cols-2 gap-4 md:gap-6 2xl:grid-cols-4">
-        {analyticsMetrics.map((m, i) => (
-          <div
-            key={i}
-            className="rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-[24px] md:p-7"
-          >
-            <div
-              className={`mb-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full md:h-11 md:w-11 ${m.iconBg}`}
-            >
-              <m.Icon className="h-5 w-5" />
-            </div>
-            <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{m.label}</p>
-            <p className="text-2xl font-bold tracking-tight text-ui-strong md:text-3xl">{m.val}</p>
-            <p className="mt-1 text-[10px] font-medium text-ui-faint">{m.sub}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Portfolio performance — purple line, $65k Y ticks, faint horizontal grid */}
-      <div className="rounded-[20px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-10">
-        <h3 className="text-base font-bold text-ui-strong">Portfolio Performance</h3>
-        <p className="mt-0.5 text-xs text-ui-faint">
-          Your portfolio vs. benchmark ({performance?.benchmarkLabel ?? 'S&P 500'})
-        </p>
-
-        <div className="relative mt-8 h-52 md:h-72">
-          <div className="absolute bottom-0 left-0 top-0 flex w-11 flex-col justify-between pb-0 pt-0 text-[9px] font-medium text-ui-placeholder md:w-12">
-            {performanceYLabels.map((l, i) => (
-              <span key={`${l}-${i}`}>{l}</span>
-            ))}
-          </div>
-
-          <div className="absolute inset-y-0 left-11 right-0 motion-chart md:left-12">
-            <div className="pointer-events-none absolute inset-0">
-              {[0, 25, 50, 75, 100].map(pct => (
-                <div
-                  key={pct}
-                  className="absolute left-0 right-0 border-t border-dashed border-slate-200 dark:border-slate-700/90"
-                  style={{ top: `${pct}%` }}
-                />
-              ))}
-            </div>
-
-            <svg className="absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden>
-              <defs>
-                <linearGradient id="hub-analytics-perf-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              {performanceChart ? (
-                <>
-                  <path d={performanceChart.areaPath} fill="url(#hub-analytics-perf-fill)" />
-                  <path
-                    d={performanceChart.portfolioPath}
-                    fill="none"
-                    stroke="#8B5CF6"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    vectorEffect="nonScalingStroke"
-                  />
-                </>
-              ) : null}
-            </svg>
-          </div>
-        </div>
-
-        <div className="mt-4 flex justify-between overflow-x-auto pb-1 pl-11 md:pl-12">
-          {performanceMonthLabels.map((mo) => (
-            <span key={mo} className="text-[9px] font-bold uppercase tracking-widest text-ui-placeholder">
-              {mo}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  const renderAnalytics = () => <HubAnalyticsTab variant="investor" />;
 
   const [lexaInput, setLexaInput] = React.useState('');
   const chatMessages = [

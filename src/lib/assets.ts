@@ -72,6 +72,11 @@ function formatCurrencyShort(value: number | null, prefix = "$"): string {
   return `${prefix}${value.toLocaleString()}`;
 }
 
+function formatWholeNumber(value: number | null): string {
+  if (value === null || Number.isNaN(value)) return "—";
+  return value.toLocaleString("en-US");
+}
+
 function formatPercent(value: number | null): string {
   if (value === null || Number.isNaN(value)) return "—";
   return `${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)}%`;
@@ -83,33 +88,69 @@ function calcPct(raised: number | null, target: number | null): number {
 }
 
 function parseAssetRecord(record: Record<string, unknown>): MarketplaceAsset {
+  const hero =
+    record.hero && typeof record.hero === "object"
+      ? (record.hero as Record<string, unknown>)
+      : null;
   const id =
     pickString(record, ["id", "_id", "assetId", "asset_id"]) ?? "unknown";
   const name =
     pickString(record, ["name", "title", "assetName", "asset_name"]) ??
     "Untitled asset";
   const type =
-    pickString(record, ["assetType", "asset_type", "type", "category"]) ??
+    pickString(record, [
+      "assetTypeLabel",
+      "asset_type_label",
+      "assetType",
+      "asset_type",
+      "type",
+      "category",
+    ]) ??
     "Asset";
   const location =
     pickString(record, ["location", "city", "address", "jurisdiction"]) ??
     "—";
   const apyRaw =
-    pickNumber(record, ["apy", "annualYield", "annual_yield", "yield"]) ??
-    pickNumber(record, ["expectedReturn", "expected_return"]);
+    pickNumber(record, [
+      "apy",
+      "apyPercent",
+      "annualYield",
+      "annual_yield",
+      "yield",
+    ]) ??
+    pickNumber(record, ["expectedReturn", "expected_return"]) ??
+    (hero ? pickNumber(hero, ["annualYieldPercent", "apyPercent", "apy"]) : null);
   const minRaw = pickNumber(record, [
     "minInvestment",
     "min_investment",
     "minimumInvestment",
     "minimum_investment",
-  ]);
+  ]) ?? (hero ? pickNumber(hero, ["minimumInvestment", "minInvestment"]) : null);
   const raised =
-    pickNumber(record, ["raised", "raisedAmount", "raised_amount", "amountRaised"]) ?? 0;
+    pickNumber(record, [
+      "raised",
+      "raisedAmount",
+      "raised_amount",
+      "amountRaised",
+    ]) ?? 0;
   const target =
-    pickNumber(record, ["target", "targetRaise", "target_raise", "fundraisingTarget"]) ??
+    pickNumber(record, [
+      "target",
+      "targetRaise",
+      "target_raise",
+      "targetRaiseAmount",
+      "fundraisingTarget",
+    ]) ??
     0;
   const pct =
-    pickNumber(record, ["progress", "progressPct", "progress_pct", "fundedPercent"]) ??
+    pickNumber(record, [
+      "progress",
+      "progressPct",
+      "progress_pct",
+      "fundedPercent",
+      "fundingProgressPercent",
+    ]) ??
+    (hero ? pickNumber(hero, ["fundraisingProgressPercent", "fundingProgressPercent"]) : null) ??
     calcPct(raised, target);
   const investors =
     pickNumber(record, ["investors", "investorCount", "investor_count"]) ?? 0;
@@ -118,6 +159,8 @@ function parseAssetRecord(record: Record<string, unknown>): MarketplaceAsset {
     0;
   const image =
     pickString(record, [
+      "coverImageUrl",
+      "cover_image_url",
       "image",
       "imageUrl",
       "image_url",
@@ -163,13 +206,18 @@ export function parseAssetList(payload: unknown): MarketplaceAsset[] {
 export function parseAssetDetail(payload: unknown): AssetDetail | null {
   const record = unwrapPayload(payload);
   if (!record || typeof record !== "object") return null;
-  const base = parseAssetRecord(record as Record<string, unknown>);
+  const root = record as Record<string, unknown>;
+  const base = parseAssetRecord(root);
   const highlights = pickStringArray(record as Record<string, unknown>, [
     "highlights",
     "keyHighlights",
     "key_highlights",
   ]);
-  const financialsRaw = (record as Record<string, unknown>).financials;
+  const financialsRaw = root.financials;
+  const financialsRecord =
+    financialsRaw && typeof financialsRaw === "object" && !Array.isArray(financialsRaw)
+      ? (financialsRaw as Record<string, unknown>)
+      : null;
   let financials: { label: string; val: string }[] = [];
   if (Array.isArray(financialsRaw)) {
     financials = financialsRaw
@@ -182,18 +230,59 @@ export function parseAssetDetail(payload: unknown): AssetDetail | null {
         return { label, val };
       })
       .filter((x): x is { label: string; val: string } => Boolean(x));
+  } else if (financialsRecord) {
+    const appraisalValue = pickNumber(financialsRecord, ["appraisalValue"]);
+    const annualIncome = pickNumber(financialsRecord, ["annualIncome"]);
+    const tokenPrice = pickNumber(financialsRecord, ["tokenPrice"]);
+    const totalSupply = pickNumber(financialsRecord, ["totalSupply"]);
+    const currency = pickString(financialsRecord, ["currency"]) ?? "USD";
+    const offering =
+      financialsRecord.offering &&
+      typeof financialsRecord.offering === "object" &&
+      !Array.isArray(financialsRecord.offering)
+        ? (financialsRecord.offering as Record<string, unknown>)
+        : null;
+    financials = [
+      appraisalValue !== null
+        ? { label: "Appraisal Value", val: formatCurrencyShort(appraisalValue) }
+        : null,
+      annualIncome !== null
+        ? { label: "Annual Income", val: formatCurrencyShort(annualIncome) }
+        : null,
+      tokenPrice !== null
+        ? { label: "Token Price", val: formatCurrencyShort(tokenPrice) }
+        : null,
+      totalSupply !== null
+        ? { label: "Total Supply", val: formatWholeNumber(totalSupply) }
+        : null,
+      offering
+        ? {
+            label: "Lockup Period",
+            val: pickString(offering, ["lockupPeriod", "lockup_period"]) ?? "—",
+          }
+        : null,
+      pickString(root, ["regulationLabel"])
+        ? { label: "Regulation", val: pickString(root, ["regulationLabel"]) ?? "—" }
+        : null,
+      pickString(root, ["jurisdiction"])
+        ? { label: "Jurisdiction", val: pickString(root, ["jurisdiction"]) ?? "—" }
+        : null,
+      currency ? { label: "Currency", val: currency } : null,
+    ].filter((x): x is { label: string; val: string } => Boolean(x));
   }
 
   return {
     ...base,
     verified: Boolean(
-      (record as Record<string, unknown>).verified ??
-        (record as Record<string, unknown>).isVerified,
+      root.verified ??
+        root.isVerified,
     ),
     highlights,
     financials,
-    offering: null,
-    tokenization: null,
+    offering: parseAssetOffering(root.overview ?? financialsRecord?.offering ?? root),
+    tokenization: parseAssetTokenization(
+      financialsRecord?.tokenization ?? root.tokenization ?? root.financials ?? root,
+    ),
   };
 }
 
@@ -201,19 +290,46 @@ export function parseAssetOffering(payload: unknown): AssetOffering | null {
   const record = unwrapPayload(payload);
   if (!record || typeof record !== "object") return null;
   const o = record as Record<string, unknown>;
-  const raised = pickNumber(o, ["raised", "raisedAmount", "raised_amount"]);
-  const target = pickNumber(o, ["target", "targetRaise", "target_raise"]);
-  const apyNum = pickNumber(o, ["apy", "annualYield", "yield"]);
+  const raised = pickNumber(o, [
+    "raised",
+    "raisedAmount",
+    "raised_amount",
+    "amountRaised",
+  ]);
+  const target = pickNumber(o, [
+    "target",
+    "targetRaise",
+    "target_raise",
+    "targetRaiseAmount",
+  ]);
+  const apyNum = pickNumber(o, [
+    "apy",
+    "apyPercent",
+    "annualYield",
+    "annualYieldPercent",
+    "yield",
+  ]);
   return {
     minInvestment:
       pickString(o, ["minInvestment", "min_investment"]) ??
-      (pickNumber(o, ["minInvestment", "min_investment"]) !== null
-        ? formatCurrencyShort(pickNumber(o, ["minInvestment", "min_investment"]))
+      (pickNumber(o, [
+        "minInvestment",
+        "min_investment",
+        "minimumInvestment",
+      ]) !== null
+        ? formatCurrencyShort(
+            pickNumber(o, ["minInvestment", "min_investment", "minimumInvestment"]),
+          )
         : null),
     targetRaise: target,
     raisedAmount: raised,
     progressPct:
-      pickNumber(o, ["progress", "progressPct"]) ?? calcPct(raised, target),
+      pickNumber(o, [
+        "progress",
+        "progressPct",
+        "fundingProgressPercent",
+        "fundraisingProgressPercent",
+      ]) ?? calcPct(raised, target),
     apy: apyNum !== null ? formatPercent(apyNum) : pickString(o, ["apy"]),
     closingDays: pickNumber(o, ["daysLeft", "closingInDays", "daysRemaining"]),
     investorCount: pickNumber(o, ["investors", "investorCount"]),
@@ -231,13 +347,15 @@ export function parseAssetTokenization(payload: unknown): AssetTokenization | nu
       price !== null
         ? formatCurrencyShort(price)
         : pickString(o, ["tokenPrice", "price"]),
-    totalSupply: pickString(o, ["totalSupply", "total_supply", "supply"]),
+    totalSupply:
+      pickString(o, ["totalSupply", "total_supply", "supply"]) ??
+      formatWholeNumber(pickNumber(o, ["totalSupply", "total_supply", "supply"])),
     circulatingSupply: pickString(o, [
       "circulatingSupply",
       "circulating_supply",
     ]),
     ticker: pickString(o, ["ticker", "symbol", "tokenSymbol"]),
-    network: pickString(o, ["network", "blockchain"]),
+    network: pickString(o, ["network", "blockchain", "blockchainNetwork"]),
     standard: pickString(o, ["standard", "tokenStandard", "token_standard"]),
   };
 }

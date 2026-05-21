@@ -62,7 +62,12 @@ export function InvestorHubDistributionsTab() {
       )
     : summaryLoading
       ? '…'
-      : '—';
+      : 'No payment scheduled';
+
+  const nextPaymentSub =
+    summary?.nextPayment?.label ||
+    summary?.nextPayment?.date ||
+    (!summaryLoading ? 'No upcoming distribution is currently scheduled.' : undefined);
 
   const avgMonthly = summary
     ? formatCompactCurrency(
@@ -86,9 +91,9 @@ export function InvestorHubDistributionsTab() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          { label: 'YTD Distributions', value: ytd, Icon: DollarSign, iconBg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' },
-          { label: 'Next Payment', value: nextPayment, sub: summary?.nextPayment?.label, Icon: Calendar, iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' },
-          { label: 'Avg Monthly', value: avgMonthly, Icon: TrendingUp, iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400' },
+          { label: 'YTD Distributions', value: ytd, Icon: DollarSign, iconBg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400', compact: false, sub: undefined },
+          { label: 'Next Payment', value: nextPayment, sub: nextPaymentSub, Icon: Calendar, iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400', compact: !summary?.nextPayment && !summaryLoading },
+          { label: 'Avg Monthly', value: avgMonthly, Icon: TrendingUp, iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400', compact: false, sub: undefined },
         ].map((card) => (
           <div
             key={card.label}
@@ -98,7 +103,9 @@ export function InvestorHubDistributionsTab() {
               <card.Icon className="h-5 w-5" strokeWidth={iconStroke} />
             </div>
             <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{card.label}</p>
-            <p className="text-2xl font-bold text-ui-strong">{card.value}</p>
+            <p className={card.compact ? 'text-base font-bold text-ui-strong md:text-lg' : 'text-2xl font-bold text-ui-strong'}>
+              {card.value}
+            </p>
             {card.sub ? <p className="mt-1 text-[10px] font-medium text-ui-faint">{card.sub}</p> : null}
           </div>
         ))}

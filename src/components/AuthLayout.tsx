@@ -149,11 +149,13 @@ export default function AuthLayout({
                   text: "Automated smart contract distributions & on-chain investor registry",
                 },
               ].map((item, i) => (
-                <div key={i} className="group flex items-start gap-3 md:gap-4">
+                <div key={i} className="group flex items-center gap-3 md:gap-4">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 transition-colors group-hover:bg-white/10 md:h-9 md:w-9">
                     {item.icon}
                   </div>
-                  <p className="text-[11px] leading-snug text-white/80 md:text-[13px]">{item.text}</p>
+                  <p className="pt-0.5 text-[11px] leading-relaxed text-white/80 md:pt-1 md:text-[13px]">
+                    {item.text}
+                  </p>
                 </div>
               ))}
             </div>

@@ -692,8 +692,8 @@ function IssuerOnboardingWizard() {
           {[
             { id: 'reg-d-506b', name: 'Reg D — Rule 506(b)', tag: 'Most Common', sub: 'Up to 35 non-accredited + unlimited accredited investors. No SEC registration. No general solicitation.', checks: ['No SEC filing required', 'Up to 35 non-accredited investors'], crosses: ['No advertising', 'Pre-existing relationships required'] },
             { id: 'reg-d-506c', name: 'Reg D — Rule 506(c)', tag: 'Recommended', sub: 'Unlimited accredited investors only. General solicitation permitted. Must verify accreditation for each investor.', checks: ['General solicitation allowed', 'Unlimited raise size'], crosses: ['Accredited investors only', 'Must verify each investor'] },
-            { id: 'reg-s', name: 'Regulation S', tag: 'International', sub: 'Offshore offerings to non-US persons. Complements Reg D for global capital raises. No US investor participation.', checks: ['Global investor access', 'No SEC registration'], crosses: ['US persons excluded', 'Complex compliance'] },
-            { id: 'reg-a', name: 'Regulation A+', tag: 'Public-Light', sub: 'Mini-IPO structure. Up to $75M per year. Non-accredited investors permitted. Requires SEC qualification.', checks: ['Non-accredited investors OK', 'Up to $75M raise'], crosses: ['SEC qualification required', 'Higher compliance cost'] }
+            { id: 'reg-s', name: 'Regulation S', tag: 'International', sub: 'Offshore offerings to non-U.S. persons. Complements Reg D for global capital raises. No U.S. investor participation.', checks: ['Global investor access', 'No SEC registration'], crosses: ['U.S. persons excluded', 'Complex compliance'] },
+            { id: 'reg-a', name: 'Regulation A+', tag: 'Public Light', sub: 'Mini-IPO structure. Up to $75M per year. Non-accredited investors permitted. Requires SEC qualification.', checks: ['Non-accredited investors permitted', 'Up to $75M raise'], crosses: ['SEC qualification required', 'Higher compliance cost'] }
           ].map((reg) => {
             const isSel = selectedReg === reg.id;
             const is506cBlue = isSel && reg.id === 'reg-d-506c';
@@ -1081,7 +1081,7 @@ function IssuerOnboardingWizard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {([
               { id: 'pro-rata', title: 'Pro-Rata Cash Distributions', sub: 'Holders receive proportional income distributions', checked: proRataDistributions, toggle: () => setProRataDistributions((v) => !v) },
-              { id: 'voting', title: 'Voting Rights', sub: 'Major asset decisions require token-holder vote', checked: votingRights, toggle: () => setVotingRights((v) => !v) },
+              { id: 'voting', title: 'Voting Rights', sub: 'Major asset decisions require a token holder vote', checked: votingRights, toggle: () => setVotingRights((v) => !v) },
               { id: 'liquidation', title: 'Liquidation Preference', sub: 'Priority return of capital on asset sale', checked: liquidationPreference, toggle: () => setLiquidationPreference((v) => !v) },
               { id: 'information', title: 'Information Rights', sub: 'Quarterly financials and annual audit reports', checked: informationRights, toggle: () => setInformationRights((v) => !v) },
             ] as const).map((right) => {

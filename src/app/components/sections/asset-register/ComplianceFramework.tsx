@@ -9,20 +9,20 @@ const ComplianceFramework = () => {
     {
       icon: <FileText className="w-5 h-5 text-white" />,
       tag: "REG D 506(B) / 506(C)",
-      title: "US Accredited Offerings",
-      description: "Raise capital from US accredited investors. 506(c) permits general solicitation with verified accreditation."
+      title: "U.S. Accredited Offerings",
+      description: "Raise capital from U.S. accredited investors. Rule 506(c) permits general solicitation with verified accreditation."
     },
     {
       icon: <Globe className="w-5 h-5 text-white" />,
       tag: "REG S",
       title: "Offshore Distribution",
-      description: "Offer securities to non-US persons outside the United States with substantial offshore transactions."
+      description: "Offer securities to non-U.S. persons outside the United States through substantial offshore transactions."
     },
     {
       icon: <Users className="w-5 h-5 text-white" />,
       tag: "REG A+",
       title: "Public Mini-IPO",
-      description: "Raise up to $75M from both accredited and non-accredited US investors with SEC qualification."
+      description: "Raise up to $75M from both accredited and non-accredited U.S. investors with SEC qualification."
     }
   ];
 
@@ -56,9 +56,9 @@ const ComplianceFramework = () => {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-lg text-[var(--color-text-secondary)] leading-relaxed"
             >
-              Every offering on Maxtronize is structured under a recognized US 
-              securities exemption. We pre-configure investor eligibility, transfer 
-              restrictions, and disclosure requirements before tokens ever move.
+              Every offering on Maxtronize is structured under a recognized U.S.
+              securities exemption or offshore framework. We pre-configure investor
+              eligibility, transfer restrictions, and disclosure requirements before tokens ever move.
             </motion.p>
           </div>
 

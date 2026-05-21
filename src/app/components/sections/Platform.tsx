@@ -39,8 +39,8 @@ export default function Platform() {
           className="text-center mb-16 md:mb-24"
         >
           <h2 className="text-[36px] sm:text-[44px] md:text-[56px] font-semibold ">
-            <span className="text-[#2D2D2D]">OUR </span>
-            <span className="text-[#4E449A]">PLATFORM</span>
+            <span className="text-[#2D2D2D]">Our </span>
+            <span className="text-[#4E449A]">Platform</span>
           </h2>
         </motion.div>
 

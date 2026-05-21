@@ -7,9 +7,15 @@ import {
   parseOpportunityDocuments,
   parseOpportunityFinancials,
   parseOpportunityInit,
+  parseMarketplaceInvestment,
+  parseMarketplaceInvestPreview,
+  parseMarketplaceInvestResponse,
   parseOpportunityOverview,
   parseMarketplaceStats,
   type ListMarketplaceOpportunitiesParams,
+  type MarketplaceInvestment,
+  type MarketplaceInvestPreview,
+  type MarketplaceInvestResponse,
   type MarketplaceFilters,
   type MarketplaceOpportunitiesResult,
   type OpportunityFinancial,
@@ -120,6 +126,76 @@ export const investorMarketplaceApi = baseApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "InvestorMarketplace", id: `${id}_OVERVIEW` }],
     }),
 
+    getMarketplaceInvestment: build.query<MarketplaceInvestment | null, string>({
+      query: (investmentId) => ({
+        url: `/investor/marketplace/investments/${investmentId}`,
+        method: "GET",
+      }),
+      transformResponse: (response: unknown) =>
+        parseMarketplaceInvestment(response),
+      providesTags: (result, error, investmentId) => [
+        { type: "InvestorMarketplace", id: `INVESTMENT_${investmentId}` },
+      ],
+    }),
+
+    getMarketplaceOpportunityInvestPreview: build.query<
+      MarketplaceInvestPreview,
+      {
+        id: string;
+        amount?: number;
+        currency?: string;
+        walletId?: string;
+      }
+    >({
+      query: ({ id, amount, currency, walletId }) => ({
+        url: `/investor/marketplace/opportunities/${id}/invest-preview`,
+        method: "GET",
+        params: {
+          ...(amount != null ? { amount, investmentAmount: amount } : {}),
+          ...(currency ? { currency } : {}),
+          ...(walletId ? { walletId } : {}),
+        },
+      }),
+      transformResponse: (response: unknown) =>
+        parseMarketplaceInvestPreview(response),
+      providesTags: (result, error, { id }) => [
+        { type: "InvestorMarketplace", id: `${id}_INVEST_PREVIEW` },
+      ],
+    }),
+
+    investInMarketplaceOpportunity: build.mutation<
+      MarketplaceInvestResponse,
+      {
+        id: string;
+        amount: number;
+        currency?: string;
+        walletId?: string;
+        tokenAmount?: number | null;
+      }
+    >({
+      query: ({ id, amount, currency, walletId, tokenAmount }) => ({
+        url: `/investor/marketplace/opportunities/${id}/invest`,
+        method: "POST",
+        body: {
+          amount,
+          investmentAmount: amount,
+          ...(currency ? { currency } : {}),
+          ...(walletId ? { walletId } : {}),
+          ...(tokenAmount != null ? { tokenAmount } : {}),
+        },
+      }),
+      transformResponse: (response: unknown) =>
+        parseMarketplaceInvestResponse(response),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "InvestorMarketplace", id },
+        { type: "InvestorMarketplace", id: `${id}_INIT` },
+        { type: "InvestorMarketplace", id: `${id}_OVERVIEW` },
+        { type: "InvestorMarketplace", id: `${id}_INVEST_PREVIEW` },
+        { type: "InvestorMarketplace", id: "LIST" },
+        { type: "InvestorMarketplace", id: "FEATURED" },
+      ],
+    }),
+
     addOpportunityToWatchlist: build.mutation<{ success: boolean }, string>({
       query: (id) => ({
         url: `/investor/marketplace/opportunities/${id}/watchlist`,
@@ -155,7 +231,10 @@ export const {
   useGetMarketplaceOpportunityDocumentsQuery,
   useGetMarketplaceOpportunityFinancialsQuery,
   useGetMarketplaceOpportunityInitQuery,
+  useGetMarketplaceInvestmentQuery,
+  useGetMarketplaceOpportunityInvestPreviewQuery,
   useGetMarketplaceOpportunityOverviewQuery,
+  useInvestInMarketplaceOpportunityMutation,
   useAddOpportunityToWatchlistMutation,
   useRemoveOpportunityFromWatchlistMutation,
 } = investorMarketplaceApi;

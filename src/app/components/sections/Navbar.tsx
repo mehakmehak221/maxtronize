@@ -106,7 +106,7 @@ export default function Navbar() {
               <motion.div  className="relative h-full w-full">
                 <Image
                   src="/images/new-main-logo.png"
-                  alt="Maxtron"
+                  alt="Maxtronize"
                   fill
                   unoptimized
                   className="object-contain transition-all duration-300 group-hover:brightness-110"
@@ -120,7 +120,7 @@ export default function Navbar() {
           <NavLink href="/#tokenize" label="Why Tokenize" delay={0.3} />
         </motion.div>
         <motion.div variants={itemVariants} className="hidden md:block">
-          <NavLink href="https://maxtronize.gitbook.io/docs" label="WhitePaper" delay={0.4} />
+          <NavLink href="https://maxtronize.gitbook.io/docs" label="Whitepaper" delay={0.4} />
         </motion.div>
         {/* <motion.div variants={itemVariants} className="hidden md:block">
           <NavLink href="/asset_register" label="Asset Register" delay={0.45} active={pathname === "/asset_register"} />
@@ -222,7 +222,7 @@ export default function Navbar() {
           />
             <MobileNavLink
             href="https://maxtronize.gitbook.io/docs"
-            label="WhitePaper"
+            label="Whitepaper"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <MobileNavLink

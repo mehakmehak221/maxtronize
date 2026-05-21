@@ -13,18 +13,18 @@ const items = [
   },
   {
     image: "/images/whyus2.png",
-    title: "Hassle-free token management tools",
-    desc: "Onboard investors, manage tokens, automate vesting schedules and transfers, end-to-end.",
+    title: "Seamless token management tools",
+    desc: "Onboard investors, manage tokens, and automate vesting schedules and transfers in one end-to-end workflow.",
   },
   {
     image: "/images/whyus3.webp",
     title: "Access both retail and accredited investors",
-    desc: "We provide secure and compliant way for issuers and fund managers to raise capital through both security and utility tokens.",
+    desc: "We provide a secure and compliant way for issuers and fund managers to raise capital through both security and utility tokens.",
   },
   {
     image: "/images/whyus4.webp",
     title: "Team with a track record",
-    desc: "Collaborate with a team of experts from, who has a deep understanding of the legal, technical, and operational aspects of the tokenization process.",
+    desc: "Collaborate with a team of experts who understand the legal, technical, and operational aspects of the tokenization process.",
   },
 ];
 
@@ -75,7 +75,7 @@ const WhyTokenizeWithMaxtron = () => {
           whileInView="visible"
           viewport={{ once: true, amount: 0.5 }}
         >
-          Why tokenize with <span className="text-[#4E449A]">Maxtron?</span>
+          Why tokenize with <span className="text-[#4E449A]">Maxtronize?</span>
         </motion.p>
 
       <motion.div

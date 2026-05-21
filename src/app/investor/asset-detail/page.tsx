@@ -29,13 +29,23 @@ import React, { Suspense, useMemo, useState, useEffect } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
 import type { AssetDocument, AssetOffering, AssetTokenization } from '@/lib/assets';
 import {
+  isKycPendingReview,
+  isKycRejected,
+  isKycVerified,
+  isProfileComplete,
+} from '@/lib/profile';
+import { useAuthenticatedProfileQuery } from '@/store/api/authApi';
+import {
   useGetMarketplaceOpportunityQuery,
   useGetMarketplaceOpportunityDocumentsQuery,
   useGetMarketplaceOpportunityFinancialsQuery,
   useGetMarketplaceOpportunityInitQuery,
   useGetMarketplaceOpportunityOverviewQuery,
+  useGetMarketplaceOpportunityInvestPreviewQuery,
+  useInvestInMarketplaceOpportunityMutation,
   useAddOpportunityToWatchlistMutation,
   useRemoveOpportunityFromWatchlistMutation,
+  useGetSecondaryListingQuery,
   useListSecondaryListingsQuery,
   usePlaceSecondaryOrderMutation,
 } from '@/store';
@@ -516,6 +526,8 @@ function AssetDetailContent() {
         <InvestModal
           assetId={assetId}
           assetName={asset.name}
+          minimumInvestmentLabel={offering?.minInvestment ?? asset.minInv}
+          annualYield={offering?.apy ?? asset.apy}
           tokenization={tokenization}
           onClose={() => setIsInvestModalOpen(false)}
         />
@@ -528,30 +540,39 @@ function AssetDetailContent() {
 function InvestModal({
   assetId,
   assetName,
+  minimumInvestmentLabel,
+  annualYield,
   tokenization,
   onClose,
 }: {
   assetId: string;
   assetName: string;
+  minimumInvestmentLabel: string | null | undefined;
+  annualYield: string | null | undefined;
   tokenization: import('@/lib/assets').AssetTokenization | null | undefined;
   onClose: () => void;
 }) {
+  const [marketMode, setMarketMode] = useState<'primary' | 'secondary'>('primary');
   const [selectedListingId, setSelectedListingId] = useState('');
+  const [investmentAmount, setInvestmentAmount] = useState('');
   const [quantity, setQuantity] = useState('');
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const amountValue = Number.parseFloat(investmentAmount) || 0;
+  const quantityValue = Number.parseFloat(quantity) || 0;
+  const { data: profile } = useAuthenticatedProfileQuery();
 
   const { data: listingsResult, isLoading: listingsLoading } = useListSecondaryListingsQuery({
     limit: 50,
   });
   const [placeOrder, { isLoading: isPlacing }] = usePlaceSecondaryOrderMutation();
+  const [investInOpportunity, { isLoading: isInvesting }] =
+    useInvestInMarketplaceOpportunityMutation();
 
   // Filter listings that match this asset's id
   const assetListings = useMemo(() => {
     const all = listingsResult?.items ?? [];
     return all.filter((l) => l.assetId === assetId);
   }, [listingsResult, assetId]);
-
-  const selectedListing = assetListings.find((l) => l.id === selectedListingId) ?? assetListings[0] ?? null;
 
   // Auto-select first listing
   useEffect(() => {
@@ -560,36 +581,223 @@ function InvestModal({
     }
   }, [assetListings, selectedListingId]);
 
-  const priceNum = selectedListing
-    ? parseFloat(selectedListing.pricePerToken.replace(/[^0-9.]/g, '')) || 0
-    : parseFloat(String(tokenization?.tokenPrice ?? '').replace(/[^0-9.]/g, '')) || 0;
+  const { data: selectedListingDetail } = useGetSecondaryListingQuery(selectedListingId, {
+    skip: !selectedListingId,
+  });
 
-  const total = quantity ? (parseFloat(quantity) * priceNum).toFixed(2) : '0.00';
+  const selectedListing =
+    selectedListingDetail ??
+    assetListings.find((l) => l.id === selectedListingId) ??
+    assetListings[0] ??
+    null;
+
+  const minimumInvestmentValue = useMemo(() => {
+    const raw = String(minimumInvestmentLabel ?? '').replace(/[^0-9.]/g, '');
+    return Number.parseFloat(raw) || 0;
+  }, [minimumInvestmentLabel]);
+
+  const primaryTokenPrice = useMemo(() => {
+    const rawTokenPrice = String(tokenization?.tokenPrice ?? '').replace(/[^0-9.]/g, '');
+    return Number.parseFloat(rawTokenPrice) || 0;
+  }, [tokenization?.tokenPrice]);
+
+  const {
+    data: investPreview,
+    isFetching: previewLoading,
+    error: previewError,
+  } = useGetMarketplaceOpportunityInvestPreviewQuery(
+    {
+      id: assetId,
+      amount: amountValue,
+      currency: 'USD',
+    },
+    {
+      skip:
+        marketMode !== 'primary' ||
+        amountValue <= 0 ||
+        !isProfileComplete(profile) ||
+        isKycPendingReview(profile) ||
+        isKycRejected(profile),
+    },
+  );
+
+  const formatRequestError = (error: unknown) => {
+    if (!error || typeof error !== 'object') return 'Something went wrong. Please try again.';
+    const record = error as {
+      data?: { message?: string | string[] };
+      message?: string;
+      error?: string;
+    };
+    const message = record.data?.message ?? record.message ?? record.error;
+    if (Array.isArray(message)) return message.join(', ');
+    return message || 'Something went wrong. Please try again.';
+  };
+
+  const previewErrorText = previewError ? formatRequestError(previewError) : null;
+  const previewErrorLower = previewErrorText?.toLowerCase() ?? '';
+  const requiresKycVerification =
+    previewErrorLower.includes('kyc verification is required') ||
+    previewErrorLower.includes('kyc') ||
+    previewErrorLower.includes('verification is required');
+  const requiresFunding = investPreview?.requiresFunding ?? false;
+  const profileIncomplete = !isProfileComplete(profile);
+  const profileKycVerified = isKycVerified(profile);
+  const profilePendingReview = isKycPendingReview(profile);
+  const profileRejected = isKycRejected(profile);
+  const verificationBlocked =
+    profileIncomplete || profilePendingReview || profileRejected || requiresKycVerification;
+
+  const secondaryPriceNum = selectedListing
+    ? selectedListing.pricePerTokenValue ||
+      Number.parseFloat(selectedListing.pricePerToken.replace(/[^0-9.]/g, '')) ||
+      0
+    : 0;
+  const primaryPriceNum = investPreview?.pricePerToken ?? primaryTokenPrice;
+  const total =
+    marketMode === 'secondary'
+      ? (quantityValue * secondaryPriceNum).toFixed(2)
+      : (investPreview?.totalDebit ?? amountValue).toFixed(2);
   const displayTicker = selectedListing?.ticker ?? tokenization?.ticker ?? 'TOKEN';
+  const estimatedPrimaryTokens =
+    investPreview?.tokenAmount ??
+    (primaryPriceNum > 0 && amountValue > 0 ? amountValue / primaryPriceNum : null);
+  const quickAmounts = useMemo(() => {
+    const base = minimumInvestmentValue > 0 ? minimumInvestmentValue : 1000;
+    return Array.from(
+      new Set(
+        [base, base * 2, base * 5, base * 10].map((value) =>
+          Math.max(500, Math.round(value / 100) * 100),
+        ),
+      ),
+    ).slice(0, 4);
+  }, [minimumInvestmentValue]);
 
   // Reset status on input changes
-  useEffect(() => { setStatusMsg(null); }, [selectedListingId, quantity]);
+  useEffect(() => {
+    setStatusMsg(null);
+  }, [selectedListingId, quantity, investmentAmount, marketMode]);
 
-  const handleInvest = async () => {
+  const handlePrimaryInvest = async () => {
+    if (isInvesting || amountValue <= 0) return;
+
+    if (profileIncomplete) {
+      setStatusMsg({
+        type: 'error',
+        text: 'Complete your investor profile first so it can be submitted for verification.',
+      });
+      return;
+    }
+
+    if (profilePendingReview) {
+      setStatusMsg({
+        type: 'error',
+        text: 'Your investor verification is under admin review. Investment will unlock after approval.',
+      });
+      return;
+    }
+
+    if (profileRejected || requiresKycVerification) {
+      setStatusMsg({
+        type: 'error',
+        text: 'Investor verification is required before you can invest in this asset.',
+      });
+      return;
+    }
+
+    if (minimumInvestmentValue > 0 && amountValue < minimumInvestmentValue) {
+      setStatusMsg({
+        type: 'error',
+        text: `Minimum investment for this opportunity is $${minimumInvestmentValue.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}.`,
+      });
+      return;
+    }
+
+    if (requiresFunding) {
+      setStatusMsg({
+        type: 'error',
+        text:
+          investPreview?.note ||
+          'Your wallet balance is not sufficient for this investment amount.',
+      });
+      return;
+    }
+
+    try {
+      const result = await investInOpportunity({
+        id: assetId,
+        amount: amountValue,
+        currency: investPreview?.currency || 'USD',
+        tokenAmount: estimatedPrimaryTokens,
+      }).unwrap();
+      setStatusMsg({
+        type: 'success',
+        text:
+          result.message ||
+          `Investment confirmed for $${amountValue.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })} in ${assetName}.`,
+      });
+      setInvestmentAmount('');
+    } catch (error) {
+      setStatusMsg({
+        type: 'error',
+        text: formatRequestError(error),
+      });
+    }
+  };
+
+  const handleSecondaryInvest = async () => {
     if (!selectedListing || !quantity || isPlacing) return;
+    if (profileIncomplete) {
+      setStatusMsg({
+        type: 'error',
+        text: 'Complete your investor profile first so it can be submitted for verification.',
+      });
+      return;
+    }
+    if (profilePendingReview) {
+      setStatusMsg({
+        type: 'error',
+        text: 'Your investor verification is under admin review. Trading will unlock after approval.',
+      });
+      return;
+    }
+    if (profileRejected || (!profileKycVerified && requiresKycVerification)) {
+      setStatusMsg({
+        type: 'error',
+        text: 'Investor verification is required before you can trade this asset.',
+      });
+      return;
+    }
+    if (secondaryPriceNum <= 0) {
+      setStatusMsg({
+        type: 'error',
+        text: 'This listing does not currently have a valid token price. Please select another listing or refresh and try again.',
+      });
+      return;
+    }
     setStatusMsg(null);
     try {
       await placeOrder({
         id: selectedListing.id,
         side: 'BUY',
         orderType: 'MARKET',
-        tokenAmount: parseFloat(quantity),
-        pricePerToken: priceNum,
+        tokenAmount: quantityValue,
+        pricePerToken: secondaryPriceNum,
       }).unwrap();
       setStatusMsg({
         type: 'success',
-        text: `Successfully placed a BUY order for ${quantity} ${displayTicker} tokens at $${priceNum.toFixed(2)} per token.`,
+        text: `Successfully placed a BUY order for ${quantity} ${displayTicker} tokens at $${secondaryPriceNum.toFixed(2)} per token.`,
       });
       setQuantity('');
-    } catch (err: any) {
+    } catch (err) {
       setStatusMsg({
         type: 'error',
-        text: err?.data?.message || err?.message || 'Failed to place order. Please try again.',
+        text: formatRequestError(err),
       });
     }
   };
@@ -639,6 +847,31 @@ function InvestModal({
         </div>
 
         <div className="space-y-5 p-6">
+          <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-1">
+            <button
+              type="button"
+              onClick={() => setMarketMode('primary')}
+              className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${
+                marketMode === 'primary'
+                  ? 'bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]'
+                  : 'text-white/55 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              Primary Market
+            </button>
+            <button
+              type="button"
+              onClick={() => setMarketMode('secondary')}
+              className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${
+                marketMode === 'secondary'
+                  ? 'bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]'
+                  : 'text-white/55 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              Secondary ({assetListings.length})
+            </button>
+          </div>
+
           {/* Status */}
           {statusMsg && (
             <div
@@ -652,109 +885,274 @@ function InvestModal({
             </div>
           )}
 
-          {/* Listing selector */}
-          <div>
-            <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
-              Select Seller Listing
-            </label>
-            {listingsLoading ? (
-              <div className="h-12 animate-pulse rounded-xl bg-white/5" />
-            ) : assetListings.length === 0 ? (
-              <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-400">
-                <p>No active secondary listings found for this asset right now.</p>
-                <Link
-                  href="/investor/secondary-market"
-                  className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-300 transition-colors hover:text-white"
-                >
-                  Browse all live listings
-                  <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
-                </Link>
-              </div>
-            ) : (
-              <select
-                value={selectedListingId}
-                onChange={(e) => setSelectedListingId(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[13px] font-bold text-white outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+          {profileIncomplete ? (
+            <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-300">
+              <p>Complete your investor profile before using protected investment flows.</p>
+              <Link
+                href="/setup-profile"
+                className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-200 transition-colors hover:text-white"
               >
-                {assetListings.map((l) => (
-                  <option key={l.id} value={l.id} className="bg-[#0f1117]">
-                    {l.ticker} — {l.pricePerToken} / token · {l.available} available (Seller: {l.seller})
-                  </option>
+                Complete setup profile
+                <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+              </Link>
+            </div>
+          ) : null}
+
+          {profilePendingReview ? (
+            <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-300">
+              <p>Your investor profile has been submitted and is awaiting admin review.</p>
+              <p className="text-[11px] font-medium text-amber-200/90">
+                Investment actions will unlock after your KYC verification is approved.
+              </p>
+              <Link
+                href="/investor/account"
+                className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-200 transition-colors hover:text-white"
+              >
+                View verification status
+                <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+              </Link>
+            </div>
+          ) : null}
+
+          {profileRejected ? (
+            <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-300">
+              <p>Your investor verification needs attention before investing is enabled.</p>
+              <Link
+                href="/investor/account"
+                className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-200 transition-colors hover:text-white"
+              >
+                Review account details
+                <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+              </Link>
+            </div>
+          ) : null}
+
+          {marketMode === 'primary' ? (
+            <>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  {
+                    label: 'Token Price',
+                    val:
+                      investPreview?.pricePerTokenFormatted ??
+                      (primaryPriceNum > 0 ? `$${primaryPriceNum.toFixed(2)}` : '—'),
+                  },
+                  {
+                    label: 'Minimum',
+                    val:
+                      investPreview?.minInvestmentFormatted ??
+                      minimumInvestmentLabel ??
+                      '—',
+                  },
+                  { label: 'Annual Yield', val: annualYield || '—' },
+                ].map((s) => (
+                  <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.04] p-3 text-center">
+                    <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-white/35">{s.label}</p>
+                    <p className="text-[13px] font-bold text-white">{s.val}</p>
+                  </div>
                 ))}
-              </select>
-            )}
-          </div>
+              </div>
 
-          {/* Price info */}
-          {selectedListing && (
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: 'Price / Token', val: selectedListing.pricePerToken },
-                { label: '24h Change', val: selectedListing.change, up: selectedListing.up },
-                { label: 'Available', val: selectedListing.available },
-              ].map((s) => (
-                <div key={s.label} className="rounded-xl border border-white/8 bg-white/4 p-3 text-center">
-                  <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-white/35">{s.label}</p>
-                  <p className={`text-[13px] font-bold ${'up' in s ? (s.up ? 'text-emerald-400' : 'text-rose-400') : 'text-white'}`}>
-                    {s.val}
-                  </p>
+              {previewErrorText && !profilePendingReview && !profileIncomplete ? (
+                <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-300">
+                  <p>{previewErrorText}</p>
+                  {requiresKycVerification ? (
+                    <Link
+                      href={profileIncomplete ? "/setup-profile" : "/investor/account"}
+                      className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-200 transition-colors hover:text-white"
+                    >
+                      {profileIncomplete ? 'Complete setup profile' : 'View verification status'}
+                      <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                    </Link>
+                  ) : null}
                 </div>
-              ))}
-            </div>
+              ) : null}
+
+              {requiresFunding ? (
+                <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-300">
+                  {investPreview?.note || 'Wallet funding is required before this investment can be completed.'}
+                </div>
+              ) : null}
+
+              <div>
+                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
+                  Investment Amount (USD)
+                </label>
+                <div className="flex items-center overflow-hidden rounded-xl border border-white/10 bg-white/5 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30">
+                  <span className="px-4 text-[14px] font-bold text-white/35">$</span>
+                  <input
+                    type="number"
+                    min={minimumInvestmentValue || 0}
+                    step="0.01"
+                    value={investmentAmount}
+                    onChange={(e) => setInvestmentAmount(e.target.value)}
+                    placeholder="Enter investment amount"
+                    className="flex-1 bg-transparent px-1 py-3.5 pr-4 text-[14px] font-bold text-white outline-none placeholder:text-white/25"
+                  />
+                </div>
+                <div className="mt-2 grid grid-cols-4 gap-2">
+                  {quickAmounts.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setInvestmentAmount(String(value))}
+                      className="rounded-lg border border-white/8 bg-white/5 py-1.5 text-[11px] font-bold text-white/50 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                    >
+                      ${Math.round(value).toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] px-5 py-4">
+                <div>
+                  <span className="block text-[12px] font-bold text-white/50">Primary Investment Total</span>
+                  <span className="mt-1 block text-[10px] font-medium text-white/30">
+                    {estimatedPrimaryTokens != null
+                      ? `${estimatedPrimaryTokens.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${displayTicker}`
+                      : 'Live token allocation appears after you enter an amount'}
+                  </span>
+                </div>
+                <span className="text-2xl font-bold tabular-nums text-white">
+                  ${Number.parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handlePrimaryInvest}
+                disabled={
+                  amountValue <= 0 ||
+                  isInvesting ||
+                  previewLoading ||
+                  requiresFunding ||
+                  verificationBlocked ||
+                  (minimumInvestmentValue > 0 && amountValue < minimumInvestmentValue)
+                }
+                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
+                {isInvesting
+                  ? 'Processing Investment…'
+                  : previewLoading
+                    ? 'Refreshing Quote…'
+                    : `Invest in ${displayTicker}`}
+              </button>
+
+              <p className="text-center text-[10px] font-medium text-white/30">
+                Investments are submitted through the primary marketplace flow. Final allocation and wallet checks are validated by the backend before confirmation.
+              </p>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
+                  Select Seller Listing
+                </label>
+                {listingsLoading ? (
+                  <div className="h-12 animate-pulse rounded-xl bg-white/5" />
+                ) : assetListings.length === 0 ? (
+                  <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-400">
+                    <p>No active secondary listings found for this asset right now.</p>
+                    <Link
+                      href="/investor/secondary-market"
+                      className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-300 transition-colors hover:text-white"
+                    >
+                      Browse all live listings
+                      <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                    </Link>
+                  </div>
+                ) : (
+                  <select
+                    value={selectedListingId}
+                    onChange={(e) => setSelectedListingId(e.target.value)}
+                    className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[13px] font-bold text-white outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                  >
+                    {assetListings.map((l) => (
+                      <option key={l.id} value={l.id} className="bg-[#0f1117]">
+                        {l.ticker} — {l.pricePerToken} / token · {l.available} available (Seller: {l.seller})
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {selectedListing ? (
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { label: 'Price / Token', val: selectedListing.pricePerToken },
+                    { label: '24h Change', val: selectedListing.change, up: selectedListing.up },
+                    { label: 'Available', val: selectedListing.available },
+                  ].map((s) => (
+                    <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.04] p-3 text-center">
+                      <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-white/35">{s.label}</p>
+                      <p className={`text-[13px] font-bold ${'up' in s ? (s.up ? 'text-emerald-400' : 'text-rose-400') : 'text-white'}`}>
+                        {s.val}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              <div>
+                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
+                  Quantity (Tokens)
+                </label>
+                <div className="flex items-center overflow-hidden rounded-xl border border-white/10 bg-white/5 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30">
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    placeholder="Enter number of tokens"
+                    className="flex-1 bg-transparent px-4 py-3.5 text-[14px] font-bold text-white outline-none placeholder:text-white/25"
+                  />
+                  <span className="px-4 text-[11px] font-bold text-white/35">{displayTicker}</span>
+                </div>
+                <div className="mt-2 grid grid-cols-4 gap-2">
+                  {['1', '5', '10', '25'].map((val) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setQuantity(val)}
+                      className="rounded-lg border border-white/8 bg-white/5 py-1.5 text-[11px] font-bold text-white/50 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                    >
+                      +{val}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] px-5 py-4">
+                <span className="text-[12px] font-bold text-white/50">Total Cost</span>
+                <span className="text-2xl font-bold tabular-nums text-white">
+                  ${Number.parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSecondaryInvest}
+                disabled={
+                  !selectedListing ||
+                  quantityValue <= 0 ||
+                  isPlacing ||
+                  assetListings.length === 0 ||
+                  profileIncomplete ||
+                  profilePendingReview ||
+                  profileRejected
+                }
+                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
+                {isPlacing ? 'Processing Order…' : `Buy ${displayTicker} Tokens`}
+              </button>
+
+              <p className="text-center text-[10px] font-medium text-white/30">
+                Orders are executed via the secondary market at the listed price. Market conditions may affect final execution price.
+              </p>
+            </>
           )}
-
-          {/* Quantity input */}
-          <div>
-            <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
-              Quantity (Tokens)
-            </label>
-            <div className="flex items-center overflow-hidden rounded-xl border border-white/10 bg-white/5 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30 transition-colors">
-              <input
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="Enter number of tokens"
-                className="flex-1 bg-transparent px-4 py-3.5 text-[14px] font-bold text-white outline-none placeholder:text-white/25"
-              />
-              <span className="px-4 text-[11px] font-bold text-white/35">{displayTicker}</span>
-            </div>
-            <div className="mt-2 grid grid-cols-4 gap-2">
-              {['1', '5', '10', '25'].map((val) => (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => setQuantity(val)}
-                  className="rounded-lg border border-white/8 bg-white/5 py-1.5 text-[11px] font-bold text-white/50 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
-                >
-                  +{val}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Total */}
-          <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/4 px-5 py-4">
-            <span className="text-[12px] font-bold text-white/50">Total Cost</span>
-            <span className="text-2xl font-bold tabular-nums text-white">
-              ${parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-
-          {/* CTA */}
-          <button
-            type="button"
-            onClick={handleInvest}
-            disabled={!selectedListing || !quantity || isPlacing || assetListings.length === 0}
-            className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
-            {isPlacing ? 'Processing Order…' : `Buy ${displayTicker} Tokens`}
-          </button>
-
-          <p className="text-center text-[10px] font-medium text-white/30">
-            Orders are executed via the secondary market at the listed price. Market conditions may affect final execution price.
-          </p>
         </div>
       </div>
     </div>

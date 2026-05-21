@@ -1,9 +1,11 @@
 import { getSession } from "@/lib/auth";
 import {
+  parseInvestorPortfolioInit,
   parsePortfolioAssets,
   parsePortfolioFilters,
   parsePortfolioSummary,
   parsePortfolioNavHistory,
+  type InvestorPortfolioInit,
   type PortfolioAsset,
   type PortfolioCategory,
   type PortfolioListResult,
@@ -22,6 +24,12 @@ export type ListPortfolioAssetsParams = {
 export const portfolioApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
+    getInvestorPortfolioInit: build.query<InvestorPortfolioInit, void>({
+      query: () => ({ url: "/investor/portfolio/init", method: "GET" }),
+      transformResponse: (response: unknown) =>
+        parseInvestorPortfolioInit(response),
+      providesTags: [{ type: "Portfolio", id: "INVESTOR_INIT" }],
+    }),
     getPortfolioFilters: build.query<PortfolioCategory[], void>({
       query: () => {
         const isInvestor = typeof window !== "undefined" && getSession().role === "investor";
@@ -104,6 +112,7 @@ export const portfolioApi = baseApi.injectEndpoints({
 });
 
 export const {
+  useGetInvestorPortfolioInitQuery,
   useGetPortfolioFiltersQuery,
   useGetPortfolioSummaryQuery,
   useGetPortfolioNavHistoryQuery,

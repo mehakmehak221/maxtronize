@@ -1,4 +1,4 @@
-import { pickNumber, pickString, unwrapList } from "@/lib/apiParse";
+import { pickNumber, pickString, unwrapList, unwrapPayload } from "@/lib/apiParse";
 import type { PaginationMeta } from "@/lib/issuerDocuments";
 
 const DEFAULT_PAGINATION: PaginationMeta = {
@@ -158,7 +158,8 @@ export function parseInvestorDistributionsList(
 export function parseInvestorDistributionsSummary(
   payload: unknown,
 ): InvestorDistributionsSummary {
-  if (!payload || typeof payload !== "object") {
+  const unwrapped = unwrapPayload(payload);
+  if (!unwrapped || typeof unwrapped !== "object" || Array.isArray(unwrapped)) {
     return {
       ytdDistributions: { amount: 0, currency: "USD" },
       nextPayment: null,
@@ -166,7 +167,7 @@ export function parseInvestorDistributionsSummary(
     };
   }
 
-  const root = payload as Record<string, unknown>;
+  const root = unwrapped as Record<string, unknown>;
   const nextRaw = root.nextPayment ?? root.next_payment;
 
   let nextPayment: InvestorDistributionsSummary["nextPayment"] = null;
@@ -175,7 +176,14 @@ export function parseInvestorDistributionsSummary(
     const money = parseMoney(next);
     nextPayment = {
       ...money,
-      date: pickString(next, ["date", "scheduledAt", "scheduled_at"]) ?? undefined,
+      date:
+        pickString(next, [
+          "date",
+          "scheduledAt",
+          "scheduled_at",
+          "paymentDate",
+          "payment_date",
+        ]) ?? undefined,
       label: pickString(next, ["label", "summary", "assetName", "asset_name"]) ?? undefined,
     };
   }

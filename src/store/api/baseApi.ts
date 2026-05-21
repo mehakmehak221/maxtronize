@@ -30,6 +30,7 @@ export const baseApi = createApi({
     "InvestorHubOverview",
     "InvestorHubTabs",
     "InvestorHubTransactions",
+    "InvestorTransactions",
     "InvestorMarketplace",
     "SecondaryMarket",
     "IssuerHub",

@@ -39,8 +39,9 @@ export default function SetupProfilePage() {
             Complete your profile
           </h2>
           <p className="text-sm leading-relaxed text-[#6B7280]">
-            We need a few details to verify your identity before you access the
-            platform.
+            We need a few details to submit your investor verification profile.
+            After submission, your details will be reviewed before protected
+            investment actions are unlocked.
           </p>
         </div>
         <SetupProfileForm />

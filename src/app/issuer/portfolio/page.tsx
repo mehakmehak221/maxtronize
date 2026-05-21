@@ -273,7 +273,7 @@ export default function IssuerPortfolioPage() {
               </div>
               <div className="min-w-0">
                 <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
-                  Avg. Token Yield
+                  Average Token Yield
                 </p>
                 <p className="text-2xl font-bold text-primary md:text-3xl">
                   {avgApyPercent != null ? `${avgApyPercent.toFixed(1)}%` : '—'}

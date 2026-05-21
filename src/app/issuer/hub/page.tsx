@@ -16,21 +16,29 @@ import {
   Send,
   Shield,
   ShieldCheck,
-  Target,
-  TrendingUp,
-  UserCheck,
   Users,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { HubAssetsTab } from '@/components/issuer/HubAssetsTab';
 import { HubCapTableTab } from '@/components/issuer/HubCapTableTab';
 import { HubComplianceTab } from '@/components/issuer/HubComplianceTab';
 import { HubInvestorsTab } from '@/components/issuer/HubInvestorsTab';
 import { HubDistributionsTab } from '@/components/issuer/HubDistributionsTab';
+import { HubAnalyticsTab } from '@/components/hub/HubAnalyticsTab';
 import { HubOverviewTab } from '@/components/issuer/HubOverviewTab';
+import { formatRequestError } from '@/lib/formatRequestError';
+import { buildAiAssistantDraftReply } from '@/lib/issuerAiAssistant';
 import { formatHubUpdatedAt } from '@/lib/issuerHub';
 import { useGetIssuerHubOverviewSummaryQuery } from '@/store/api/issuerHubApi';
+import {
+  useBootstrapIssuerHubAiAssistantMutation,
+  useGetIssuerHubAiAssistantInitQuery,
+  useGetIssuerHubAiAssistantQuery,
+  useGetIssuerHubAiSuggestedPromptsQuery,
+  useListIssuerHubAiMessagesQuery,
+  useSendIssuerHubAiMessageMutation,
+} from '@/store';
 
 const iconStroke = 1.75;
 
@@ -92,6 +100,122 @@ export default function IssuerHubPage() {
   const [complianceSearch, setComplianceSearch] = useState('');
 
   const { data: overviewSummary } = useGetIssuerHubOverviewSummaryQuery();
+  const aiTabActive = activeTab === 'ai-assistant';
+  const [aiStatusMsg, setAiStatusMsg] = useState<string | null>(null);
+  const [aiErrorMsg, setAiErrorMsg] = useState<string | null>(null);
+  const [aiBootstrappedOnce, setAiBootstrappedOnce] = useState(false);
+
+  const { data: aiConfigData } = useGetIssuerHubAiAssistantQuery(undefined, {
+    skip: !aiTabActive,
+  });
+  const {
+    data: aiInitData,
+    isLoading: aiInitLoading,
+    error: aiInitError,
+    refetch: refetchAiInit,
+  } = useGetIssuerHubAiAssistantInitQuery(undefined, {
+    skip: !aiTabActive,
+  });
+  const { data: aiMessagesData = [], isLoading: aiMessagesLoading } =
+    useListIssuerHubAiMessagesQuery(
+      { page: 1, limit: 30 },
+      { skip: !aiTabActive },
+    );
+  const { data: aiPromptsData = [] } = useGetIssuerHubAiSuggestedPromptsQuery(
+    undefined,
+    { skip: !aiTabActive },
+  );
+  const [bootstrapAiAssistant, { isLoading: isBootstrappingAi }] =
+    useBootstrapIssuerHubAiAssistantMutation();
+  const [sendAiMessage, { isLoading: isSendingAi }] =
+    useSendIssuerHubAiMessageMutation();
+
+  const aiConfig = aiConfigData ?? aiInitData?.config;
+  const aiMessages = useMemo(
+    () =>
+      aiMessagesData.length > 0
+        ? aiMessagesData
+        : (aiInitData?.messages ?? []),
+    [aiInitData?.messages, aiMessagesData],
+  );
+  const aiSuggestedPrompts = useMemo(
+    () =>
+      aiPromptsData.length > 0
+        ? aiPromptsData
+        : (aiInitData?.suggestedPrompts ?? []),
+    [aiInitData?.suggestedPrompts, aiPromptsData],
+  );
+  const visibleAiMessages = useMemo(() => aiMessages.slice(-6), [aiMessages]);
+
+  useEffect(() => {
+    setAiStatusMsg(null);
+    setAiErrorMsg(null);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (!aiTabActive || aiBootstrappedOnce || isBootstrappingAi) return;
+    if (aiInitLoading || aiMessagesLoading) return;
+    if (aiMessages.length > 0) return;
+
+    setAiBootstrappedOnce(true);
+    void bootstrapAiAssistant()
+      .unwrap()
+      .then((result) => {
+        if (result.message?.content) {
+          setAiStatusMsg('Assistant initialized with a live welcome message.');
+        }
+      })
+      .catch((error) => {
+        setAiBootstrappedOnce(false);
+        setAiErrorMsg(formatRequestError(error));
+      });
+  }, [
+    aiBootstrappedOnce,
+    aiInitLoading,
+    aiMessages.length,
+    aiMessagesLoading,
+    aiTabActive,
+    bootstrapAiAssistant,
+    isBootstrappingAi,
+  ]);
+
+  async function handleAiBootstrap() {
+    setAiErrorMsg(null);
+    setAiStatusMsg(null);
+    try {
+      const result = await bootstrapAiAssistant().unwrap();
+      setAiStatusMsg(
+        result.message?.content
+          ? 'Assistant initialized successfully.'
+          : 'Assistant initialized successfully.',
+      );
+      setAiBootstrappedOnce(true);
+    } catch (error) {
+      setAiErrorMsg(formatRequestError(error));
+    }
+  }
+
+  async function handleAiSend(prefilledMessage?: string) {
+    const message = (prefilledMessage ?? aiDraft).trim();
+    if (!message || isSendingAi) return;
+
+    setAiErrorMsg(null);
+    setAiStatusMsg(null);
+
+    try {
+      const response = await sendAiMessage({ message }).unwrap();
+      const assistantReply =
+        response.assistantMessage ?? buildAiAssistantDraftReply(response);
+      setAiDraft('');
+      setAiStatusMsg(
+        assistantReply?.content
+          ? 'Assistant response received.'
+          : 'Message sent successfully.',
+      );
+    } catch (error) {
+      setAiErrorMsg(formatRequestError(error));
+    }
+  }
 
   const hubSearchValue =
     activeTab === 'assets'
@@ -140,205 +264,8 @@ export default function IssuerHubPage() {
     <HubComplianceTab search={complianceSearch} onSearchChange={setComplianceSearch} />
   );
 
-  const growthY = [24, 38, 52, 68, 88, 110, 132, 148];
-  const growthLabels = ['Oct 25', 'Nov 25', 'Dec 25', 'Jan 26', 'Feb 26', 'Mar 26', 'Apr 26'];
+  const renderAnalytics = () => <HubAnalyticsTab variant="issuer" />;
 
-  const yieldBars = [
-    { name: 'Peachtree', actual: 72, target: 55 },
-    { name: 'Summit Credit', actual: 88, target: 70 },
-    { name: 'Apex Data Ctr', actual: 65, target: 58 },
-  ];
-
-  const geo = [
-    { label: 'United States', pct: 68, bar: 'bg-[#5b21b6]' },
-    { label: 'Europe (Reg S)', pct: 18, bar: 'bg-[#7c3aed]' },
-    { label: 'Asia Pacific (Reg S)', pct: 10, bar: 'bg-[#a78bfa]' },
-    { label: 'Other', pct: 4, bar: 'bg-[#ddd6fe]' },
-  ];
-
-  const renderAnalytics = () => {
-    const gLeft = 56;
-    const gW = 480;
-    const gTop = 28;
-    const gH = 140;
-    const gMax = 160;
-    const growthPath = growthY
-      .map((value, index) => {
-        const x = gLeft + (index / (growthY.length - 1)) * gW;
-        const y = gTop + gH - (value / gMax) * gH;
-        return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
-      })
-      .join(' ');
-
-    return (
-      <div className="max-w-full min-w-0 space-y-8 animate-in fade-in duration-500">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {(
-            [
-              {
-                label: 'Portfolio IRR',
-                value: '14.2%',
-                sub: 'Blended across 3 assets',
-                Icon: TrendingUp,
-              },
-              {
-                label: 'Cash-on-Cash Return',
-                value: '9.8%',
-                sub: 'Annualized YTD',
-                Icon: RefreshCw,
-              },
-              {
-                label: 'Avg. Investment Size',
-                value: '$100,135',
-                sub: 'Per investor',
-                Icon: Target,
-              },
-              {
-                label: 'Investor Retention',
-                value: '97.3%',
-                sub: 'No redemptions YTD',
-                Icon: UserCheck,
-              },
-            ] as const
-          ).map((card) => {
-            const CardIcon = card.Icon;
-            return (
-              <div key={card.label} className="rounded-[24px] border border-card-border bg-card p-6 shadow-sm">
-                <MetricIconCircle className="mb-4 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
-                  <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
-                </MetricIconCircle>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">{card.label}</p>
-                <p className="text-2xl font-bold tracking-tight text-foreground">{card.value}</p>
-                <p className="mt-2 text-xs text-text-muted">{card.sub}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <div className="rounded-[32px] border border-card-border bg-card p-8 shadow-sm md:p-10">
-            <h3 className="text-lg font-bold text-foreground">Investor Growth</h3>
-            <p className="mb-8 text-xs text-text-muted">Cumulative accredited investors onboarded.</p>
-            <svg className="h-52 w-full" viewBox="0 0 560 200" preserveAspectRatio="xMidYMid meet">
-              {[0, 40, 80, 120, 160].map((value) => {
-                const y = gTop + gH - (value / gMax) * gH;
-                return (
-                  <g key={value}>
-                    <line
-                      x1={gLeft}
-                      y1={y}
-                      x2={gLeft + gW}
-                      y2={y}
-                      stroke="var(--border)"
-                      strokeWidth="1"
-                      strokeDasharray="3 5"
-                    />
-                    <text x="44" y={y + 4} textAnchor="end" fill="var(--text-muted)" className="text-[10px] font-bold">
-                      {value}
-                    </text>
-                  </g>
-                );
-              })}
-              <path
-                d={growthPath}
-                fill="none"
-                stroke="var(--primary)"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {growthY.map((value, index) => {
-                const x = gLeft + (index / (growthY.length - 1)) * gW;
-                const y = gTop + gH - (value / gMax) * gH;
-                return <circle key={index} cx={x} cy={y} r="5" fill="var(--card)" stroke="var(--primary)" strokeWidth="2" />;
-              })}
-              {growthLabels.map((label, index) => {
-                const x = gLeft + (index / (growthLabels.length - 1)) * gW;
-                return (
-                  <text
-                    key={label}
-                    x={x}
-                    y={gTop + gH + 24}
-                    textAnchor="middle"
-                    fill="var(--text-muted)"
-                    className="text-[10px] font-bold"
-                  >
-                    {label}
-                  </text>
-                );
-              })}
-            </svg>
-          </div>
-
-          <div className="rounded-[32px] border border-card-border bg-card p-8 shadow-sm md:p-10">
-            <h3 className="text-lg font-bold text-foreground">Yield vs. Target</h3>
-            <p className="mb-6 text-xs text-text-muted">Actual annualized yield vs. offering target.</p>
-            <div className="mb-6 flex items-center justify-center gap-8">
-              <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-border" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Target</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Actual</span>
-              </div>
-            </div>
-            <div className="flex h-48 items-end justify-around gap-4 px-2">
-              {yieldBars.map((bar) => (
-                <div key={bar.name} className="flex flex-1 flex-col items-center gap-2">
-                  <div className="flex h-40 w-full max-w-[72px] items-end justify-center gap-1.5">
-                    <div
-                      className="w-4 rounded-t-md bg-border"
-                      style={{ height: `${bar.target}%` }}
-                      title="Target"
-                    />
-                    <div
-                      className="w-4 rounded-t-md bg-primary"
-                      style={{ height: `${bar.actual}%` }}
-                      title="Actual"
-                    />
-                  </div>
-                  <span className="text-center text-[10px] font-bold text-text-muted">{bar.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-[32px] border border-card-border bg-card p-8 shadow-sm md:p-10">
-          <h3 className="text-lg font-bold text-foreground">Investor Geography</h3>
-          <p className="mb-8 text-xs text-text-muted">Breakdown by jurisdiction (% of total committed capital).</p>
-          <div className="flex flex-col items-center gap-10 xl:flex-row xl:items-center xl:gap-16">
-            <div
-              className="relative h-44 w-44 shrink-0 rounded-full"
-              style={{
-                background:
-                  'conic-gradient(#5b21b6 0% 68%, #7c3aed 68% 86%, #a78bfa 86% 96%, #e9d5ff 96% 100%)',
-              }}
-              aria-hidden
-            >
-              <div className="absolute inset-[18%] rounded-full bg-card shadow-inner" />
-            </div>
-            <div className="w-full max-w-md flex-1 space-y-4">
-              {geo.map((item) => (
-                <div key={item.label}>
-                  <div className="mb-1 flex justify-between text-xs font-semibold">
-                    <span className="text-foreground">{item.label}</span>
-                    <span className="text-text-muted">{item.pct}%</span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-surface">
-                    <div className={`h-full rounded-full ${item.bar}`} style={{ width: `${item.pct}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Keep this issuer AI assistant surface visible in the hub UI even while the live assistant flow is still being finalized.
   const renderAiAssistant = () => (
     <div className="min-w-0 max-w-full px-3 animate-in fade-in duration-500 sm:px-4 md:px-5">
       <div className="w-full min-w-0 overflow-hidden rounded-[28px] border border-card-border bg-card shadow-sm">
@@ -348,51 +275,141 @@ export default function IssuerHubPage() {
               <Brain className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={iconStroke} aria-hidden />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground sm:text-xl">Maxtronize AI Assistant</h3>
+              <h3 className="text-lg font-bold text-foreground sm:text-xl">
+                {aiConfig?.name || 'Maxtronize AI Assistant'}
+              </h3>
               <p className="mt-0.5 text-xs font-semibold text-primary sm:text-[13px]">
-                Strategy · Compliance · Pricing · Investor Insights
+                {aiConfig?.subtitle || 'Strategy · Compliance · Pricing · Investor Insights'}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 self-start rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-2 sm:self-auto dark:border-emerald-700/60 dark:bg-emerald-950/50">
-            <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-            <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">Live</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 self-start rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-2 sm:self-auto dark:border-emerald-700/60 dark:bg-emerald-950/50">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                {aiConfig?.status || 'Live'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => void handleAiBootstrap()}
+              disabled={isBootstrappingAi}
+              className="inline-flex items-center gap-2 rounded-full border border-card-border bg-surface px-4 py-2 text-[11px] font-bold text-foreground transition-colors hover:border-primary/30 hover:text-primary disabled:opacity-60"
+            >
+              <RefreshCw
+                className={`h-3.5 w-3.5 ${isBootstrappingAi ? 'animate-spin' : ''}`}
+                strokeWidth={iconStroke}
+              />
+              {isBootstrappingAi ? 'Initializing…' : 'Initialize'}
+            </button>
           </div>
         </div>
 
         <div className="space-y-6 p-6 sm:p-8 md:px-10 md:py-9">
-          <div className="flex min-w-0 gap-4 sm:gap-5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white sm:h-10 sm:w-10">
-              <Brain className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={iconStroke} aria-hidden />
+          {aiStatusMsg ? (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 dark:border-emerald-700/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+              {aiStatusMsg}
             </div>
-            <div className="min-w-0 flex-1 rounded-2xl rounded-tl-md border border-violet-100 bg-violet-50/90 px-5 py-4 sm:px-6 sm:py-5 dark:border-violet-800/60 dark:bg-violet-950/55">
-              <p className="text-sm leading-relaxed text-foreground sm:text-[15px] sm:leading-relaxed">
-                Hello, Marcus. I&apos;m your Maxtronize AI compliance and strategy assistant. I have access to your
-                portfolio data, compliance status, and market benchmarks. I can help you:{' '}
-                <span className="text-foreground/90">
-                  Recommend optimal offering structures (Reg D, Reg A+, etc.) · Generate investor pitch summaries ·
-                  Analyze asset pricing and risk scoring · Suggest compliance action items.
-                </span>{' '}
-                What would you like to explore?
+          ) : null}
+
+          {aiErrorMsg || aiInitError ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 dark:border-rose-700/60 dark:bg-rose-950/40 dark:text-rose-300">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span>{aiErrorMsg || formatRequestError(aiInitError)}</span>
+                <button
+                  type="button"
+                  onClick={() => refetchAiInit()}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-bold text-rose-700 transition-colors hover:border-rose-300 dark:border-rose-800 dark:bg-transparent dark:text-rose-300"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" strokeWidth={iconStroke} />
+                  Retry
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {aiInitLoading && visibleAiMessages.length === 0 ? (
+            <div className="space-y-3">
+              <div className="h-24 animate-pulse rounded-2xl bg-surface" />
+              <div className="h-20 animate-pulse rounded-2xl bg-surface" />
+            </div>
+          ) : visibleAiMessages.length > 0 ? (
+            <div className="space-y-4">
+              {visibleAiMessages.map((message) => {
+                const assistant = message.role.toLowerCase().includes('assistant');
+                return (
+                  <div
+                    key={message.id}
+                    className={`flex min-w-0 gap-4 sm:gap-5 ${assistant ? '' : 'justify-end'}`}
+                  >
+                    {assistant ? (
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white sm:h-10 sm:w-10">
+                        <Brain className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={iconStroke} aria-hidden />
+                      </div>
+                    ) : null}
+                    <div
+                      className={`min-w-0 max-w-3xl flex-1 rounded-2xl px-5 py-4 sm:px-6 sm:py-5 ${
+                        assistant
+                          ? 'rounded-tl-md border border-violet-100 bg-violet-50/90 dark:border-violet-800/60 dark:bg-violet-950/55'
+                          : 'rounded-tr-md border border-card-border bg-surface dark:border-zinc-700 dark:bg-zinc-900/60'
+                      }`}
+                    >
+                      <p className="text-sm leading-relaxed text-foreground sm:text-[15px] sm:leading-relaxed">
+                        {message.content}
+                      </p>
+                      {message.createdAt ? (
+                        <p className="mt-4 text-[10px] font-medium text-text-muted sm:text-[11px]">
+                          {message.createdAt}
+                        </p>
+                      ) : null}
+                    </div>
+                    {!assistant ? (
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface text-foreground ring-1 ring-card-border sm:h-10 sm:w-10">
+                        <Users className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={iconStroke} aria-hidden />
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-card-border bg-surface px-5 py-8 text-center">
+              <p className="text-sm font-semibold text-foreground">
+                The assistant is ready to help with offering structure, compliance, and investor strategy.
               </p>
-              <p className="mt-4 text-[10px] font-medium text-text-muted sm:text-[11px]">Apr 23, 2026 · 5:24 AM</p>
+              <p className="mt-2 text-xs text-text-muted">
+                Initialize the assistant or send your first message to start a live thread.
+              </p>
             </div>
-          </div>
+          )}
 
           <div className="flex flex-wrap gap-3 pt-1 sm:gap-3.5">
-            {[
-              'What offering structure is best for my real estate SPV?',
-              'Generate an investor pitch summary for Peachtree Tower',
-              'Analyze my cap table and suggest diversification',
-            ].map((prompt) => (
-              <button
-                key={prompt}
-                type="button"
-                className="max-w-full rounded-full border border-card-border bg-surface px-5 py-2.5 text-left text-[11px] font-semibold text-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-violet-50/80 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-violet-500/40 dark:hover:bg-violet-950/40"
-              >
-                {prompt}
-              </button>
-            ))}
+            {aiSuggestedPrompts.length > 0
+              ? aiSuggestedPrompts.map((prompt) => (
+                  <button
+                    key={prompt.id}
+                    type="button"
+                    onClick={() => void handleAiSend(prompt.text)}
+                    disabled={isSendingAi}
+                    className="max-w-full rounded-full border border-card-border bg-surface px-5 py-2.5 text-left text-[11px] font-semibold text-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-violet-50/80 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-violet-500/40 dark:hover:bg-violet-950/40"
+                  >
+                    {prompt.text}
+                  </button>
+                ))
+              : [
+                  'What offering structure is best for my next SPV?',
+                  'Generate an investor-ready summary for my live asset.',
+                  'Review my cap table and flag concentration risk.',
+                ].map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => setAiDraft(prompt)}
+                    className="max-w-full rounded-full border border-card-border bg-surface px-5 py-2.5 text-left text-[11px] font-semibold text-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-violet-50/80 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-violet-500/40 dark:hover:bg-violet-950/40"
+                  >
+                    {prompt}
+                  </button>
+                ))}
           </div>
         </div>
 
@@ -402,12 +419,20 @@ export default function IssuerHubPage() {
               type="text"
               value={aiDraft}
               onChange={(event) => setAiDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  void handleAiSend();
+                }
+              }}
               placeholder="Ask about offering structure, pricing, compliance, investor insights..."
               className="min-w-0 flex-1 bg-transparent py-0.5 text-sm text-foreground outline-none placeholder:text-text-muted sm:text-[15px]"
             />
             <button
               type="button"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-opacity hover:opacity-90 sm:h-12 sm:w-12"
+              onClick={() => void handleAiSend()}
+              disabled={!aiDraft.trim() || isSendingAi}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-opacity hover:opacity-90 disabled:opacity-60 sm:h-12 sm:w-12"
               aria-label="Send message"
             >
               <Send className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={iconStroke} />

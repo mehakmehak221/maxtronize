@@ -31,6 +31,10 @@ export function SetupProfileForm() {
         nationality: nationality.trim(),
         residentialAddress: residentialAddress.trim(),
       }).unwrap();
+      if (role === "investor") {
+        router.replace("/investor/account?verification=submitted");
+        return;
+      }
       const home = role ? portalHomeForRole(role) : "/signin";
       router.replace(home);
     } catch (err) {
@@ -109,7 +113,7 @@ export function SetupProfileForm() {
         disabled={isLoading}
         className="btn-gradient-primary w-full rounded-xl py-4 text-sm font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
       >
-        {isLoading ? "Saving…" : "Complete profile"}
+        {isLoading ? "Submitting…" : "Submit profile for verification"}
       </button>
     </form>
   );

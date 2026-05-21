@@ -146,7 +146,7 @@ export default function Intelligence() {
             variants={fadeUp}
             className="text-[24px] font-semibold leading-tight tracking-tight text-[#111111] sm:text-[32px] md:text-[44px]"
           >
-            Maxtron Asset Intelligence:{" "}
+            Maxtronize Asset Intelligence:{" "}
             <span className="text-[#6653AF]">The AI Engine</span>
           </motion.h2>
 
@@ -155,10 +155,10 @@ export default function Intelligence() {
             variants={fadeUp}
             className="mt-5 max-w-2xl text-[12px] leading-relaxed text-[#2e2b2b] sm:text-[15px]"
           >
-            A dual-force engine designed to eliminate guesswork for investors
-            and automate the hustle for brokers. By synthesizing millions of
-            data points, we turn raw market volatility into a precise roadmap
-            for wealth creation.
+            A dual-purpose engine designed to reduce uncertainty for investors
+            and streamline execution for brokers. By synthesizing millions of
+            data points, it turns market volatility into a clearer roadmap for
+            disciplined wealth creation.
           </motion.p>
         </motion.div>
 
@@ -185,7 +185,7 @@ export default function Intelligence() {
             >
               <Feature
                 title="Dynamic ROI Calibration"
-                description="Real-time yield modeling based on current market shifts, taxes, and maintenance overhead."
+                description="Real-time yield modeling based on current market shifts, taxes, and maintenance costs."
               />
 
               <Feature
@@ -200,7 +200,7 @@ export default function Intelligence() {
             </motion.ul>
 
             <motion.div custom={0.2} variants={fadeLeft}>
-              <CTAButton href="/sign-up" label="Join As Investor" />
+              <CTAButton href="/sign-up" label="Join as an Investor" />
             </motion.div>
           </motion.div>
 
@@ -255,7 +255,7 @@ export default function Intelligence() {
             >
               <Feature
                 title="AI Sales Tactics"
-                description="AI calling bots handle outreach, qualification, and objections using data-backed responses."
+                description="AI outreach assistants handle qualification and objections using data-backed responses."
               />
 
               <Feature
@@ -270,7 +270,7 @@ export default function Intelligence() {
             </motion.ul>
 
             <motion.div custom={0.2} variants={fadeRight}>
-              <CTAButton href="/sign-up" label="Join As Asset Issuer" />
+              <CTAButton href="/sign-up" label="Join as an Asset Issuer" />
             </motion.div>
           </motion.div>
         </div>

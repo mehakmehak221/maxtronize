@@ -82,6 +82,59 @@ export type MarketplaceStats = {
   totalRaised30d: number;
 };
 
+export type MarketplaceInvestment = {
+  id: string;
+  opportunityId: string | null;
+  assetName: string;
+  status: string;
+  amount: number;
+  amountFormatted: string;
+  tokenAmount: number | null;
+  tokenAmountFormatted: string | null;
+  pricePerToken: number | null;
+  pricePerTokenFormatted: string | null;
+  currency: string;
+  createdAt: string | null;
+};
+
+export type MarketplaceInvestPreview = {
+  amount: number;
+  amountFormatted: string;
+  tokenAmount: number | null;
+  tokenAmountFormatted: string | null;
+  pricePerToken: number | null;
+  pricePerTokenFormatted: string | null;
+  walletBalance: number | null;
+  walletBalanceFormatted: string | null;
+  availableToInvest: number | null;
+  availableToInvestFormatted: string | null;
+  minInvestment: number | null;
+  minInvestmentFormatted: string | null;
+  maxInvestment: number | null;
+  maxInvestmentFormatted: string | null;
+  fees: number | null;
+  feesFormatted: string | null;
+  totalDebit: number | null;
+  totalDebitFormatted: string | null;
+  currency: string;
+  note: string | null;
+  canInvest: boolean;
+  requiresFunding: boolean;
+  quoteExpiresAt: string | null;
+};
+
+export type MarketplaceInvestResponse = {
+  success: boolean;
+  investmentId: string | null;
+  status: string | null;
+  message: string | null;
+  amount: number | null;
+  amountFormatted: string | null;
+  tokenAmount: number | null;
+  tokenAmountFormatted: string | null;
+  currency: string | null;
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function parsePagination(payload: unknown): PaginationMeta {
@@ -124,39 +177,130 @@ function formatPercent(value: number | null): string {
   return `${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)}%`;
 }
 
+function formatCurrencyValue(
+  value: number | null,
+  currency = "USD",
+  maximumFractionDigits = 2,
+): string | null {
+  if (value === null || Number.isNaN(value)) return null;
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits,
+    }).format(value);
+  } catch {
+    return `${currency === "USD" ? "$" : ""}${value.toLocaleString("en-US", {
+      maximumFractionDigits,
+    })}`;
+  }
+}
+
+function formatTokenAmount(value: number | null): string | null {
+  if (value === null || Number.isNaN(value)) return null;
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: value < 1 ? 2 : 0,
+    maximumFractionDigits: 4,
+  });
+}
+
+function formatDateTime(value: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function pickBoolean(obj: Record<string, unknown>, keys: string[]): boolean | null {
+  for (const key of keys) {
+    const value = obj[key];
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value !== 0;
+    if (typeof value === "string") {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === "true" || normalized === "yes") return true;
+      if (normalized === "false" || normalized === "no") return false;
+    }
+  }
+  return null;
+}
+
 function calcPct(raised: number | null, target: number | null): number {
   if (raised === null || target === null || target <= 0) return 0;
   return Math.min(100, Math.round((raised / target) * 100));
 }
 
 function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
+  const hero =
+    record.hero && typeof record.hero === "object"
+      ? (record.hero as Record<string, unknown>)
+      : null;
   const id =
     pickString(record, ["id", "_id", "assetId", "asset_id"]) ?? "unknown";
   const name =
     pickString(record, ["name", "title", "assetName"]) ?? "Untitled asset";
   const type =
-    pickString(record, ["assetType", "asset_type", "type", "category"]) ??
+    pickString(record, [
+      "assetTypeLabel",
+      "asset_type_label",
+      "assetType",
+      "asset_type",
+      "type",
+      "category",
+    ]) ??
     "Asset";
   const location =
     pickString(record, ["location", "city", "address", "jurisdiction"]) ?? "—";
 
   const apyRaw =
-    pickNumber(record, ["apy", "annualYield", "annual_yield", "yield"]) ??
-    pickNumber(record, ["expectedReturn", "expected_return"]);
+    pickNumber(record, [
+      "apy",
+      "apyPercent",
+      "annualYield",
+      "annual_yield",
+      "yield",
+    ]) ??
+    pickNumber(record, ["expectedReturn", "expected_return"]) ??
+    (hero ? pickNumber(hero, ["annualYieldPercent", "apyPercent", "apy"]) : null);
   const minRaw = pickNumber(record, [
     "minInvestment",
     "min_investment",
     "minimumInvestment",
-  ]);
+  ]) ?? (hero ? pickNumber(hero, ["minimumInvestment", "minInvestment"]) : null);
   const raised =
-    pickNumber(record, ["raised", "raisedAmount", "raised_amount"]) ?? 0;
+    pickNumber(record, [
+      "raised",
+      "raisedAmount",
+      "raised_amount",
+      "amountRaised",
+    ]) ?? 0;
   const target =
-    pickNumber(record, ["target", "targetRaise", "target_raise"]) ?? 0;
+    pickNumber(record, [
+      "target",
+      "targetRaise",
+      "target_raise",
+      "targetRaiseAmount",
+    ]) ?? 0;
   const pct =
-    pickNumber(record, ["progress", "progressPct"]) ??
+    pickNumber(record, [
+      "progress",
+      "progressPct",
+      "fundedPercent",
+      "fundingProgressPercent",
+    ]) ??
+    (hero ? pickNumber(hero, ["fundraisingProgressPercent", "fundingProgressPercent"]) : null) ??
     calcPct(raised, target);
   const investors =
-    pickNumber(record, ["investors", "investorCount", "investor_count"]) ?? 0;
+    pickNumber(record, ["investors", "investorCount", "investor_count"]) ??
+    (hero ? pickNumber(hero, ["investorCount", "investors"]) : null) ??
+    0;
   const daysLeft =
     pickNumber(record, [
       "daysLeft",
@@ -166,6 +310,7 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
     ]) ?? 0;
   const image =
     pickString(record, [
+      "coverImageUrl",
       "image",
       "imageUrl",
       "image_url",
@@ -224,14 +369,24 @@ export function parseMarketplaceFilters(payload: unknown): MarketplaceFilters {
     const arr = record[key];
     if (!Array.isArray(arr)) return [];
     return arr
-      .filter(
-        (item): item is Record<string, unknown> =>
-          Boolean(item) && typeof item === "object",
-      )
-      .map((item) => ({
-        key: pickString(item, ["key"]) ?? "",
-        label: pickString(item, ["label"]) ?? "",
-      }))
+      .map((item, index) => {
+        if (typeof item === "string") {
+          const normalizedKey = item.trim().toUpperCase().replace(/[\s&/-]+/g, "_");
+          return { key: normalizedKey, label: item.trim() };
+        }
+        if (!item || typeof item !== "object") return null;
+        const entry = item as Record<string, unknown>;
+        return {
+          key:
+            pickString(entry, ["key", "value", "id", "code"]) ??
+            `option_${index}`,
+          label:
+            pickString(entry, ["label", "name", "title", "displayName"]) ??
+            pickString(entry, ["key", "value"]) ??
+            "Option",
+        };
+      })
+      .filter((item): item is MarketplaceFilterOption => Boolean(item))
       .filter((item) => item.key);
   }
 
@@ -319,6 +474,68 @@ export function parseOpportunityDocuments(payload: unknown): AssetDocument[] {
 export function parseOpportunityFinancials(
   payload: unknown,
 ): OpportunityFinancial[] {
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const root = unwrapPayload(payload);
+    if (root && typeof root === "object" && !Array.isArray(root)) {
+      const outerRecord = root as Record<string, unknown>;
+      const nestedFinancials =
+        outerRecord.financials &&
+        typeof outerRecord.financials === "object" &&
+        !Array.isArray(outerRecord.financials)
+          ? (outerRecord.financials as Record<string, unknown>)
+          : null;
+      const record = nestedFinancials ?? outerRecord;
+      const offering =
+        record.offering && typeof record.offering === "object"
+          ? (record.offering as Record<string, unknown>)
+          : null;
+      const financialRows = [
+        {
+          label: "Appraisal Value",
+          val:
+            formatCurrencyValue(
+              pickNumber(record, ["appraisalValue"]),
+              pickString(record, ["currency"]) ?? "USD",
+              0,
+            ) ?? null,
+        },
+        {
+          label: "Annual Income",
+          val:
+            formatCurrencyValue(
+              pickNumber(record, ["annualIncome"]),
+              pickString(record, ["currency"]) ?? "USD",
+              0,
+            ) ?? null,
+        },
+        {
+          label: "Token Price",
+          val:
+            formatCurrencyValue(
+              pickNumber(record, ["tokenPrice"]),
+              pickString(record, ["currency"]) ?? "USD",
+              0,
+            ) ?? null,
+        },
+        {
+          label: "Total Supply",
+          val: formatTokenAmount(pickNumber(record, ["totalSupply"])) ?? null,
+        },
+        offering
+          ? {
+              label: "Lockup Period",
+              val: pickString(offering, ["lockupPeriod", "lockup_period"]) ?? null,
+            }
+          : null,
+      ].filter(
+        (item): item is { label: string; val: string } =>
+          Boolean(item && item.val),
+      );
+      if (financialRows.length > 0) {
+        return financialRows;
+      }
+    }
+  }
   const unwrapped = unwrapList(payload);
   if (unwrapped.length === 0 && payload && typeof payload === "object") {
     // If payload is an object containing financials array
@@ -336,10 +553,12 @@ export function parseOpportunityFinancials(
         }));
     }
   }
-  return unwrapped.map((item) => ({
-    label: pickString(item, ["label", "name", "key"]) ?? "—",
-    val: pickString(item, ["val", "value", "amount"]) ?? "—",
-  }));
+  return unwrapped
+    .map((item) => ({
+      label: pickString(item, ["label", "name", "key"]) ?? "—",
+      val: pickString(item, ["val", "value", "amount"]) ?? "—",
+    }))
+    .filter((item) => item.label !== "—" || item.val !== "—");
 }
 
 export function parseOpportunityInit(payload: unknown): OpportunityInit {
@@ -347,10 +566,14 @@ export function parseOpportunityInit(payload: unknown): OpportunityInit {
     return { offering: null, tokenization: null };
   }
   const root = payload as Record<string, unknown>;
+  const financials =
+    root.financials && typeof root.financials === "object"
+      ? (root.financials as Record<string, unknown>)
+      : null;
   
   // Try finding offering / tokenization either nested or flattened in the root
-  const offeringRaw = root.offering ?? root;
-  const tokenizationRaw = root.tokenization ?? root;
+  const offeringRaw = root.offering ?? financials?.offering ?? root.hero ?? root;
+  const tokenizationRaw = root.tokenization ?? financials?.tokenization ?? financials ?? root;
 
   return {
     offering: parseAssetOffering(offeringRaw),
@@ -368,18 +591,39 @@ export function parseOpportunityOverview(payload: unknown): OpportunityOverview 
     };
   }
   const o = root as Record<string, unknown>;
+  const overview =
+    o.overview && typeof o.overview === "object"
+      ? (o.overview as Record<string, unknown>)
+      : o;
   const raised =
-    pickNumber(o, ["raised", "raisedAmount", "raised_amount", "amountRaised"]) ?? 0;
+    pickNumber(overview, [
+      "raised",
+      "raisedAmount",
+      "raised_amount",
+      "amountRaised",
+    ]) ?? 0;
   const target =
-    pickNumber(o, ["target", "targetRaise", "target_raise", "fundraisingTarget"]) ??
+    pickNumber(overview, [
+      "target",
+      "targetRaise",
+      "target_raise",
+      "targetRaiseAmount",
+      "fundraisingTarget",
+    ]) ??
     0;
   const pct =
-    pickNumber(o, ["progress", "progressPct", "fundedPercent"]) ??
+    pickNumber(overview, [
+      "progress",
+      "progressPct",
+      "fundedPercent",
+      "fundingProgressPercent",
+      "fundraisingProgressPercent",
+    ]) ??
     calcPct(raised, target);
 
   return {
-    description: pickString(o, ["description", "summary", "about"]),
-    highlights: pickStringArray(o, ["highlights", "keyHighlights"]),
+    description: pickString(overview, ["description", "summary", "about"]),
+    highlights: pickStringArray(overview, ["highlights", "keyHighlights"]),
     progress: { pct, raised, target },
   };
 }
@@ -395,6 +639,237 @@ export function parseMarketplaceStats(payload: unknown): MarketplaceStats {
       pickNumber(record, ["availableOpportunities", "available_opportunities"]) ?? 0,
     newListings30d: pickNumber(record, ["newListings30d", "new_listings_30d"]) ?? 0,
     totalRaised30d: pickNumber(record, ["totalRaised30d", "total_raised_30d"]) ?? 0,
+  };
+}
+
+function getRecord(payload: unknown): Record<string, unknown> | null {
+  const root = unwrapPayload(payload);
+  if (!root || typeof root !== "object" || Array.isArray(root)) return null;
+  return root as Record<string, unknown>;
+}
+
+export function parseMarketplaceInvestment(
+  payload: unknown,
+): MarketplaceInvestment | null {
+  const record = getRecord(payload);
+  if (!record) return null;
+
+  const opportunityRecord =
+    record.opportunity && typeof record.opportunity === "object"
+      ? (record.opportunity as Record<string, unknown>)
+      : null;
+  const assetRecord =
+    record.asset && typeof record.asset === "object"
+      ? (record.asset as Record<string, unknown>)
+      : opportunityRecord;
+
+  const amount =
+    pickNumber(record, ["amount", "investmentAmount", "committedAmount"]) ?? 0;
+  const tokenAmount =
+    pickNumber(record, ["tokenAmount", "tokens", "quantity", "units"]);
+  const pricePerToken = pickNumber(record, [
+    "pricePerToken",
+    "tokenPrice",
+    "price",
+  ]);
+  const currency = pickString(record, ["currency"]) ?? "USD";
+
+  return {
+    id:
+      pickString(record, ["id", "_id", "investmentId", "investment_id"]) ??
+      "investment",
+    opportunityId:
+      pickString(record, ["opportunityId", "opportunity_id", "assetId", "asset_id"]) ??
+      (assetRecord ? pickString(assetRecord, ["id", "_id"]) : null),
+    assetName:
+      pickString(record, ["assetName", "asset_name", "name"]) ??
+      (assetRecord ? pickString(assetRecord, ["name", "title"]) : null) ??
+      "Marketplace investment",
+    status: pickString(record, ["status", "state"]) ?? "Pending",
+    amount,
+    amountFormatted:
+      pickString(record, ["amountFormatted", "amount_formatted"]) ??
+      formatCurrencyValue(amount, currency) ??
+      "—",
+    tokenAmount,
+    tokenAmountFormatted:
+      pickString(record, ["tokenAmountFormatted", "token_amount_formatted"]) ??
+      formatTokenAmount(tokenAmount),
+    pricePerToken,
+    pricePerTokenFormatted:
+      pickString(record, ["pricePerTokenFormatted", "price_per_token_formatted"]) ??
+      formatCurrencyValue(pricePerToken, currency),
+    currency,
+    createdAt: formatDateTime(
+      pickString(record, [
+        "createdAt",
+        "created_at",
+        "date",
+        "executedAt",
+        "executed_at",
+      ]),
+    ),
+  };
+}
+
+export function parseMarketplaceInvestPreview(
+  payload: unknown,
+): MarketplaceInvestPreview {
+  const record = getRecord(payload) ?? {};
+  const quote =
+    record.quote && typeof record.quote === "object"
+      ? (record.quote as Record<string, unknown>)
+      : record;
+  const wallet =
+    record.wallet && typeof record.wallet === "object"
+      ? (record.wallet as Record<string, unknown>)
+      : record.walletCheck && typeof record.walletCheck === "object"
+        ? (record.walletCheck as Record<string, unknown>)
+        : record;
+
+  const currency =
+    pickString(quote, ["currency"]) ??
+    pickString(wallet, ["currency"]) ??
+    "USD";
+  const amount =
+    pickNumber(quote, ["amount", "investmentAmount", "subtotal"]) ??
+    pickNumber(record, ["amount", "investmentAmount"]) ??
+    0;
+  const tokenAmount =
+    pickNumber(quote, ["tokenAmount", "tokens", "quantity", "units"]) ??
+    pickNumber(record, ["tokenAmount", "tokens", "quantity"]);
+  const pricePerToken =
+    pickNumber(quote, ["pricePerToken", "tokenPrice", "price"]) ??
+    pickNumber(record, ["pricePerToken", "tokenPrice"]);
+  const fees =
+    pickNumber(quote, ["fees", "feeAmount", "estimatedFees"]) ??
+    pickNumber(record, ["fees", "feeAmount", "estimatedFees"]);
+  const totalDebit =
+    pickNumber(quote, ["totalDebit", "total", "totalAmount"]) ??
+    (amount || fees ? amount + (fees ?? 0) : null);
+  const walletBalance =
+    pickNumber(wallet, ["walletBalance", "availableBalance", "balance"]) ??
+    pickNumber(record, ["walletBalance", "availableBalance", "balance"]);
+  const availableToInvest =
+    pickNumber(wallet, ["availableToInvest", "available"]) ??
+    pickNumber(record, ["availableToInvest", "available"]);
+  const minInvestment =
+    pickNumber(quote, ["minInvestment", "minimumInvestment"]) ??
+    pickNumber(record, ["minInvestment", "minimumInvestment"]);
+  const maxInvestment =
+    pickNumber(quote, ["maxInvestment", "maximumInvestment"]) ??
+    pickNumber(record, ["maxInvestment", "maximumInvestment"]);
+
+  const requiresFunding =
+    pickBoolean(record, [
+      "requiresFunding",
+      "insufficientBalance",
+      "requiresWalletFunding",
+    ]) ??
+    (walletBalance !== null && totalDebit !== null ? walletBalance < totalDebit : false);
+
+  const canInvest =
+    pickBoolean(record, ["canInvest", "isEligible", "eligible"]) ??
+    !requiresFunding;
+
+  return {
+    amount,
+    amountFormatted:
+      pickString(quote, ["amountFormatted", "amount_formatted"]) ??
+      formatCurrencyValue(amount, currency) ??
+      "—",
+    tokenAmount,
+    tokenAmountFormatted:
+      pickString(quote, ["tokenAmountFormatted", "token_amount_formatted"]) ??
+      formatTokenAmount(tokenAmount),
+    pricePerToken,
+    pricePerTokenFormatted:
+      pickString(quote, ["pricePerTokenFormatted", "price_per_token_formatted"]) ??
+      formatCurrencyValue(pricePerToken, currency),
+    walletBalance,
+    walletBalanceFormatted:
+      pickString(wallet, ["walletBalanceFormatted", "wallet_balance_formatted"]) ??
+      formatCurrencyValue(walletBalance, currency),
+    availableToInvest,
+    availableToInvestFormatted:
+      pickString(wallet, ["availableToInvestFormatted", "available_to_invest_formatted"]) ??
+      formatCurrencyValue(availableToInvest, currency),
+    minInvestment,
+    minInvestmentFormatted:
+      pickString(quote, ["minInvestmentFormatted", "min_investment_formatted"]) ??
+      formatCurrencyValue(minInvestment, currency),
+    maxInvestment,
+    maxInvestmentFormatted:
+      pickString(quote, ["maxInvestmentFormatted", "max_investment_formatted"]) ??
+      formatCurrencyValue(maxInvestment, currency),
+    fees,
+    feesFormatted:
+      pickString(quote, ["feesFormatted", "fees_formatted", "feeFormatted"]) ??
+      formatCurrencyValue(fees, currency),
+    totalDebit,
+    totalDebitFormatted:
+      pickString(quote, ["totalDebitFormatted", "total_debit_formatted", "totalFormatted"]) ??
+      formatCurrencyValue(totalDebit, currency),
+    currency,
+    note:
+      pickString(record, ["note", "message", "summary"]) ??
+      pickString(wallet, ["note", "message"]) ??
+      null,
+    canInvest,
+    requiresFunding,
+    quoteExpiresAt: formatDateTime(
+      pickString(record, ["quoteExpiresAt", "quote_expires_at", "expiresAt"]),
+    ),
+  };
+}
+
+export function parseMarketplaceInvestResponse(
+  payload: unknown,
+): MarketplaceInvestResponse {
+  const record = getRecord(payload) ?? {};
+  const createdInvestment =
+    record.investment && typeof record.investment === "object"
+      ? (record.investment as Record<string, unknown>)
+      : record;
+  const currency = pickString(createdInvestment, ["currency"]) ?? null;
+  const amount = pickNumber(createdInvestment, [
+    "amount",
+    "investmentAmount",
+    "committedAmount",
+  ]);
+  const tokenAmount = pickNumber(createdInvestment, [
+    "tokenAmount",
+    "tokens",
+    "quantity",
+    "units",
+  ]);
+
+  return {
+    success:
+      pickBoolean(record, ["success", "ok"]) ??
+      Boolean(
+        pickString(createdInvestment, ["id", "_id", "investmentId", "investment_id"]),
+      ),
+    investmentId:
+      pickString(createdInvestment, [
+        "id",
+        "_id",
+        "investmentId",
+        "investment_id",
+      ]) ?? null,
+    status: pickString(createdInvestment, ["status", "state"]),
+    message: pickString(record, ["message", "detail", "summary"]),
+    amount,
+    amountFormatted:
+      pickString(createdInvestment, ["amountFormatted", "amount_formatted"]) ??
+      formatCurrencyValue(amount, currency ?? "USD"),
+    tokenAmount,
+    tokenAmountFormatted:
+      pickString(createdInvestment, [
+        "tokenAmountFormatted",
+        "token_amount_formatted",
+      ]) ?? formatTokenAmount(tokenAmount),
+    currency,
   };
 }
 

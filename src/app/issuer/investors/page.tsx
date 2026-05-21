@@ -5,9 +5,9 @@ import DashboardLayout from '@/components/DashboardLayout';
 
 const investorsData = [
   { id: 1, name: 'Eleanor Hayes', email: 'eleanor@hayescap.com', type: 'Accredited', status: 'Approved', investment: '$450,000', assets: 3, lastActive: '2 hours ago' },
-  { id: 2, name: 'Marcus Osei', email: 'marcus.osei@gmail.com', type: 'Qualified Purchaser', status: 'Approved', investment: '$1,200,000', assets: 5, lastActive: '5 mins ago' },
+  { id: 2, name: 'Marcus Osei', email: 'marcus.osei@gmail.com', type: 'Qualified Purchaser', status: 'Approved', investment: '$1,200,000', assets: 5, lastActive: '5 minutes ago' },
   { id: 3, name: 'Sarah Jenkins', email: 'sarah@jenkins.co', type: 'Accredited', status: 'Pending', investment: '$150,000', assets: 1, lastActive: '1 day ago' },
-  { id: 4, name: 'David Chen', email: 'd.chen@chenfamily.office', type: 'Institutional', status: 'Approved', investment: '$3,500,000', assets: 12, lastActive: '12 mins ago' },
+  { id: 4, name: 'David Chen', email: 'd.chen@chenfamily.office', type: 'Institutional', status: 'Approved', investment: '$3,500,000', assets: 12, lastActive: '12 minutes ago' },
   { id: 5, name: 'Amara Okafor', email: 'amara@okafor.dev', type: 'Accredited', status: 'Action Required', investment: '$50,000', assets: 0, lastActive: '3 days ago' },
 ];
 
@@ -57,7 +57,7 @@ export default function InvestorsPage() {
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:shrink-0">
         <select className="w-full rounded-lg border border-transparent bg-ui-muted-deep px-4 py-2.5 text-xs font-bold text-ui-muted-text outline-none sm:w-auto">
-          <option>All Status</option>
+          <option>All Statuses</option>
           <option>Approved</option>
           <option>Pending</option>
         </select>
@@ -101,7 +101,7 @@ export default function InvestorsPage() {
             { label: 'Total Investors', val: '1,284', trend: '+12%', color: 'text-primary' },
             { label: 'Active Capital', val: '$94.2M', trend: '+$4.1M', color: 'text-green-600 dark:text-green-400' },
             { label: 'Pending KYC', val: '42', trend: '-5', color: 'text-orange-500' },
-            { label: 'Avg. Ticket Size', val: '$73.3K', trend: '+8%', color: 'text-purple-600 dark:text-purple-400' },
+            { label: 'Average Ticket Size', val: '$73.3K', trend: '+8%', color: 'text-purple-600 dark:text-purple-400' },
           ].map((stat, i) => (
             <div
               key={i}
@@ -157,7 +157,7 @@ export default function InvestorsPage() {
                     </div>
                     <div>
                       <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Assets</p>
-                      <p className="font-bold text-ui-strong">{inv.assets} Assets</p>
+                      <p className="font-bold text-ui-strong">{inv.assets} {inv.assets === 1 ? 'asset' : 'assets'}</p>
                     </div>
                     <div>
                       <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Investment</p>
@@ -222,7 +222,7 @@ export default function InvestorsPage() {
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-5 text-[13px] font-bold text-ui-strong xl:px-8 xl:py-6">
-                        {inv.assets} Assets
+                        {inv.assets} {inv.assets === 1 ? 'asset' : 'assets'}
                       </td>
                       <td className="whitespace-nowrap px-4 py-5 text-[13px] font-bold tabular-nums text-ui-strong xl:px-8 xl:py-6">
                         {inv.investment}

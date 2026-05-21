@@ -1,6 +1,28 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import { baseApi } from "./api/baseApi";
+import "./api/authApi";
+import "./api/uploadApi";
+import "./api/assetsApi";
+import "./api/onboardingApi";
+import "./api/issuerDocumentsApi";
+import "./api/issuerDashboardApi";
+import "./api/investorDashboardApi";
+import "./api/investorDocumentsApi";
+import "./api/investorHoldingsApi";
+import "./api/investorHubAnalyticsApi";
+import "./api/investorHubDistributionsApi";
+import "./api/investorHubInvestmentDocumentsApi";
+import "./api/investorHubOverviewApi";
+import "./api/issuerHubApi";
+import "./api/issuerHubAiAssistantApi";
+import "./api/portfolioApi";
+import "./api/yieldApi";
+import "./api/investorMarketplaceApi";
+import "./api/investorTransactionsApi";
+import "./api/secondaryMarketApi";
+import "./api/investorWalletApi";
+import "./api/issuerWalletApi";
 
 export function makeStore() {
   return configureStore({

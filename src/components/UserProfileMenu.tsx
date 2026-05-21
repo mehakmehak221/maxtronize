@@ -1,16 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
-import { ChevronDown, LogOut } from "lucide-react";
-import { signOut } from "@/lib/auth";
+import { ChevronDown, LogOut, Settings } from "lucide-react";
+import { getSession } from "@/lib/auth";
+import {
+  useAuthenticatedProfileQuery,
+  useLogoutMutation,
+} from "@/store/api/authApi";
 
 const iconStroke = 1.75;
 
 type UserProfileMenuProps = {
   variant?: "sidebar" | "header" | "mobile";
-  name?: string;
-  email?: string;
+  accountHref?: string;
   signOutHref?: string;
 };
 
@@ -28,12 +32,25 @@ function ProfileAvatar({
     <div
       className={`relative shrink-0 overflow-hidden rounded-full border border-ui-border bg-ui-muted-deep ${sizeClass} ${ringClass}`}
     >
-      <svg className="h-full w-full" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <svg
+        className="h-full w-full"
+        viewBox="0 0 80 80"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden
+      >
         <rect width="80" height="80" fill={`url(#${gradientId})`} />
         <ellipse cx="40" cy="72" rx="26" ry="20" fill="#cbd5e1" />
         <circle cx="40" cy="34" r="16" fill="#94a3b8" />
         <defs>
-          <linearGradient id={gradientId} x1="40" y1="0" x2="40" y2="80" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id={gradientId}
+            x1="40"
+            y1="0"
+            x2="40"
+            y2="80"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop stopColor="#f8fafc" />
             <stop offset="1" stopColor="#e2e8f0" />
           </linearGradient>
@@ -45,15 +62,38 @@ function ProfileAvatar({
 
 export function UserProfileMenu({
   variant = "header",
-  name = "Alex Chen",
-  email = "alex@maxtronize.com",
+  accountHref,
   signOutHref = "/signin",
 }: UserProfileMenuProps) {
   const router = useRouter();
   const uid = useId().replace(/:/g, "");
   const gradientId = `profileAvatarGrad-${uid}`;
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const session = mounted
+    ? getSession()
+    : { role: null as "issuer" | "investor" | null, email: null as string | null };
+  const { data: profile } = useAuthenticatedProfileQuery({ skip: !mounted });
+  const [logout, { isLoading: loggingOut }] = useLogoutMutation();
+
+  const name = mounted
+    ? profile?.fullName ??
+      (session.email ? session.email.split("@")[0] : "Account")
+    : "Account";
+  const email = mounted ? (profile?.email ?? session.email ?? "") : "";
+  const settingsHref =
+    accountHref ??
+    (session.role === "investor"
+      ? "/investor/account"
+      : session.role === "issuer"
+        ? "/issuer/account"
+        : "/signin");
 
   useEffect(() => {
     if (!open || (variant !== "header" && variant !== "mobile")) return;
@@ -73,11 +113,16 @@ export function UserProfileMenu({
     };
   }, [open, variant]);
 
-  const handleSignOut = () => {
+  async function handleSignOut() {
     setOpen(false);
-    signOut();
+    try {
+      await logout().unwrap();
+    } catch {
+      /* local session cleared in onQueryStarted */
+    }
     router.replace(signOutHref);
-  };
+    router.refresh();
+  }
 
   if (variant === "sidebar") {
     return (
@@ -90,6 +135,38 @@ export function UserProfileMenu({
       </div>
     );
   }
+
+  const menuItems = (
+    <>
+      <Link
+        href={settingsHref}
+        role="menuitem"
+        onClick={() => setOpen(false)}
+        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
+      >
+        <Settings
+          className="h-4 w-4 shrink-0 text-ui-muted-text"
+          strokeWidth={iconStroke}
+          aria-hidden
+        />
+        Account settings
+      </Link>
+      <button
+        type="button"
+        role="menuitem"
+        onClick={() => void handleSignOut()}
+        disabled={loggingOut}
+        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong disabled:opacity-60"
+      >
+        <LogOut
+          className="h-4 w-4 shrink-0 text-ui-muted-text"
+          strokeWidth={iconStroke}
+          aria-hidden
+        />
+        {loggingOut ? "Signing out…" : "Sign out"}
+      </button>
+    </>
+  );
 
   if (variant === "mobile") {
     return (
@@ -121,15 +198,7 @@ export function UserProfileMenu({
             role="menu"
             className="absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden rounded-xl border border-ui-border bg-ui-card py-1 shadow-lg"
           >
-            <button
-              type="button"
-              role="menuitem"
-              onClick={handleSignOut}
-              className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
-            >
-              <LogOut className="h-4 w-4 shrink-0 text-ui-muted-text" strokeWidth={iconStroke} aria-hidden />
-              Sign out
-            </button>
+            {menuItems}
           </div>
         ) : null}
       </div>
@@ -167,15 +236,7 @@ export function UserProfileMenu({
           <div className="border-b border-ui-divider px-3 py-2.5">
             <p className="truncate text-[11px] text-ui-muted-text">{email}</p>
           </div>
-          <button
-            type="button"
-            role="menuitem"
-            onClick={handleSignOut}
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
-          >
-            <LogOut className="h-4 w-4 shrink-0 text-ui-muted-text" strokeWidth={iconStroke} aria-hidden />
-            Sign out
-          </button>
+          {menuItems}
         </div>
       ) : null}
     </div>

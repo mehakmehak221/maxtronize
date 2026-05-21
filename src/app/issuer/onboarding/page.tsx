@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { Suspense, useState, useEffect, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Hexagon, Triangle, type LucideIcon } from 'lucide-react';
 import Badge from '@/app/components/ui/Badge';
@@ -145,22 +145,38 @@ function IconLockClosedOutline({ className }: { className?: string }) {
   );
 }
 
+function OnboardingStartFallback() {
+  return (
+    <OnboardingLayout currentStep={1}>
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <p className="text-sm text-ui-muted-text">Loading tokenization wizard…</p>
+      </div>
+    </OnboardingLayout>
+  );
+}
+
 export default function OnboardingPage() {
   return (
     <OnboardingProvider>
-      <IssuerOnboardingWizard />
+      <Suspense fallback={<OnboardingStartFallback />}>
+        <IssuerOnboardingWizard />
+      </Suspense>
     </OnboardingProvider>
   );
 }
 
 function IssuerOnboardingWizard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const shouldForceStart = searchParams.get('start') === '1';
   const {
     onboardingId,
     isReady,
     isLoading,
     isSaving,
     saveError,
+    ensureOnboardingSession,
+    forceStartOnboardingSession,
     hydratedRegulation,
     hydratedAssetType,
     hydratedCustodian,
@@ -224,6 +240,10 @@ function IssuerOnboardingWizard() {
   const [tokenPrice, setTokenPrice] = useState('');
   const [accreditedOnly, setAccreditedOnly] = useState(true);
   const [verificationMethod, setVerificationMethod] = useState('parallel-markets');
+  const [startAssetName, setStartAssetName] = useState('Palm Jumeirah Residences SPV');
+  const [startCoverImageKey, setStartCoverImageKey] = useState(
+    'issuer-assets/onboarding-123/cover.png',
+  );
   const [assetName, setAssetName] = useState('');
   const [assetDescription, setAssetDescription] = useState('');
   const [assetAddress, setAssetAddress] = useState('');
@@ -233,6 +253,7 @@ function IssuerOnboardingWizard() {
   const [coldStorageRatio, setColdStorageRatio] = useState('85');
   const [multiSigConfig, setMultiSigConfig] = useState('2-of-3 multisig');
   const [hydrated, setHydrated] = useState(false);
+  const [isStartingSession, setIsStartingSession] = useState(false);
 
   useEffect(() => {
     if (hydrated || isLoading || !isReady) return;
@@ -466,6 +487,121 @@ function IssuerOnboardingWizard() {
     'data-centers': 'Data Center',
     'commodities': 'Commodity',
   };
+
+  async function handleStartOnboarding() {
+    setIsStartingSession(true);
+    const metadata = startCoverImageKey.trim()
+      ? { coverImageKey: startCoverImageKey.trim() }
+      : undefined;
+    const startSession = shouldForceStart
+      ? forceStartOnboardingSession
+      : ensureOnboardingSession;
+    const id = await startSession({
+      assetType: selectedAssetType,
+      assetName: startAssetName.trim() || 'New Asset',
+      metadata,
+    });
+    setIsStartingSession(false);
+    if (!id) return;
+    setAssetName(startAssetName.trim());
+    setCurrentStep(1);
+    router.replace('/issuer/onboarding');
+  }
+
+  const renderStartPage = () => (
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <header>
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+          New tokenization
+        </p>
+        <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">
+          Tokenize a new asset
+        </h1>
+        <p className="text-ui-muted-text text-sm">
+          Choose your asset type and name. We will create your onboarding draft, then walk you
+          through entity setup and compliance.
+        </p>
+      </header>
+
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
+        <h3 className="text-base font-bold text-ui-strong mb-1">Asset type</h3>
+        <p className="text-xs text-ui-faint mb-8">
+          Select the category of asset you are tokenizing.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {assetTypes.map((type) => (
+            <button
+              type="button"
+              key={type.id}
+              onClick={() => setSelectedAssetType(type.id)}
+              className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 min-w-0 ${
+                selectedAssetType === type.id
+                  ? 'border-primary bg-ui-accent-tint'
+                  : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+              }`}
+            >
+              <div
+                className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${
+                  selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
+                }`}
+              >
+                {type.icon}
+              </div>
+              <div className="min-w-0">
+                <p
+                  className={`text-sm font-bold mb-1 ${
+                    selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'
+                  }`}
+                >
+                  {type.name}
+                </p>
+                <p className="text-[10px] text-ui-faint leading-relaxed">{type.sub}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
+        <h3 className="text-base font-bold text-ui-strong">Asset details</h3>
+        <div className="grid grid-cols-1 gap-8">
+          <FormField
+            label="Asset name"
+            placeholder="Palm Jumeirah Residences SPV"
+            required
+            fullWidth
+            value={startAssetName}
+            onChange={setStartAssetName}
+          />
+          <FormField
+            label="Cover image key"
+            placeholder="issuer-assets/onboarding-123/cover.png"
+            fullWidth
+            value={startCoverImageKey}
+            onChange={setStartCoverImageKey}
+            hint="Optional storage path for the asset cover image"
+          />
+        </div>
+      </section>
+
+      {saveError ? (
+        <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          {saveError}
+        </p>
+      ) : null}
+
+      <div className="flex justify-end border-t border-ui-border pt-6">
+        <button
+          type="button"
+          onClick={() => void handleStartOnboarding()}
+          disabled={isStartingSession || !startAssetName.trim()}
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+        >
+          {isStartingSession ? 'Starting draft…' : 'Start onboarding →'}
+        </button>
+      </div>
+    </div>
+  );
 
   const applicationStatus = useMemo(
     () =>
@@ -1752,12 +1888,32 @@ function IssuerOnboardingWizard() {
 
   if (isSubmitted) return renderSuccess();
 
+  const showStartPage = isReady && (shouldForceStart || !onboardingId);
+
+  if (!isReady) {
+    return (
+      <OnboardingLayout currentStep={0}>
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <p className="text-sm text-ui-muted-text">Loading…</p>
+        </div>
+      </OnboardingLayout>
+    );
+  }
+
+  if (showStartPage) {
+    return (
+      <OnboardingLayout currentStep={0}>
+        {renderStartPage()}
+      </OnboardingLayout>
+    );
+  }
+
   return (
     <OnboardingLayout currentStep={currentStep} showSaved={currentStep === 2}>
-        {isLoading ? (
+        {isLoading && Boolean(onboardingId) ? (
           <p className="text-sm text-ui-muted-text">Loading onboarding draft…</p>
         ) : null}
-        {isReady && saveError && !saveError.includes('No onboarding session') ? (
+        {saveError ? (
           <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
             {saveError}
           </p>

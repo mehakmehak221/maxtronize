@@ -32,6 +32,7 @@ import {
   type OnboardingDocumentType,
 } from "@/lib/onboarding";
 import {
+  clearStoredOnboardingId,
   getStoredOnboardingId,
   setStoredOnboardingId,
 } from "@/lib/onboardingStorage";
@@ -68,12 +69,14 @@ export function useIssuerOnboarding() {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [resetStoredSession, setResetStoredSession] = useState(false);
 
   const storedOrProfileId = useMemo(() => {
+    if (resetStoredSession) return null;
     const stored = getStoredOnboardingId();
     if (stored) return stored;
     return profile?.onboardingId ?? null;
-  }, [profile?.onboardingId]);
+  }, [profile?.onboardingId, resetStoredSession]);
 
   const onboardingId = sessionId ?? storedOrProfileId;
 
@@ -163,13 +166,22 @@ export function useIssuerOnboarding() {
     [onboardingId],
   );
 
-  const ensureOnboardingSession = useCallback(
-    async (assetType = "real-estate", assetName = "New Asset") => {
-      if (onboardingId) return onboardingId;
+  type StartSessionParams = {
+    assetType?: string;
+    assetName?: string;
+    metadata?: Record<string, unknown>;
+  };
+
+  const startOnboardingSession = useCallback(
+    async ({
+      assetType = "real-estate",
+      assetName = "New Asset",
+      metadata,
+    }: StartSessionParams = {}) => {
       setSaveError(null);
       try {
         const result = await startOnboarding(
-          buildStartOnboardingPayload({ assetType, assetName }),
+          buildStartOnboardingPayload({ assetType, assetName, metadata }),
         ).unwrap();
         if (!result.id) {
           setSaveError("Could not start onboarding session.");
@@ -183,7 +195,29 @@ export function useIssuerOnboarding() {
         return null;
       }
     },
-    [onboardingId, startOnboarding],
+    [startOnboarding],
+  );
+
+  const ensureOnboardingSession = useCallback(
+    async (params: StartSessionParams = {}) => {
+      if (onboardingId) return onboardingId;
+      return startOnboardingSession(params);
+    },
+    [onboardingId, startOnboardingSession],
+  );
+
+  const forceStartOnboardingSession = useCallback(
+    async (params: StartSessionParams = {}) => {
+      clearStoredOnboardingId();
+      setSessionId(null);
+      setResetStoredSession(true);
+      try {
+        return await startOnboardingSession(params);
+      } finally {
+        setResetStoredSession(false);
+      }
+    },
+    [startOnboardingSession],
   );
 
   const saveEntityDraft = useCallback(
@@ -427,6 +461,7 @@ export function useIssuerOnboarding() {
     refetchDocuments,
     refetchReview,
     ensureOnboardingSession,
+    forceStartOnboardingSession,
     saveEntityDraft,
     saveAccreditationDraft,
     saveAssetDraft,

@@ -498,7 +498,7 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 gap-4 pb-8 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 xl:pb-12">
           {[
             {
-              href: '/issuer/onboarding',
+              href: '/issuer/onboarding?start=1',
               label: 'Tokenize New Asset',
               sub: 'Start a new offering',
               Icon: IconNavSparkles,

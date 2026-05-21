@@ -8,6 +8,8 @@ import { MaxtronizeLogo } from './MaxtronizeLogo';
 import { IssuerNavIcon, type IssuerNavIconId } from './IssuerNavIcons';
 import { UserProfileMenu } from '@/components/UserProfileMenu';
 
+const TOKENIZE_ONBOARDING_HREF = '/issuer/onboarding?start=1';
+
 type NavTag = 'NEW' | 'AI';
 
 type NavItem = {
@@ -87,7 +89,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <div className="px-4 pb-2 pt-4">
             <Link
-              href="/issuer/onboarding"
+              href={TOKENIZE_ONBOARDING_HREF}
               onClick={() => setIsMobileMenuOpen(false)}
               className="btn-press flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-brand-indigo py-3.5 text-[13px] font-bold text-white shadow-[0_12px_32px_-10px_rgba(91,33,182,0.55)] transition-all hover:brightness-[1.05] dark:shadow-[0_12px_32px_-12px_rgba(124,58,237,0.45)]"
             >

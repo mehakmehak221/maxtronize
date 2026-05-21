@@ -38,7 +38,7 @@ export const DASHBOARD_KPI_CARDS: KpiCard[] = [
     label: 'Platform Yield',
     val: '8.4%',
     trend: '↘ -0.2%',
-    sub: 'Weighted avg. APY',
+    sub: 'Weighted average APY',
     up: false,
     Icon: IssuerStatIconTrend,
     well: 'bg-dash-kpi-orange-soft text-dash-kpi-orange-fg ring-1 ring-dash-kpi-orange-ring',

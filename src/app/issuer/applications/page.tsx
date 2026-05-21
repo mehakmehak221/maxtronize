@@ -32,14 +32,14 @@ export default function ApplicationsPage() {
     { label: 'Total Value', value: '$182.9M', trend: '+8.2%', sub: 'Across all applications' },
     { label: 'Active Raises', value: '2', trend: '+1 this month', sub: 'Currently fundraising' },
     { label: 'Tokens Issued', value: '18.19M', trend: '+15.4%', sub: 'On-chain supply' },
-    { label: 'Avg. Completion', value: '54%', trend: '+6.2%', sub: 'Capital raise progress' },
+    { label: 'Average Completion', value: '54%', trend: '+6.2%', sub: 'Capital raise progress' },
   ];
 
   const applications = [
     {
       id: 'APP-001',
       name: 'Prime Office Tower — NYC',
-      type: 'Commercial RE · US',
+      type: 'Commercial Real Estate · U.S.',
       valuation: '$42.5M',
       tokens: '4,250,000 tokens',
       raised: '$33.2M',
@@ -53,7 +53,7 @@ export default function ApplicationsPage() {
     {
       id: 'APP-002',
       name: 'Solar Farm Alpha — Texas',
-      type: 'Infrastructure · US',
+      type: 'Infrastructure · U.S.',
       valuation: '$18.2M',
       tokens: '1,820,000 tokens',
       raised: '$8.2M',
@@ -67,7 +67,7 @@ export default function ApplicationsPage() {
     {
       id: 'APP-003',
       name: 'Logistics Hub DE',
-      type: 'Commercial RE · EU',
+      type: 'Commercial Real Estate · EU',
       valuation: '$31.0M',
       tokens: '3,100,000 tokens',
       raised: '$31.0M',
@@ -81,7 +81,7 @@ export default function ApplicationsPage() {
     {
       id: 'APP-004',
       name: 'Riviera Residences',
-      type: 'Residential RE · EU',
+      type: 'Residential Real Estate · EU',
       valuation: '$9.8M',
       tokens: '980,000 tokens',
       raised: '$1.2M',
@@ -95,7 +95,7 @@ export default function ApplicationsPage() {
     {
       id: 'APP-005',
       name: 'Harbor Ports PE Fund',
-      type: 'Private Equity · SG',
+      type: 'Private Equity · Singapore',
       valuation: '$75.0M',
       tokens: '7,500,000 tokens',
       raised: '$45.0M',
@@ -109,7 +109,7 @@ export default function ApplicationsPage() {
     {
       id: 'APP-006',
       name: 'Alpine Art Collection',
-      type: 'Art & Collectibles · CH',
+      type: 'Art & Collectibles · Switzerland',
       valuation: '$5.4M',
       tokens: '540,000 tokens',
       raised: '$1.6M',

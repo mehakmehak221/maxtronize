@@ -134,21 +134,28 @@ export function OverviewHero({
           Active Tokens
         </p>
         <div className="-mx-0.5 flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide sm:mx-0 sm:flex-wrap sm:overflow-visible md:gap-2.5">
-          {tokens.map((t) => (
-            <div
-              key={t.sym}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 py-1.5 backdrop-blur-md transition-colors hover:border-white/20 hover:bg-black/35 sm:py-2 md:px-3.5"
-            >
-              {t.dotClass ? (
-                <span className={`h-2 w-2 shrink-0 rounded-full ${t.dotClass} ring-2 ring-white/20`} aria-hidden />
-              ) : t.Icon ? (
-                <t.Icon className="h-3.5 w-3.5 shrink-0 text-white/75" strokeWidth={iconStroke} />
-              ) : null}
-              <span className="whitespace-nowrap text-[10px] font-bold tracking-wide text-white/95 md:text-[11px]">
-                {t.sym} <span className="font-semibold text-emerald-200/95">{t.ch}</span>
-              </span>
-            </div>
-          ))}
+          {tokens.length > 0 ? (
+            tokens.map((t) => (
+              <div
+                key={`${t.sym}-${t.ch}`}
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 py-1.5 backdrop-blur-md transition-colors hover:border-white/20 hover:bg-black/35 sm:py-2 md:px-3.5"
+              >
+                {t.dotClass ? (
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${t.dotClass} ring-2 ring-white/20`} aria-hidden />
+                ) : t.Icon ? (
+                  <t.Icon className="h-3.5 w-3.5 shrink-0 text-white/75" strokeWidth={iconStroke} />
+                ) : null}
+                <span className="whitespace-nowrap text-[10px] font-bold tracking-wide text-white/95 md:text-[11px]">
+                  {t.sym}{' '}
+                  <span className="font-semibold text-emerald-200/95">{t.ch}</span>
+                </span>
+              </div>
+            ))
+          ) : (
+            <span className="inline-flex items-center rounded-xl border border-white/10 bg-black/25 px-3 py-1.5 text-[10px] font-medium text-white/55 md:px-3.5 md:py-2 md:text-[11px]">
+              No active tokens yet
+            </span>
+          )}
         </div>
       </div>
     </section>

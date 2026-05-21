@@ -21,9 +21,9 @@ export default function AIIntelligencePage() {
     },
     {
       title: 'AI Yield Forecasting',
-      desc: 'Predicts expected future returns including rental yield, dividends, capital appreciation, and downside scenarios.',
+      desc: 'Forecasts expected future returns, including rental yield, dividends, capital appreciation, and downside scenarios.',
       icon: '📈',
-      tags: ['3-Yr Forecast', 'Scenario Models', 'Downside Risk'],
+      tags: ['3-Year Forecast', 'Scenario Models', 'Downside Risk'],
       color: 'bg-green-500',
     },
     {
@@ -49,7 +49,7 @@ export default function AIIntelligencePage() {
     },
     {
       title: 'AI NAV & Repricing Engine',
-      desc: 'Recalculates token value using updated asset valuations, revenue generated, market demand, and supply liquidity.',
+      desc: 'Recalculates token values using updated asset valuations, generated revenue, market demand, and available liquidity.',
       icon: '🔄',
       tags: ['Token Pricing', 'Secondary Market', 'Fair Value'],
       color: 'bg-cyan-500',
@@ -65,7 +65,7 @@ export default function AIIntelligencePage() {
 
   const stats = [
     { label: 'Assets Analyzed', value: '2,400+', icon: '🏢' },
-    { label: 'Valuations/Day', value: '14,200', icon: '🎯' },
+    { label: 'Valuations per Day', value: '14,200', icon: '🎯' },
     { label: 'Detection Rate', value: '99.4%', icon: '🛡️' },
     { label: 'Valuation ±5%', value: '94.7%', icon: '📊' },
   ];
@@ -83,14 +83,14 @@ export default function AIIntelligencePage() {
             <div className="flex-1 space-y-8 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-ui-card/5 border border-background/10 rounded-full">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">AI Asset Intelligence Module - Live</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">AI Asset Intelligence Module | Live</span>
               </div>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
                 Institutional AI for <br className="hidden sm:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-primary/80">Real-World Assets</span>
               </h1>
               <p className="text-lg text-white/60 font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                Machine learning, predictive models, and real-time analytics — powering better pricing, smarter investments, and institutional-grade compliance monitoring.
+                Machine learning, predictive models, and real-time analytics power better pricing, smarter investments, and institutional-grade compliance monitoring.
               </p>
               <div className="flex flex-wrap justify-center lg:justify-start gap-3">
                 {['8 AI Modules', 'Real-Time Processing', 'Issuer & Investor Tools', 'Fraud Detection', 'Smart Compliance'].map((tag, i) => (

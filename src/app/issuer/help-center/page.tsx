@@ -74,7 +74,7 @@ const TOPICS: {
   },
   {
     title: 'Investor Management',
-    desc: '7 articles · Cap table & KYC flows',
+    desc: '7 articles · Cap table and KYC workflows',
     Icon: TrendingUp,
     iconClass: 'bg-emerald-100 text-emerald-600',
   },
@@ -90,12 +90,12 @@ const FAQS: { cat: FaqCategory; q: string; a: string }[] = [
   {
     cat: 'PLATFORM',
     q: 'What types of real-world assets can be tokenized on Maxtronize?',
-    a: 'Maxtronize supports a wide range of asset classes including commercial and residential real estate, private equity funds, infrastructure projects, commodities, art & collectibles, and more. Each asset undergoes a compliance review before listing to ensure it meets the jurisdictional requirements.',
+    a: 'Maxtronize supports a wide range of asset classes, including commercial and residential real estate, private equity funds, infrastructure projects, commodities, art and collectibles, and more. Each asset undergoes a compliance review before listing to ensure that it meets jurisdictional requirements.',
   },
   {
     cat: 'COMPLIANCE',
     q: 'How does investor KYC and accreditation verification work?',
-    a: 'Investors undergo a rigorous KYC/AML process and accreditation verification tailored to their jurisdiction, with document upload, identity checks, and ongoing monitoring integrated into the issuer dashboard.',
+    a: 'Investors undergo a rigorous KYC/AML process and accreditation verification tailored to their jurisdiction, with document uploads, identity checks, and ongoing monitoring integrated into the issuer dashboard.',
   },
   {
     cat: 'TECHNICAL',
@@ -105,17 +105,17 @@ const FAQS: { cat: FaqCategory; q: string; a: string }[] = [
   {
     cat: 'COMPLIANCE',
     q: 'What regulatory frameworks does the platform comply with?',
-    a: 'We comply with Reg D, Reg S, MiCA, and MAS frameworks among others, with jurisdiction-specific disclosure packs available for each offering.',
+    a: 'We support offerings under Reg D, Reg S, MiCA, MAS, and other jurisdiction-specific frameworks, with disclosure packs available for each offering.',
   },
   {
     cat: 'YIELD',
     q: 'How are yield distributions handled on-chain?',
-    a: 'Distributions are automated via smart contracts and paid out in stablecoins or fiat, with full audit trails visible in the Yield dashboard.',
+    a: 'Distributions are automated through smart contracts and paid out in stablecoins or fiat, with full audit trails available in the Yield dashboard.',
   },
   {
     cat: 'PRICING',
     q: 'What fees does Maxtronize charge for tokenization?',
-    a: 'Our fees are structured based on asset value and offering complexity, including setup, compliance, and ongoing platform fees disclosed upfront in your term sheet.',
+    a: 'Our fees are structured around asset value and offering complexity, including setup, compliance, and ongoing platform fees that are disclosed upfront in your term sheet.',
   },
   {
     cat: 'TOKENS',
@@ -143,7 +143,7 @@ const CONTACT_OPTIONS: {
     sub: 'support@maxtronize.com',
     Icon: Mail,
     iconClass: 'bg-sky-100 text-sky-600',
-    badge: { text: '24-48h', className: 'border-ui-border bg-ui-muted-deep text-ui-muted-text' },
+    badge: { text: '24-48 Hours', className: 'border-ui-border bg-ui-muted-deep text-ui-muted-text' },
   },
   {
     label: 'Schedule a Call',
@@ -153,7 +153,7 @@ const CONTACT_OPTIONS: {
   },
   {
     label: 'Documentation',
-    sub: 'Full developer & legal docs',
+    sub: 'Full developer and legal documentation',
     Icon: BookOpen,
     iconClass: 'bg-amber-100 text-amber-600',
   },
@@ -182,7 +182,7 @@ const TICKETS: {
   },
   {
     id: 'TKT-2035',
-    title: 'SEC Reg D filing documentation needed',
+    title: 'SEC Regulation D filing documentation required',
     priority: 'LOW',
     time: 'Updated 3 days ago',
     status: 'resolved',

@@ -27,9 +27,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       items: [
         { name: 'Dashboard', icon: 'dashboard', href: '/issuer/dashboard' },
         { name: 'Issuer Hub', icon: 'hub', tag: 'NEW', href: '/issuer/hub' },
-        // { name: 'AI Intelligence', icon: 'ai', tag: 'AI', href: '/issuer/ai-intelligence' },
+        // Keep AI Intelligence visible in navigation even while some AI flows remain preview-oriented.
+        { name: 'AI Intelligence', icon: 'ai', tag: 'AI', href: '/issuer/ai-intelligence' },
         { name: 'Portfolio', icon: 'portfolio', href: '/issuer/portfolio' },
-        { name: 'Investors', icon: 'investors', href: '/issuer/investors' },
+        // { name: 'Investors', icon: 'investors', href: '/issuer/investors' },
         { name: 'Yield', icon: 'yield', href: '/issuer/yield' },
         { name: 'Wallet', icon: 'wallet', href: '/issuer/wallet' },
         { name: 'Documents', icon: 'documents', href: '/issuer/documents' },
@@ -43,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const allItems = menuItems.flatMap(cat => cat.items);
   const extraTitles: Record<string, string> = {
-    '/issuer/tokenize-asset': 'Tokenize Asset',
+    '/issuer/onboarding': 'Tokenize Asset',
   };
   const currentPage =
     allItems.find(item => item.href === pathname)?.name ?? extraTitles[pathname] ?? 'Dashboard';
@@ -86,7 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <div className="px-4 pb-2 pt-4">
             <Link
-              href="/issuer/tokenize-asset"
+              href="/issuer/onboarding"
               onClick={() => setIsMobileMenuOpen(false)}
               className="btn-press flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-brand-indigo py-3.5 text-[13px] font-bold text-white shadow-[0_12px_32px_-10px_rgba(91,33,182,0.55)] transition-all hover:brightness-[1.05] dark:shadow-[0_12px_32px_-12px_rgba(124,58,237,0.45)]"
             >
@@ -102,14 +103,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div key={idx} className="space-y-1">
                 <div className="mb-3 flex items-center justify-between px-1">
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ui-faint">{category.category}</p>
-                  {idx === 0 ? (
-                    <Link
-                      href="/investor/overview"
-                      className="rounded-md border border-primary/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary transition-colors hover:bg-primary/5"
-                    >
-                      Switch
-                    </Link>
-                  ) : null}
                 </div>
                 <div className="space-y-1">
                   {category.items.map((item, i) => {
@@ -171,7 +164,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="text-[9px] font-medium leading-relaxed text-ui-success-text/90">99.98% uptime · Blockchain synced</p>
             </div>
             <div className="flex flex-col gap-3 lg:hidden">
-              <button
+              {/* <button
                 type="button"
                 className="relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
                 aria-label="Notifications"
@@ -186,7 +179,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </svg>
                 <span className="text-[13px] font-semibold text-ui-body">Notifications</span>
                 <span className="ml-auto h-2 w-2 rounded-full bg-[#7c3aed]" aria-hidden />
-              </button>
+              </button> */}
               <div className="flex items-center justify-between gap-3 px-1">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">Appearance</span>
                 <ThemeToggle />
@@ -223,7 +216,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             <div className="hidden shrink-0 items-center gap-1 sm:gap-2 md:gap-3 lg:flex">
-              <button
+              {/* <button
                 type="button"
                 className="relative rounded-lg p-2 text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
                 aria-label="Notifications"
@@ -240,8 +233,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-ui-sidebar bg-[#7c3aed] dark:border-[#0d0d12]"
                   aria-hidden
                 />
-              </button>
-              <button
+              </button> */}
+              {/* <button
                 type="button"
                 className="hidden rounded-lg p-2 text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong sm:block"
                 aria-label="Settings"
@@ -255,7 +248,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-              </button>
+              </button> */}
               <div className="mx-1 hidden h-8 w-px shrink-0 bg-ui-border sm:block" aria-hidden />
               <UserProfileMenu variant="header" />
               <div className="flex items-center pl-1 [&_button]:p-1.5">

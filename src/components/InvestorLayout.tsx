@@ -99,12 +99,6 @@ export default function InvestorLayout({
             <div className="space-y-1">
               <div className="mb-3 flex items-center justify-between px-1">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ui-faint">Investor</p>
-                <Link
-                  href="/issuer/dashboard"
-                  className="rounded-md border border-primary/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary transition-colors hover:bg-primary/5"
-                >
-                  Switch
-                </Link>
               </div>
               {investorItems.map((item) => {
                 const isActive = pathname === item.href;
@@ -179,7 +173,7 @@ export default function InvestorLayout({
               <p className="text-[9px] font-medium leading-relaxed text-ui-success-text/90">99.98% uptime · Blockchain synced</p>
             </div>
             <div className="flex flex-col gap-3 lg:hidden">
-              <button
+              {/* <button
                 type="button"
                 className="relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
                 aria-label="Notifications"
@@ -194,7 +188,7 @@ export default function InvestorLayout({
                 </svg>
                 <span className="text-[13px] font-semibold text-ui-body">Notifications</span>
                 <span className="ml-auto h-2 w-2 rounded-full bg-[#7c3aed]" aria-hidden />
-              </button>
+              </button> */}
               <div className="flex items-center justify-between gap-3 px-1">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">Appearance</span>
                 <ThemeToggle />
@@ -235,7 +229,7 @@ export default function InvestorLayout({
             </div>
 
             <div className="hidden shrink-0 items-center gap-1 sm:gap-2 md:gap-3 lg:flex">
-              <button
+              {/* <button
                 type="button"
                 className="relative rounded-lg p-2 text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
                 aria-label="Notifications"
@@ -252,8 +246,8 @@ export default function InvestorLayout({
                   className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-ui-sidebar bg-[#7c3aed] dark:border-[#0d0d12]"
                   aria-hidden
                 />
-              </button>
-              <button
+              </button> */}
+              {/* <button
                 type="button"
                 className="hidden rounded-lg p-2 text-ui-muted-text transition-colors hover:bg-ui-muted-deep hover:text-ui-strong sm:block"
                 aria-label="Settings"
@@ -267,7 +261,7 @@ export default function InvestorLayout({
                   />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-              </button>
+              </button> */}
               <div className="mx-1 hidden h-8 w-px shrink-0 bg-ui-border sm:block" aria-hidden />
               <UserProfileMenu variant="header" />
               <div className="flex items-center pl-1 [&_button]:p-1.5">

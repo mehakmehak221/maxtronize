@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import InvestorLayout from "@/components/InvestorLayout";
 import { AccountProfileForm } from "@/components/profile/AccountProfileForm";
@@ -10,7 +11,19 @@ import {
   isKycVerified,
 } from "@/lib/profile";
 
-export default function InvestorAccountPage() {
+function InvestorAccountFallback() {
+  return (
+    <InvestorLayout>
+      <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6 lg:p-8">
+        <div className="h-10 w-64 animate-pulse rounded-lg bg-ui-muted-deep" />
+        <div className="h-6 w-full max-w-md animate-pulse rounded-lg bg-ui-muted-deep" />
+        <div className="h-96 animate-pulse rounded-2xl bg-ui-muted-deep" />
+      </div>
+    </InvestorLayout>
+  );
+}
+
+function InvestorAccountContent() {
   const searchParams = useSearchParams();
   const { data: profile } = useAuthenticatedProfileQuery();
   const justSubmitted = searchParams.get("verification") === "submitted";
@@ -55,5 +68,13 @@ export default function InvestorAccountPage() {
         <AccountProfileForm />
       </div>
     </InvestorLayout>
+  );
+}
+
+export default function InvestorAccountPage() {
+  return (
+    <Suspense fallback={<InvestorAccountFallback />}>
+      <InvestorAccountContent />
+    </Suspense>
   );
 }

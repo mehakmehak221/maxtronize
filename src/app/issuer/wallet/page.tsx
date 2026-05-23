@@ -729,14 +729,6 @@ export default function WalletPage() {
                   {wallets.length}
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={() => openAction('connect')}
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-[#7C3AED]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-all active:scale-95 font-bold text-[14px]"
-                aria-label="Connect wallet"
-              >
-                +
-              </button>
             </div>
 
             <div className="space-y-3">

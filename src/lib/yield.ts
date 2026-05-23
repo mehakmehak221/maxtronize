@@ -1,4 +1,5 @@
 import { pickNumber, pickString, unwrapList, unwrapPayload } from "@/lib/apiParse";
+import { downloadCsv } from "@/lib/csvExport";
 import { formatCompactCurrency } from "@/lib/issuerDashboard";
 
 export type YieldSummary = {
@@ -213,6 +214,120 @@ export function formatShortPayoutDate(dateStr: string | null | undefined): strin
   return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+export type YieldAssetBreakdownRow = {
+  assetId: string;
+  name: string;
+  ticker: string;
+  apyPercent: number;
+  apyDisplay: string;
+  totalDistributed: number;
+  totalDistributedFormatted: string;
+  frequency: string;
+  lastPayoutDate: string | null;
+  nextPayoutDate: string | null;
+  status: "Above Target" | "On Track" | "Below Target";
+};
+
+/** API may send APY as percent (7.2) or scaled (720 → 7.2%, 2400 → 24%). */
+export function normalizeYieldApyPercent(raw: number): number {
+  if (!Number.isFinite(raw)) return 0;
+  if (raw > 100) return raw / 100;
+  return raw;
+}
+
+function formatFrequencyLabel(raw: string | null): string {
+  if (!raw?.trim()) return "—";
+  if (!raw.includes("_")) return raw;
+  return raw
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join("-");
+}
+
+function mapPerformanceStatus(
+  label: string | null,
+  status: string | null,
+): YieldAssetBreakdownRow["status"] {
+  const normalized = (label ?? status ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/[_-]+/g, " ");
+  if (normalized.includes("ABOVE")) return "Above Target";
+  if (normalized.includes("BELOW")) return "Below Target";
+  return "On Track";
+}
+
+export function parseYieldAssetBreakdown(payload: unknown): YieldAssetBreakdownRow[] {
+  return unwrapList(payload).map((item, index) => {
+    const apyRaw =
+      pickNumber(item, ["apyPercent", "apy_percent", "apy", "yieldPercent"]) ?? 0;
+    const apyPercent = normalizeYieldApyPercent(apyRaw);
+    const totalDistributed =
+      pickNumber(item, ["totalDistributed", "total_distributed", "distributed"]) ?? 0;
+    const currency = pickString(item, ["currency"]) ?? "USD";
+    const frequency =
+      pickString(item, ["frequencyLabel", "frequency_label"]) ??
+      formatFrequencyLabel(pickString(item, ["frequency"]));
+
+    return {
+      assetId:
+        pickString(item, ["assetId", "asset_id", "id", "_id"]) ?? `asset-${index}`,
+      name:
+        pickString(item, ["title", "assetName", "asset_name", "name"]) ??
+        `Asset ${index + 1}`,
+      ticker: pickString(item, ["ticker", "symbol", "tokenSymbol"]) ?? "—",
+      apyPercent,
+      apyDisplay: `${apyPercent.toFixed(apyPercent % 1 === 0 ? 0 : 1)}%`,
+      totalDistributed,
+      totalDistributedFormatted: formatCompactCurrency(totalDistributed, currency, {
+        decimals: totalDistributed >= 1_000_000 ? 2 : 0,
+      }),
+      frequency,
+      lastPayoutDate:
+        pickString(item, ["lastPayoutDate", "last_payout_date", "lastPayout"]) ??
+        null,
+      nextPayoutDate:
+        pickString(item, ["nextPayoutDate", "next_payout_date", "nextPayout"]) ??
+        null,
+      status: mapPerformanceStatus(
+        pickString(item, ["performanceLabel", "performance_label"]),
+        pickString(item, ["performanceStatus", "performance_status", "status"]),
+      ),
+    };
+  });
+}
+
+const YIELD_BREAKDOWN_CSV_HEADERS = [
+  "Asset",
+  "Ticker",
+  "APY",
+  "Total Distributed",
+  "Frequency",
+  "Last Payout",
+  "Next Payout",
+  "Status",
+] as const;
+
+export function exportYieldAssetBreakdownCsv(rows: YieldAssetBreakdownRow[]): void {
+  const dateStamp = new Date().toISOString().slice(0, 10);
+  const csvRows = rows.map((row) => [
+    row.name,
+    row.ticker,
+    row.apyDisplay,
+    row.totalDistributedFormatted,
+    row.frequency,
+    row.lastPayoutDate ? formatShortPayoutDate(row.lastPayoutDate) : "",
+    row.nextPayoutDate ? formatShortPayoutDate(row.nextPayoutDate) : "",
+    row.status,
+  ]);
+
+  downloadCsv(
+    `asset-yield-breakdown-${dateStamp}.csv`,
+    [...YIELD_BREAKDOWN_CSV_HEADERS],
+    csvRows,
+  );
+}
+
 export function parseApyPercent(apy: string): number {
   const n = parseFloat(apy.replace(/%/g, "").trim());
   return Number.isFinite(n) ? n : 0;
@@ -223,7 +338,7 @@ export function chartScaleForAmounts(values: number[]): {
   suffix: string;
   max: number;
 } {
-  const max = Math.max(...values, 1);
+  const max = Math.max(...values, 0);
   if (max >= 1_000_000) {
     return { divisor: 1_000_000, suffix: "M", max: max / 1_000_000 };
   }
@@ -231,4 +346,31 @@ export function chartScaleForAmounts(values: number[]): {
     return { divisor: 1_000, suffix: "K", max: max / 1_000 };
   }
   return { divisor: 1, suffix: "", max };
+}
+
+export function distributionScheduleHasChartData(
+  months: DistributionScheduleMonth[],
+): boolean {
+  return months.some((m) => m.actual > 0 || m.projected > 0);
+}
+
+export function buildDistributionChartYTicks(maxChart: number, count = 5): number[] {
+  if (!Number.isFinite(maxChart) || maxChart <= 0) return [0];
+  const steps = Math.max(count - 1, 1);
+  return Array.from({ length: count }, (_, index) => (maxChart * index) / steps);
+}
+
+export function formatDistributionChartYTick(
+  value: number,
+  scaleSuffix: string,
+): string {
+  if (value === 0) return "$0";
+  if (scaleSuffix === "M") return `$${value.toFixed(1)}M`;
+  if (scaleSuffix === "K") {
+    return value >= 10
+      ? `$${Math.round(value)}K`
+      : `$${value.toFixed(1)}K`;
+  }
+  if (value < 1) return `$${value.toFixed(2)}`;
+  return `$${Math.round(value)}`;
 }

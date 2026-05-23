@@ -1,9 +1,11 @@
 import {
   parseDistributionSchedule,
   parseUpcomingPayouts,
+  parseYieldAssetBreakdown,
   parseYieldSummary,
   type DistributionSchedule,
   type UpcomingPayout,
+  type YieldAssetBreakdownRow,
   type YieldSummary,
 } from "@/lib/yield";
 import { baseApi } from "./baseApi";
@@ -35,8 +37,9 @@ export const yieldApi = baseApi.injectEndpoints({
       transformResponse: (response: unknown) => parseUpcomingPayouts(response),
       providesTags: [{ type: "Yield", id: "UPCOMING" }],
     }),
-    getYieldAssetBreakdown: build.query<any[], void>({
+    getYieldAssetBreakdown: build.query<YieldAssetBreakdownRow[], void>({
       query: () => ({ url: "/yield/asset-breakdown", method: "GET" }),
+      transformResponse: (response: unknown) => parseYieldAssetBreakdown(response),
       providesTags: [{ type: "Yield", id: "BREAKDOWN" }],
     }),
   }),

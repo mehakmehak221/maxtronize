@@ -43,8 +43,6 @@ import {
 import {
   clearIssuerOnboardingLocalSession,
   clearStoredOnboardingId,
-  getStoredOnboardingId,
-  setStoredOnboardingId,
 } from "@/lib/onboardingStorage";
 import { parseUploadFileResult } from "@/lib/profile";
 import { pickCoverImageUrl, resolveStoragePublicUrl } from "@/lib/storageUrl";
@@ -81,8 +79,6 @@ export function useIssuerOnboarding() {
 
   const storedOrProfileId = useMemo(() => {
     if (resetStoredSession || forceFreshStart) return null;
-    const stored = getStoredOnboardingId();
-    if (stored) return stored;
     return profile?.onboardingId ?? null;
   }, [forceFreshStart, profile?.onboardingId, resetStoredSession]);
 
@@ -93,10 +89,8 @@ export function useIssuerOnboarding() {
       : null;
 
   useEffect(() => {
-    if (onboardingId && !forceFreshStart) {
-      setStoredOnboardingId(onboardingId);
-    }
-  }, [forceFreshStart, onboardingId]);
+    clearIssuerOnboardingLocalSession();
+  }, []);
 
   const skip = !onboardingId;
   const {
@@ -276,7 +270,6 @@ export function useIssuerOnboarding() {
         }
 
         setSessionId(result.id);
-        setStoredOnboardingId(result.id);
         return {
           id: result.id,
           coverImageKey,

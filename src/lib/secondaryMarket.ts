@@ -135,10 +135,10 @@ function parseListingRecord(record: Record<string, unknown>, index: number): Sec
     iconType,
     watchlist: Boolean(
       record.watchlist ??
-        record.isWatchlisted ??
-        record.inWatchlist ??
-        record.in_watchlist ??
-        record.is_watchlisted,
+      record.isWatchlisted ??
+      record.inWatchlist ??
+      record.in_watchlist ??
+      record.is_watchlisted,
     ),
   };
 }
@@ -185,7 +185,15 @@ export function parseSecondaryListings(payload: unknown): SecondaryMarketListing
 export function parseSecondaryListingDetail(payload: unknown): SecondaryListing | null {
   const record = unwrapPayload(payload);
   if (!record || typeof record !== "object" || Array.isArray(record)) return null;
-  return parseListingRecord(record as Record<string, unknown>, 0);
+  const recObj = record as Record<string, unknown>;
+  const listingObj = (recObj.listing && typeof recObj.listing === "object" ? recObj.listing : {}) as Record<string, unknown>;
+  const statsObj = (recObj.stats && typeof recObj.stats === "object" ? recObj.stats : {}) as Record<string, unknown>;
+  const merged = {
+    ...recObj,
+    ...statsObj,
+    ...listingObj,
+  };
+  return parseListingRecord(merged, 0);
 }
 
 export type SecondaryChartPoint = {
@@ -201,7 +209,7 @@ export function parseSecondaryChart(payload: unknown): SecondaryChartResult {
   const record = unwrapPayload(payload);
   if (!record || typeof record !== "object") return { series: [] };
   const root = record as Record<string, unknown>;
-  const rawSeries = root.series ?? root.chart ?? [];
+  const rawSeries = root.series ?? root.chart ?? root.price ?? root.prices ?? [];
   if (!Array.isArray(rawSeries)) return { series: [] };
 
   return {

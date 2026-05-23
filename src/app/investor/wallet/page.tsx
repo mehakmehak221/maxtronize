@@ -602,17 +602,6 @@ export default function InvestorWalletPage() {
                 </div>
               )}
             </div>
-            {wallets.length > 0 ? (
-              <div className="mx-4 mb-4 flex items-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-3 dark:border-emerald-900/50 dark:bg-emerald-950/40">
-                <CheckIcon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                <div>
-                  <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">Wallets available</p>
-                  <p className="text-[9px] font-medium text-emerald-700/80 dark:text-emerald-400/90">
-                    Data is loaded live from the investor wallet API.
-                  </p>
-                </div>
-              </div>
-            ) : null}
           </section>
 
           <section id="investor-wallet-holdings" className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:rounded-[32px]">

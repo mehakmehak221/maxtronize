@@ -15,6 +15,7 @@ import {
   type AssetOffering,
   type AssetTokenization,
   type MarketplaceAsset,
+  resolveMarketplaceCoverImage,
 } from "@/lib/assets";
 import type { PaginationMeta } from "@/lib/issuerDocuments";
 
@@ -126,6 +127,7 @@ export type MarketplaceInvestPreview = {
 export type MarketplaceInvestResponse = {
   success: boolean;
   investmentId: string | null;
+  transactionId?: string | null;
   status: string | null;
   message: string | null;
   amount: number | null;
@@ -161,9 +163,6 @@ function parsePagination(payload: unknown): PaginationMeta {
     hasPreviousPage: page > 1,
   };
 }
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80&auto=format&fit=crop";
 
 function formatCurrencyShort(value: number | null, prefix = "$"): string {
   if (value === null || Number.isNaN(value)) return "—";
@@ -242,10 +241,27 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
     record.hero && typeof record.hero === "object"
       ? (record.hero as Record<string, unknown>)
       : null;
+  const metadata =
+    record.metadata && typeof record.metadata === "object"
+      ? (record.metadata as Record<string, unknown>)
+      : null;
+  const metaAsset =
+    metadata && metadata.asset && typeof metadata.asset === "object"
+      ? (metadata.asset as Record<string, unknown>)
+      : null;
+  const metaOffering =
+    metadata && metadata.offering && typeof metadata.offering === "object"
+      ? (metadata.offering as Record<string, unknown>)
+      : null;
+  const metaAccreditation =
+    metadata && metadata.accreditation && typeof metadata.accreditation === "object"
+      ? (metadata.accreditation as Record<string, unknown>)
+      : null;
+
   const id =
     pickString(record, ["id", "_id", "assetId", "asset_id"]) ?? "unknown";
   const name =
-    pickString(record, ["name", "title", "assetName"]) ?? "Untitled asset";
+    pickString(record, ["assetTitle", "asset_title", "name", "title", "assetName"]) ?? "Untitled asset";
   const type =
     pickString(record, [
       "assetTypeLabel",
@@ -259,6 +275,7 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
   const location =
     pickString(record, ["location", "city", "address", "jurisdiction"]) ?? "—";
 
+  // APY / Yield extraction with fallback to metadata.asset.capRate or metadata.offering.targetIrr
   const apyRaw =
     pickNumber(record, [
       "apy",
@@ -268,19 +285,27 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
       "yield",
     ]) ??
     pickNumber(record, ["expectedReturn", "expected_return"]) ??
+    (metaAsset ? pickNumber(metaAsset, ["capRate"]) : null) ??
+    (metaOffering ? pickNumber(metaOffering, ["targetIrr", "preferredReturn"]) : null) ??
     (hero ? pickNumber(hero, ["annualYieldPercent", "apyPercent", "apy"]) : null);
+
   const minRaw = pickNumber(record, [
     "minInvestment",
     "min_investment",
     "minimumInvestment",
   ]) ?? (hero ? pickNumber(hero, ["minimumInvestment", "minInvestment"]) : null);
+
+  // Note: Backend might not expose raised at root. Check offering metadata first, fallback to root.
   const raised =
     pickNumber(record, [
       "raised",
       "raisedAmount",
       "raised_amount",
       "amountRaised",
-    ]) ?? 0;
+    ]) ?? 
+    (metaOffering ? pickNumber(metaOffering, ["raised", "raisedAmount"]) : null) ??
+    0;
+
   const target =
     pickNumber(record, [
       "target",
@@ -288,6 +313,7 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
       "target_raise",
       "targetRaiseAmount",
     ]) ?? 0;
+
   const pct =
     pickNumber(record, [
       "progress",
@@ -295,30 +321,30 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
       "fundedPercent",
       "fundingProgressPercent",
     ]) ??
+    (metaOffering ? pickNumber(metaOffering, ["progress", "progressPct"]) : null) ??
     (hero ? pickNumber(hero, ["fundraisingProgressPercent", "fundingProgressPercent"]) : null) ??
     calcPct(raised, target);
+
   const investors =
     pickNumber(record, ["investors", "investorCount", "investor_count"]) ??
+    (metaOffering ? pickNumber(metaOffering, ["investors", "investorCount"]) : null) ??
     (hero ? pickNumber(hero, ["investorCount", "investors"]) : null) ??
     0;
+
   const daysLeft =
     pickNumber(record, [
       "daysLeft",
       "days_left",
       "closingInDays",
       "daysRemaining",
-    ]) ?? 0;
-  const image =
-    pickString(record, [
-      "coverImageUrl",
-      "image",
-      "imageUrl",
-      "image_url",
-      "coverImage",
-      "thumbnail",
-    ]) ?? FALLBACK_IMAGE;
+    ]) ??
+    (metaOffering ? pickNumber(metaOffering, ["daysLeft", "closingDays"]) : null) ??
+    0;
 
-  const tagsRaw = record.tags ?? record.labels;
+  const image = resolveMarketplaceCoverImage(record, metaAsset);
+
+  // Support tags from accreditation exemptions as tag fallback
+  const tagsRaw = record.tags ?? record.labels ?? metaAccreditation?.exemptions;
   const tags = Array.isArray(tagsRaw)
     ? tagsRaw.map(String).filter(Boolean)
     : [];
@@ -326,6 +352,13 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
   const featured = Boolean(
     record.featured ?? record.isFeatured ?? record.is_featured,
   );
+
+  const fundingLabel = pickString(record, ["fundingLabel", "funding_label"]);
+  const riskLabel =
+    pickString(record, ["riskLabel", "risk_label"]) ??
+    pickString(record, ["riskLevel", "risk_level"]);
+  const verified =
+    pickBoolean(record, ["isVerified", "is_verified", "verified"]) ?? false;
 
   return {
     id,
@@ -337,8 +370,8 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
         ? formatPercent(apyRaw)
         : pickString(record, ["apyLabel"]) ?? "—",
     minInv: minRaw !== null ? formatCurrencyShort(minRaw) : "—",
-    raised: raised >= 1000 ? raised / 1_000_000 : raised,
-    target: target >= 1000 ? target / 1_000_000 : target,
+    raised: (raised ?? 0) / 1_000_000,
+    target: (target ?? 0) / 1_000_000,
     pct,
     investors,
     daysLeft,
@@ -351,8 +384,11 @@ function parseOpportunity(record: Record<string, unknown>): MarketplaceAsset {
         record.isWatchlisted ??
         record.inWatchlist ??
         record.in_watchlist ??
-        record.is_watchlisted
+        record.is_watchlisted,
     ),
+    fundingLabel,
+    riskLabel,
+    verified,
   };
 }
 
@@ -836,13 +872,18 @@ export function parseMarketplaceInvestResponse(
     "amount",
     "investmentAmount",
     "committedAmount",
+    "amountUsd",
+    "amount_usd",
   ]);
   const tokenAmount = pickNumber(createdInvestment, [
     "tokenAmount",
     "tokens",
     "quantity",
     "units",
+    "tokensOwned",
+    "tokens_owned",
   ]);
+  const transactionId = pickString(record, ["transactionId", "transaction_id"]);
 
   return {
     success:
@@ -857,6 +898,7 @@ export function parseMarketplaceInvestResponse(
         "investmentId",
         "investment_id",
       ]) ?? null,
+    transactionId,
     status: pickString(createdInvestment, ["status", "state"]),
     message: pickString(record, ["message", "detail", "summary"]),
     amount,

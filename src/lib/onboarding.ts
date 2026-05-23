@@ -5,6 +5,12 @@ import {
   unwrapList,
   unwrapPayload,
 } from "@/lib/apiParse";
+import {
+  parseOnboardingProgress,
+  type OnboardingProgress,
+} from "./onboardingDrafts";
+import { resolveStoragePublicUrl } from "./storageUrl";
+
 
 export type AccreditationType =
   | "QUALIFIED_ISSUER"
@@ -14,23 +20,35 @@ export type AccreditationType =
 export type ApiAssetType =
   | "REAL_ESTATE"
   | "PRIVATE_CREDIT"
-  | "DATA_CENTERS"
-  | "COMMODITIES";
+  | "DATA_CENTER"
+  | "COMMODITY";
 
-export type OnboardingDocumentType =
-  | "CERTIFICATE_OF_FORMATION"
-  | "OPERATING_AGREEMENT"
-  | "EIN_CONFIRMATION_LETTER"
-  | "GOVERNMENT_ISSUED_ID"
-  | "MAI_APPRAISAL_REPORT"
-  | "RENT_ROLL"
-  | "TITLE_REPORT"
-  | "ENVIRONMENTAL_ASSESSMENT"
-  | "VAULT_STORAGE_CERTIFICATE"
-  | "INDEPENDENT_ASSAY_REPORT"
-  | "FACILITY_APPRAISAL_REPORT"
-  | "LOAN_AGREEMENT"
-  | "OTHER";
+/** API-allowed values for POST /onboarding/{id}/documents `type` field */
+export const ONBOARDING_DOCUMENT_TYPES = [
+  "CERTIFICATE_OF_FORMATION",
+  "OPERATING_AGREEMENT",
+  "EIN_CONFIRMATION",
+  "GOVERNMENT_ID",
+  "APPRAISAL_REPORT",
+  "RENT_ROLL",
+  "TITLE_REPORT",
+  "ENVIRONMENTAL_REPORT",
+  "CREDIT_AGREEMENT",
+  "FINANCIAL_STATEMENT",
+  "FACILITY_APPRAISAL",
+  "COLOCATION_AGREEMENT",
+  "VAULT_CERTIFICATE",
+  "ASSAY_REPORT",
+  "PPM",
+  "SUBSCRIPTION_AGREEMENT",
+  "TRANSFER_RESTRICTION_AGREEMENT",
+  "OTHER",
+] as const;
+
+export type OnboardingDocumentType = (typeof ONBOARDING_DOCUMENT_TYPES)[number];
+
+/** Cover images use OTHER; role is stored in upload metadata */
+export const ONBOARDING_COVER_DOCUMENT_TYPE: OnboardingDocumentType = "OTHER";
 
 export type AccreditationPayload = {
   accreditationType: AccreditationType;
@@ -101,7 +119,89 @@ export type OnboardingDocument = {
   size: string;
   date: string;
   url: string | null;
+  storageKey: string | null;
 };
+
+export function buildCoverImageStorageKey(
+  onboardingId: string,
+  fileName: string,
+): string {
+  const parts = fileName.split(".");
+  const ext =
+    parts.length > 1 && parts[parts.length - 1]
+      ? parts[parts.length - 1]!.toLowerCase()
+      : "png";
+  const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "png";
+  return `issuer-assets/onboarding-${onboardingId}/cover.${safeExt}`;
+}
+
+export function storageUrlFromCoverKey(
+  key: string,
+  explicitUrl?: string | null,
+): string | null {
+  return resolveStoragePublicUrl(key, explicitUrl);
+}
+
+export function pickCoverImageKey(source: Record<string, unknown>): string | null {
+  const meta = metadataRecord(source);
+  const raw =
+    pickString(source, [
+      "coverImageKey",
+      "cover_image_key",
+      "storageKey",
+      "storage_key",
+      "objectKey",
+      "object_key",
+      "fileKey",
+      "file_key",
+      "key",
+      "path",
+    ]) ??
+    pickString(meta, [
+      "coverImageKey",
+      "cover_image_key",
+      "storageKey",
+      "storage_key",
+      "key",
+      "path",
+    ]);
+  if (!raw) return null;
+  if (raw.startsWith("http://") || raw.startsWith("https://")) {
+    try {
+      const pathname = new URL(raw).pathname;
+      const storagePrefix = "/storage/";
+      if (pathname.includes(storagePrefix)) {
+        return pathname.slice(pathname.indexOf(storagePrefix) + storagePrefix.length);
+      }
+    } catch {
+      return null;
+    }
+  }
+  return raw.replace(/^\//, "");
+}
+
+export function resolveCoverImageKeyFromUpload(
+  payload: unknown,
+  onboardingId: string,
+  fileName: string,
+): string {
+  const record = unwrapPayload(payload);
+  if (record && typeof record === "object" && !Array.isArray(record)) {
+    const key = pickCoverImageKey(record as Record<string, unknown>);
+    if (key) return key;
+  }
+  return buildCoverImageStorageKey(onboardingId, fileName);
+}
+
+export function parseUploadedOnboardingDocument(
+  payload: unknown,
+): OnboardingDocument | null {
+  const record = unwrapPayload(payload);
+  if (!record || typeof record !== "object" || Array.isArray(record)) {
+    return null;
+  }
+  return parseDocument(record as Record<string, unknown>, 0);
+}
 
 export type OnboardingState = {
   id: string;
@@ -111,6 +211,10 @@ export type OnboardingState = {
   asset: Record<string, unknown>;
   custody: Record<string, unknown>;
   entity: Record<string, unknown>;
+  legal: Record<string, unknown>;
+  offering: Record<string, unknown>;
+  tokenization: Record<string, unknown>;
+  progress: OnboardingProgress | null;
   documents: OnboardingDocument[];
 };
 
@@ -131,15 +235,15 @@ const EXEMPTION_TO_REGULATION: Record<string, string> = {
 const UI_TO_API_ASSET: Record<string, ApiAssetType> = {
   "real-estate": "REAL_ESTATE",
   "private-credit": "PRIVATE_CREDIT",
-  "data-centers": "DATA_CENTERS",
-  commodities: "COMMODITIES",
+  "data-centers": "DATA_CENTER",
+  commodities: "COMMODITY",
 };
 
 const API_TO_UI_ASSET: Record<string, string> = {
   REAL_ESTATE: "real-estate",
   PRIVATE_CREDIT: "private-credit",
-  DATA_CENTERS: "data-centers",
-  COMMODITIES: "commodities",
+  DATA_CENTER: "data-centers",
+  COMMODITY: "commodities",
 };
 
 const CUSTODIAN_UI_TO_NAME: Record<string, string> = {
@@ -163,7 +267,7 @@ function pickBool(obj: Record<string, unknown>, keys: string[]): boolean {
   return false;
 }
 
-function metadataRecord(
+export function metadataRecord(
   draft: Record<string, unknown>,
 ): Record<string, unknown> {
   const meta = draft.metadata;
@@ -191,7 +295,22 @@ function parseDocument(doc: Record<string, unknown>, index: number): OnboardingD
     size: pickString(doc, ["size", "fileSize", "file_size"]) ?? "—",
     date:
       pickString(doc, ["date", "createdAt", "created_at", "uploadedAt"]) ?? "—",
-    url: pickString(doc, ["url", "fileUrl", "file_url", "downloadUrl"]),
+    url: pickString(doc, [
+      "url",
+      "fileUrl",
+      "file_url",
+      "downloadUrl",
+      "download_url",
+      "signedUrl",
+      "signed_url",
+      "publicUrl",
+      "public_url",
+      "accessUrl",
+      "access_url",
+    ]),
+    storageKey:
+      pickCoverImageKey(doc) ??
+      pickString(doc, ["storageKey", "storage_key", "objectKey", "object_key"]),
   };
 }
 
@@ -254,6 +373,23 @@ export function parseOnboardingState(
       root.entitySetup ?? root.entity_setup ?? root.kyb ?? root.knowYourBusiness,
     );
 
+  const legal =
+    (root.legal && typeof root.legal === "object"
+      ? (root.legal as Record<string, unknown>)
+      : null) ?? parseDraft(root.legal);
+
+  const offering =
+    (root.offering && typeof root.offering === "object"
+      ? (root.offering as Record<string, unknown>)
+      : null) ?? parseDraft(root.offering);
+
+  const tokenization =
+    (root.tokenization && typeof root.tokenization === "object"
+      ? (root.tokenization as Record<string, unknown>)
+      : null) ?? parseDraft(root.tokenization);
+
+  const progress = root.progress ? parseOnboardingProgress(root) : null;
+
   const documentsRaw = root.documents ?? root.files;
   const documents = Array.isArray(documentsRaw)
     ? documentsRaw
@@ -269,6 +405,10 @@ export function parseOnboardingState(
     asset,
     custody,
     entity,
+    legal,
+    offering,
+    tokenization,
+    progress,
     documents,
   };
 }
@@ -602,12 +742,21 @@ export function parseAssetFormFromDraft(draft: Record<string, unknown>) {
     pickNumber(draft, ["annualIncome", "annual_income", "annualRentalIncome"]) ??
     pickNumber(meta, ["annualIncome", "annual_income"]);
 
+  const coverImageKey = pickCoverImageKey(draft) ?? pickCoverImageKey(meta);
+  const explicitCoverUrl =
+    pickString(draft, ["coverImageUrl", "cover_image_url"]) ??
+    pickString(meta, ["coverImageUrl", "cover_image_url", "imageUrl", "image_url"]);
+
   return {
     name: readStringField(draft, ["name", "assetName", "asset_name"]),
     description: readStringField(draft, ["description"]),
     address: readStringField(draft, ["address", "propertyAddress", "location"]),
     appraisalValue: appraisal != null ? String(appraisal) : "",
     annualIncome: income != null ? String(income) : "",
+    coverImageKey,
+    coverImageUrl:
+      explicitCoverUrl ??
+      (coverImageKey ? resolveStoragePublicUrl(coverImageKey, null) : null),
     capRate: readStringField(meta, ["capRate", "cap_rate"]),
     occupancyRate: readStringField(meta, ["occupancyRate", "occupancy_rate"]),
     yearBuilt: readStringField(meta, ["yearBuilt", "year_built"]),
@@ -680,7 +829,6 @@ const ONBOARDING_STATUS_UNDER_REVIEW = new Set([
   "UNDER_REVIEW",
   "IN_REVIEW",
   "REVIEW",
-  "IN_PROGRESS",
 ]);
 
 function normalizeOnboardingStatus(raw: string | null | undefined): string {
@@ -742,6 +890,12 @@ const ONBOARDING_STATUS_COPY: Record<
     canSubmit: false,
   },
 };
+
+export function isTerminalOnboardingApplicationKey(
+  key: OnboardingApplicationStatusKey,
+): boolean {
+  return key !== "draft";
+}
 
 export function resolveOnboardingApplicationStatus(
   statuses: Array<string | null | undefined>,

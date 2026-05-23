@@ -1,3 +1,4 @@
+import { resolveMarketplaceCoverImage } from "@/lib/assets";
 import { pickNumber, pickString, unwrapList, unwrapPayload } from "@/lib/apiParse";
 import type { PaginationMeta } from "@/lib/issuerDocuments";
 
@@ -31,7 +32,7 @@ export type PortfolioAsset = {
   apy: string;
   investors: string;
   lockup: string;
-  image: string;
+  image: string | null;
   categoryKey: string;
   categoryLabel: string;
   tokenPriceRaw: number;
@@ -48,6 +49,58 @@ export type PortfolioNavPoint = {
   label: string;
   value: number;
 };
+
+export type PortfolioNavHistoryResult = {
+  points: PortfolioNavPoint[];
+  ytdGrowthPercent: number;
+};
+
+function formatNavHistoryLabel(recordedAt: string, index: number): string {
+  if (recordedAt.includes("-")) {
+    try {
+      const date = new Date(recordedAt);
+      if (!isNaN(date.getTime())) {
+        const hasTime =
+          recordedAt.includes("T") &&
+          (recordedAt.includes(":") || recordedAt.endsWith("Z"));
+        if (hasTime) {
+          return date.toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          });
+        }
+        return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return `M${index + 1}`;
+}
+
+function mapNavHistorySeries(series: unknown[]): PortfolioNavPoint[] {
+  const points = series
+    .filter((p): p is Record<string, unknown> => Boolean(p) && typeof p === "object")
+    .map((point, index) => {
+      const recordedAt =
+        pickString(point, ["recordedAt", "date", "label", "month"]) ?? `M${index + 1}`;
+      const nav = pickNumber(point, ["nav", "value", "amount"]) ?? 0;
+      return {
+        label: formatNavHistoryLabel(recordedAt, index),
+        value: nav,
+      };
+    });
+
+  const labelCounts = new Map<string, number>();
+  return points.map((point) => {
+    const count = labelCounts.get(point.label) ?? 0;
+    labelCounts.set(point.label, count + 1);
+    if (count === 0) return point;
+    return { ...point, label: `${point.label} (${count + 1})` };
+  });
+}
 
 export type PortfolioSummary = {
   totalNav: number;
@@ -174,16 +227,7 @@ function parseAsset(record: Record<string, unknown>, index: number): PortfolioAs
     lockup:
       pickString(record, ["lockup", "lockupPeriod", "lockLabel", "lock_label"]) ??
       "—",
-    image:
-      pickString(record, [
-        "image",
-        "imageUrl",
-        "coverImage",
-        "cover_image",
-        "coverImageUrl",
-        "cover_image_url",
-      ]) ??
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80",
+    image: resolveMarketplaceCoverImage(record),
     categoryKey,
     categoryLabel,
     tokenPriceRaw: tokenPriceNum,
@@ -352,54 +396,37 @@ export function parsePortfolioSummary(
   };
 }
 
-export function parsePortfolioNavHistory(payload: unknown): PortfolioNavPoint[] {
+export function parsePortfolioNavHistoryResult(
+  payload: unknown,
+): PortfolioNavHistoryResult {
   const record = unwrapPayload(payload);
-  if (Array.isArray(record)) {
-    return record
-      .filter((p): p is Record<string, unknown> => Boolean(p) && typeof p === "object")
-      .map((point, index) => {
-        const recordedAt = pickString(point, ["recordedAt", "date", "label", "month"]) ?? `M${index + 1}`;
-        let label = recordedAt;
-        if (recordedAt.includes("-")) {
-          try {
-            const date = new Date(recordedAt);
-            if (!isNaN(date.getTime())) {
-              label = date.toLocaleDateString("en-US", { month: "short" });
-            }
-          } catch {
-            // ignore
-          }
-        }
-        const nav = pickNumber(point, ["nav", "value", "amount"]) ?? 0;
-        return { label, value: nav };
-      });
-  }
-  if (!record || typeof record !== "object") return [];
-  const root = record as Record<string, unknown>;
-  const series = root.series ?? root.history ?? root.navHistory ?? [];
-  if (!Array.isArray(series)) return [];
+  let ytdGrowthPercent = 0;
+  let series: unknown[] = [];
 
-  return series
-    .filter((p): p is Record<string, unknown> => Boolean(p) && typeof p === "object")
-    .map((point, index) => {
-      const recordedAt = pickString(point, ["recordedAt", "date", "label", "month"]) ?? `M${index + 1}`;
-      let label = recordedAt;
-      if (recordedAt.includes("-")) {
-        try {
-          const date = new Date(recordedAt);
-          if (!isNaN(date.getTime())) {
-            label = date.toLocaleDateString("en-US", { month: "short" });
-          }
-        } catch {
-          // ignore
-        }
-      }
-      const nav = pickNumber(point, ["nav", "value", "amount"]) ?? 0;
-      return {
-        label,
-        value: nav,
-      };
-    });
+  if (Array.isArray(record)) {
+    series = record;
+  } else if (record && typeof record === "object") {
+    const root = record as Record<string, unknown>;
+    ytdGrowthPercent =
+      pickNumber(root, [
+        "ytdGrowthPercent",
+        "ytdPercent",
+        "ytd_percent",
+        "ytdChange",
+        "growthPercent",
+      ]) ?? 0;
+    const rawSeries = root.series ?? root.history ?? root.navHistory ?? [];
+    series = Array.isArray(rawSeries) ? rawSeries : [];
+  }
+
+  return {
+    points: mapNavHistorySeries(series),
+    ytdGrowthPercent,
+  };
+}
+
+export function parsePortfolioNavHistory(payload: unknown): PortfolioNavPoint[] {
+  return parsePortfolioNavHistoryResult(payload).points;
 }
 
 export function parseInvestorPortfolioInit(

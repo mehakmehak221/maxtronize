@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useState, useEffect, useMemo } from 'react';
+import React, { Suspense, useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Hexagon, Triangle, type LucideIcon } from 'lucide-react';
@@ -10,8 +10,10 @@ import {
   OnboardingProvider,
   useOnboarding,
 } from '@/components/onboarding/OnboardingContext';
+import { OnboardingCoverImageUpload } from '@/components/onboarding/OnboardingCoverImageUpload';
 import { OnboardingDocumentUpload } from '@/components/onboarding/OnboardingDocumentUpload';
 import { resolveOnboardingApplicationStatus } from '@/lib/onboarding';
+import { resolveStoragePublicUrl } from '@/lib/storageUrl';
 
 const iconStroke = 1.75;
 
@@ -175,8 +177,12 @@ function IssuerOnboardingWizard() {
     isLoading,
     isSaving,
     saveError,
-    ensureOnboardingSession,
     forceStartOnboardingSession,
+    isSessionTerminal,
+    clearSaveError,
+    uploadAndLinkCoverImage,
+    coverImageKeyFromAsset,
+    coverImageUrlFromAsset,
     hydratedRegulation,
     hydratedAssetType,
     hydratedCustodian,
@@ -192,6 +198,7 @@ function IssuerOnboardingWizard() {
     progress,
     review,
     onboardingState,
+    onboardingSessionMissing,
     isApprovedOrLocked,
     saveEntityDraft,
     saveAccreditationDraft,
@@ -240,10 +247,10 @@ function IssuerOnboardingWizard() {
   const [tokenPrice, setTokenPrice] = useState('');
   const [accreditedOnly, setAccreditedOnly] = useState(true);
   const [verificationMethod, setVerificationMethod] = useState('parallel-markets');
-  const [startAssetName, setStartAssetName] = useState('Palm Jumeirah Residences SPV');
-  const [startCoverImageKey, setStartCoverImageKey] = useState(
-    'issuer-assets/onboarding-123/cover.png',
-  );
+  const [startAssetName, setStartAssetName] = useState('');
+  const [startCoverFile, setStartCoverFile] = useState<File | null>(null);
+  const [coverImageKey, setCoverImageKey] = useState<string | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
   const [assetName, setAssetName] = useState('');
   const [assetDescription, setAssetDescription] = useState('');
   const [assetAddress, setAssetAddress] = useState('');
@@ -254,9 +261,35 @@ function IssuerOnboardingWizard() {
   const [multiSigConfig, setMultiSigConfig] = useState('2-of-3 multisig');
   const [hydrated, setHydrated] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean[]>([false, false, false, false]);
+  const [isClientReady, setIsClientReady] = useState(false);
+  const lastStartFormResetKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (hydrated || isLoading || !isReady) return;
+    setIsClientReady(true);
+  }, []);
+
+  const isPageReady = isClientReady && isReady;
+
+  const onStartPage =
+    isPageReady &&
+    (shouldForceStart || !onboardingId || onboardingSessionMissing || isSessionTerminal);
+
+  const startFormResetKey = `${shouldForceStart ? '1' : '0'}:${onboardingId ?? ''}:${onboardingSessionMissing ? '1' : '0'}:${isSessionTerminal ? '1' : '0'}`;
+
+  useEffect(() => {
+    if (!isPageReady || !onStartPage) return;
+    if (lastStartFormResetKeyRef.current === startFormResetKey) return;
+    lastStartFormResetKeyRef.current = startFormResetKey;
+    setStartAssetName('');
+    setCoverImageKey(null);
+    setCoverImageUrl(null);
+    setStartCoverFile(null);
+    clearSaveError();
+  }, [clearSaveError, isPageReady, onStartPage, startFormResetKey]);
+
+  useEffect(() => {
+    if (hydrated || isLoading || !isPageReady || onStartPage) return;
     setLegalCompanyName(hydratedEntityForm.legalCompanyName);
     setEntityType(hydratedEntityForm.entityType);
     setEin(hydratedEntityForm.ein);
@@ -279,6 +312,12 @@ function IssuerOnboardingWizard() {
     setAssetAddress(hydratedAssetForm.address);
     setAssetAppraisal(hydratedAssetForm.appraisalValue);
     setAssetIncome(hydratedAssetForm.annualIncome);
+    if (hydratedAssetForm.coverImageKey) {
+      setCoverImageKey(hydratedAssetForm.coverImageKey);
+    }
+    if (hydratedAssetForm.coverImageUrl) {
+      setCoverImageUrl(hydratedAssetForm.coverImageUrl);
+    }
     setColdStorageRatio(hydratedCustodyForm.coldStorageRatio);
     setMultiSigConfig(hydratedCustodyForm.multiSigConfig);
     setSpvEntityName(hydratedLegalForm.spvEntityName);
@@ -334,7 +373,8 @@ function IssuerOnboardingWizard() {
     hydratedRegulation,
     hydratedTokenizationForm,
     isLoading,
-    isReady,
+    isPageReady,
+    onStartPage,
     onboardingState?.currentStep,
     progressStep,
   ]);
@@ -375,7 +415,13 @@ function IssuerOnboardingWizard() {
         address: assetAddress || undefined,
         appraisalValue: assetAppraisal || undefined,
         annualIncome: assetIncome || undefined,
-        metadata: assetMetadata,
+        metadata: {
+          ...assetMetadata,
+          ...(coverImageKey ? { coverImageKey } : {}),
+          ...(resolveStoragePublicUrl(coverImageKey, coverImageUrl)
+            ? { coverImageUrl: resolveStoragePublicUrl(coverImageKey, coverImageUrl) }
+            : {}),
+        },
       });
       if (!ok) return;
     }
@@ -460,14 +506,22 @@ function IssuerOnboardingWizard() {
     setIsSubmitted(true);
   }
 
-  useEffect(() => {
-    if (!isSubmitted) return;
-    const redirectMs = 5200;
-    const id = window.setTimeout(() => {
-      router.push('/issuer/dashboard');
-    }, redirectMs);
-    return () => window.clearTimeout(id);
-  }, [isSubmitted, router]);
+  function resetWizardForNewAsset() {
+    setHydrated(false);
+    setCurrentStep(1);
+    setIsSubmitted(false);
+    setStartAssetName('');
+    setCoverImageKey(null);
+    setCoverImageUrl(null);
+    setStartCoverFile(null);
+    setAcceptedTerms([false, false, false, false]);
+    clearSaveError();
+  }
+
+  function beginAnotherAsset() {
+    resetWizardForNewAsset();
+    router.replace('/issuer/onboarding?start=1');
+  }
 
   const assetTypes: {
     id: AssetType;
@@ -490,21 +544,30 @@ function IssuerOnboardingWizard() {
 
   async function handleStartOnboarding() {
     setIsStartingSession(true);
-    const metadata = startCoverImageKey.trim()
-      ? { coverImageKey: startCoverImageKey.trim() }
-      : undefined;
-    const startSession = shouldForceStart
-      ? forceStartOnboardingSession
-      : ensureOnboardingSession;
-    const id = await startSession({
+    const assetName = startAssetName.trim() || 'New Asset';
+    const startParams = {
       assetType: selectedAssetType,
-      assetName: startAssetName.trim() || 'New Asset',
-      metadata,
-    });
+      assetName,
+      coverFile: startCoverFile,
+      coverImageKey: coverImageKey ?? undefined,
+      coverImageUrl: coverImageUrl ?? undefined,
+    };
+    resetWizardForNewAsset();
+    const started = await forceStartOnboardingSession(startParams);
+    const id = started?.id;
+    if (!id) {
+      setIsStartingSession(false);
+      return;
+    }
+    if (started?.coverImageKey) {
+      setCoverImageKey(started.coverImageKey);
+      if (started.coverImageUrl) setCoverImageUrl(started.coverImageUrl);
+      setStartCoverFile(null);
+    }
     setIsStartingSession(false);
-    if (!id) return;
     setAssetName(startAssetName.trim());
     setCurrentStep(1);
+    setHydrated(false);
     router.replace('/issuer/onboarding');
   }
 
@@ -518,10 +581,23 @@ function IssuerOnboardingWizard() {
           Tokenize a new asset
         </h1>
         <p className="text-ui-muted-text text-sm">
-          Choose your asset type and name. We will create your onboarding draft, then walk you
-          through entity setup and compliance.
+          Each asset gets its own onboarding draft. Submit one application, then come back here
+          anytime to tokenize another asset.
         </p>
       </header>
+
+      {isSessionTerminal ? (
+        <p className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-ui-body">
+          Your previous application is submitted or approved. Start a new draft below for your
+          next asset — it will not overwrite the prior one.
+        </p>
+      ) : null}
+
+      {onboardingSessionMissing ? (
+        <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+          Your previous onboarding draft could not be found. Start a new application below.
+        </p>
+      ) : null}
 
       <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
         <h3 className="text-base font-bold text-ui-strong mb-1">Asset type</h3>
@@ -573,13 +649,16 @@ function IssuerOnboardingWizard() {
             value={startAssetName}
             onChange={setStartAssetName}
           />
-          <FormField
-            label="Cover image key"
-            placeholder="issuer-assets/onboarding-123/cover.png"
-            fullWidth
-            value={startCoverImageKey}
-            onChange={setStartCoverImageKey}
-            hint="Optional storage path for the asset cover image"
+          <OnboardingCoverImageUpload
+            pendingFile={startCoverFile}
+            onPendingFileChange={setStartCoverFile}
+            coverImageKey={coverImageKey}
+            coverImageUrl={coverImageUrl}
+            onCoverImageKeyChange={setCoverImageKey}
+            onCoverImageUrlChange={setCoverImageUrl}
+            uploadOnSelect={false}
+            assetType={selectedAssetType}
+            assetName={startAssetName}
           />
         </div>
       </section>
@@ -1060,6 +1139,17 @@ function IssuerOnboardingWizard() {
           <h3 className="text-lg font-bold text-ui-strong">{assetDetailsTitle[selectedAssetType]} Details</h3>
         </div>
 
+        <OnboardingCoverImageUpload
+          coverImageKey={coverImageKey ?? coverImageKeyFromAsset}
+          coverImageUrl={coverImageUrl ?? coverImageUrlFromAsset}
+          onCoverImageKeyChange={setCoverImageKey}
+          onCoverImageUrlChange={setCoverImageUrl}
+          uploadOnSelect
+          assetType={selectedAssetType}
+          assetName={assetName || startAssetName}
+          disabled={isApprovedOrLocked}
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
           {selectedAssetType === 'commodities' && (
             <>
@@ -1271,23 +1361,25 @@ function IssuerOnboardingWizard() {
 
       <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <h3 className="text-base font-bold text-ui-strong">Required Legal Documents</h3>
-        <div className="space-y-4">
-          {[
-            { name: 'Private Placement Memorandum (PPM)', status: 'Template Available' },
-            { name: 'Subscription Agreement', status: 'Template Available' },
-            { name: 'Operating Agreement (SPV)', status: 'Auto-Generated' },
-            { name: 'Transfer Restriction Agreement', status: 'Template Available' },
-          ].map((doc, i) => (
-            <div
-              key={i}
-              className="p-5 rounded-2xl border border-ui-border flex items-center justify-between hover:border-ui-border-strong transition-colors"
-            >
-              <div className="space-y-1">
-                <p className="text-sm font-bold text-ui-strong">{doc.name}</p>
-                <span className="text-[10px] font-bold text-[#10B981]">{doc.status}</span>
-              </div>
-            </div>
-          ))}
+        <p className="text-xs text-ui-faint">
+          Upload finalized documents, or use Maxtronize templates where noted.
+        </p>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <OnboardingDocumentUpload
+            label="Private Placement Memorandum (PPM)"
+            documentType="PPM"
+            sub="Upload PDF"
+          />
+          <OnboardingDocumentUpload
+            label="Subscription Agreement"
+            documentType="SUBSCRIPTION_AGREEMENT"
+            sub="Upload PDF"
+          />
+          <OnboardingDocumentUpload
+            label="Transfer Restriction Agreement"
+            documentType="TRANSFER_RESTRICTION_AGREEMENT"
+            sub="Upload PDF"
+          />
         </div>
       </section>
 
@@ -1699,6 +1791,23 @@ function IssuerOnboardingWizard() {
             </li>
           </ul>
         ) : null}
+        {isSessionTerminal ? (
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-ui-border pt-6">
+            <button
+              type="button"
+              onClick={beginAnotherAsset}
+              className="btn-gradient-primary rounded-2xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20"
+            >
+              + Tokenize another asset
+            </button>
+            <Link
+              href="/issuer/dashboard"
+              className="rounded-2xl border border-ui-border px-5 py-2.5 text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep"
+            >
+              Go to dashboard
+            </Link>
+          </div>
+        ) : null}
       </section>
 
       <div className={`rounded-3xl p-8 flex gap-5 items-start border ${step8BannerToneClass}`}>
@@ -1734,49 +1843,77 @@ function IssuerOnboardingWizard() {
                 <p className="text-[13px] font-bold text-ui-strong mb-0.5">{item.name}</p>
                 <p className="text-[10px] text-ui-faint font-medium leading-relaxed">{item.sub}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setCurrentStep(item.step)}
-                className="text-[10px] font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                Edit
-              </button>
+              {applicationStatus.key === 'draft' && (
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(item.step)}
+                  className="text-[10px] font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  Edit
+                </button>
+              )}
             </div>
           ))}
         </div>
       </section>
 
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
-        <h3 className="text-sm font-bold text-ui-strong">Terms & Certification</h3>
-        <div className="space-y-4">
+      {applicationStatus.key === 'draft' && (
+        <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
+          <h3 className="text-sm font-bold text-ui-strong">Terms & Certification</h3>
+          <div className="space-y-4">
           {[
             'I certify that all information provided is accurate and complete to the best of my knowledge.',
             'I understand that providing false information may result in rejection and potential legal liability.',
             'I agree to the Maxtronize Terms of Service, Privacy Policy, and Issuer Agreement.',
             'I consent to background checks and verification of all submitted documentation.'
           ].map((term, i) => (
-            <div key={i} className="flex items-center gap-4 group cursor-pointer">
-              <div className="w-5 h-5 rounded-md border-2 border-primary bg-primary flex items-center justify-center shrink-0 shadow-sm shadow-primary/20">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>
+            <div
+              key={i}
+              className="flex items-center gap-4 group cursor-pointer"
+              onClick={() => {
+                const newTerms = [...acceptedTerms];
+                newTerms[i] = !newTerms[i];
+                setAcceptedTerms(newTerms);
+              }}
+            >
+              <div
+                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors shadow-sm ${
+                  acceptedTerms[i]
+                    ? 'border-primary bg-primary shadow-primary/20'
+                    : 'border-ui-border bg-ui-surface group-hover:border-primary/50'
+                }`}
+              >
+                {acceptedTerms[i] && (
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
               </div>
               <p className="text-[11px] font-medium text-ui-body group-hover:text-ui-strong transition-colors">{term}</p>
             </div>
           ))}
         </div>
       </section>
+      )}
 
-      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
-        <button
-          type="button"
-          onClick={() => setCurrentStep(7)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
-        >
-          ← Back
-        </button>
+      <div className={`flex flex-row items-center gap-3 border-t border-ui-border pt-6 ${applicationStatus.key === 'draft' ? 'justify-between' : 'justify-end'}`}>
+        {applicationStatus.key === 'draft' && (
+          <button
+            type="button"
+            onClick={() => setCurrentStep(7)}
+            className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+          >
+            ← Back
+          </button>
+        )}
         <button
           type="button"
           onClick={() => void handleSubmitApplication()}
-          disabled={isSaving || (!applicationStatus.canSubmit && !isApprovedOrLocked)}
+          disabled={
+            isSaving ||
+            (!applicationStatus.canSubmit && !isApprovedOrLocked) ||
+            (applicationStatus.key === 'draft' && !acceptedTerms.every(Boolean))
+          }
           className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isApprovedOrLocked ? (
@@ -1866,31 +2003,29 @@ function IssuerOnboardingWizard() {
           ))}
         </div>
 
-        <div className="w-full max-w-xs space-y-4 pt-2">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-white/45">
-            Redirecting to your dashboard...
-          </p>
-          <div className="mx-auto h-1 w-full overflow-hidden rounded-full bg-white/10">
-            <div className="animate-progress h-full origin-left bg-gradient-to-r from-[var(--primary)] via-[var(--brand-indigo)] to-[var(--brand-cyan)]" />
-          </div>
+        <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
+          <button
+            type="button"
+            onClick={beginAnotherAsset}
+            className="btn-gradient-primary rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl"
+          >
+            + Tokenize another asset
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/issuer/dashboard')}
+            className="rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white hover:bg-white/15"
+          >
+            Go to dashboard
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={() => router.push('/issuer/dashboard')}
-          className="text-sm font-bold text-white/55 transition-colors hover:text-white"
-        >
-          Skip to Dashboard →
-        </button>
       </div>
     </div>
   );
 
   if (isSubmitted) return renderSuccess();
 
-  const showStartPage = isReady && (shouldForceStart || !onboardingId);
-
-  if (!isReady) {
+  if (!isPageReady) {
     return (
       <OnboardingLayout currentStep={0}>
         <div className="flex min-h-[40vh] items-center justify-center">
@@ -1900,7 +2035,7 @@ function IssuerOnboardingWizard() {
     );
   }
 
-  if (showStartPage) {
+  if (onStartPage) {
     return (
       <OnboardingLayout currentStep={0}>
         {renderStartPage()}
@@ -1908,8 +2043,10 @@ function IssuerOnboardingWizard() {
     );
   }
 
+  const effectiveStep = applicationStatus.key !== 'draft' ? 8 : currentStep;
+
   return (
-    <OnboardingLayout currentStep={currentStep} showSaved={currentStep === 2}>
+    <OnboardingLayout currentStep={effectiveStep} showSaved={effectiveStep === 2}>
         {isLoading && Boolean(onboardingId) ? (
           <p className="text-sm text-ui-muted-text">Loading onboarding draft…</p>
         ) : null}
@@ -1918,14 +2055,14 @@ function IssuerOnboardingWizard() {
             {saveError}
           </p>
         ) : null}
-        {currentStep === 1 && renderStep1()}
-        {currentStep === 2 && renderStep2()}
-        {currentStep === 3 && renderStep3()}
-        {currentStep === 4 && renderStep4()}
-        {currentStep === 5 && renderStep5()}
-        {currentStep === 6 && renderStep6()}
-        {currentStep === 7 && renderStep7()}
-        {currentStep === 8 && renderStep8()}
+        {effectiveStep === 1 && renderStep1()}
+        {effectiveStep === 2 && renderStep2()}
+        {effectiveStep === 3 && renderStep3()}
+        {effectiveStep === 4 && renderStep4()}
+        {effectiveStep === 5 && renderStep5()}
+        {effectiveStep === 6 && renderStep6()}
+        {effectiveStep === 7 && renderStep7()}
+        {effectiveStep === 8 && renderStep8()}
     </OnboardingLayout>
   );
 }

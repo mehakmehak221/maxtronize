@@ -23,11 +23,12 @@ export function OnboardingDocumentUpload({
     uploadOnboardingFile,
     deleteOnboardingDocument,
     isSaving,
-    saveError,
     isApprovedOrLocked,
   } = useOnboarding();
   const [status, setStatus] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const existing = useMemo(
     () => documents.find((doc) => doc.type === documentType),
@@ -38,8 +39,15 @@ export function OnboardingDocumentUpload({
     const file = fileList?.[0];
     if (!file) return;
     setStatus(null);
-    const result = await uploadOnboardingFile(file, documentType, metadata);
-    if (result) {
+    setLocalError(null);
+    setIsUploading(true);
+    const { document, error } = await uploadOnboardingFile(file, documentType, metadata);
+    setIsUploading(false);
+    if (error) {
+      setLocalError(error);
+      return;
+    }
+    if (document) {
       setStatus(`${file.name} uploaded`);
     }
     if (inputRef.current) inputRef.current.value = "";
@@ -49,6 +57,7 @@ export function OnboardingDocumentUpload({
     if (!existing) return;
     setIsDeleting(true);
     setStatus(null);
+    setLocalError(null);
     const ok = await deleteOnboardingDocument(existing.id);
     if (ok) {
       setStatus("Removed");
@@ -56,7 +65,7 @@ export function OnboardingDocumentUpload({
     setIsDeleting(false);
   }
 
-  const busy = isSaving || isDeleting;
+  const busy = isSaving || isDeleting || isUploading;
 
   return (
     <div className="space-y-3">
@@ -123,14 +132,18 @@ export function OnboardingDocumentUpload({
         >
           <p className="text-[10px] font-bold text-ui-faint uppercase tracking-wide">{sub}</p>
           <p className="text-[11px] font-bold text-primary">
-            {isApprovedOrLocked ? "Onboarding Locked" : isSaving ? "Uploading…" : "Click to upload PDF / JPG"}
+            {isApprovedOrLocked
+              ? "Onboarding Locked"
+              : isUploading
+                ? "Uploading…"
+                : "Click to upload PDF / JPG"}
           </p>
         </button>
       ) : null}
 
       {status ? <p className="text-[10px] font-medium text-emerald-600">{status}</p> : null}
-      {saveError ? (
-        <p className="text-[10px] font-medium text-rose-600">{saveError}</p>
+      {localError ? (
+        <p className="text-[10px] font-medium text-rose-600">{localError}</p>
       ) : null}
     </div>
   );

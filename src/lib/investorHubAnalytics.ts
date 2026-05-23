@@ -149,34 +149,66 @@ export function formatChartCurrency(
   return `${symbol}${value.toFixed(0)}`;
 }
 
+/** Percent change vs. the first period in the series (0% at t0). */
+export function indexPerformanceSeries(
+  series: PerformanceSeriesPoint[],
+): { portfolio: number[]; benchmark: number[] } {
+  const baselineBenchmark = series[0]?.benchmark ?? 0;
+  const firstInvestedIndex = series.findIndex(
+    (point) => Number.isFinite(point.portfolio) && point.portfolio > 0,
+  );
+  const baselinePortfolio =
+    firstInvestedIndex >= 0 ? series[firstInvestedIndex].portfolio : 0;
+
+  const benchmark = series.map((point) => {
+    if (!Number.isFinite(baselineBenchmark) || baselineBenchmark <= 0) return 0;
+    if (!Number.isFinite(point.benchmark)) return 0;
+    return ((point.benchmark / baselineBenchmark) - 1) * 100;
+  });
+
+  const portfolio = series.map((point) => {
+    if (!Number.isFinite(point.portfolio) || point.portfolio <= 0) return 0;
+    if (!Number.isFinite(baselinePortfolio) || baselinePortfolio <= 0) return 0;
+    return ((point.portfolio / baselinePortfolio) - 1) * 100;
+  });
+
+  return { portfolio, benchmark };
+}
+
+/** Dollar values for charting; benchmark is scaled to portfolio peak when both exist. */
+export function performanceChartDollarSeries(
+  series: PerformanceSeriesPoint[],
+): { portfolio: number[]; benchmark: number[] } {
+  const portfolio = series.map((point) => point.portfolio);
+  const portfolioPeak = Math.max(...portfolio, 0);
+  const benchStart = series[0]?.benchmark ?? 0;
+
+  const benchmark =
+    portfolioPeak > 0 && benchStart > 0
+      ? series.map((point) => (point.benchmark / benchStart) * portfolioPeak)
+      : series.map((point) => point.benchmark);
+
+  return { portfolio, benchmark };
+}
+
 export function buildPerformanceChartPaths(
   series: PerformanceSeriesPoint[],
+  currency = "USD",
 ): {
   portfolioPath: string;
   benchmarkPath: string;
-  areaPath: string;
   labels: string[];
   yLabels: string[];
 } | null {
   if (series.length === 0) return null;
 
-  const firstPortfolio =
-    series.find((point) => Number.isFinite(point.portfolio) && point.portfolio > 0)
-      ?.portfolio ?? 0;
-  const firstBenchmark =
-    series.find((point) => Number.isFinite(point.benchmark) && point.benchmark > 0)
-      ?.benchmark ?? 0;
+  const { portfolio: portfolioValues, benchmark: benchmarkValues } =
+    performanceChartDollarSeries(series);
+  const rawMax = Math.max(...portfolioValues, ...benchmarkValues, 0);
+  if (rawMax <= 0) return null;
 
-  if (firstPortfolio <= 0 || firstBenchmark <= 0) return null;
-
-  const portfolioValues = series.map((p) => ((p.portfolio / firstPortfolio) - 1) * 100);
-  const benchmarkValues = series.map((p) => ((p.benchmark / firstBenchmark) - 1) * 100);
-  const allValues = [...portfolioValues, ...benchmarkValues];
-  const rawMin = Math.min(...allValues, 0);
-  const rawMax = Math.max(...allValues, 0);
-  const padding = Math.max((rawMax - rawMin) * 0.12, 1);
-  const min = rawMin - padding;
-  const max = rawMax + padding;
+  const min = 0;
+  const max = rawMax * 1.08;
   const range = Math.max(max - min, 1);
   const lastIndex = Math.max(series.length - 1, 1);
 
@@ -187,30 +219,28 @@ export function buildPerformanceChartPaths(
     return { x, y };
   };
 
-  const points = portfolioValues.map((v, i) => toPoint(v, i));
-  const benchmarkPoints = benchmarkValues.map((v, i) => toPoint(v, i));
-  const portfolioPath = points
-    .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+  const portfolioPath = portfolioValues
+    .map((value, index) => {
+      const point = toPoint(value, index);
+      return `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.y.toFixed(1)}`;
+    })
     .join(" ");
-  const benchmarkPath = benchmarkPoints
-    .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+
+  const benchmarkPath = benchmarkValues
+    .map((value, index) => {
+      const point = toPoint(value, index);
+      return `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.y.toFixed(1)}`;
+    })
     .join(" ");
-  const last = points[points.length - 1];
-  const first = points[0];
-  const baselineY = toPoint(0, 0).y;
-  const areaPath = `${portfolioPath} L${last.x.toFixed(1)},${baselineY.toFixed(1)} L${first.x.toFixed(1)},${baselineY.toFixed(1)} Z`;
-  const yLabels = [1, 0.75, 0.5, 0.25, 0].map((ratio) => {
-    const value = min + (max - min) * ratio;
-    const rounded = Math.abs(value) < 0.05 ? 0 : value;
-    const sign = rounded > 0 ? "+" : "";
-    return `${sign}${rounded.toFixed(0)}%`;
-  });
+
+  const yLabels = [1, 0.75, 0.5, 0.25, 0].map((ratio) =>
+    formatChartCurrency(min + (max - min) * ratio, currency),
+  );
 
   return {
     portfolioPath,
     benchmarkPath,
-    areaPath,
-    labels: series.map((p) => p.label),
+    labels: series.map((point) => point.label),
     yLabels,
   };
 }

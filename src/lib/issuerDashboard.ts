@@ -76,6 +76,7 @@ export type IssuerDashboardAllocation = {
   segments: AllocationSegment[];
   total: number;
   weightBy: string;
+  currency?: string;
 };
 
 export type TokenTickerItem = {
@@ -328,6 +329,8 @@ function parseCapitalPoint(record: Record<string, unknown>): CapitalRaisedPoint 
       "amount",
       "capitalRaised",
       "capital_raised",
+      "cumulative",
+      "deployed",
     ]) ?? 0;
   const target =
     pickNumber(record, ["target", "goal", "targetAmount", "target_amount"]) ??
@@ -340,11 +343,11 @@ export function parseIssuerCapitalRaised(payload: unknown): IssuerCapitalRaised 
   const seriesRaw = record.series ?? record.points ?? record.data;
   const series = Array.isArray(seriesRaw)
     ? seriesRaw
-        .filter(
-          (item): item is Record<string, unknown> =>
-            Boolean(item) && typeof item === "object",
-        )
-        .map(parseCapitalPoint)
+      .filter(
+        (item): item is Record<string, unknown> =>
+          Boolean(item) && typeof item === "object",
+      )
+      .map(parseCapitalPoint)
     : unwrapList(seriesRaw).map(parseCapitalPoint);
 
   return {
@@ -398,14 +401,14 @@ export function parseIssuerDashboardAllocation(
   const segmentsRaw = record.segments ?? record.items ?? record.data;
   let segments = Array.isArray(segmentsRaw)
     ? segmentsRaw
-        .filter(
-          (item): item is Record<string, unknown> =>
-            Boolean(item) && typeof item === "object",
-        )
-        .map((item, i) => parseAllocationSegment(item, i))
+      .filter(
+        (item): item is Record<string, unknown> =>
+          Boolean(item) && typeof item === "object",
+      )
+      .map((item, i) => parseAllocationSegment(item, i))
     : unwrapList(segmentsRaw).map((item, i) =>
-        parseAllocationSegment(item, i),
-      );
+      parseAllocationSegment(item, i),
+    );
 
   const total =
     pickNumber(record, ["total", "totalValue", "total_value"]) ??
@@ -423,6 +426,8 @@ export function parseIssuerDashboardAllocation(
     total,
     weightBy:
       pickString(record, ["weightBy", "weight_by", "weightedBy"]) ?? "appraisal",
+    currency:
+      pickString(record, ["currency", "currencyCode"]) ?? "USD",
   };
 }
 
@@ -489,15 +494,17 @@ function parseRecentActivityItem(
       "name",
       "title",
       "assetName",
+      "assetTitle",
       "asset_name",
       "description",
       "label",
     ]) ?? "Activity";
   const id =
     pickString(record, [
-      "id",
+      "reference",
       "referenceId",
       "reference_id",
+      "id",
       "transactionId",
       "transaction_id",
       "txId",
@@ -758,11 +765,15 @@ export function buildAllocationConicGradient(
   return `conic-gradient(from -90deg, ${stops.join(", ")})`;
 }
 
-export function buildCapitalChartPaths(series: CapitalRaisedPoint[]): {
+export function buildCapitalChartPaths(
+  series: CapitalRaisedPoint[],
+  currency = "USD",
+): {
   actualPath: string;
   targetPath: string;
   areaPath: string;
   labels: string[];
+  yLabels: string[];
 } | null {
   if (series.length === 0) return null;
 
@@ -777,15 +788,24 @@ export function buildCapitalChartPaths(series: CapitalRaisedPoint[]): {
     return { x, y };
   };
 
-  const actualPoints = actualValues.map((v, i) => toPoint(v, i));
-  const targetPoints = targetValues.map((v, i) => toPoint(v, i));
+  let actualPoints = actualValues.map((v, i) => toPoint(v, i));
+  let targetPoints = targetValues.map((v, i) => toPoint(v, i));
+
+  if (series.length === 1) {
+    const actY = actualPoints[0].y;
+    const tgtY = targetPoints[0].y;
+    actualPoints = [
+      { x: 0, y: actY },
+      { x: 1000, y: actY },
+    ];
+    targetPoints = [
+      { x: 0, y: tgtY },
+      { x: 1000, y: tgtY },
+    ];
+  }
 
   const linePath = (points: { x: number; y: number }[]) => {
     if (points.length === 0) return "";
-    if (points.length === 1) {
-      const p = points[0];
-      return `M${p.x},${p.y}`;
-    }
     return points
       .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
       .join(" ");
@@ -815,7 +835,12 @@ export function buildCapitalChartPaths(series: CapitalRaisedPoint[]): {
     (p, i) => p.label || monthFallback[i % monthFallback.length],
   );
 
-  return { actualPath, targetPath, areaPath, labels };
+  const yLabels = [1, 0.75, 0.5, 0.25, 0].map((ratio) => {
+    const val = max * ratio;
+    return formatCompactCurrency(val, currency, { decimals: 0 });
+  });
+
+  return { actualPath, targetPath, areaPath, labels, yLabels };
 }
 
 export function greetingForHour(date = new Date()): string {

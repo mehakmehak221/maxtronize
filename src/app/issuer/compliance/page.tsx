@@ -4,7 +4,6 @@ import type { LucideIcon } from 'lucide-react';
 import {
   AlertCircle,
   AlertTriangle,
-  BarChart3,
   Brain,
   Building2,
   CheckCircle2,
@@ -32,7 +31,7 @@ const HUB_TABS: { id: string; name: string; icon: LucideIcon; href: string; show
   { id: 'investors', name: 'Investors', icon: Users, href: '/issuer/investors' },
   { id: 'distributions', name: 'Distributions', icon: DollarSign, href: '/issuer/yield' },
   { id: 'compliance', name: 'Compliance', icon: ShieldCheck, href: '/issuer/compliance' },
-  { id: 'analytics', name: 'Analytics', icon: BarChart3, href: '/issuer/hub' },
+  // { id: 'analytics', name: 'Analytics', icon: BarChart3, href: '/issuer/hub' },
   { id: 'ai-assistant', name: 'AI Assistant', icon: Brain, href: '/issuer/ai-intelligence', showDot: true },
 ];
 

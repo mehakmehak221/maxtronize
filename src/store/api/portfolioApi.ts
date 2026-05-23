@@ -4,13 +4,13 @@ import {
   parsePortfolioAssets,
   parsePortfolioFilters,
   parsePortfolioSummary,
-  parsePortfolioNavHistory,
+  parsePortfolioNavHistoryResult,
   type InvestorPortfolioInit,
   type PortfolioAsset,
   type PortfolioCategory,
   type PortfolioListResult,
   type PortfolioSummary,
-  type PortfolioNavPoint,
+  type PortfolioNavHistoryResult,
 } from "@/lib/portfolio";
 import { baseApi } from "./baseApi";
 
@@ -49,14 +49,14 @@ export const portfolioApi = baseApi.injectEndpoints({
         parsePortfolioSummary(response),
       providesTags: [{ type: "Portfolio", id: "SUMMARY" }],
     }),
-    getPortfolioNavHistory: build.query<PortfolioNavPoint[], void>({
+    getPortfolioNavHistory: build.query<PortfolioNavHistoryResult, void>({
       query: () => {
         const isInvestor = typeof window !== "undefined" && getSession().role === "investor";
         const url = isInvestor ? "/investor/portfolio/nav-history" : "/portfolio/summary";
         return { url, method: "GET" };
       },
       transformResponse: (response: unknown) =>
-        parsePortfolioNavHistory(response),
+        parsePortfolioNavHistoryResult(response),
       providesTags: [{ type: "Portfolio", id: "NAV_HISTORY" }],
     }),
     listPortfolioAssets: build.query<PortfolioListResult, ListPortfolioAssetsParams>({

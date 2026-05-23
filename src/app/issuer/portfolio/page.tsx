@@ -10,7 +10,6 @@ import {
   Unlock,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import React, { useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -80,7 +79,8 @@ export default function IssuerPortfolioPage() {
   const [activeFilter, setActiveFilter] = useState('All Assets');
   const { data: categories = [] } = useGetPortfolioFiltersQuery();
   const { data: summary } = useGetPortfolioSummaryQuery();
-  const { data: navHistory = [] } = useGetPortfolioNavHistoryQuery();
+  const { data: navHistoryResult } = useGetPortfolioNavHistoryQuery();
+  const navHistory = navHistoryResult?.points ?? [];
   const categoryKey = filterLabelToCategoryKey(categories, activeFilter);
   const { data: assetsResult, isLoading: assetsLoading } = useListPortfolioAssetsQuery({
     page: 1,
@@ -327,24 +327,19 @@ export default function IssuerPortfolioPage() {
                 key={asset.id}
                 className="group flex max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-ui-card shadow-sm transition-shadow hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-950 md:rounded-3xl"
               >
-                <div className="relative h-44 w-full min-h-44 overflow-hidden md:h-48">
-                  <Image
-                    src={asset.image}
-                    alt=""
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/35 to-black/10" />
+                <div className="relative h-44 w-full min-h-44 overflow-hidden bg-linear-to-br from-zinc-800 via-primary to-violet-950 md:h-48">
+                  <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-black/10" />
                   <div
                     className={`absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md ${st.ring}`}
                   >
                     <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${st.dot}`} />
                     <span className="text-[10px] font-bold tracking-wide text-white">{asset.status}</span>
                   </div>
-                  <div className="absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 backdrop-blur-md">
-                    <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
-                  </div>
+                  {asset.ticker !== '—' ? (
+                    <div className="absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 backdrop-blur-md">
+                      <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
+                    </div>
+                  ) : null}
                   <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
                     <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
                       {asset.name}

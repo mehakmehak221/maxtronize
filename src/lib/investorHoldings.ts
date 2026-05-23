@@ -125,8 +125,17 @@ function parseHolding(record: Record<string, unknown>, index: number): InvestorH
     `holding-${index}`;
   const assetId = pickString(record, ["assetId", "asset_id", "asset"]);
 
+  // Try nested asset object first (e.g. { asset: { title: "..." } })
+  const assetRecord =
+    record.asset && typeof record.asset === "object" && !Array.isArray(record.asset)
+      ? (record.asset as Record<string, unknown>)
+      : record.opportunity && typeof record.opportunity === "object" && !Array.isArray(record.opportunity)
+        ? (record.opportunity as Record<string, unknown>)
+        : null;
+
   const name =
-    pickString(record, ["name", "assetName", "asset_name", "title"]) ??
+    pickString(record, ["assetTitle", "asset_title", "name", "assetName", "asset_name", "title"]) ??
+    (assetRecord ? pickString(assetRecord, ["title", "name", "assetTitle", "assetName"]) : null) ??
     "Untitled holding";
   const ticker =
     pickString(record, ["ticker", "symbol", "tokenSymbol", "token_symbol"]) ?? "—";

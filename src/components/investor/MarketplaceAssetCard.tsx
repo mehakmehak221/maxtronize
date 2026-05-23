@@ -1,11 +1,11 @@
 "use client";
 
 import { Heart } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { MarketplaceAsset } from "@/lib/assets";
 import { BuildingIcon, InvestorHub } from "@/app/VectorImages";
+import { MarketplaceAssetCover } from "@/components/investor/MarketplaceAssetCover";
 import {
   useAddOpportunityToWatchlistMutation,
   useRemoveOpportunityFromWatchlistMutation,
@@ -65,15 +65,18 @@ export function MarketplaceAssetCard({
 
   return (
     <article className="card-lift group flex h-full flex-col overflow-hidden rounded-[20px] border border-ui-border bg-ui-card shadow-sm md:rounded-[24px]">
-      <div className="relative h-40 shrink-0 overflow-hidden sm:h-44 md:h-40 lg:h-44 xl:h-48">
-        <Image
-          src={asset.image}
-          alt=""
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/10 to-transparent" aria-hidden />
+      <MarketplaceAssetCover
+        image={asset.image}
+        alt={asset.name}
+        assetType={asset.type}
+        className="h-40 shrink-0 sm:h-44 md:h-40 lg:h-44 xl:h-48"
+      >
+        {asset.image ? (
+          <div
+            className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-black/10 to-transparent"
+            aria-hidden
+          />
+        ) : null}
 
         {showFeatured ? (
           <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-lg bg-[#FE9A00] px-2.5 py-1 text-[9px] font-bold text-white shadow-sm">
@@ -103,7 +106,7 @@ export function MarketplaceAssetCard({
           </svg>
           <span className="truncate">{asset.location}</span>
         </div>
-      </div>
+      </MarketplaceAssetCover>
 
       <div className="flex flex-1 flex-col p-4 md:p-5">
         <div className="mb-3 flex items-start gap-3">
@@ -147,7 +150,7 @@ export function MarketplaceAssetCard({
         <div className="mb-4">
           <div className="mb-1.5 flex justify-between gap-2 text-[10px]">
             <span className="truncate text-ui-faint">
-              {formatRaisedLine(asset.raised, asset.target)}
+              {asset.fundingLabel ?? formatRaisedLine(asset.raised, asset.target)}
             </span>
             <span className="shrink-0 font-bold text-primary">{asset.pct}%</span>
           </div>

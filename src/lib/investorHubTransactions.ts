@@ -31,6 +31,8 @@ export type InvestorHubTransaction = {
   id: string;
   assetId: string | null;
   assetName: string;
+  reference: string;
+  subtitle: string;
   type: string;
   typeLabel: string;
   amount: number;
@@ -118,8 +120,16 @@ function parseTransaction(
       : null;
 
   const assetName =
-    pickString(record, ["assetName", "asset_name", "name"]) ??
-    (assetRecord ? pickString(assetRecord, ["name", "title"]) : null) ??
+    pickString(record, [
+      "assetTitle",
+      "asset_title",
+      "assetName",
+      "asset_name",
+      "name",
+    ]) ??
+    (assetRecord
+      ? pickString(assetRecord, ["title", "name", "assetTitle", "assetName"])
+      : null) ??
     "—";
 
   const assetId =
@@ -127,18 +137,44 @@ function parseTransaction(
     (assetRecord ? pickString(assetRecord, ["id", "_id"]) : null);
 
   const type =
-    pickString(record, ["type", "displayType", "transactionType"]) ?? "—";
+    pickString(record, [
+      "displayType",
+      "display_type",
+      "iconCategory",
+      "icon_category",
+      "type",
+      "transactionType",
+    ]) ?? "—";
   const typeLabel =
-    pickString(record, ["typeLabel", "type_label", "label"]) ?? type;
+    pickString(record, [
+      "displayTypeLabel",
+      "display_type_label",
+      "typeLabel",
+      "type_label",
+      "label",
+    ]) ?? type;
 
+  const reference =
+    pickString(record, ["reference", "txReference", "transactionReference"]) ??
+    "";
+
+  const subtitle =
+    pickString(record, ["subtitle"]) ??
+    (reference ? `${reference} · ${typeLabel}` : `${id} · ${typeLabel}`);
+
+  const signedAmount = pickNumber(record, ["signedAmount", "signed_amount"]);
   const amount =
-    pickNumber(record, ["amount", "value", "transactionAmount"]) ?? 0;
+    signedAmount ??
+    pickNumber(record, ["amount", "value", "transactionAmount"]) ??
+    0;
   const currency = pickString(record, ["currency"]) ?? "USD";
 
   return {
     id,
     assetId,
     assetName,
+    reference,
+    subtitle,
     type,
     typeLabel,
     amount,
@@ -148,8 +184,11 @@ function parseTransaction(
     currency,
     date: formatDate(
       pickString(record, [
+        "occurredAt",
+        "occurred_at",
         "date",
         "transactionDate",
+        "transaction_date",
         "createdAt",
         "created_at",
         "timestamp",
@@ -197,8 +236,12 @@ export function parseInvestorHubTransactionFilters(
             Boolean(item) && typeof item === "object",
         )
         .map((item) => ({
-          key: pickString(item, ["key"]) ?? "",
-          label: pickString(item, ["label"]) ?? "",
+          key:
+            pickString(item, ["key", "displayType", "display_type", "value"]) ??
+            "",
+          label:
+            pickString(item, ["label", "displayTypeLabel", "display_type_label"]) ??
+            "",
         }))
         .filter((item) => item.key)
     : [];
@@ -219,6 +262,17 @@ export function parseInvestorHubTransactionFilters(
   return { displayTypes, assets };
 }
 
+/** Match transaction to a filter key from GET /transactions/filters (case-insensitive). */
+export function filterTransactionsByDisplayType(
+  items: InvestorHubTransaction[],
+  displayType: string,
+): InvestorHubTransaction[] {
+  const filter = displayType.trim();
+  if (!filter) return items;
+  const normalized = filter.toUpperCase();
+  return items.filter((tx) => tx.type.toUpperCase() === normalized);
+}
+
 // ── Query string ──────────────────────────────────────────────────────────────
 
 export function buildTransactionsQueryString(
@@ -228,8 +282,12 @@ export function buildTransactionsQueryString(
   if (params.page != null) searchParams.set("page", String(params.page));
   if (params.limit != null) searchParams.set("limit", String(params.limit));
   if (params.assetId?.trim()) searchParams.set("assetId", params.assetId.trim());
-  if (params.displayType?.trim())
-    searchParams.set("type", params.displayType.trim());
+  if (params.displayType?.trim()) {
+    const displayType = params.displayType.trim();
+    searchParams.set("displayType", displayType);
+    // Legacy alias used by some API builds
+    searchParams.set("type", displayType);
+  }
   if (params.search?.trim()) searchParams.set("search", params.search.trim());
   if (params.fromDate?.trim())
     searchParams.set("fromDate", params.fromDate.trim());

@@ -15,3 +15,8 @@ export function clearStoredOnboardingId(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(ONBOARDING_ID_KEY);
 }
+
+/** Drop persisted issuer onboarding session (e.g. after submit). */
+export function clearIssuerOnboardingLocalSession(): void {
+  clearStoredOnboardingId();
+}

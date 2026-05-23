@@ -8,10 +8,12 @@ import {
   Brain,
   Building2,
   Check,
+  Copy,
   DollarSign,
   Download,
   Eye,
   FileText,
+  Loader2,
   Heart,
   MapPin,
   Share2,
@@ -26,7 +28,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import React, { Suspense, useMemo, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import InvestorLayout from '@/components/InvestorLayout';
+import { MarketplaceAssetCover } from '@/components/investor/MarketplaceAssetCover';
 import type { AssetDocument, AssetOffering, AssetTokenization } from '@/lib/assets';
 import {
   isKycPendingReview,
@@ -300,11 +304,10 @@ function AssetDetailContent() {
             <button
               type="button"
               onClick={() => void handleShare()}
-              className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${
-                shareCopied
-                  ? 'border-primary/40 bg-primary/10 text-primary'
-                  : 'border-ui-border text-ui-faint hover:border-primary/30 hover:text-primary'
-              }`}
+              className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${shareCopied
+                ? 'border-primary/40 bg-primary/10 text-primary'
+                : 'border-ui-border text-ui-faint hover:border-primary/30 hover:text-primary'
+                }`}
               aria-label={shareCopied ? 'Link copied' : 'Share'}
             >
               <Share2 className="h-4 w-4" strokeWidth={iconStroke} />
@@ -320,205 +323,206 @@ function AssetDetailContent() {
           </div>
         </div>
 
-      <div className="relative h-52 overflow-hidden rounded-[24px] shadow-xl md:h-72 md:rounded-[32px]">
-        <Image
-          src={asset.image}
-          alt={asset.name}
-          fill
-          className="object-cover"
-          priority
-          sizes="(max-width: 1280px) 100vw, 1280px"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
-        <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {heroMetrics.map((m) => (
-              <div
-                key={m.label}
-                className="rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-md md:p-4"
-              >
-                <div className="mb-1.5 flex items-center gap-1.5">
-                  <m.Icon
-                    className={`h-3.5 w-3.5 ${m.valClass === 'text-emerald-400' ? 'text-emerald-400' : 'text-white/60'}`}
-                    strokeWidth={iconStroke}
-                  />
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-white/55">{m.label}</p>
-                </div>
-                <p className={`text-lg font-bold tabular-nums md:text-xl ${m.valClass}`}>{m.val}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-        <div className="-mt-4 rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:-mt-6 md:rounded-[28px] dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
-        <div className="border-b border-ui-border p-4 md:p-6">
-          <div className="flex flex-wrap gap-2">
-            {TABS.map((tab) => {
-              const active = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all ${
-                    active
-                      ? 'bg-primary/10 text-primary ring-1 ring-primary/15'
-                      : 'text-ui-muted-text hover:bg-ui-muted-deep/80 hover:text-ui-body'
-                  }`}
-                >
-                  <tab.Icon className="h-4 w-4" strokeWidth={iconStroke} />
-                  {tab.label}
-                  {tab.aiBadge ? (
-                    <span className="rounded-md bg-primary px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
-                      AI
-                    </span>
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="p-5 md:p-8">
-          {activeTab === 'overview' && (
-            <div className="space-y-8">
-              <div>
-                <h3 className="mb-3 text-base font-bold text-ui-strong md:text-lg">About This Asset</h3>
-                <p className="text-[13px] font-medium leading-relaxed text-ui-muted-text md:text-sm">
-                  {description ??
-                    'Details for this asset will appear here once provided by the issuer.'}
-                </p>
-              </div>
-
-              <div>
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-base font-bold text-ui-strong md:text-lg">Fundraising Progress</h3>
-                  <span className="text-base font-bold text-primary">{progress.pct}%</span>
-                </div>
-                <div className="h-3 overflow-hidden rounded-full bg-ui-muted-deep">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all duration-700"
-                    style={{ width: `${progress.pct}%` }}
-                  />
-                </div>
-                <div className="mt-2 flex justify-between text-[11px] font-medium text-ui-faint">
-                  <span>{raisedLabel}</span>
-                  <span>{targetLabel}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                {[
-                  { label: 'Token Price', val: tokenization?.tokenPrice ?? '—', sub: tokenTicker },
-                  { label: 'Total Tokens', val: tokenization?.totalSupply ?? '—', sub: 'Supply' },
-                  { label: 'Investors', val: String(offering?.investorCount ?? asset.investors), sub: 'Count' },
-                  {
-                    label: 'Closing',
-                    val: daysLeft > 0 ? `${daysLeft} days` : '—',
-                    sub: 'Remaining',
-                  },
-                ].map((s) => (
-                  <div key={s.label} className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-4">
-                    <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{s.label}</p>
-                    <p className="text-lg font-bold text-ui-strong">{s.val}</p>
-                    <p className="text-[10px] font-medium text-ui-faint">{s.sub}</p>
-                  </div>
-                ))}
-              </div>
-
-              {highlights.length > 0 ? (
-                <div>
-                  <h3 className="mb-4 text-base font-bold text-ui-strong md:text-lg">Key Highlights</h3>
-                  <ul className="space-y-3">
-                    {highlights.map((h) => (
-                      <li key={h} className="flex items-start gap-3">
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/12 text-emerald-600 dark:text-emerald-400">
-                          <Check className="h-3 w-3" strokeWidth={3} />
-                        </span>
-                        <p className="text-[13px] font-medium text-ui-body">{h}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-
-              <div>
-                <h3 className="mb-4 text-base font-bold text-ui-strong md:text-lg">Asset Location</h3>
-                <div className="flex h-40 items-center justify-center rounded-2xl border border-ui-border bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-                  <div className="text-center">
-                    <MapPin className="mx-auto mb-2 h-8 w-8 text-ui-faint" strokeWidth={iconStroke} />
-                    <p className="text-[13px] font-bold text-ui-strong">{asset.location}</p>
-                    <p className="text-[11px] font-medium text-ui-faint">{asset.type}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'financials' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {financials.map((f) => (
-                  <div key={f.label} className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-5">
-                    <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{f.label}</p>
-                    <p className="text-xl font-bold text-ui-strong">{f.val}</p>
-                  </div>
-                ))}
-              </div>
-              {tokenization?.network ? (
-                <div className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-5">
-                  <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Tokenization</p>
-                  <p className="text-sm font-medium text-ui-body">
-                    {tokenization.network}
-                    {tokenization.standard ? ` · ${tokenization.standard}` : ''}
-                  </p>
-                </div>
-              ) : null}
-            </div>
-          )}
-
-          {activeTab === 'ai' && (
-            <div className="space-y-4">
-              <div className="rounded-[24px] bg-gradient-to-r from-primary to-violet-600 p-6 text-white md:p-8">
-                <div className="mb-3 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
-                    <Sparkles className="h-5 w-5" strokeWidth={iconStroke} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold">AI Asset Analysis</h3>
-                    <p className="text-[11px] text-white/70">Powered by Maxtronize Intelligence Engine</p>
-                  </div>
-                </div>
-                <p className="text-[13px] leading-relaxed text-white/85">
-                  AI insights for {asset.name} are generated from market data and offering fundamentals.
-                </p>
-              </div>
-              {AI_INSIGHTS.map((insight) => (
+        <div className="relative h-52 overflow-hidden rounded-[24px] shadow-xl md:h-72 md:rounded-[32px]">
+          <MarketplaceAssetCover
+            image={asset.image}
+            alt={asset.name}
+            assetType={asset.type}
+            className="h-full w-full"
+            imageClassName="object-cover"
+            priority
+            sizes="(max-width: 1280px) 100vw, 1280px"
+          >
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
+          <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {heroMetrics.map((m) => (
                 <div
-                  key={insight.title}
-                  className="rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm md:p-6"
+                  key={m.label}
+                  className="rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-md md:p-4"
                 >
-                  <div className="mb-3 flex items-start justify-between gap-4">
-                    <h4 className="text-[13px] font-bold text-ui-strong">{insight.title}</h4>
-                    <span className={`flex shrink-0 items-center gap-1.5 text-[11px] font-bold ${insight.color}`}>
-                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                      {insight.confidence}% confidence
-                    </span>
+                  <div className="mb-1.5 flex items-center gap-1.5">
+                    <m.Icon
+                      className={`h-3.5 w-3.5 ${m.valClass === 'text-emerald-400' ? 'text-emerald-400' : 'text-white/60'}`}
+                      strokeWidth={iconStroke}
+                    />
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-white/55">{m.label}</p>
                   </div>
-                  <p className="mb-3 text-[12px] font-medium leading-relaxed text-ui-muted-text">{insight.desc}</p>
-                  <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-bold ${insight.tagClass}`}>
-                    {insight.tag}
-                  </span>
+                  <p className={`text-lg font-bold tabular-nums md:text-xl ${m.valClass}`}>{m.val}</p>
                 </div>
               ))}
             </div>
-          )}
-
-          {activeTab === 'documents' && (
-            <DocumentsTab documents={documents} loading={docsLoading} />
-          )}
+          </div>
+          </MarketplaceAssetCover>
         </div>
+
+        <div className="-mt-4 rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:-mt-6 md:rounded-[28px] dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+          <div className="border-b border-ui-border p-4 md:p-6">
+            <div className="flex flex-wrap gap-2">
+              {TABS.map((tab) => {
+                const active = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all ${active
+                      ? 'bg-primary/10 text-primary ring-1 ring-primary/15'
+                      : 'text-ui-muted-text hover:bg-ui-muted-deep/80 hover:text-ui-body'
+                      }`}
+                  >
+                    <tab.Icon className="h-4 w-4" strokeWidth={iconStroke} />
+                    {tab.label}
+                    {tab.aiBadge ? (
+                      <span className="rounded-md bg-primary px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+                        AI
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="p-5 md:p-8">
+            {activeTab === 'overview' && (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="mb-3 text-base font-bold text-ui-strong md:text-lg">About This Asset</h3>
+                  <p className="text-[13px] font-medium leading-relaxed text-ui-muted-text md:text-sm">
+                    {description ??
+                      'Details for this asset will appear here once provided by the issuer.'}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-base font-bold text-ui-strong md:text-lg">Fundraising Progress</h3>
+                    <span className="text-base font-bold text-primary">{progress.pct}%</span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-ui-muted-deep">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-700"
+                      style={{ width: `${progress.pct}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 flex justify-between text-[11px] font-medium text-ui-faint">
+                    <span>{raisedLabel}</span>
+                    <span>{targetLabel}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  {[
+                    { label: 'Token Price', val: tokenization?.tokenPrice ?? '—', sub: tokenTicker },
+                    { label: 'Total Tokens', val: tokenization?.totalSupply ?? '—', sub: 'Supply' },
+                    { label: 'Investors', val: String(offering?.investorCount ?? asset.investors), sub: 'Count' },
+                    {
+                      label: 'Closing',
+                      val: daysLeft > 0 ? `${daysLeft} days` : '—',
+                      sub: 'Remaining',
+                    },
+                  ].map((s) => (
+                    <div key={s.label} className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-4">
+                      <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{s.label}</p>
+                      <p className="text-lg font-bold text-ui-strong">{s.val}</p>
+                      <p className="text-[10px] font-medium text-ui-faint">{s.sub}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {highlights.length > 0 ? (
+                  <div>
+                    <h3 className="mb-4 text-base font-bold text-ui-strong md:text-lg">Key Highlights</h3>
+                    <ul className="space-y-3">
+                      {highlights.map((h) => (
+                        <li key={h} className="flex items-start gap-3">
+                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/12 text-emerald-600 dark:text-emerald-400">
+                            <Check className="h-3 w-3" strokeWidth={3} />
+                          </span>
+                          <p className="text-[13px] font-medium text-ui-body">{h}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                <div>
+                  <h3 className="mb-4 text-base font-bold text-ui-strong md:text-lg">Asset Location</h3>
+                  <div className="flex h-40 items-center justify-center rounded-2xl border border-ui-border bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
+                    <div className="text-center">
+                      <MapPin className="mx-auto mb-2 h-8 w-8 text-ui-faint" strokeWidth={iconStroke} />
+                      <p className="text-[13px] font-bold text-ui-strong">{asset.location}</p>
+                      <p className="text-[11px] font-medium text-ui-faint">{asset.type}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'financials' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {financials.map((f) => (
+                    <div key={f.label} className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-5">
+                      <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{f.label}</p>
+                      <p className="text-xl font-bold text-ui-strong">{f.val}</p>
+                    </div>
+                  ))}
+                </div>
+                {tokenization?.network ? (
+                  <div className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-5">
+                    <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Tokenization</p>
+                    <p className="text-sm font-medium text-ui-body">
+                      {tokenization.network}
+                      {tokenization.standard ? ` · ${tokenization.standard}` : ''}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            )}
+
+            {activeTab === 'ai' && (
+              <div className="space-y-4">
+                <div className="rounded-[24px] bg-gradient-to-r from-primary to-violet-600 p-6 text-white md:p-8">
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
+                      <Sparkles className="h-5 w-5" strokeWidth={iconStroke} />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold">AI Asset Analysis</h3>
+                      <p className="text-[11px] text-white/70">Powered by Maxtronize Intelligence Engine</p>
+                    </div>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-white/85">
+                    AI insights for {asset.name} are generated from market data and offering fundamentals.
+                  </p>
+                </div>
+                {AI_INSIGHTS.map((insight) => (
+                  <div
+                    key={insight.title}
+                    className="rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm md:p-6"
+                  >
+                    <div className="mb-3 flex items-start justify-between gap-4">
+                      <h4 className="text-[13px] font-bold text-ui-strong">{insight.title}</h4>
+                      <span className={`flex shrink-0 items-center gap-1.5 text-[11px] font-bold ${insight.color}`}>
+                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                        {insight.confidence}% confidence
+                      </span>
+                    </div>
+                    <p className="mb-3 text-[12px] font-medium leading-relaxed text-ui-muted-text">{insight.desc}</p>
+                    <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-bold ${insight.tagClass}`}>
+                      {insight.tag}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'documents' && (
+              <DocumentsTab documents={documents} loading={docsLoading} />
+            )}
+          </div>
         </div>
       </div>
 
@@ -533,6 +537,44 @@ function AssetDetailContent() {
         />
       )}
     </>
+  );
+}
+
+// ── CopyButton Helper ───────────────────────────────────────────────────────────
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold border transition-all ${copied
+        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+        : 'border-ui-border text-ui-muted-text hover:bg-ui-muted-deep/50 hover:text-ui-strong'
+        }`}
+    >
+      {copied ? (
+        <>
+          <Check className="h-3 w-3" strokeWidth={2.5} />
+          Copied
+        </>
+      ) : (
+        <>
+          <Copy className="h-3 w-3" strokeWidth={iconStroke} />
+          Copy
+        </>
+      )}
+    </button>
   );
 }
 
@@ -557,6 +599,26 @@ function InvestModal({
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [quantity, setQuantity] = useState('');
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [successData, setSuccessData] = useState<{
+    investmentId?: string | null;
+    transactionId?: string | null;
+    amount: number;
+    tokenAmount: number;
+    pricePerToken: number;
+    type: 'primary' | 'secondary';
+  } | null>(null);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   const amountValue = Number.parseFloat(investmentAmount) || 0;
   const quantityValue = Number.parseFloat(quantity) || 0;
   const { data: profile } = useAuthenticatedProfileQuery();
@@ -649,8 +711,8 @@ function InvestModal({
 
   const secondaryPriceNum = selectedListing
     ? selectedListing.pricePerTokenValue ||
-      Number.parseFloat(selectedListing.pricePerToken.replace(/[^0-9.]/g, '')) ||
-      0
+    Number.parseFloat(selectedListing.pricePerToken.replace(/[^0-9.]/g, '')) ||
+    0
     : 0;
   const primaryPriceNum = investPreview?.pricePerToken ?? primaryTokenPrice;
   const total =
@@ -732,6 +794,16 @@ function InvestModal({
         currency: investPreview?.currency || 'USD',
         tokenAmount: estimatedPrimaryTokens,
       }).unwrap();
+
+      setSuccessData({
+        investmentId: result.investmentId,
+        transactionId: result.transactionId,
+        amount: result.amount || amountValue,
+        tokenAmount: result.tokenAmount || estimatedPrimaryTokens || 0,
+        pricePerToken: primaryPriceNum || 0,
+        type: 'primary',
+      });
+
       setStatusMsg({
         type: 'success',
         text:
@@ -782,13 +854,29 @@ function InvestModal({
     }
     setStatusMsg(null);
     try {
-      await placeOrder({
+      const result = await placeOrder({
         id: selectedListing.id,
         side: 'BUY',
         orderType: 'MARKET',
         tokenAmount: quantityValue,
         pricePerToken: secondaryPriceNum,
       }).unwrap();
+
+      const resObj = (result && typeof result === 'object') ? (result as Record<string, any>) : {};
+      const txId = resObj.transactionId ?? resObj.transaction_id ?? resObj.id ?? null;
+      const invId = resObj.investmentId ?? resObj.orderId ?? resObj.order_id ?? null;
+      const finalAmount = resObj.amountUsd ?? resObj.amount_usd ?? resObj.amount ?? (quantityValue * secondaryPriceNum);
+      const finalTokens = resObj.tokensOwned ?? resObj.tokens_owned ?? resObj.tokenAmount ?? resObj.token_amount ?? quantityValue;
+
+      setSuccessData({
+        investmentId: invId,
+        transactionId: txId,
+        amount: finalAmount,
+        tokenAmount: finalTokens,
+        pricePerToken: secondaryPriceNum,
+        type: 'secondary',
+      });
+
       setStatusMsg({
         type: 'success',
         text: `Successfully placed a BUY order for ${quantity} ${displayTicker} tokens at $${secondaryPriceNum.toFixed(2)} per token.`,
@@ -802,360 +890,457 @@ function InvestModal({
     }
   };
 
-  // Close on Escape key
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
+  if (!mounted) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100]"
       role="dialog"
       aria-modal="true"
       aria-label="Invest in asset"
     >
-      {/* Backdrop */}
+      {/* Backdrop - Static full-screen dark overlay with blur */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-zinc-950/55 dark:bg-zinc-950/85 backdrop-blur-md"
         onClick={onClose}
         aria-hidden
       />
 
-      {/* Panel */}
-      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-[#0f1117] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] ring-1 ring-primary/15">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/8 bg-gradient-to-r from-primary/15 via-violet-600/10 to-transparent px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20 text-primary">
-              <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
-            </div>
-            <div>
-              <h2 className="text-[15px] font-bold text-white">Invest Now</h2>
-              <p className="text-[11px] font-medium text-white/50">{assetName}</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 text-white/50 transition-colors hover:border-white/20 hover:text-white"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" strokeWidth={iconStroke} />
-          </button>
-        </div>
-
-        <div className="space-y-5 p-6">
-          <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-1">
-            <button
-              type="button"
-              onClick={() => setMarketMode('primary')}
-              className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${
-                marketMode === 'primary'
-                  ? 'bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]'
-                  : 'text-white/55 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              Primary Market
-            </button>
-            <button
-              type="button"
-              onClick={() => setMarketMode('secondary')}
-              className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${
-                marketMode === 'secondary'
-                  ? 'bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]'
-                  : 'text-white/55 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              Secondary ({assetListings.length})
-            </button>
-          </div>
-
-          {/* Status */}
-          {statusMsg && (
-            <div
-              className={`rounded-xl border px-4 py-3.5 text-[12px] font-semibold leading-relaxed ${
-                statusMsg.type === 'success'
-                  ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400'
-                  : 'border-rose-500/25 bg-rose-500/10 text-rose-400'
-              }`}
-            >
-              {statusMsg.text}
-            </div>
-          )}
-
-          {profileIncomplete ? (
-            <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-300">
-              <p>Complete your investor profile before using protected investment flows.</p>
-              <Link
-                href="/setup-profile"
-                className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-200 transition-colors hover:text-white"
-              >
-                Complete setup profile
-                <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
-              </Link>
-            </div>
-          ) : null}
-
-          {profilePendingReview ? (
-            <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-300">
-              <p>Your investor profile has been submitted and is awaiting admin review.</p>
-              <p className="text-[11px] font-medium text-amber-200/90">
-                Investment actions will unlock after your KYC verification is approved.
-              </p>
-              <Link
-                href="/investor/account"
-                className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-200 transition-colors hover:text-white"
-              >
-                View verification status
-                <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
-              </Link>
-            </div>
-          ) : null}
-
-          {profileRejected ? (
-            <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-300">
-              <p>Your investor verification needs attention before investing is enabled.</p>
-              <Link
-                href="/investor/account"
-                className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-200 transition-colors hover:text-white"
-              >
-                Review account details
-                <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
-              </Link>
-            </div>
-          ) : null}
-
-          {marketMode === 'primary' ? (
-            <>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  {
-                    label: 'Token Price',
-                    val:
-                      investPreview?.pricePerTokenFormatted ??
-                      (primaryPriceNum > 0 ? `$${primaryPriceNum.toFixed(2)}` : '—'),
-                  },
-                  {
-                    label: 'Minimum',
-                    val:
-                      investPreview?.minInvestmentFormatted ??
-                      minimumInvestmentLabel ??
-                      '—',
-                  },
-                  { label: 'Annual Yield', val: annualYield || '—' },
-                ].map((s) => (
-                  <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.04] p-3 text-center">
-                    <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-white/35">{s.label}</p>
-                    <p className="text-[13px] font-bold text-white">{s.val}</p>
-                  </div>
-                ))}
+      {/* Scrollable Container Wrapper */}
+      <div className="absolute inset-0 overflow-y-auto flex items-center justify-center p-4 md:p-6">
+        {/* Panel */}
+        <div className="relative z-10 my-auto w-full max-w-md overflow-hidden rounded-[28px] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-2xl transition-all">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-900 bg-gradient-to-r from-primary/10 via-violet-600/5 to-transparent px-6 py-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20 text-primary">
+                <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
               </div>
-
-              {previewErrorText && !profilePendingReview && !profileIncomplete ? (
-                <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-300">
-                  <p>{previewErrorText}</p>
-                  {requiresKycVerification ? (
-                    <Link
-                      href={profileIncomplete ? "/setup-profile" : "/investor/account"}
-                      className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-200 transition-colors hover:text-white"
-                    >
-                      {profileIncomplete ? 'Complete setup profile' : 'View verification status'}
-                      <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
-                    </Link>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {requiresFunding ? (
-                <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-300">
-                  {investPreview?.note || 'Wallet funding is required before this investment can be completed.'}
-                </div>
-              ) : null}
-
               <div>
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
-                  Investment Amount (USD)
-                </label>
-                <div className="flex items-center overflow-hidden rounded-xl border border-white/10 bg-white/5 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30">
-                  <span className="px-4 text-[14px] font-bold text-white/35">$</span>
-                  <input
-                    type="number"
-                    min={minimumInvestmentValue || 0}
-                    step="0.01"
-                    value={investmentAmount}
-                    onChange={(e) => setInvestmentAmount(e.target.value)}
-                    placeholder="Enter investment amount"
-                    className="flex-1 bg-transparent px-1 py-3.5 pr-4 text-[14px] font-bold text-white outline-none placeholder:text-white/25"
-                  />
-                </div>
-                <div className="mt-2 grid grid-cols-4 gap-2">
-                  {quickAmounts.map((value) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setInvestmentAmount(String(value))}
-                      className="rounded-lg border border-white/8 bg-white/5 py-1.5 text-[11px] font-bold text-white/50 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
-                    >
-                      ${Math.round(value).toLocaleString()}
-                    </button>
-                  ))}
-                </div>
+                <h2 className="text-[15px] font-bold text-zinc-800 dark:text-zinc-100">
+                  {successData ? 'Investment Confirmed' : 'Invest Now'}
+                </h2>
+                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{assetName}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800/80 hover:text-zinc-850 dark:hover:text-white"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" strokeWidth={iconStroke} />
+            </button>
+          </div>
+
+          {successData ? (
+            /* Premium Transaction Success Confirmation Screen */
+            <div className="p-6 space-y-6 text-center">
+              {/* Emerald Checkmark Circle */}
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 transition-all scale-100 animate-pulse">
+                <BadgeCheck className="h-10 w-10" strokeWidth={1.5} />
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] px-5 py-4">
-                <div>
-                  <span className="block text-[12px] font-bold text-white/50">Primary Investment Total</span>
-                  <span className="mt-1 block text-[10px] font-medium text-white/30">
-                    {estimatedPrimaryTokens != null
-                      ? `${estimatedPrimaryTokens.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${displayTicker}`
-                      : 'Live token allocation appears after you enter an amount'}
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">Investment Successful!</h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed px-4">
+                  Your order has been executed on the blockchain network and credited to your investor portfolio.
+                </p>
+              </div>
+
+              {/* Status Badge */}
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Active / Settled
+              </div>
+
+              {/* Transaction Receipt Table */}
+              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 p-4 text-left space-y-3.5">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Asset Name</span>
+                  <span className="text-zinc-800 dark:text-zinc-100 font-bold text-right truncate max-w-[200px]" title={assetName}>
+                    {assetName}
                   </span>
                 </div>
-                <span className="text-2xl font-bold tabular-nums text-white">
-                  ${Number.parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-              </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Market Mode</span>
+                  <span className="text-zinc-800 dark:text-zinc-100 font-bold capitalize">
+                    {successData.type === 'primary' ? 'Primary Marketplace' : 'Secondary Trading'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Invested Amount</span>
+                  <span className="text-zinc-800 dark:text-zinc-100 font-extrabold text-sm tabular-nums">
+                    ${successData.amount.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Tokens Received</span>
+                  <span className="text-zinc-800 dark:text-zinc-100 font-extrabold tabular-nums">
+                    {successData.tokenAmount.toLocaleString(undefined, {
+                      maximumFractionDigits: 4,
+                    })}{' '}
+                    {displayTicker}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Price / Token</span>
+                  <span className="text-zinc-800 dark:text-zinc-100 font-bold tabular-nums">
+                    ${successData.pricePerToken.toFixed(2)}
+                  </span>
+                </div>
 
-              <button
-                type="button"
-                onClick={handlePrimaryInvest}
-                disabled={
-                  amountValue <= 0 ||
-                  isInvesting ||
-                  previewLoading ||
-                  requiresFunding ||
-                  verificationBlocked ||
-                  (minimumInvestmentValue > 0 && amountValue < minimumInvestmentValue)
-                }
-                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
-                {isInvesting
-                  ? 'Processing Investment…'
-                  : previewLoading
-                    ? 'Refreshing Quote…'
-                    : `Invest in ${displayTicker}`}
-              </button>
 
-              <p className="text-center text-[10px] font-medium text-white/30">
-                Investments are submitted through the primary marketplace flow. Final allocation and wallet checks are validated by the backend before confirmation.
-              </p>
-            </>
-          ) : (
-            <>
-              <div>
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
-                  Select Seller Listing
-                </label>
-                {listingsLoading ? (
-                  <div className="h-12 animate-pulse rounded-xl bg-white/5" />
-                ) : assetListings.length === 0 ? (
-                  <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-400">
-                    <p>No active secondary listings found for this asset right now.</p>
-                    <Link
-                      href="/investor/secondary-market"
-                      className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-300 transition-colors hover:text-white"
-                    >
-                      Browse all live listings
-                      <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
-                    </Link>
+                {successData.transactionId && (
+                  <div className="pt-2.5 border-t border-zinc-150 dark:border-zinc-800/80 space-y-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 block">
+                      Transaction ID
+                    </span>
+                    <div className="flex items-center justify-between gap-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-2">
+                      <span className="font-mono text-[10px] text-zinc-600 dark:text-zinc-400 truncate select-all">
+                        {successData.transactionId}
+                      </span>
+                      <div className="pointer-events-auto">
+                        <CopyButton text={successData.transactionId} />
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <select
-                    value={selectedListingId}
-                    onChange={(e) => setSelectedListingId(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[13px] font-bold text-white outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
-                  >
-                    {assetListings.map((l) => (
-                      <option key={l.id} value={l.id} className="bg-[#0f1117]">
-                        {l.ticker} — {l.pricePerToken} / token · {l.available} available (Seller: {l.seller})
-                      </option>
-                    ))}
-                  </select>
                 )}
               </div>
 
-              {selectedListing ? (
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: 'Price / Token', val: selectedListing.pricePerToken },
-                    { label: '24h Change', val: selectedListing.change, up: selectedListing.up },
-                    { label: 'Available', val: selectedListing.available },
-                  ].map((s) => (
-                    <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.04] p-3 text-center">
-                      <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-white/35">{s.label}</p>
-                      <p className={`text-[13px] font-bold ${'up' in s ? (s.up ? 'text-emerald-400' : 'text-rose-400') : 'text-white'}`}>
-                        {s.val}
-                      </p>
-                    </div>
-                  ))}
+              {/* Success Actions */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Link
+                  href="/investor/portfolio"
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-3.5 text-xs font-bold text-white shadow-md shadow-primary/20 transition-all hover:brightness-110"
+                >
+                  <TrendingUp className="h-4 w-4" strokeWidth={iconStroke} />
+                  Go to Portfolio
+                </Link>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 py-3.5 text-xs font-bold text-zinc-800 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Normal Investment Form */
+            <div className="space-y-5 p-6">
+              <div className="grid grid-cols-2 gap-2 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 p-1">
+                <button
+                  type="button"
+                  onClick={() => setMarketMode('primary')}
+                  className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${marketMode === 'primary'
+                    ? 'bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/85 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
+                >
+                  Primary Market
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMarketMode('secondary')}
+                  className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${marketMode === 'secondary'
+                    ? 'bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/85 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
+                >
+                  Secondary ({assetListings.length})
+                </button>
+              </div>
+
+              {/* Status */}
+              {statusMsg && (
+                <div
+                  className={`rounded-xl border px-4 py-3.5 text-[12px] font-semibold leading-relaxed ${statusMsg.type === 'success'
+                    ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'border-rose-500/25 bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                    }`}
+                >
+                  {statusMsg.text}
+                </div>
+              )}
+
+              {profileIncomplete ? (
+                <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
+                  <p>Complete your investor profile before using protected investment flows.</p>
+                  <Link
+                    href="/setup-profile"
+                    className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-200 transition-colors hover:text-ui-strong"
+                  >
+                    Complete setup profile
+                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                  </Link>
                 </div>
               ) : null}
 
-              <div>
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-white/40">
-                  Quantity (Tokens)
-                </label>
-                <div className="flex items-center overflow-hidden rounded-xl border border-white/10 bg-white/5 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30">
-                  <input
-                    type="number"
-                    min="1"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    placeholder="Enter number of tokens"
-                    className="flex-1 bg-transparent px-4 py-3.5 text-[14px] font-bold text-white outline-none placeholder:text-white/25"
-                  />
-                  <span className="px-4 text-[11px] font-bold text-white/35">{displayTicker}</span>
+              {profilePendingReview ? (
+                <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
+                  <p>Your investor profile has been submitted and is awaiting admin review.</p>
+                  <p className="text-[11px] font-medium text-amber-600/90 dark:text-amber-200/90">
+                    Investment actions will unlock after your KYC verification is approved.
+                  </p>
+                  <Link
+                    href="/investor/account"
+                    className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-200 transition-colors hover:text-ui-strong"
+                  >
+                    View verification status
+                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                  </Link>
                 </div>
-                <div className="mt-2 grid grid-cols-4 gap-2">
-                  {['1', '5', '10', '25'].map((val) => (
-                    <button
-                      key={val}
-                      type="button"
-                      onClick={() => setQuantity(val)}
-                      className="rounded-lg border border-white/8 bg-white/5 py-1.5 text-[11px] font-bold text-white/50 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
-                    >
-                      +{val}
-                    </button>
-                  ))}
+              ) : null}
+
+              {profileRejected ? (
+                <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-600 dark:text-rose-300">
+                  <p>Your investor verification needs attention before investing is enabled.</p>
+                  <Link
+                    href="/investor/account"
+                    className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-600 dark:text-rose-200 transition-colors hover:text-ui-strong"
+                  >
+                    Review account details
+                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                  </Link>
                 </div>
-              </div>
+              ) : null}
 
-              <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] px-5 py-4">
-                <span className="text-[12px] font-bold text-white/50">Total Cost</span>
-                <span className="text-2xl font-bold tabular-nums text-white">
-                  ${Number.parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-              </div>
+              {marketMode === 'primary' ? (
+                <>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      {
+                        label: 'Token Price',
+                        val:
+                          investPreview?.pricePerTokenFormatted ??
+                          (primaryPriceNum > 0 ? `$${primaryPriceNum.toFixed(2)}` : '—'),
+                      },
+                      {
+                        label: 'Minimum',
+                        val:
+                          investPreview?.minInvestmentFormatted ??
+                          minimumInvestmentLabel ??
+                          '—',
+                      },
+                      { label: 'Annual Yield', val: annualYield || '—' },
+                    ].map((s) => (
+                      <div key={s.label} className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-3 text-center">
+                        <p className="mb-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">{s.label}</p>
+                        <p className="text-[13px] font-bold text-zinc-850 dark:text-zinc-100">{s.val}</p>
+                      </div>
+                    ))}
+                  </div>
 
-              <button
-                type="button"
-                onClick={handleSecondaryInvest}
-                disabled={
-                  !selectedListing ||
-                  quantityValue <= 0 ||
-                  isPlacing ||
-                  assetListings.length === 0 ||
-                  profileIncomplete ||
-                  profilePendingReview ||
-                  profileRejected
-                }
-                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
-                {isPlacing ? 'Processing Order…' : `Buy ${displayTicker} Tokens`}
-              </button>
+                  {previewErrorText && !profilePendingReview && !profileIncomplete ? (
+                    <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-600 dark:text-rose-300">
+                      <p>{previewErrorText}</p>
+                      {requiresKycVerification ? (
+                        <Link
+                          href={profileIncomplete ? "/setup-profile" : "/investor/account"}
+                          className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-600 dark:text-rose-200 transition-colors hover:text-ui-strong"
+                        >
+                          {profileIncomplete ? 'Complete setup profile' : 'View verification status'}
+                          <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                        </Link>
+                      ) : null}
+                    </div>
+                  ) : null}
 
-              <p className="text-center text-[10px] font-medium text-white/30">
-                Orders are executed via the secondary market at the listed price. Market conditions may affect final execution price.
-              </p>
-            </>
+                  {requiresFunding ? (
+                    <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
+                      {investPreview?.note || 'Wallet funding is required before this investment can be completed.'}
+                    </div>
+                  ) : null}
+
+                  <div>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                      Investment Amount (USD)
+                    </label>
+                    <div className="flex items-center overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20">
+                      <span className="px-4 text-[14px] font-bold text-zinc-400 dark:text-zinc-500">$</span>
+                      <input
+                        type="number"
+                        min={minimumInvestmentValue || 0}
+                        step="0.01"
+                        value={investmentAmount}
+                        onChange={(e) => setInvestmentAmount(e.target.value)}
+                        placeholder="Enter investment amount"
+                        className="flex-1 bg-transparent px-1 py-3.5 pr-4 text-[14px] font-bold text-zinc-800 dark:text-zinc-100 outline-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                      />
+                    </div>
+                    <div className="mt-2 grid grid-cols-4 gap-2">
+                      {quickAmounts.map((value) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setInvestmentAmount(String(value))}
+                          className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 py-1.5 text-[11px] font-bold text-zinc-500 dark:text-zinc-400 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                        >
+                          ${Math.round(value).toLocaleString()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 px-5 py-4">
+                    <div>
+                      <span className="block text-[12px] font-bold text-zinc-550 dark:text-zinc-400">Primary Investment Total</span>
+                      <span className="mt-1 block text-[10px] font-medium text-zinc-400 dark:text-zinc-550">
+                        {estimatedPrimaryTokens != null
+                          ? `${estimatedPrimaryTokens.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${displayTicker}`
+                          : 'Live token allocation appears after you enter an amount'}
+                      </span>
+                    </div>
+                    <span className="text-2xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100">
+                      ${Number.parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handlePrimaryInvest}
+                    disabled={
+                      amountValue <= 0 ||
+                      isInvesting ||
+                      previewLoading ||
+                      requiresFunding ||
+                      verificationBlocked ||
+                      (minimumInvestmentValue > 0 && amountValue < minimumInvestmentValue)
+                    }
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
+                    {isInvesting
+                      ? 'Processing Investment…'
+                      : previewLoading
+                        ? 'Refreshing Quote…'
+                        : `Invest in ${displayTicker}`}
+                  </button>
+
+                  <p className="text-center text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 leading-relaxed">
+                    Investments are submitted through the primary marketplace flow. Final allocation and wallet checks are validated by the backend before confirmation.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                      Select Seller Listing
+                    </label>
+                    {listingsLoading ? (
+                      <div className="h-12 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900/50" />
+                    ) : assetListings.length === 0 ? (
+                      <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-400">
+                        <p>No active secondary listings found for this asset right now.</p>
+                        <Link
+                          href="/investor/secondary-market"
+                          className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-300 transition-colors hover:text-ui-strong"
+                        >
+                          Browse all live listings
+                          <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                        </Link>
+                      </div>
+                    ) : (
+                      <select
+                        value={selectedListingId}
+                        onChange={(e) => setSelectedListingId(e.target.value)}
+                        className="w-full appearance-none rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3 text-[13px] font-bold text-zinc-800 dark:text-zinc-100 outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                      >
+                        {assetListings.map((l) => (
+                          <option key={l.id} value={l.id} className="bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100">
+                            {l.ticker} — {l.pricePerToken} / token · {l.available} available (Seller: {l.seller})
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  {selectedListing ? (
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { label: 'Price / Token', val: selectedListing.pricePerToken },
+                        { label: '24h Change', val: selectedListing.change, up: selectedListing.up },
+                        { label: 'Available', val: selectedListing.available },
+                      ].map((s) => (
+                        <div key={s.label} className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-3 text-center">
+                          <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">{s.label}</p>
+                          <p className={`text-[13px] font-bold ${'up' in s ? (s.up ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400') : 'text-zinc-800 dark:text-zinc-100'}`}>
+                            {s.val}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <div>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                      Quantity (Tokens)
+                    </label>
+                    <div className="flex items-center overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20">
+                      <input
+                        type="number"
+                        min="1"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        placeholder="Enter number of tokens"
+                        className="flex-1 bg-transparent px-4 py-3.5 text-[14px] font-bold text-zinc-800 dark:text-zinc-100 outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                      />
+                      <span className="px-4 text-[11px] font-bold text-zinc-400 dark:text-zinc-500">{displayTicker}</span>
+                    </div>
+                    <div className="mt-2 grid grid-cols-4 gap-2">
+                      {['1', '5', '10', '25'].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setQuantity(val)}
+                          className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 py-1.5 text-[11px] font-bold text-zinc-555 dark:text-zinc-400 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                        >
+                          +{val}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 px-5 py-4">
+                    <span className="text-[12px] font-bold text-zinc-550 dark:text-zinc-400">Total Cost</span>
+                    <span className="text-2xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100">
+                      ${Number.parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSecondaryInvest}
+                    disabled={
+                      !selectedListing ||
+                      quantityValue <= 0 ||
+                      isPlacing ||
+                      assetListings.length === 0 ||
+                      profileIncomplete ||
+                      profilePendingReview ||
+                      profileRejected
+                    }
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
+                    {isPlacing ? 'Processing Order…' : `Buy ${displayTicker} Tokens`}
+                  </button>
+
+                  <p className="text-center text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 leading-relaxed">
+                    Orders are executed via the secondary market at the listed price. Market conditions may affect final execution price.
+                  </p>
+                </>
+              )}
+            </div>
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1190,6 +1375,47 @@ function DocumentsTab({
 }
 
 function DocumentRow({ doc }: { doc: AssetDocument }) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    if (!doc.url) return;
+
+    // Prevent default link navigation — we trigger the download ourselves
+    e.preventDefault();
+    if (isDownloading) return;
+
+    setIsDownloading(true);
+    try {
+
+      const proxyUrl =
+        '/api/download?url=' +
+        encodeURIComponent(doc.url) +
+        '&filename=' +
+        encodeURIComponent(doc.name);
+
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error('Proxy responded with ' + response.status);
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = blobUrl;
+      a.download = doc.name;
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(blobUrl);
+      a.remove();
+    } catch (err) {
+      console.error('Download via proxy failed, opening in new tab.', err);
+      window.open(doc.url, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const inner = (
     <>
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ui-muted-deep text-ui-faint transition-all group-hover:bg-primary group-hover:text-white">
@@ -1203,7 +1429,11 @@ function DocumentRow({ doc }: { doc: AssetDocument }) {
           {doc.type} · {doc.size} · {doc.date}
         </p>
       </div>
-      <Download className="h-4 w-4 shrink-0 text-ui-placeholder transition-colors group-hover:text-primary" strokeWidth={iconStroke} />
+      {isDownloading ? (
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" strokeWidth={iconStroke} />
+      ) : (
+        <Download className="h-4 w-4 shrink-0 text-ui-placeholder transition-colors group-hover:text-primary" strokeWidth={iconStroke} />
+      )}
     </>
   );
 
@@ -1211,6 +1441,8 @@ function DocumentRow({ doc }: { doc: AssetDocument }) {
     return (
       <a
         href={doc.url}
+        download={doc.name}
+        onClick={handleDownload}
         target="_blank"
         rel="noopener noreferrer"
         className="group flex w-full cursor-pointer items-center gap-4 px-5 py-5 text-left transition-colors hover:bg-ui-muted-deep/50 md:px-7"

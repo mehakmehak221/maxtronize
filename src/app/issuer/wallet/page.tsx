@@ -25,18 +25,26 @@ import {
   useDepositIssuerFundsMutation,
   useWithdrawIssuerFundsMutation,
   useTransferIssuerFundsMutation,
+  useConnectIssuerWalletMutation,
+  type IssuerWalletItem,
 } from '@/store/api/issuerWalletApi';
 import { formatCompactCurrency } from '@/lib/issuerDashboard';
 
 const iconStroke = 1.75;
 const SPARKLINE_POINTS = [42, 48, 44, 52, 50, 58, 55, 62, 60, 68, 72, 78];
 
-type IssuerWalletAction = 'deposit' | 'withdraw' | 'transfer';
+type IssuerWalletAction = 'deposit' | 'withdraw' | 'transfer' | 'connect';
 
 type IssuerWalletFormState = {
   amount: string;
   currency: string;
   recipientAddress: string;
+  walletId: string;
+  toWalletId: string;
+  note: string;
+  connectAddress: string;
+  connectNetwork: string;
+  connectName: string;
 };
 
 type WalletCard = {
@@ -54,6 +62,12 @@ const INITIAL_FORM: IssuerWalletFormState = {
   amount: '',
   currency: 'USD',
   recipientAddress: '',
+  walletId: '',
+  toWalletId: '',
+  note: '',
+  connectAddress: '',
+  connectNetwork: 'Ethereum',
+  connectName: '',
 };
 
 // Keep the original wallet visual structure visible while binding the actions and card content to live APIs.
@@ -165,6 +179,7 @@ function WalletActionForm({
   isSubmitting,
   error,
   success,
+  wallets,
 }: {
   action: IssuerWalletAction;
   form: IssuerWalletFormState;
@@ -174,20 +189,25 @@ function WalletActionForm({
   isSubmitting: boolean;
   error: string | null;
   success: string | null;
+  wallets: IssuerWalletItem[];
 }) {
   const title =
     action === 'deposit'
       ? 'Deposit Funds'
       : action === 'withdraw'
         ? 'Withdraw Funds'
-        : 'Transfer Funds';
+        : action === 'transfer'
+          ? 'Transfer Funds'
+          : 'Connect Wallet';
 
   const submitLabel =
     action === 'deposit'
       ? 'Start Deposit'
       : action === 'withdraw'
         ? 'Start Withdrawal'
-        : 'Transfer Funds';
+        : action === 'transfer'
+          ? 'Transfer Funds'
+          : 'Connect Wallet';
 
   return (
     <div className="rounded-[24px] border border-ui-border bg-ui-card p-5 shadow-sm md:p-6">
@@ -208,46 +228,203 @@ function WalletActionForm({
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <label className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Amount</span>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={form.amount}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, amount: event.target.value }))
-            }
-            className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-            placeholder="1000"
-          />
-        </label>
-        <label className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Currency</span>
-          <input
-            type="text"
-            value={form.currency}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, currency: event.target.value.toUpperCase() }))
-            }
-            className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-            placeholder="USD"
-          />
-        </label>
-        {action === 'transfer' ? (
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Recipient Address</span>
-            <input
-              type="text"
-              value={form.recipientAddress}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, recipientAddress: event.target.value }))
-              }
-              className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-              placeholder="0x..."
-            />
-          </label>
-        ) : null}
+        {action === 'connect' ? (
+          <>
+            <label className="space-y-2 md:col-span-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Wallet Name</span>
+              <input
+                type="text"
+                value={form.connectName}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, connectName: event.target.value }))
+                }
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                placeholder="e.g., Platform Treasury Wallet"
+              />
+            </label>
+            <label className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Network</span>
+              <select
+                value={form.connectNetwork}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, connectNetwork: event.target.value }))
+                }
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 bg-white"
+              >
+                <option value="Ethereum">Ethereum</option>
+                <option value="Polygon">Polygon</option>
+                <option value="Base">Base</option>
+                <option value="Arbitrum">Arbitrum</option>
+              </select>
+            </label>
+            <label className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Wallet Address</span>
+              <input
+                type="text"
+                value={form.connectAddress}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, connectAddress: event.target.value }))
+                }
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                placeholder="0x..."
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            {action === 'transfer' ? (
+              <>
+                {wallets.length > 0 ? (
+                  <>
+                    <label className="space-y-2">
+                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Source Wallet (From)</span>
+                      <select
+                        value={form.walletId}
+                        onChange={(event) =>
+                          setForm((prev) => ({ ...prev, walletId: event.target.value }))
+                        }
+                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
+                      >
+                        <option value="">-- Choose Source Wallet --</option>
+                        {wallets.map((w, index) => (
+                          <option key={w.id || w.address || index} value={w.id}>
+                            {w.name} ({w.network}) - {w.address.slice(0, 6)}...{w.address.slice(-4)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="space-y-2">
+                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Destination Wallet (To)</span>
+                      <select
+                        value={form.toWalletId}
+                        onChange={(event) =>
+                          setForm((prev) => ({ ...prev, toWalletId: event.target.value }))
+                        }
+                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
+                      >
+                        <option value="">-- Choose Destination Wallet --</option>
+                        {wallets.map((w, index) => (
+                          <option key={w.id || w.address || index} value={w.id}>
+                            {w.name} ({w.network}) - {w.address.slice(0, 6)}...{w.address.slice(-4)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <label className="space-y-2">
+                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Source Wallet ID (UUID)</span>
+                      <input
+                        type="text"
+                        value={form.walletId}
+                        onChange={(event) =>
+                          setForm((prev) => ({ ...prev, walletId: event.target.value }))
+                        }
+                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                        placeholder="e.g., 16221174-8ba5-43a2-b523-4cfee56633fc"
+                      />
+                    </label>
+                    <label className="space-y-2">
+                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Destination Wallet ID (UUID)</span>
+                      <input
+                        type="text"
+                        value={form.toWalletId}
+                        onChange={(event) =>
+                          setForm((prev) => ({ ...prev, toWalletId: event.target.value }))
+                        }
+                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                        placeholder="e.g., d5c5c1a8-8f81-42d8-bf96-b09e865f123a"
+                      />
+                    </label>
+                    <p className="text-[11px] font-medium text-amber-600/90 dark:text-amber-400/90 md:col-span-2">
+                      No active wallets are connected. Please enter valid UUIDs manually for both source and destination.
+                    </p>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                {wallets.length > 0 ? (
+                  <label className="space-y-2 md:col-span-2">
+                    <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Select Wallet</span>
+                    <select
+                      value={form.walletId}
+                      onChange={(event) =>
+                        setForm((prev) => ({ ...prev, walletId: event.target.value }))
+                      }
+                      className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
+                    >
+                      <option value="">-- Choose a Wallet --</option>
+                      {wallets.map((w, index) => (
+                        <option key={w.id || w.address || index} value={w.id}>
+                          {w.name} ({w.network}) - {w.address.slice(0, 6)}...{w.address.slice(-4)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : (
+                  <label className="space-y-2 md:col-span-2">
+                    <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Wallet ID (UUID)</span>
+                    <input
+                      type="text"
+                      value={form.walletId}
+                      onChange={(event) =>
+                        setForm((prev) => ({ ...prev, walletId: event.target.value }))
+                      }
+                      className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                      placeholder="e.g., 16221174-8ba5-43a2-b523-4cfee56633fc"
+                    />
+                    <p className="text-[11px] font-medium text-amber-600/90 dark:text-amber-400/90">
+                      No active wallets are connected. Please enter a valid UUID manually.
+                    </p>
+                  </label>
+                )}
+              </>
+            )}
+
+            <label className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Amount</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.amount}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, amount: event.target.value }))
+                }
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                placeholder="1000"
+              />
+            </label>
+            <label className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Currency</span>
+              <input
+                type="text"
+                value={form.currency}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, currency: event.target.value.toUpperCase() }))
+                }
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                placeholder="USD"
+              />
+            </label>
+            {action === 'deposit' ? (
+              <label className="space-y-2 md:col-span-2">
+                <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Treasury Note</span>
+                <input
+                  type="text"
+                  value={form.note}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, note: event.target.value }))
+                  }
+                  className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                  placeholder="Platform treasury deposit"
+                />
+              </label>
+            ) : null}
+          </>
+        )}
       </div>
 
       {error ? (
@@ -310,6 +487,7 @@ export default function WalletPage() {
   const [depositFunds] = useDepositIssuerFundsMutation();
   const [withdrawFunds] = useWithdrawIssuerFundsMutation();
   const [transferFunds] = useTransferIssuerFundsMutation();
+  const [connectWallet] = useConnectIssuerWalletMutation();
 
   const wallets = walletsRaw ?? [];
   const holdings = holdingsRaw ?? [];
@@ -327,7 +505,15 @@ export default function WalletPage() {
     setActiveAction(action);
     setError(null);
     setMessage(null);
-    setForm({ ...INITIAL_FORM, currency });
+    const defaultWalletId = wallets[0]?.id || '';
+    const destinationWalletId = wallets[1]?.id || wallets[0]?.id || '';
+    setForm({
+      ...INITIAL_FORM,
+      currency,
+      walletId: defaultWalletId,
+      toWalletId: destinationWalletId,
+      note: action === 'deposit' ? 'Platform treasury deposit' : '',
+    });
   };
 
   const closeAction = () => {
@@ -351,33 +537,100 @@ export default function WalletPage() {
     setIsSubmitting(true);
 
     try {
-      const amount = Number(form.amount);
-      if (!Number.isFinite(amount) || amount <= 0) {
-        throw new Error('Enter a valid amount greater than zero.');
-      }
+      if (activeAction === 'connect') {
+        const address = form.connectAddress.trim();
+        const network = form.connectNetwork.trim();
+        const name = form.connectName.trim();
 
-      if (activeAction === 'deposit') {
-        await depositFunds({ amount, currency: form.currency.trim() || currency }).unwrap();
-        setMessage('Deposit initiated successfully.');
-      } else if (activeAction === 'withdraw') {
-        await withdrawFunds({ amount, currency: form.currency.trim() || currency }).unwrap();
-        setMessage('Withdrawal initiated successfully.');
-      } else {
-        if (!form.recipientAddress.trim()) {
-          throw new Error('Recipient address is required for transfers.');
+        if (!address) {
+          throw new Error('Wallet address is required.');
         }
-        await transferFunds({
-          amount,
-          currency: form.currency.trim() || currency,
-          recipientAddress: form.recipientAddress.trim(),
+        if (!network) {
+          throw new Error('Network is required.');
+        }
+
+        await connectWallet({
+          address,
+          network,
+          name: name || undefined,
         }).unwrap();
-        setMessage('Transfer submitted successfully.');
+        setMessage('Wallet connected successfully.');
+      } else {
+        const amount = Number(form.amount);
+        if (!Number.isFinite(amount) || amount <= 0) {
+          throw new Error('Enter a valid amount greater than zero.');
+        }
+
+        if (activeAction === 'transfer') {
+          const fromWalletId = form.walletId.trim();
+          const toWalletId = form.toWalletId.trim();
+
+          if (!fromWalletId) {
+            throw new Error('Source Wallet (From) is required.');
+          }
+          if (!toWalletId) {
+            throw new Error('Destination Wallet (To) is required.');
+          }
+          if (fromWalletId === toWalletId) {
+            throw new Error('Source and destination wallets must be different.');
+          }
+
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (!uuidRegex.test(fromWalletId)) {
+            throw new Error('Source Wallet ID must be a valid UUID.');
+          }
+          if (!uuidRegex.test(toWalletId)) {
+            throw new Error('Destination Wallet ID must be a valid UUID.');
+          }
+
+          await transferFunds({
+            amount,
+            fromWalletId,
+            toWalletId,
+            currency: form.currency.trim() || currency,
+          }).unwrap();
+          setMessage('Transfer submitted successfully.');
+        } else {
+          const walletId = form.walletId.trim();
+          if (!walletId) {
+            throw new Error('Wallet ID is required. Please select or enter a valid Wallet UUID.');
+          }
+
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (!uuidRegex.test(walletId)) {
+            throw new Error('Wallet ID must be a valid UUID.');
+          }
+
+          if (activeAction === 'deposit') {
+            await depositFunds({
+              amount,
+              currency: form.currency.trim() || currency,
+              walletId,
+              note: form.note.trim() || undefined,
+            }).unwrap();
+            setMessage('Deposit initiated successfully.');
+          } else {
+            await withdrawFunds({
+              amount,
+              currency: form.currency.trim() || currency,
+              walletId,
+            }).unwrap();
+            setMessage('Withdrawal initiated successfully.');
+          }
+        }
       }
 
-      setForm({ ...INITIAL_FORM, currency });
-    } catch (submitError) {
+      setForm({
+        ...INITIAL_FORM,
+        currency,
+        walletId: wallets[0]?.id || '',
+        toWalletId: wallets[1]?.id || wallets[0]?.id || '',
+      });
+    } catch (submitError: any) {
       const nextError =
-        submitError instanceof Error ? submitError.message : 'Unable to complete wallet action.';
+        submitError?.data?.message?.[0] ||
+        submitError?.message ||
+        'Unable to complete wallet action.';
       setError(nextError);
     } finally {
       setIsSubmitting(false);
@@ -463,16 +716,27 @@ export default function WalletPage() {
             isSubmitting={isSubmitting}
             error={error}
             success={message}
+            wallets={wallets}
           />
         ) : null}
 
         <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-3 2xl:gap-8">
           <section className="animate-slide-up delay-200 min-w-0 space-y-4">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-[15px] font-bold text-ui-strong">Connected Wallets</h2>
-              <span className="rounded-full bg-violet-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#7C3AED]">
-                {wallets.length} {wallets.length === 1 ? 'wallet' : 'wallets'}
-              </span>
+              <div className="flex items-center gap-2">
+                <h2 className="text-[15px] font-bold text-ui-strong">Connected Wallets</h2>
+                <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-[10px] font-bold text-[#7C3AED]">
+                  {wallets.length}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => openAction('connect')}
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-[#7C3AED]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-all active:scale-95 font-bold text-[14px]"
+                aria-label="Connect wallet"
+              >
+                +
+              </button>
             </div>
 
             <div className="space-y-3">

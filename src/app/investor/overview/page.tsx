@@ -27,7 +27,12 @@ import {
   formatYieldPercent,
   type InvestorDashboardSummary,
 } from '@/lib/investorDashboard';
-import { useGetInvestorDashboardInitQuery } from '@/store/api/investorDashboardApi';
+import {
+  useGetInvestorDashboardInitQuery,
+  useGetInvestorDashboardAllocationQuery,
+  useGetInvestorCapitalDeployedQuery,
+  useGetInvestorRecentActivityQuery,
+} from '@/store/api/investorDashboardApi';
 
 const iconStroke = 1.75;
 const MONTH_FALLBACK = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
@@ -81,20 +86,28 @@ function buildKpiCards(summary: InvestorDashboardSummary | undefined): KpiCard[]
 }
 
 export default function InvestorOverviewPage() {
-  const { data: init, isLoading } = useGetInvestorDashboardInitQuery({ period: '9m' });
+  const { data: init, isLoading: isInitLoading } = useGetInvestorDashboardInitQuery({ period: '9m' });
+  const { data: directAllocation, isLoading: isAllocLoading } = useGetInvestorDashboardAllocationQuery();
+  const { data: directCapitalDeployed, isLoading: isCapLoading } = useGetInvestorCapitalDeployedQuery({ period: '9m' });
+  const { data: directRecentActivity, isLoading: isActLoading } = useGetInvestorRecentActivityQuery();
 
   const overview = init?.overview;
   const summary = init?.summary;
-  const capitalDeployed = init?.capitalDeployed;
-  const allocation = init?.allocation;
-  const activities = init?.recentActivity?.items ?? [];
+  const capitalDeployed = directCapitalDeployed ?? init?.capitalDeployed;
+  const allocation = directAllocation ?? init?.allocation;
+  const activities = directRecentActivity?.items ?? init?.recentActivity?.items ?? [];
   const upcomingEvents = init?.upcomingEvents ?? [];
+
+  const isLoading = isInitLoading || isAllocLoading || isCapLoading || isActLoading;
 
   const kpiCards = useMemo(() => buildKpiCards(summary), [summary]);
 
+  const currency =
+    capitalDeployed?.currency ?? allocation?.currency ?? summary?.portfolioValue.currency ?? 'USD';
+
   const chart = useMemo(
-    () => buildCapitalChartPaths(capitalDeployed?.series ?? []),
-    [capitalDeployed?.series],
+    () => buildCapitalChartPaths(capitalDeployed?.series ?? [], currency),
+    [capitalDeployed?.series, currency],
   );
 
   const allocationGradient = useMemo(
@@ -104,13 +117,11 @@ export default function InvestorOverviewPage() {
 
   const chartLabels = chart?.labels ?? MONTH_FALLBACK.slice(0, 9);
   const completionPercent = capitalDeployed?.completionPercent ?? 0;
-  const currency =
-    capitalDeployed?.currency ?? allocation?.currency ?? summary?.portfolioValue.currency ?? 'USD';
 
   const heroValue = overview
     ? formatCompactCurrency(overview.hero.portfolioValue.amount, overview.hero.portfolioValue.currency, {
-        decimals: 0,
-      })
+      decimals: 0,
+    })
     : isLoading
       ? '…'
       : '$0';
@@ -155,9 +166,9 @@ export default function InvestorOverviewPage() {
               label: 'Monthly Income',
               value: overview
                 ? formatCompactCurrency(
-                    overview.quickStats.monthlyIncome.amount,
-                    overview.quickStats.monthlyIncome.currency,
-                  )
+                  overview.quickStats.monthlyIncome.amount,
+                  overview.quickStats.monthlyIncome.currency,
+                )
                 : isLoading
                   ? '…'
                   : '$0',
@@ -215,39 +226,74 @@ export default function InvestorOverviewPage() {
               {isLoading ? (
                 <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40 animate-pulse" />
               ) : chart ? (
-                <svg
-                  className="absolute inset-0 h-full w-full text-primary"
-                  viewBox="0 0 1000 100"
-                  preserveAspectRatio="none"
-                  aria-hidden
-                >
-                  <defs>
-                    <linearGradient id="inv-capital-area" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
-                      <stop offset="55%" stopColor="#8b5cf6" stopOpacity="0.08" />
-                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <path d={chart.areaPath} fill="url(#inv-capital-area)" />
-                  <path
-                    d={chart.targetPath}
-                    fill="none"
-                    stroke="rgb(148 163 184)"
-                    strokeOpacity="0.9"
-                    strokeWidth="2.5"
-                    strokeDasharray="14 10"
-                    strokeLinecap="round"
-                    className="dark:stroke-slate-500"
-                  />
-                  <path
-                    d={chart.actualPath}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <>
+                  {/* Y-Axis Labels */}
+                  <div className="absolute bottom-0 left-0 top-0 w-12">
+                    {[
+                      { label: chart.yLabels[0], top: '12%' },
+                      { label: chart.yLabels[1], top: '29.5%' },
+                      { label: chart.yLabels[2], top: '47%' },
+                      { label: chart.yLabels[3], top: '64.5%' },
+                      { label: chart.yLabels[4], top: '82%' },
+                    ].map((item, idx) => (
+                      <span
+                        key={idx}
+                        className="absolute left-0 -translate-y-1/2 text-[10px] font-bold text-ui-placeholder"
+                        style={{ top: item.top }}
+                      >
+                        {item.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Chart Area */}
+                  <div className="absolute inset-y-0 left-12 right-0">
+                    {/* Horizontal Gridlines */}
+                    <div className="pointer-events-none absolute inset-0">
+                      {[12, 29.5, 47, 64.5, 82].map((top) => (
+                        <div
+                          key={top}
+                          className="absolute left-0 right-0 border-t border-dashed border-ui-divider"
+                          style={{ top: `${top}%` }}
+                        />
+                      ))}
+                    </div>
+
+                    <svg
+                      className="absolute inset-0 h-full w-full text-primary"
+                      viewBox="0 0 1000 100"
+                      preserveAspectRatio="none"
+                      aria-hidden
+                    >
+                      <defs>
+                        <linearGradient id="inv-capital-area" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
+                          <stop offset="55%" stopColor="#8b5cf6" stopOpacity="0.08" />
+                          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <path d={chart.areaPath} fill="url(#inv-capital-area)" />
+                      <path
+                        d={chart.targetPath}
+                        fill="none"
+                        stroke="rgb(148 163 184)"
+                        strokeOpacity="0.9"
+                        strokeWidth="2.5"
+                        strokeDasharray="14 10"
+                        strokeLinecap="round"
+                        className="dark:stroke-slate-500"
+                      />
+                      <path
+                        d={chart.actualPath}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </>
               ) : (
                 <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40">
                   <p className="text-xs font-medium text-ui-muted-text">
@@ -256,7 +302,7 @@ export default function InvestorOverviewPage() {
                 </div>
               )}
             </div>
-            <div className="mt-5 flex justify-between overflow-x-auto px-0.5 pb-1">
+            <div className="mt-5 flex justify-between overflow-x-auto pl-12 pr-0.5 pb-1">
               {chartLabels.map((m) => (
                 <span key={m} className="text-[10px] font-bold uppercase tracking-widest text-ui-placeholder">
                   {m}
@@ -366,11 +412,10 @@ export default function InvestorOverviewPage() {
                     className="group flex cursor-pointer flex-col gap-3 rounded-2xl border border-transparent p-4 transition-colors hover:border-ui-border hover:bg-ui-muted-deep/80 sm:flex-row sm:items-center md:gap-5 md:p-5"
                   >
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl md:h-11 md:w-11 ${
-                        item.done
-                          ? 'bg-emerald-500/12 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
-                          : 'bg-amber-500/12 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400'
-                      }`}
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl md:h-11 md:w-11 ${item.done
+                        ? 'bg-emerald-500/12 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
+                        : 'bg-amber-500/12 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400'
+                        }`}
                     >
                       {item.done ? (
                         <CheckCircle2 className="h-5 w-5" strokeWidth={iconStroke} />

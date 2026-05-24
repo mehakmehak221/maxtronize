@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -23,22 +23,27 @@ import {
   Users,
   X,
   ShoppingBag,
-} from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import React, { Suspense, useMemo, useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import InvestorLayout from '@/components/InvestorLayout';
-import { MarketplaceAssetCover } from '@/components/investor/MarketplaceAssetCover';
-import type { AssetDocument, AssetOffering, AssetTokenization } from '@/lib/assets';
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import React, { Suspense, useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import InvestorLayout from "@/components/InvestorLayout";
+import { useIsClient } from "@/hooks/useIsClient";
+import { MarketplaceAssetCover } from "@/components/investor/MarketplaceAssetCover";
+import type {
+  AssetDocument,
+  AssetOffering,
+  AssetTokenization,
+} from "@/lib/assets";
 import {
   isKycPendingReview,
   isKycRejected,
   isKycVerified,
   isProfileComplete,
-} from '@/lib/profile';
-import { useAuthenticatedProfileQuery } from '@/store/api/authApi';
+} from "@/lib/profile";
+import { useAuthenticatedProfileQuery } from "@/store/api/authApi";
 import {
   useGetMarketplaceOpportunityQuery,
   useGetMarketplaceOpportunityDocumentsQuery,
@@ -52,11 +57,11 @@ import {
   useGetSecondaryListingQuery,
   useListSecondaryListingsQuery,
   usePlaceSecondaryOrderMutation,
-} from '@/store';
+} from "@/store";
 
 const iconStroke = 1.75;
 
-type TabId = 'overview' | 'financials' | 'ai' | 'documents';
+type TabId = "overview" | "financials" | "ai" | "documents";
 
 type TabDef = {
   id: TabId;
@@ -66,48 +71,51 @@ type TabDef = {
 };
 
 const TABS: TabDef[] = [
-  { id: 'overview', label: 'Overview', Icon: Eye },
-  { id: 'financials', label: 'Financials', Icon: BarChart3 },
-  { id: 'ai', label: 'AI Intelligence', Icon: Brain, aiBadge: true },
-  { id: 'documents', label: 'Documents', Icon: FileText },
+  { id: "overview", label: "Overview", Icon: Eye },
+  { id: "financials", label: "Financials", Icon: BarChart3 },
+  { id: "ai", label: "AI Intelligence", Icon: Brain, aiBadge: true },
+  { id: "documents", label: "Documents", Icon: FileText },
 ];
 
 const FALLBACK_FINANCIALS = [
-  { label: 'Net Operating Income', val: '—' },
-  { label: 'Cap Rate', val: '—' },
-  { label: 'Occupancy Rate', val: '—' },
+  { label: "Net Operating Income", val: "—" },
+  { label: "Cap Rate", val: "—" },
+  { label: "Occupancy Rate", val: "—" },
 ];
 
 const AI_INSIGHTS = [
   {
-    title: 'Undervaluation Signal',
+    title: "Undervaluation Signal",
     confidence: 92,
-    desc: 'Token price is 12–15% below comparable assets. Strong buy signal based on DCF analysis.',
-    color: 'text-ui-success-text',
-    tag: 'Consider increasing position',
+    desc: "Token price is 12–15% below comparable assets. Strong buy signal based on DCF analysis.",
+    color: "text-ui-success-text",
+    tag: "Consider increasing position",
     tagClass:
-      'border-emerald-200/80 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400',
+      "border-emerald-200/80 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400",
   },
   {
-    title: 'Tenant Risk Assessment',
+    title: "Tenant Risk Assessment",
     confidence: 88,
-    desc: 'Fortune 500 tenant mix with 8.2yr avg lease term presents low default risk scenario.',
-    color: 'text-primary',
-    tag: 'Low Risk',
-    tagClass: 'border-primary/20 bg-primary/5 text-primary',
+    desc: "Fortune 500 tenant mix with 8.2yr avg lease term presents low default risk scenario.",
+    color: "text-primary",
+    tag: "Low Risk",
+    tagClass: "border-primary/20 bg-primary/5 text-primary",
   },
   {
-    title: 'Market Timing',
+    title: "Market Timing",
     confidence: 76,
-    desc: 'NYC office market showing recovery indicators. Q4 2026 expected to see 4–6% price appreciation.',
-    color: 'text-amber-600 dark:text-amber-400',
-    tag: 'Monitor quarterly',
+    desc: "NYC office market showing recovery indicators. Q4 2026 expected to see 4–6% price appreciation.",
+    color: "text-amber-600 dark:text-amber-400",
+    tag: "Monitor quarterly",
     tagClass:
-      'border-amber-200/80 bg-amber-50 text-amber-700 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-400',
+      "border-amber-200/80 bg-amber-50 text-amber-700 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-400",
   },
 ];
 
-function formatRaisedMillions(raised: number, target: number): { raisedLabel: string; targetLabel: string } {
+function formatRaisedMillions(
+  raised: number,
+  target: number,
+): { raisedLabel: string; targetLabel: string } {
   return {
     raisedLabel: `$${raised}M raised`,
     targetLabel: `Target: $${target}M`,
@@ -134,22 +142,35 @@ function mergeOffering(
 
 function AssetDetailContent() {
   const searchParams = useSearchParams();
-  const assetId = searchParams.get('id') ?? '';
-  const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const assetId = searchParams.get("id") ?? "";
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [isInvestModalOpen, setIsInvestModalOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
 
   const skip = !assetId;
-  const { data: asset, isLoading: assetLoading, isError: assetError } =
-    useGetMarketplaceOpportunityQuery(assetId, { skip });
-  const { data: initData } = useGetMarketplaceOpportunityInitQuery(assetId, { skip });
-  const { data: overviewData } = useGetMarketplaceOpportunityOverviewQuery(assetId, { skip });
-  const { data: financialsData } = useGetMarketplaceOpportunityFinancialsQuery(assetId, { skip });
+  const {
+    data: asset,
+    isLoading: assetLoading,
+    isError: assetError,
+  } = useGetMarketplaceOpportunityQuery(assetId, { skip });
+  const { data: initData } = useGetMarketplaceOpportunityInitQuery(assetId, {
+    skip,
+  });
+  const { data: overviewData } = useGetMarketplaceOpportunityOverviewQuery(
+    assetId,
+    { skip },
+  );
+  const { data: financialsData } = useGetMarketplaceOpportunityFinancialsQuery(
+    assetId,
+    { skip },
+  );
   const { data: documents = [], isLoading: docsLoading } =
     useGetMarketplaceOpportunityDocumentsQuery(assetId, { skip });
 
-  const [addWatchlist, { isLoading: addLoading }] = useAddOpportunityToWatchlistMutation();
-  const [removeWatchlist, { isLoading: removeLoading }] = useRemoveOpportunityFromWatchlistMutation();
+  const [addWatchlist, { isLoading: addLoading }] =
+    useAddOpportunityToWatchlistMutation();
+  const [removeWatchlist, { isLoading: removeLoading }] =
+    useRemoveOpportunityFromWatchlistMutation();
 
   const offering = initData?.offering;
   const tokenization = initData?.tokenization;
@@ -166,7 +187,7 @@ function AssetDetailContent() {
   };
 
   const handleShare = async () => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     try {
       await navigator.clipboard.writeText(window.location.href);
       setShareCopied(true);
@@ -186,15 +207,35 @@ function AssetDetailContent() {
 
   const heroMetrics = useMemo(() => {
     if (!asset) return [];
-    const price = tokenization?.tokenPrice ?? '—';
+    const price = tokenization?.tokenPrice ?? "—";
     const apy = offering?.apy ?? asset.apy;
     const minInv = offering?.minInvestment ?? asset.minInv;
     const investors = String(offering?.investorCount ?? asset.investors);
     return [
-      { label: 'Current Price', val: price, Icon: DollarSign, valClass: 'text-white' },
-      { label: 'Annual Yield', val: apy, Icon: TrendingUp, valClass: 'text-emerald-400' },
-      { label: 'Min. Investment', val: minInv, Icon: Target, valClass: 'text-white' },
-      { label: 'Investors', val: investors, Icon: Users, valClass: 'text-white' },
+      {
+        label: "Current Price",
+        val: price,
+        Icon: DollarSign,
+        valClass: "text-white",
+      },
+      {
+        label: "Annual Yield",
+        val: apy,
+        Icon: TrendingUp,
+        valClass: "text-emerald-400",
+      },
+      {
+        label: "Min. Investment",
+        val: minInv,
+        Icon: Target,
+        valClass: "text-white",
+      },
+      {
+        label: "Investors",
+        val: investors,
+        Icon: Users,
+        valClass: "text-white",
+      },
     ];
   }, [asset, offering, tokenization]);
 
@@ -212,13 +253,21 @@ function AssetDetailContent() {
   }, [financialsData, asset]);
 
   const description = overviewData?.description ?? asset?.description;
-  const { raisedLabel, targetLabel } = formatRaisedMillions(progress.raised, progress.target);
+  const { raisedLabel, targetLabel } = formatRaisedMillions(
+    progress.raised,
+    progress.target,
+  );
 
   if (!assetId) {
     return (
       <div className="rounded-[24px] border border-ui-border bg-ui-card p-10 text-center">
-        <p className="text-sm font-medium text-ui-muted-text">Select an asset from the marketplace to view details.</p>
-        <Link href="/investor/marketplace" className="mt-4 inline-flex text-sm font-bold text-primary hover:underline">
+        <p className="text-sm font-medium text-ui-muted-text">
+          Select an asset from the marketplace to view details.
+        </p>
+        <Link
+          href="/investor/marketplace"
+          className="mt-4 inline-flex text-sm font-bold text-primary hover:underline"
+        >
           Browse marketplace
         </Link>
       </div>
@@ -238,15 +287,20 @@ function AssetDetailContent() {
   if (assetError || !asset) {
     return (
       <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-10 text-center dark:border-rose-500/30 dark:bg-rose-500/10">
-        <p className="text-sm font-bold text-rose-700 dark:text-rose-300">Asset not found or unavailable.</p>
-        <Link href="/investor/marketplace" className="mt-4 inline-flex text-sm font-bold text-primary hover:underline">
+        <p className="text-sm font-bold text-rose-700 dark:text-rose-300">
+          Asset not found or unavailable.
+        </p>
+        <Link
+          href="/investor/marketplace"
+          className="mt-4 inline-flex text-sm font-bold text-primary hover:underline"
+        >
           Back to marketplace
         </Link>
       </div>
     );
   }
 
-  const tokenTicker = tokenization?.ticker ?? '—';
+  const tokenTicker = tokenization?.ticker ?? "—";
   const daysLeft = offering?.closingDays ?? asset.daysLeft;
 
   return (
@@ -263,21 +317,32 @@ function AssetDetailContent() {
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15 md:h-16 md:w-16 md:rounded-[18px]">
-              <Building2 className="h-7 w-7 md:h-8 md:w-8" strokeWidth={iconStroke} />
+              <Building2
+                className="h-7 w-7 md:h-8 md:w-8"
+                strokeWidth={iconStroke}
+              />
             </div>
             <div className="min-w-0 pt-0.5">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl">{asset.name}</h1>
+                <h1 className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl">
+                  {asset.name}
+                </h1>
                 {asset.verified ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
-                    <BadgeCheck className="h-3.5 w-3.5" strokeWidth={iconStroke} />
+                    <BadgeCheck
+                      className="h-3.5 w-3.5"
+                      strokeWidth={iconStroke}
+                    />
                     Verified
                   </span>
                 ) : null}
               </div>
               <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] font-medium text-ui-muted-text">
                 <span className="inline-flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-ui-faint" strokeWidth={iconStroke} />
+                  <MapPin
+                    className="h-3.5 w-3.5 shrink-0 text-ui-faint"
+                    strokeWidth={iconStroke}
+                  />
                   {asset.location}
                 </span>
                 <span className="text-ui-placeholder" aria-hidden>
@@ -294,21 +359,24 @@ function AssetDetailContent() {
               onClick={handleFavoriteToggle}
               disabled={addLoading || removeLoading}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-ui-border text-ui-faint transition-colors hover:border-primary/30 hover:text-primary disabled:opacity-50"
-              aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
+              aria-label={
+                favorited ? "Remove from favorites" : "Add to favorites"
+              }
             >
               <Heart
-                className={`h-4 w-4 ${favorited ? 'fill-primary text-primary' : ''}`}
+                className={`h-4 w-4 ${favorited ? "fill-primary text-primary" : ""}`}
                 strokeWidth={iconStroke}
               />
             </button>
             <button
               type="button"
               onClick={() => void handleShare()}
-              className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${shareCopied
-                ? 'border-primary/40 bg-primary/10 text-primary'
-                : 'border-ui-border text-ui-faint hover:border-primary/30 hover:text-primary'
-                }`}
-              aria-label={shareCopied ? 'Link copied' : 'Share'}
+              className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${
+                shareCopied
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-ui-border text-ui-faint hover:border-primary/30 hover:text-primary"
+              }`}
+              aria-label={shareCopied ? "Link copied" : "Share"}
             >
               <Share2 className="h-4 w-4" strokeWidth={iconStroke} />
             </button>
@@ -333,26 +401,32 @@ function AssetDetailContent() {
             priority
             sizes="(max-width: 1280px) 100vw, 1280px"
           >
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
-          <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {heroMetrics.map((m) => (
-                <div
-                  key={m.label}
-                  className="rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-md md:p-4"
-                >
-                  <div className="mb-1.5 flex items-center gap-1.5">
-                    <m.Icon
-                      className={`h-3.5 w-3.5 ${m.valClass === 'text-emerald-400' ? 'text-emerald-400' : 'text-white/60'}`}
-                      strokeWidth={iconStroke}
-                    />
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-white/55">{m.label}</p>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
+            <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {heroMetrics.map((m) => (
+                  <div
+                    key={m.label}
+                    className="rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-md md:p-4"
+                  >
+                    <div className="mb-1.5 flex items-center gap-1.5">
+                      <m.Icon
+                        className={`h-3.5 w-3.5 ${m.valClass === "text-emerald-400" ? "text-emerald-400" : "text-white/60"}`}
+                        strokeWidth={iconStroke}
+                      />
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-white/55">
+                        {m.label}
+                      </p>
+                    </div>
+                    <p
+                      className={`text-lg font-bold tabular-nums md:text-xl ${m.valClass}`}
+                    >
+                      {m.val}
+                    </p>
                   </div>
-                  <p className={`text-lg font-bold tabular-nums md:text-xl ${m.valClass}`}>{m.val}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
           </MarketplaceAssetCover>
         </div>
 
@@ -366,10 +440,11 @@ function AssetDetailContent() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all ${active
-                      ? 'bg-primary/10 text-primary ring-1 ring-primary/15'
-                      : 'text-ui-muted-text hover:bg-ui-muted-deep/80 hover:text-ui-body'
-                      }`}
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all ${
+                      active
+                        ? "bg-primary/10 text-primary ring-1 ring-primary/15"
+                        : "text-ui-muted-text hover:bg-ui-muted-deep/80 hover:text-ui-body"
+                    }`}
                   >
                     <tab.Icon className="h-4 w-4" strokeWidth={iconStroke} />
                     {tab.label}
@@ -385,20 +460,26 @@ function AssetDetailContent() {
           </div>
 
           <div className="p-5 md:p-8">
-            {activeTab === 'overview' && (
+            {activeTab === "overview" && (
               <div className="space-y-8">
                 <div>
-                  <h3 className="mb-3 text-base font-bold text-ui-strong md:text-lg">About This Asset</h3>
+                  <h3 className="mb-3 text-base font-bold text-ui-strong md:text-lg">
+                    About This Asset
+                  </h3>
                   <p className="text-[13px] font-medium leading-relaxed text-ui-muted-text md:text-sm">
                     {description ??
-                      'Details for this asset will appear here once provided by the issuer.'}
+                      "Details for this asset will appear here once provided by the issuer."}
                   </p>
                 </div>
 
                 <div>
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="text-base font-bold text-ui-strong md:text-lg">Fundraising Progress</h3>
-                    <span className="text-base font-bold text-primary">{progress.pct}%</span>
+                    <h3 className="text-base font-bold text-ui-strong md:text-lg">
+                      Fundraising Progress
+                    </h3>
+                    <span className="text-base font-bold text-primary">
+                      {progress.pct}%
+                    </span>
                   </div>
                   <div className="h-3 overflow-hidden rounded-full bg-ui-muted-deep">
                     <div
@@ -414,33 +495,58 @@ function AssetDetailContent() {
 
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   {[
-                    { label: 'Token Price', val: tokenization?.tokenPrice ?? '—', sub: tokenTicker },
-                    { label: 'Total Tokens', val: tokenization?.totalSupply ?? '—', sub: 'Supply' },
-                    { label: 'Investors', val: String(offering?.investorCount ?? asset.investors), sub: 'Count' },
                     {
-                      label: 'Closing',
-                      val: daysLeft > 0 ? `${daysLeft} days` : '—',
-                      sub: 'Remaining',
+                      label: "Token Price",
+                      val: tokenization?.tokenPrice ?? "—",
+                      sub: tokenTicker,
+                    },
+                    {
+                      label: "Total Tokens",
+                      val: tokenization?.totalSupply ?? "—",
+                      sub: "Supply",
+                    },
+                    {
+                      label: "Investors",
+                      val: String(offering?.investorCount ?? asset.investors),
+                      sub: "Count",
+                    },
+                    {
+                      label: "Closing",
+                      val: daysLeft > 0 ? `${daysLeft} days` : "—",
+                      sub: "Remaining",
                     },
                   ].map((s) => (
-                    <div key={s.label} className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-4">
-                      <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{s.label}</p>
-                      <p className="text-lg font-bold text-ui-strong">{s.val}</p>
-                      <p className="text-[10px] font-medium text-ui-faint">{s.sub}</p>
+                    <div
+                      key={s.label}
+                      className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-4"
+                    >
+                      <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
+                        {s.label}
+                      </p>
+                      <p className="text-lg font-bold text-ui-strong">
+                        {s.val}
+                      </p>
+                      <p className="text-[10px] font-medium text-ui-faint">
+                        {s.sub}
+                      </p>
                     </div>
                   ))}
                 </div>
 
                 {highlights.length > 0 ? (
                   <div>
-                    <h3 className="mb-4 text-base font-bold text-ui-strong md:text-lg">Key Highlights</h3>
+                    <h3 className="mb-4 text-base font-bold text-ui-strong md:text-lg">
+                      Key Highlights
+                    </h3>
                     <ul className="space-y-3">
                       {highlights.map((h) => (
                         <li key={h} className="flex items-start gap-3">
                           <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/12 text-emerald-600 dark:text-emerald-400">
                             <Check className="h-3 w-3" strokeWidth={3} />
                           </span>
-                          <p className="text-[13px] font-medium text-ui-body">{h}</p>
+                          <p className="text-[13px] font-medium text-ui-body">
+                            {h}
+                          </p>
                         </li>
                       ))}
                     </ul>
@@ -448,41 +554,61 @@ function AssetDetailContent() {
                 ) : null}
 
                 <div>
-                  <h3 className="mb-4 text-base font-bold text-ui-strong md:text-lg">Asset Location</h3>
+                  <h3 className="mb-4 text-base font-bold text-ui-strong md:text-lg">
+                    Asset Location
+                  </h3>
                   <div className="flex h-40 items-center justify-center rounded-2xl border border-ui-border bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
                     <div className="text-center">
-                      <MapPin className="mx-auto mb-2 h-8 w-8 text-ui-faint" strokeWidth={iconStroke} />
-                      <p className="text-[13px] font-bold text-ui-strong">{asset.location}</p>
-                      <p className="text-[11px] font-medium text-ui-faint">{asset.type}</p>
+                      <MapPin
+                        className="mx-auto mb-2 h-8 w-8 text-ui-faint"
+                        strokeWidth={iconStroke}
+                      />
+                      <p className="text-[13px] font-bold text-ui-strong">
+                        {asset.location}
+                      </p>
+                      <p className="text-[11px] font-medium text-ui-faint">
+                        {asset.type}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {activeTab === 'financials' && (
+            {activeTab === "financials" && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {financials.map((f) => (
-                    <div key={f.label} className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-5">
-                      <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{f.label}</p>
-                      <p className="text-xl font-bold text-ui-strong">{f.val}</p>
+                    <div
+                      key={f.label}
+                      className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-5"
+                    >
+                      <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
+                        {f.label}
+                      </p>
+                      <p className="text-xl font-bold text-ui-strong">
+                        {f.val}
+                      </p>
                     </div>
                   ))}
                 </div>
                 {tokenization?.network ? (
                   <div className="rounded-2xl border border-ui-border bg-ui-muted-deep/50 p-5">
-                    <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Tokenization</p>
+                    <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
+                      Tokenization
+                    </p>
                     <p className="text-sm font-medium text-ui-body">
                       {tokenization.network}
-                      {tokenization.standard ? ` · ${tokenization.standard}` : ''}
+                      {tokenization.standard
+                        ? ` · ${tokenization.standard}`
+                        : ""}
                     </p>
                   </div>
                 ) : null}
               </div>
             )}
 
-            {activeTab === 'ai' && (
+            {activeTab === "ai" && (
               <div className="space-y-4">
                 <div className="rounded-[24px] bg-gradient-to-r from-primary to-violet-600 p-6 text-white md:p-8">
                   <div className="mb-3 flex items-center gap-3">
@@ -491,11 +617,14 @@ function AssetDetailContent() {
                     </div>
                     <div>
                       <h3 className="text-base font-bold">AI Asset Analysis</h3>
-                      <p className="text-[11px] text-white/70">Powered by Maxtronize Intelligence Engine</p>
+                      <p className="text-[11px] text-white/70">
+                        Powered by Maxtronize Intelligence Engine
+                      </p>
                     </div>
                   </div>
                   <p className="text-[13px] leading-relaxed text-white/85">
-                    AI insights for {asset.name} are generated from market data and offering fundamentals.
+                    AI insights for {asset.name} are generated from market data
+                    and offering fundamentals.
                   </p>
                 </div>
                 {AI_INSIGHTS.map((insight) => (
@@ -504,14 +633,22 @@ function AssetDetailContent() {
                     className="rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm md:p-6"
                   >
                     <div className="mb-3 flex items-start justify-between gap-4">
-                      <h4 className="text-[13px] font-bold text-ui-strong">{insight.title}</h4>
-                      <span className={`flex shrink-0 items-center gap-1.5 text-[11px] font-bold ${insight.color}`}>
+                      <h4 className="text-[13px] font-bold text-ui-strong">
+                        {insight.title}
+                      </h4>
+                      <span
+                        className={`flex shrink-0 items-center gap-1.5 text-[11px] font-bold ${insight.color}`}
+                      >
                         <span className="h-1.5 w-1.5 rounded-full bg-current" />
                         {insight.confidence}% confidence
                       </span>
                     </div>
-                    <p className="mb-3 text-[12px] font-medium leading-relaxed text-ui-muted-text">{insight.desc}</p>
-                    <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-bold ${insight.tagClass}`}>
+                    <p className="mb-3 text-[12px] font-medium leading-relaxed text-ui-muted-text">
+                      {insight.desc}
+                    </p>
+                    <span
+                      className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-bold ${insight.tagClass}`}
+                    >
                       {insight.tag}
                     </span>
                   </div>
@@ -519,7 +656,7 @@ function AssetDetailContent() {
               </div>
             )}
 
-            {activeTab === 'documents' && (
+            {activeTab === "documents" && (
               <DocumentsTab documents={documents} loading={docsLoading} />
             )}
           </div>
@@ -550,7 +687,7 @@ function CopyButton({ text }: { text: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error("Failed to copy text: ", err);
     }
   };
 
@@ -558,10 +695,11 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold border transition-all ${copied
-        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-        : 'border-ui-border text-ui-muted-text hover:bg-ui-muted-deep/50 hover:text-ui-strong'
-        }`}
+      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold border transition-all ${
+        copied
+          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+          : "border-ui-border text-ui-muted-text hover:bg-ui-muted-deep/50 hover:text-ui-strong"
+      }`}
     >
       {copied ? (
         <>
@@ -591,29 +729,33 @@ function InvestModal({
   assetName: string;
   minimumInvestmentLabel: string | null | undefined;
   annualYield: string | null | undefined;
-  tokenization: import('@/lib/assets').AssetTokenization | null | undefined;
+  tokenization: import("@/lib/assets").AssetTokenization | null | undefined;
   onClose: () => void;
 }) {
-  const [marketMode, setMarketMode] = useState<'primary' | 'secondary'>('primary');
-  const [selectedListingId, setSelectedListingId] = useState('');
-  const [investmentAmount, setInvestmentAmount] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [marketMode, setMarketMode] = useState<"primary" | "secondary">(
+    "primary",
+  );
+  const [selectedListingId, setSelectedListingId] = useState("");
+  const [investmentAmount, setInvestmentAmount] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [statusMsg, setStatusMsg] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [successData, setSuccessData] = useState<{
     investmentId?: string | null;
     transactionId?: string | null;
     amount: number;
     tokenAmount: number;
     pricePerToken: number;
-    type: 'primary' | 'secondary';
+    type: "primary" | "secondary";
   } | null>(null);
 
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
 
   useEffect(() => {
-    setMounted(true);
     const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
     };
@@ -623,10 +765,12 @@ function InvestModal({
   const quantityValue = Number.parseFloat(quantity) || 0;
   const { data: profile } = useAuthenticatedProfileQuery();
 
-  const { data: listingsResult, isLoading: listingsLoading } = useListSecondaryListingsQuery({
-    limit: 50,
-  });
-  const [placeOrder, { isLoading: isPlacing }] = usePlaceSecondaryOrderMutation();
+  const { data: listingsResult, isLoading: listingsLoading } =
+    useListSecondaryListingsQuery({
+      limit: 50,
+    });
+  const [placeOrder, { isLoading: isPlacing }] =
+    usePlaceSecondaryOrderMutation();
   const [investInOpportunity, { isLoading: isInvesting }] =
     useInvestInMarketplaceOpportunityMutation();
 
@@ -636,30 +780,33 @@ function InvestModal({
     return all.filter((l) => l.assetId === assetId);
   }, [listingsResult, assetId]);
 
-  // Auto-select first listing
-  useEffect(() => {
-    if (!selectedListingId && assetListings.length > 0) {
-      setSelectedListingId(assetListings[0].id);
-    }
-  }, [assetListings, selectedListingId]);
+  // Auto-select first listing using derived state
+  const effectiveSelectedListingId =
+    selectedListingId || (assetListings.length > 0 ? assetListings[0].id : "");
 
-  const { data: selectedListingDetail } = useGetSecondaryListingQuery(selectedListingId, {
-    skip: !selectedListingId,
-  });
+  const { data: selectedListingDetail } = useGetSecondaryListingQuery(
+    effectiveSelectedListingId,
+    {
+      skip: !effectiveSelectedListingId,
+    },
+  );
 
   const selectedListing =
     selectedListingDetail ??
-    assetListings.find((l) => l.id === selectedListingId) ??
+    assetListings.find((l) => l.id === effectiveSelectedListingId) ??
     assetListings[0] ??
     null;
 
   const minimumInvestmentValue = useMemo(() => {
-    const raw = String(minimumInvestmentLabel ?? '').replace(/[^0-9.]/g, '');
+    const raw = String(minimumInvestmentLabel ?? "").replace(/[^0-9.]/g, "");
     return Number.parseFloat(raw) || 0;
   }, [minimumInvestmentLabel]);
 
   const primaryTokenPrice = useMemo(() => {
-    const rawTokenPrice = String(tokenization?.tokenPrice ?? '').replace(/[^0-9.]/g, '');
+    const rawTokenPrice = String(tokenization?.tokenPrice ?? "").replace(
+      /[^0-9.]/g,
+      "",
+    );
     return Number.parseFloat(rawTokenPrice) || 0;
   }, [tokenization?.tokenPrice]);
 
@@ -671,11 +818,11 @@ function InvestModal({
     {
       id: assetId,
       amount: amountValue,
-      currency: 'USD',
+      currency: "USD",
     },
     {
       skip:
-        marketMode !== 'primary' ||
+        marketMode !== "primary" ||
         amountValue <= 0 ||
         !isProfileComplete(profile) ||
         isKycPendingReview(profile) ||
@@ -684,45 +831,56 @@ function InvestModal({
   );
 
   const formatRequestError = (error: unknown) => {
-    if (!error || typeof error !== 'object') return 'Something went wrong. Please try again.';
+    if (!error || typeof error !== "object")
+      return "Something went wrong. Please try again.";
     const record = error as {
       data?: { message?: string | string[] };
       message?: string;
       error?: string;
     };
     const message = record.data?.message ?? record.message ?? record.error;
-    if (Array.isArray(message)) return message.join(', ');
-    return message || 'Something went wrong. Please try again.';
+    if (Array.isArray(message)) return message.join(", ");
+    return message || "Something went wrong. Please try again.";
   };
 
-  const previewErrorText = previewError ? formatRequestError(previewError) : null;
-  const previewErrorLower = previewErrorText?.toLowerCase() ?? '';
+  const previewErrorText = previewError
+    ? formatRequestError(previewError)
+    : null;
+  const previewErrorLower = previewErrorText?.toLowerCase() ?? "";
   const requiresKycVerification =
-    previewErrorLower.includes('kyc verification is required') ||
-    previewErrorLower.includes('kyc') ||
-    previewErrorLower.includes('verification is required');
+    previewErrorLower.includes("kyc verification is required") ||
+    previewErrorLower.includes("kyc") ||
+    previewErrorLower.includes("verification is required");
   const requiresFunding = investPreview?.requiresFunding ?? false;
   const profileIncomplete = !isProfileComplete(profile);
   const profileKycVerified = isKycVerified(profile);
   const profilePendingReview = isKycPendingReview(profile);
   const profileRejected = isKycRejected(profile);
   const verificationBlocked =
-    profileIncomplete || profilePendingReview || profileRejected || requiresKycVerification;
+    profileIncomplete ||
+    profilePendingReview ||
+    profileRejected ||
+    requiresKycVerification;
 
   const secondaryPriceNum = selectedListing
     ? selectedListing.pricePerTokenValue ||
-    Number.parseFloat(selectedListing.pricePerToken.replace(/[^0-9.]/g, '')) ||
-    0
+      Number.parseFloat(
+        selectedListing.pricePerToken.replace(/[^0-9.]/g, ""),
+      ) ||
+      0
     : 0;
   const primaryPriceNum = investPreview?.pricePerToken ?? primaryTokenPrice;
   const total =
-    marketMode === 'secondary'
+    marketMode === "secondary"
       ? (quantityValue * secondaryPriceNum).toFixed(2)
       : (investPreview?.totalDebit ?? amountValue).toFixed(2);
-  const displayTicker = selectedListing?.ticker ?? tokenization?.ticker ?? 'TOKEN';
+  const displayTicker =
+    selectedListing?.ticker ?? tokenization?.ticker ?? "TOKEN";
   const estimatedPrimaryTokens =
     investPreview?.tokenAmount ??
-    (primaryPriceNum > 0 && amountValue > 0 ? amountValue / primaryPriceNum : null);
+    (primaryPriceNum > 0 && amountValue > 0
+      ? amountValue / primaryPriceNum
+      : null);
   const quickAmounts = useMemo(() => {
     const base = minimumInvestmentValue > 0 ? minimumInvestmentValue : 1000;
     return Array.from(
@@ -734,55 +892,53 @@ function InvestModal({
     ).slice(0, 4);
   }, [minimumInvestmentValue]);
 
-  // Reset status on input changes
-  useEffect(() => {
-    setStatusMsg(null);
-  }, [selectedListingId, quantity, investmentAmount, marketMode]);
-
   const handlePrimaryInvest = async () => {
     if (isInvesting || amountValue <= 0) return;
 
     if (profileIncomplete) {
       setStatusMsg({
-        type: 'error',
-        text: 'Complete your investor profile first so it can be submitted for verification.',
+        type: "error",
+        text: "Complete your investor profile first so it can be submitted for verification.",
       });
       return;
     }
 
     if (profilePendingReview) {
       setStatusMsg({
-        type: 'error',
-        text: 'Your investor verification is under admin review. Investment will unlock after approval.',
+        type: "error",
+        text: "Your investor verification is under admin review. Investment will unlock after approval.",
       });
       return;
     }
 
     if (profileRejected || requiresKycVerification) {
       setStatusMsg({
-        type: 'error',
-        text: 'Investor verification is required before you can invest in this asset.',
+        type: "error",
+        text: "Investor verification is required before you can invest in this asset.",
       });
       return;
     }
 
     if (minimumInvestmentValue > 0 && amountValue < minimumInvestmentValue) {
       setStatusMsg({
-        type: 'error',
-        text: `Minimum investment for this opportunity is $${minimumInvestmentValue.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}.`,
+        type: "error",
+        text: `Minimum investment for this opportunity is $${minimumInvestmentValue.toLocaleString(
+          undefined,
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          },
+        )}.`,
       });
       return;
     }
 
     if (requiresFunding) {
       setStatusMsg({
-        type: 'error',
+        type: "error",
         text:
           investPreview?.note ||
-          'Your wallet balance is not sufficient for this investment amount.',
+          "Your wallet balance is not sufficient for this investment amount.",
       });
       return;
     }
@@ -791,7 +947,7 @@ function InvestModal({
       const result = await investInOpportunity({
         id: assetId,
         amount: amountValue,
-        currency: investPreview?.currency || 'USD',
+        currency: investPreview?.currency || "USD",
         tokenAmount: estimatedPrimaryTokens,
       }).unwrap();
 
@@ -801,11 +957,11 @@ function InvestModal({
         amount: result.amount || amountValue,
         tokenAmount: result.tokenAmount || estimatedPrimaryTokens || 0,
         pricePerToken: primaryPriceNum || 0,
-        type: 'primary',
+        type: "primary",
       });
 
       setStatusMsg({
-        type: 'success',
+        type: "success",
         text:
           result.message ||
           `Investment confirmed for $${amountValue.toLocaleString(undefined, {
@@ -813,42 +969,58 @@ function InvestModal({
             maximumFractionDigits: 2,
           })} in ${assetName}.`,
       });
-      setInvestmentAmount('');
+      setInvestmentAmount("");
     } catch (error) {
       setStatusMsg({
-        type: 'error',
+        type: "error",
         text: formatRequestError(error),
       });
     }
   };
 
+  interface OrderResponse {
+    transactionId?: string;
+    transaction_id?: string;
+    id?: string;
+    investmentId?: string;
+    orderId?: string;
+    order_id?: string;
+    amountUsd?: number;
+    amount_usd?: number;
+    amount?: number;
+    tokensOwned?: number;
+    tokens_owned?: number;
+    tokenAmount?: number;
+    token_amount?: number;
+  }
+
   const handleSecondaryInvest = async () => {
     if (!selectedListing || !quantity || isPlacing) return;
     if (profileIncomplete) {
       setStatusMsg({
-        type: 'error',
-        text: 'Complete your investor profile first so it can be submitted for verification.',
+        type: "error",
+        text: "Complete your investor profile first so it can be submitted for verification.",
       });
       return;
     }
     if (profilePendingReview) {
       setStatusMsg({
-        type: 'error',
-        text: 'Your investor verification is under admin review. Trading will unlock after approval.',
+        type: "error",
+        text: "Your investor verification is under admin review. Trading will unlock after approval.",
       });
       return;
     }
     if (profileRejected || (!profileKycVerified && requiresKycVerification)) {
       setStatusMsg({
-        type: 'error',
-        text: 'Investor verification is required before you can trade this asset.',
+        type: "error",
+        text: "Investor verification is required before you can trade this asset.",
       });
       return;
     }
     if (secondaryPriceNum <= 0) {
       setStatusMsg({
-        type: 'error',
-        text: 'This listing does not currently have a valid token price. Please select another listing or refresh and try again.',
+        type: "error",
+        text: "This listing does not currently have a valid token price. Please select another listing or refresh and try again.",
       });
       return;
     }
@@ -856,17 +1028,30 @@ function InvestModal({
     try {
       const result = await placeOrder({
         id: selectedListing.id,
-        side: 'BUY',
-        orderType: 'MARKET',
+        side: "BUY",
+        orderType: "MARKET",
         tokenAmount: quantityValue,
         pricePerToken: secondaryPriceNum,
       }).unwrap();
 
-      const resObj = (result && typeof result === 'object') ? (result as Record<string, any>) : {};
-      const txId = resObj.transactionId ?? resObj.transaction_id ?? resObj.id ?? null;
-      const invId = resObj.investmentId ?? resObj.orderId ?? resObj.order_id ?? null;
-      const finalAmount = resObj.amountUsd ?? resObj.amount_usd ?? resObj.amount ?? (quantityValue * secondaryPriceNum);
-      const finalTokens = resObj.tokensOwned ?? resObj.tokens_owned ?? resObj.tokenAmount ?? resObj.token_amount ?? quantityValue;
+      const resObj =
+        result && typeof result === "object" ? (result as OrderResponse) : {};
+      const txId =
+        resObj.transactionId ?? resObj.transaction_id ?? resObj.id ?? null;
+
+      const invId =
+        resObj.investmentId ?? resObj.orderId ?? resObj.order_id ?? null;
+      const finalAmount =
+        resObj.amountUsd ??
+        resObj.amount_usd ??
+        resObj.amount ??
+        quantityValue * secondaryPriceNum;
+      const finalTokens =
+        resObj.tokensOwned ??
+        resObj.tokens_owned ??
+        resObj.tokenAmount ??
+        resObj.token_amount ??
+        quantityValue;
 
       setSuccessData({
         investmentId: invId,
@@ -874,17 +1059,17 @@ function InvestModal({
         amount: finalAmount,
         tokenAmount: finalTokens,
         pricePerToken: secondaryPriceNum,
-        type: 'secondary',
+        type: "secondary",
       });
 
       setStatusMsg({
-        type: 'success',
+        type: "success",
         text: `Successfully placed a BUY order for ${quantity} ${displayTicker} tokens at $${secondaryPriceNum.toFixed(2)} per token.`,
       });
-      setQuantity('');
+      setQuantity("");
     } catch (err) {
       setStatusMsg({
-        type: 'error',
+        type: "error",
         text: formatRequestError(err),
       });
     }
@@ -918,9 +1103,11 @@ function InvestModal({
               </div>
               <div>
                 <h2 className="text-[15px] font-bold text-zinc-800 dark:text-zinc-100">
-                  {successData ? 'Investment Confirmed' : 'Invest Now'}
+                  {successData ? "Investment Confirmed" : "Invest Now"}
                 </h2>
-                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{assetName}</p>
+                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                  {assetName}
+                </p>
               </div>
             </div>
             <button
@@ -942,9 +1129,12 @@ function InvestModal({
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">Investment Successful!</h3>
+                <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">
+                  Investment Successful!
+                </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed px-4">
-                  Your order has been executed on the blockchain network and credited to your investor portfolio.
+                  Your order has been executed on the blockchain network and
+                  credited to your investor portfolio.
                 </p>
               </div>
 
@@ -957,42 +1147,57 @@ function InvestModal({
               {/* Transaction Receipt Table */}
               <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 p-4 text-left space-y-3.5">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Asset Name</span>
-                  <span className="text-zinc-800 dark:text-zinc-100 font-bold text-right truncate max-w-[200px]" title={assetName}>
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">
+                    Asset Name
+                  </span>
+                  <span
+                    className="text-zinc-800 dark:text-zinc-100 font-bold text-right truncate max-w-[200px]"
+                    title={assetName}
+                  >
                     {assetName}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Market Mode</span>
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">
+                    Market Mode
+                  </span>
                   <span className="text-zinc-800 dark:text-zinc-100 font-bold capitalize">
-                    {successData.type === 'primary' ? 'Primary Marketplace' : 'Secondary Trading'}
+                    {successData.type === "primary"
+                      ? "Primary Marketplace"
+                      : "Secondary Trading"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Invested Amount</span>
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">
+                    Invested Amount
+                  </span>
                   <span className="text-zinc-800 dark:text-zinc-100 font-extrabold text-sm tabular-nums">
-                    ${successData.amount.toLocaleString(undefined, {
+                    $
+                    {successData.amount.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Tokens Received</span>
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">
+                    Tokens Received
+                  </span>
                   <span className="text-zinc-800 dark:text-zinc-100 font-extrabold tabular-nums">
                     {successData.tokenAmount.toLocaleString(undefined, {
                       maximumFractionDigits: 4,
-                    })}{' '}
+                    })}{" "}
                     {displayTicker}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">Price / Token</span>
+                  <span className="text-zinc-400 dark:text-zinc-500 font-medium">
+                    Price / Token
+                  </span>
                   <span className="text-zinc-800 dark:text-zinc-100 font-bold tabular-nums">
                     ${successData.pricePerToken.toFixed(2)}
                   </span>
                 </div>
-
 
                 {successData.transactionId && (
                   <div className="pt-2.5 border-t border-zinc-150 dark:border-zinc-800/80 space-y-1.5">
@@ -1035,21 +1240,23 @@ function InvestModal({
               <div className="grid grid-cols-2 gap-2 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 p-1">
                 <button
                   type="button"
-                  onClick={() => setMarketMode('primary')}
-                  className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${marketMode === 'primary'
-                    ? 'bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/85 hover:text-zinc-900 dark:hover:text-white'
-                    }`}
+                  onClick={() => setMarketMode("primary")}
+                  className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${
+                    marketMode === "primary"
+                      ? "bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]"
+                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/85 hover:text-zinc-900 dark:hover:text-white"
+                  }`}
                 >
                   Primary Market
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMarketMode('secondary')}
-                  className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${marketMode === 'secondary'
-                    ? 'bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/85 hover:text-zinc-900 dark:hover:text-white'
-                    }`}
+                  onClick={() => setMarketMode("secondary")}
+                  className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${
+                    marketMode === "secondary"
+                      ? "bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]"
+                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/85 hover:text-zinc-900 dark:hover:text-white"
+                  }`}
                 >
                   Secondary ({assetListings.length})
                 </button>
@@ -1058,10 +1265,12 @@ function InvestModal({
               {/* Status */}
               {statusMsg && (
                 <div
-                  className={`rounded-xl border px-4 py-3.5 text-[12px] font-semibold leading-relaxed ${statusMsg.type === 'success'
-                    ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                    : 'border-rose-500/25 bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                    }`}
+                  key={`${selectedListingId}-${quantity}-${investmentAmount}-${marketMode}`}
+                  className={`rounded-xl border px-4 py-3.5 text-[12px] font-semibold leading-relaxed ${
+                    statusMsg.type === "success"
+                      ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : "border-rose-500/25 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                  }`}
                 >
                   {statusMsg.text}
                 </div>
@@ -1069,82 +1278,121 @@ function InvestModal({
 
               {profileIncomplete ? (
                 <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
-                  <p>Complete your investor profile before using protected investment flows.</p>
+                  <p>
+                    Complete your investor profile before using protected
+                    investment flows.
+                  </p>
                   <Link
                     href="/setup-profile"
                     className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-200 transition-colors hover:text-ui-strong"
                   >
                     Complete setup profile
-                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                    <ArrowLeft
+                      className="h-3.5 w-3.5 rotate-180"
+                      strokeWidth={iconStroke}
+                    />
                   </Link>
                 </div>
               ) : null}
 
               {profilePendingReview ? (
                 <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
-                  <p>Your investor profile has been submitted and is awaiting admin review.</p>
+                  <p>
+                    Your investor profile has been submitted and is awaiting
+                    admin review.
+                  </p>
                   <p className="text-[11px] font-medium text-amber-600/90 dark:text-amber-200/90">
-                    Investment actions will unlock after your KYC verification is approved.
+                    Investment actions will unlock after your KYC verification
+                    is approved.
                   </p>
                   <Link
                     href="/investor/account"
                     className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-200 transition-colors hover:text-ui-strong"
                   >
                     View verification status
-                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                    <ArrowLeft
+                      className="h-3.5 w-3.5 rotate-180"
+                      strokeWidth={iconStroke}
+                    />
                   </Link>
                 </div>
               ) : null}
 
               {profileRejected ? (
                 <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-600 dark:text-rose-300">
-                  <p>Your investor verification needs attention before investing is enabled.</p>
+                  <p>
+                    Your investor verification needs attention before investing
+                    is enabled.
+                  </p>
                   <Link
                     href="/investor/account"
                     className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-600 dark:text-rose-200 transition-colors hover:text-ui-strong"
                   >
                     Review account details
-                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                    <ArrowLeft
+                      className="h-3.5 w-3.5 rotate-180"
+                      strokeWidth={iconStroke}
+                    />
                   </Link>
                 </div>
               ) : null}
 
-              {marketMode === 'primary' ? (
+              {marketMode === "primary" ? (
                 <>
                   <div className="grid grid-cols-3 gap-3">
                     {[
                       {
-                        label: 'Token Price',
+                        label: "Token Price",
                         val:
                           investPreview?.pricePerTokenFormatted ??
-                          (primaryPriceNum > 0 ? `$${primaryPriceNum.toFixed(2)}` : '—'),
+                          (primaryPriceNum > 0
+                            ? `$${primaryPriceNum.toFixed(2)}`
+                            : "—"),
                       },
                       {
-                        label: 'Minimum',
+                        label: "Minimum",
                         val:
                           investPreview?.minInvestmentFormatted ??
                           minimumInvestmentLabel ??
-                          '—',
+                          "—",
                       },
-                      { label: 'Annual Yield', val: annualYield || '—' },
+                      { label: "Annual Yield", val: annualYield || "—" },
                     ].map((s) => (
-                      <div key={s.label} className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-3 text-center">
-                        <p className="mb-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">{s.label}</p>
-                        <p className="text-[13px] font-bold text-zinc-850 dark:text-zinc-100">{s.val}</p>
+                      <div
+                        key={s.label}
+                        className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-3 text-center"
+                      >
+                        <p className="mb-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                          {s.label}
+                        </p>
+                        <p className="text-[13px] font-bold text-zinc-850 dark:text-zinc-100">
+                          {s.val}
+                        </p>
                       </div>
                     ))}
                   </div>
 
-                  {previewErrorText && !profilePendingReview && !profileIncomplete ? (
+                  {previewErrorText &&
+                  !profilePendingReview &&
+                  !profileIncomplete ? (
                     <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-600 dark:text-rose-300">
                       <p>{previewErrorText}</p>
                       {requiresKycVerification ? (
                         <Link
-                          href={profileIncomplete ? "/setup-profile" : "/investor/account"}
+                          href={
+                            profileIncomplete
+                              ? "/setup-profile"
+                              : "/investor/account"
+                          }
                           className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-600 dark:text-rose-200 transition-colors hover:text-ui-strong"
                         >
-                          {profileIncomplete ? 'Complete setup profile' : 'View verification status'}
-                          <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                          {profileIncomplete
+                            ? "Complete setup profile"
+                            : "View verification status"}
+                          <ArrowLeft
+                            className="h-3.5 w-3.5 rotate-180"
+                            strokeWidth={iconStroke}
+                          />
                         </Link>
                       ) : null}
                     </div>
@@ -1152,7 +1400,8 @@ function InvestModal({
 
                   {requiresFunding ? (
                     <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
-                      {investPreview?.note || 'Wallet funding is required before this investment can be completed.'}
+                      {investPreview?.note ||
+                        "Wallet funding is required before this investment can be completed."}
                     </div>
                   ) : null}
 
@@ -1161,7 +1410,9 @@ function InvestModal({
                       Investment Amount (USD)
                     </label>
                     <div className="flex items-center overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20">
-                      <span className="px-4 text-[14px] font-bold text-zinc-400 dark:text-zinc-500">$</span>
+                      <span className="px-4 text-[14px] font-bold text-zinc-400 dark:text-zinc-500">
+                        $
+                      </span>
                       <input
                         type="number"
                         min={minimumInvestmentValue || 0}
@@ -1188,15 +1439,21 @@ function InvestModal({
 
                   <div className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 px-5 py-4">
                     <div>
-                      <span className="block text-[12px] font-bold text-zinc-550 dark:text-zinc-400">Primary Investment Total</span>
+                      <span className="block text-[12px] font-bold text-zinc-550 dark:text-zinc-400">
+                        Primary Investment Total
+                      </span>
                       <span className="mt-1 block text-[10px] font-medium text-zinc-400 dark:text-zinc-550">
                         {estimatedPrimaryTokens != null
                           ? `${estimatedPrimaryTokens.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${displayTicker}`
-                          : 'Live token allocation appears after you enter an amount'}
+                          : "Live token allocation appears after you enter an amount"}
                       </span>
                     </div>
                     <span className="text-2xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100">
-                      ${Number.parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      $
+                      {Number.parseFloat(total).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
 
@@ -1209,20 +1466,23 @@ function InvestModal({
                       previewLoading ||
                       requiresFunding ||
                       verificationBlocked ||
-                      (minimumInvestmentValue > 0 && amountValue < minimumInvestmentValue)
+                      (minimumInvestmentValue > 0 &&
+                        amountValue < minimumInvestmentValue)
                     }
                     className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
                     {isInvesting
-                      ? 'Processing Investment…'
+                      ? "Processing Investment…"
                       : previewLoading
-                        ? 'Refreshing Quote…'
+                        ? "Refreshing Quote…"
                         : `Invest in ${displayTicker}`}
                   </button>
 
                   <p className="text-center text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 leading-relaxed">
-                    Investments are submitted through the primary marketplace flow. Final allocation and wallet checks are validated by the backend before confirmation.
+                    Investments are submitted through the primary marketplace
+                    flow. Final allocation and wallet checks are validated by
+                    the backend before confirmation.
                   </p>
                 </>
               ) : (
@@ -1235,13 +1495,19 @@ function InvestModal({
                       <div className="h-12 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900/50" />
                     ) : assetListings.length === 0 ? (
                       <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-400">
-                        <p>No active secondary listings found for this asset right now.</p>
+                        <p>
+                          No active secondary listings found for this asset
+                          right now.
+                        </p>
                         <Link
                           href="/investor/secondary-market"
                           className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-300 transition-colors hover:text-ui-strong"
                         >
                           Browse all live listings
-                          <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={iconStroke} />
+                          <ArrowLeft
+                            className="h-3.5 w-3.5 rotate-180"
+                            strokeWidth={iconStroke}
+                          />
                         </Link>
                       </div>
                     ) : (
@@ -1251,8 +1517,13 @@ function InvestModal({
                         className="w-full appearance-none rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3 text-[13px] font-bold text-zinc-800 dark:text-zinc-100 outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
                       >
                         {assetListings.map((l) => (
-                          <option key={l.id} value={l.id} className="bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100">
-                            {l.ticker} — {l.pricePerToken} / token · {l.available} available (Seller: {l.seller})
+                          <option
+                            key={l.id}
+                            value={l.id}
+                            className="bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100"
+                          >
+                            {l.ticker} — {l.pricePerToken} / token ·{" "}
+                            {l.available} available (Seller: {l.seller})
                           </option>
                         ))}
                       </select>
@@ -1262,13 +1533,27 @@ function InvestModal({
                   {selectedListing ? (
                     <div className="grid grid-cols-3 gap-3">
                       {[
-                        { label: 'Price / Token', val: selectedListing.pricePerToken },
-                        { label: '24h Change', val: selectedListing.change, up: selectedListing.up },
-                        { label: 'Available', val: selectedListing.available },
+                        {
+                          label: "Price / Token",
+                          val: selectedListing.pricePerToken,
+                        },
+                        {
+                          label: "24h Change",
+                          val: selectedListing.change,
+                          up: selectedListing.up,
+                        },
+                        { label: "Available", val: selectedListing.available },
                       ].map((s) => (
-                        <div key={s.label} className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-3 text-center">
-                          <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">{s.label}</p>
-                          <p className={`text-[13px] font-bold ${'up' in s ? (s.up ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400') : 'text-zinc-800 dark:text-zinc-100'}`}>
+                        <div
+                          key={s.label}
+                          className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 p-3 text-center"
+                        >
+                          <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                            {s.label}
+                          </p>
+                          <p
+                            className={`text-[13px] font-bold ${"up" in s ? (s.up ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400") : "text-zinc-800 dark:text-zinc-100"}`}
+                          >
                             {s.val}
                           </p>
                         </div>
@@ -1289,10 +1574,12 @@ function InvestModal({
                         placeholder="Enter number of tokens"
                         className="flex-1 bg-transparent px-4 py-3.5 text-[14px] font-bold text-zinc-800 dark:text-zinc-100 outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                       />
-                      <span className="px-4 text-[11px] font-bold text-zinc-400 dark:text-zinc-500">{displayTicker}</span>
+                      <span className="px-4 text-[11px] font-bold text-zinc-400 dark:text-zinc-500">
+                        {displayTicker}
+                      </span>
                     </div>
                     <div className="mt-2 grid grid-cols-4 gap-2">
-                      {['1', '5', '10', '25'].map((val) => (
+                      {["1", "5", "10", "25"].map((val) => (
                         <button
                           key={val}
                           type="button"
@@ -1306,9 +1593,15 @@ function InvestModal({
                   </div>
 
                   <div className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 px-5 py-4">
-                    <span className="text-[12px] font-bold text-zinc-550 dark:text-zinc-400">Total Cost</span>
+                    <span className="text-[12px] font-bold text-zinc-550 dark:text-zinc-400">
+                      Total Cost
+                    </span>
                     <span className="text-2xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100">
-                      ${Number.parseFloat(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      $
+                      {Number.parseFloat(total).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
 
@@ -1327,11 +1620,14 @@ function InvestModal({
                     className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
-                    {isPlacing ? 'Processing Order…' : `Buy ${displayTicker} Tokens`}
+                    {isPlacing
+                      ? "Processing Order…"
+                      : `Buy ${displayTicker} Tokens`}
                   </button>
 
                   <p className="text-center text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 leading-relaxed">
-                    Orders are executed via the secondary market at the listed price. Market conditions may affect final execution price.
+                    Orders are executed via the secondary market at the listed
+                    price. Market conditions may affect final execution price.
                   </p>
                 </>
               )}
@@ -1340,7 +1636,7 @@ function InvestModal({
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 
@@ -1355,14 +1651,22 @@ function DocumentsTab({
     <div className="overflow-hidden rounded-[24px] border border-ui-border shadow-sm">
       <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
         <div>
-          <h3 className="text-base font-bold text-ui-strong">Asset Documents</h3>
-          <p className="mt-0.5 text-xs text-ui-faint">Offering memoranda, legal, and financial files</p>
+          <h3 className="text-base font-bold text-ui-strong">
+            Asset Documents
+          </h3>
+          <p className="mt-0.5 text-xs text-ui-faint">
+            Offering memoranda, legal, and financial files
+          </p>
         </div>
       </div>
       {loading ? (
-        <div className="p-8 text-center text-sm text-ui-faint">Loading documents…</div>
+        <div className="p-8 text-center text-sm text-ui-faint">
+          Loading documents…
+        </div>
       ) : documents.length === 0 ? (
-        <div className="p-8 text-center text-sm text-ui-faint">No documents published for this asset yet.</div>
+        <div className="p-8 text-center text-sm text-ui-faint">
+          No documents published for this asset yet.
+        </div>
       ) : (
         <div className="divide-y divide-ui-divider">
           {documents.map((doc) => (
@@ -1386,21 +1690,21 @@ function DocumentRow({ doc }: { doc: AssetDocument }) {
 
     setIsDownloading(true);
     try {
-
       const proxyUrl =
-        '/api/download?url=' +
+        "/api/download?url=" +
         encodeURIComponent(doc.url) +
-        '&filename=' +
+        "&filename=" +
         encodeURIComponent(doc.name);
 
       const response = await fetch(proxyUrl);
-      if (!response.ok) throw new Error('Proxy responded with ' + response.status);
+      if (!response.ok)
+        throw new Error("Proxy responded with " + response.status);
 
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
 
-      const a = document.createElement('a');
-      a.style.display = 'none';
+      const a = document.createElement("a");
+      a.style.display = "none";
       a.href = blobUrl;
       a.download = doc.name;
       document.body.appendChild(a);
@@ -1409,8 +1713,8 @@ function DocumentRow({ doc }: { doc: AssetDocument }) {
       window.URL.revokeObjectURL(blobUrl);
       a.remove();
     } catch (err) {
-      console.error('Download via proxy failed, opening in new tab.', err);
-      window.open(doc.url, '_blank');
+      console.error("Download via proxy failed, opening in new tab.", err);
+      window.open(doc.url, "_blank");
     } finally {
       setIsDownloading(false);
     }
@@ -1430,9 +1734,15 @@ function DocumentRow({ doc }: { doc: AssetDocument }) {
         </p>
       </div>
       {isDownloading ? (
-        <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" strokeWidth={iconStroke} />
+        <Loader2
+          className="h-4 w-4 shrink-0 animate-spin text-primary"
+          strokeWidth={iconStroke}
+        />
       ) : (
-        <Download className="h-4 w-4 shrink-0 text-ui-placeholder transition-colors group-hover:text-primary" strokeWidth={iconStroke} />
+        <Download
+          className="h-4 w-4 shrink-0 text-ui-placeholder transition-colors group-hover:text-primary"
+          strokeWidth={iconStroke}
+        />
       )}
     </>
   );

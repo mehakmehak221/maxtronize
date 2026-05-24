@@ -37,11 +37,11 @@ const ONBOARDING_ASSET_TYPES: {
   icon: React.ReactNode;
   sub: string;
 }[] = [
-  { id: 'real-estate', name: 'Real Estate', icon: <IconBuilding className="w-6 h-6" />, sub: 'Commercial, residential, industrial' },
-  { id: 'private-credit', name: 'Private Credit', icon: <IconCard className="w-6 h-6" />, sub: 'Loans, bonds, structured credit' },
-  { id: 'data-centers', name: 'Data Centers', icon: <IconMonitor className="w-6 h-6" />, sub: 'Colocation, hyperscale, edge' },
-  { id: 'commodities', name: 'Commodities', icon: <IconDiamond className="w-6 h-6" />, sub: 'Gold, silver, oil, agricultural' },
-];
+    { id: 'real-estate', name: 'Real Estate', icon: <IconBuilding className="w-6 h-6" />, sub: 'Commercial, residential, industrial' },
+    { id: 'private-credit', name: 'Private Credit', icon: <IconCard className="w-6 h-6" />, sub: 'Loans, bonds, structured credit' },
+    { id: 'data-centers', name: 'Data Centers', icon: <IconMonitor className="w-6 h-6" />, sub: 'Colocation, hyperscale, edge' },
+    { id: 'commodities', name: 'Commodities', icon: <IconDiamond className="w-6 h-6" />, sub: 'Gold, silver, oil, agricultural' },
+  ];
 
 function IconBuilding({ className }: { className?: string }) {
   return (
@@ -386,24 +386,21 @@ function IssuerOnboardingStartPage({
                 type="button"
                 key={type.id}
                 onClick={() => onSelectedAssetTypeChange(type.id)}
-                className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 min-w-0 ${
-                  selectedAssetType === type.id
-                    ? 'border-primary bg-ui-accent-tint'
-                    : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
-                }`}
+                className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 min-w-0 ${selectedAssetType === type.id
+                  ? 'border-primary bg-ui-accent-tint'
+                  : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+                  }`}
               >
                 <div
-                  className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${
-                    selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
-                  }`}
+                  className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
+                    }`}
                 >
                   {type.icon}
                 </div>
                 <div className="min-w-0">
                   <p
-                    className={`text-sm font-bold mb-1 ${
-                      selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'
-                    }`}
+                    className={`text-sm font-bold mb-1 ${selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'
+                      }`}
                   >
                     {type.name}
                   </p>
@@ -657,6 +654,7 @@ function IssuerOnboardingWizardForm({
   const [selectedNetwork, setSelectedNetwork] = useState(initialState.selectedNetwork);
   const [selectedCustodian, setSelectedCustodian] = useState(initialState.selectedCustodian);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [redirectProgress, setRedirectProgress] = useState(0);
 
   const [legalCompanyName, setLegalCompanyName] = useState(initialState.legalCompanyName);
   const [entityType, setEntityType] = useState(initialState.entityType);
@@ -706,6 +704,25 @@ function IssuerOnboardingWizardForm({
         .filter((type): type is string => Boolean(type)),
     [documents],
   );
+
+  // Auto-redirect to dashboard after successful submission
+  useEffect(() => {
+    if (!isSubmitted) return;
+    const DURATION_MS = 4000;
+    const TICK_MS = 40;
+    const totalSteps = DURATION_MS / TICK_MS;
+    let step = 0;
+    const timer = window.setInterval(() => {
+      step += 1;
+      const pct = Math.min((step / totalSteps) * 100, 100);
+      setRedirectProgress(pct);
+      if (step >= totalSteps) {
+        window.clearInterval(timer);
+        router.push('/issuer/dashboard');
+      }
+    }, TICK_MS);
+    return () => window.clearInterval(timer);
+  }, [isSubmitted, router]);
 
   const clearFieldError = (key: string) => {
     setStepValidation((prev) => {
@@ -948,47 +965,47 @@ function IssuerOnboardingWizardForm({
 
   const reviewSummaryItems = review?.sections?.length
     ? review.sections.map((section, index) => ({
-        name: section.title,
-        sub: section.subtitle,
-        step: index + 1,
-      }))
+      name: section.title,
+      sub: section.subtitle,
+      step: index + 1,
+    }))
     : [
-        {
-          name: 'Entity Setup',
-          sub: [legalCompanyName, entityType, ein].filter(Boolean).join(' · ') || 'Not provided',
-          step: 1,
-        },
-        {
-          name: 'Accreditation',
-          sub: `${selectedReg} · ${accreditedOnly ? 'Accredited investors only' : 'Open to eligible investors'}`,
-          step: 2,
-        },
-        {
-          name: 'Asset Details',
-          sub: [selectedAssetType, assetAddress, assetAppraisal && `$${assetAppraisal} valuation`].filter(Boolean).join(' · '),
-          step: 3,
-        },
-        {
-          name: 'Legal Structure',
-          sub: [spvEntityName, spvJurisdiction].filter(Boolean).join(' · ') || 'SPV configuration',
-          step: 4,
-        },
-        {
-          name: 'Offering Setup',
-          sub: [targetRaiseAmount && `$${targetRaiseAmount} target`, minimumInvestment && `$${minimumInvestment} minimum`].filter(Boolean).join(' · '),
-          step: 5,
-        },
-        {
-          name: 'Tokenization',
-          sub: [tokenSymbol, selectedTokenStandard, selectedNetwork].filter(Boolean).join(' · '),
-          step: 6,
-        },
-        {
-          name: 'Custody',
-          sub: `${selectedCustodian} · ${coldStorageRatio}% cold · ${multiSigConfig}`,
-          step: 7,
-        },
-      ];
+      {
+        name: 'Entity Setup',
+        sub: [legalCompanyName, entityType, ein].filter(Boolean).join(' · ') || 'Not provided',
+        step: 1,
+      },
+      {
+        name: 'Accreditation',
+        sub: `${selectedReg} · ${accreditedOnly ? 'Accredited investors only' : 'Open to eligible investors'}`,
+        step: 2,
+      },
+      {
+        name: 'Asset Details',
+        sub: [selectedAssetType, assetAddress, assetAppraisal && `$${assetAppraisal} valuation`].filter(Boolean).join(' · '),
+        step: 3,
+      },
+      {
+        name: 'Legal Structure',
+        sub: [spvEntityName, spvJurisdiction].filter(Boolean).join(' · ') || 'SPV configuration',
+        step: 4,
+      },
+      {
+        name: 'Offering Setup',
+        sub: [targetRaiseAmount && `$${targetRaiseAmount} target`, minimumInvestment && `$${minimumInvestment} minimum`].filter(Boolean).join(' · '),
+        step: 5,
+      },
+      {
+        name: 'Tokenization',
+        sub: [tokenSymbol, selectedTokenStandard, selectedNetwork].filter(Boolean).join(' · '),
+        step: 6,
+      },
+      {
+        name: 'Custody',
+        sub: `${selectedCustodian} · ${coldStorageRatio}% cold · ${multiSigConfig}`,
+        step: 7,
+      },
+    ];
 
   const renderStep1 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -1084,9 +1101,8 @@ function IssuerOnboardingWizardForm({
                 }}
                 rows={6}
                 disabled={isApprovedOrLocked}
-                className={`w-full min-h-[160px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${
-                  fieldError('directorsNotes') ? 'border-rose-400' : 'border-ui-border'
-                }`}
+                className={`w-full min-h-[160px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${fieldError('directorsNotes') ? 'border-rose-400' : 'border-ui-border'
+                  }`}
                 placeholder="Full legal name, title, and identification details for each director or officer."
               />
               {fieldError('directorsNotes') ? (
@@ -1105,9 +1121,8 @@ function IssuerOnboardingWizardForm({
                 }}
                 rows={5}
                 disabled={isApprovedOrLocked}
-                className={`w-full min-h-[120px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${
-                  fieldError('ubosNotes') ? 'border-rose-400' : 'border-ui-border'
-                }`}
+                className={`w-full min-h-[120px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${fieldError('ubosNotes') ? 'border-rose-400' : 'border-ui-border'
+                  }`}
                 placeholder="List each beneficial owner and ownership percentage (must total 100%)."
               />
               {fieldError('ubosNotes') ? (
@@ -1192,7 +1207,7 @@ function IssuerOnboardingWizardForm({
           <h3 className="text-sm font-bold text-ui-strong mb-1">Select Offering Regulation</h3>
           <p className="text-xs text-ui-faint">Choose the exemption under which you will conduct this offering.</p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { id: 'reg-d-506b', name: 'Reg D — Rule 506(b)', tag: 'Most Common', sub: 'Up to 35 non-accredited + unlimited accredited investors. No SEC registration. No general solicitation.', checks: ['No SEC filing required', 'Up to 35 non-accredited investors'], crosses: ['No advertising', 'Pre-existing relationships required'] },
@@ -1203,47 +1218,44 @@ function IssuerOnboardingWizardForm({
             const isSel = selectedReg === reg.id;
             const is506cBlue = isSel && reg.id === 'reg-d-506c';
             return (
-            <div
-              key={reg.id}
-              onClick={isApprovedOrLocked ? undefined : () => setSelectedReg(reg.id)}
-              className={`flex flex-col gap-4 rounded-2xl border-2 p-5 transition-all relative group sm:gap-5 sm:rounded-3xl sm:p-6 md:gap-6 md:p-8 ${
-                isApprovedOrLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
-              } ${
-                is506cBlue
-                  ? 'border-sky-500 bg-sky-50'
-                  : isSel
-                    ? 'border-primary bg-ui-accent-tint'
-                    : isApprovedOrLocked
-                      ? 'border-ui-border bg-ui-card'
-                      : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
-              }`}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
-                <h4 className={`min-w-0 flex-1 text-sm font-bold leading-snug ${is506cBlue ? 'text-sky-800' : isSel ? 'text-primary' : 'text-ui-strong'}`}>{reg.name}</h4>
-                <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${
-                  is506cBlue
+              <div
+                key={reg.id}
+                onClick={isApprovedOrLocked ? undefined : () => setSelectedReg(reg.id)}
+                className={`flex flex-col gap-4 rounded-2xl border-2 p-5 transition-all relative group sm:gap-5 sm:rounded-3xl sm:p-6 md:gap-6 md:p-8 ${isApprovedOrLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                  } ${is506cBlue
+                    ? 'border-sky-500 bg-sky-50'
+                    : isSel
+                      ? 'border-primary bg-ui-accent-tint'
+                      : isApprovedOrLocked
+                        ? 'border-ui-border bg-ui-card'
+                        : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+                  }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
+                  <h4 className={`min-w-0 flex-1 text-sm font-bold leading-snug ${is506cBlue ? 'text-sky-800' : isSel ? 'text-primary' : 'text-ui-strong'}`}>{reg.name}</h4>
+                  <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${is506cBlue
                     ? 'bg-sky-100 text-sky-800 border-sky-200'
                     : isSel
                       ? 'bg-ui-accent-tint text-primary border-primary/20'
                       : 'bg-ui-muted-deep text-ui-faint border-ui-border'
-                }`}>{reg.tag}</span>
+                    }`}>{reg.tag}</span>
+                </div>
+                <p className="text-[11px] text-ui-muted-text leading-relaxed">{reg.sub}</p>
+                <div className="space-y-2 pt-2 border-t border-ui-divider">
+                  {reg.checks.map((c, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <svg className="w-3 h-3 text-ui-success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                      <span className="text-[10px] font-medium text-ui-body">{c}</span>
+                    </div>
+                  ))}
+                  {reg.crosses.map((c, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <svg className="w-3 h-3 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                      <span className="text-[10px] font-medium text-ui-muted-text">{c}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="text-[11px] text-ui-muted-text leading-relaxed">{reg.sub}</p>
-              <div className="space-y-2 pt-2 border-t border-ui-divider">
-                {reg.checks.map((c, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <svg className="w-3 h-3 text-ui-success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                    <span className="text-[10px] font-medium text-ui-body">{c}</span>
-                  </div>
-                ))}
-                {reg.crosses.map((c, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <svg className="w-3 h-3 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
-                    <span className="text-[10px] font-medium text-ui-muted-text">{c}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
             );
           })}
         </div>
@@ -1264,14 +1276,12 @@ function IssuerOnboardingWizardForm({
             aria-checked={accreditedOnly}
             disabled={isApprovedOrLocked}
             onClick={isApprovedOrLocked ? undefined : () => setAccreditedOnly((v) => !v)}
-            className={`relative h-7 w-12 shrink-0 self-end rounded-full shadow-inner transition-colors sm:self-center disabled:opacity-75 disabled:cursor-not-allowed ${
-              accreditedOnly ? 'bg-primary shadow-primary/20' : 'bg-ui-border-strong'
-            }`}
+            className={`relative h-7 w-12 shrink-0 self-end rounded-full shadow-inner transition-colors sm:self-center disabled:opacity-75 disabled:cursor-not-allowed ${accreditedOnly ? 'bg-primary shadow-primary/20' : 'bg-ui-border-strong'
+              }`}
           >
             <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-ui-card shadow-sm transition-all ${
-                accreditedOnly ? 'right-1' : 'left-1'
-              }`}
+              className={`absolute top-1 h-5 w-5 rounded-full bg-ui-card shadow-sm transition-all ${accreditedOnly ? 'right-1' : 'left-1'
+                }`}
               aria-hidden
             />
           </button>
@@ -1281,19 +1291,19 @@ function IssuerOnboardingWizardForm({
           <label className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
             <svg className="shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <g clipPath="url(#clip0_accred_shield)">
-                <path d="M11.6556 7.57612C11.6556 10.49 9.61586 11.947 7.19149 12.792C7.06454 12.835 6.92664 12.833 6.80103 12.7862C4.37084 11.947 2.33112 10.49 2.33112 7.57612V3.49666C2.33112 3.3421 2.39252 3.19387 2.50181 3.08457C2.6111 2.97528 2.75933 2.91388 2.91389 2.91388C4.07945 2.91388 5.5364 2.21455 6.55044 1.32872C6.6739 1.22324 6.83096 1.16528 6.99335 1.16528C7.15574 1.16528 7.3128 1.22324 7.43626 1.32872C8.45612 2.22038 9.90724 2.91388 11.0728 2.91388C11.2274 2.91388 11.3756 2.97528 11.4849 3.08457C11.5942 3.19387 11.6556 3.3421 11.6556 3.49666V7.57612Z" stroke="#00BC7D" strokeWidth="1.16556" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M11.6556 7.57612C11.6556 10.49 9.61586 11.947 7.19149 12.792C7.06454 12.835 6.92664 12.833 6.80103 12.7862C4.37084 11.947 2.33112 10.49 2.33112 7.57612V3.49666C2.33112 3.3421 2.39252 3.19387 2.50181 3.08457C2.6111 2.97528 2.75933 2.91388 2.91389 2.91388C4.07945 2.91388 5.5364 2.21455 6.55044 1.32872C6.6739 1.22324 6.83096 1.16528 6.99335 1.16528C7.15574 1.16528 7.3128 1.22324 7.43626 1.32872C8.45612 2.22038 9.90724 2.91388 11.0728 2.91388C11.2274 2.91388 11.3756 2.97528 11.4849 3.08457C11.5942 3.19387 11.6556 3.3421 11.6556 3.49666V7.57612Z" stroke="#00BC7D" strokeWidth="1.16556" strokeLinecap="round" strokeLinejoin="round" />
               </g>
               <defs>
                 <clipPath id="clip0_accred_shield">
-                  <rect width="13.9867" height="13.9867" fill="white"/>
+                  <rect width="13.9867" height="13.9867" fill="white" />
                 </clipPath>
               </defs>
             </svg>
             <span>Accreditation Verification Method</span>
           </label>
-          <FormField 
-            label="" 
-            placeholder="Select Method" 
+          <FormField
+            label=""
+            placeholder="Select Method"
             required
             value={verificationMethod}
             error={fieldError('verificationMethod')}
@@ -1404,20 +1414,17 @@ function IssuerOnboardingWizardForm({
               key={type.id}
               disabled={isApprovedOrLocked}
               onClick={isApprovedOrLocked ? undefined : () => setSelectedAssetType(type.id as AssetType)}
-              className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 group select-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 min-w-0 disabled:opacity-75 disabled:cursor-not-allowed ${
-                selectedAssetType === type.id 
-                  ? 'border-primary bg-ui-accent-tint' 
-                  : isApprovedOrLocked
-                    ? 'border-ui-border bg-ui-card'
-                    : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
-              }`}
+              className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 group select-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 min-w-0 disabled:opacity-75 disabled:cursor-not-allowed ${selectedAssetType === type.id
+                ? 'border-primary bg-ui-accent-tint'
+                : isApprovedOrLocked
+                  ? 'border-ui-border bg-ui-card'
+                  : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+                }`}
             >
               <div
-                className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl shadow-sm overflow-hidden transition-transform duration-200 ${
-                  !isApprovedOrLocked ? 'motion-safe:group-hover:scale-[1.06] motion-safe:group-focus-visible:scale-100' : ''
-                } ${
-                  selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
-                }`}
+                className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl shadow-sm overflow-hidden transition-transform duration-200 ${!isApprovedOrLocked ? 'motion-safe:group-hover:scale-[1.06] motion-safe:group-focus-visible:scale-100' : ''
+                  } ${selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
+                  }`}
               >
                 {type.icon}
               </div>
@@ -1451,22 +1458,22 @@ function IssuerOnboardingWizardForm({
           {selectedAssetType === 'commodities' && (
             <>
               <FormField label="Asset Name" placeholder="Gold Bullion Reserve Series I" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
-              <FormField label="Commodity Type" placeholder="Select Type" required options={[{label: 'Precious Metals', value: 'precious-metals'}, {label: 'Base Metals', value: 'base-metals'}, {label: 'Energy', value: 'energy'}, {label: 'Agriculture', value: 'agriculture'}]} value={assetMetadata?.commodityType} error={fieldError('commodityType')} onChange={(v) => { setAssetMetadata(prev => ({...prev, commodityType: v})); clearFieldError('commodityType'); }} />
+              <FormField label="Commodity Type" placeholder="Select Type" required options={[{ label: 'Precious Metals', value: 'precious-metals' }, { label: 'Base Metals', value: 'base-metals' }, { label: 'Energy', value: 'energy' }, { label: 'Agriculture', value: 'agriculture' }]} value={assetMetadata?.commodityType} error={fieldError('commodityType')} onChange={(v) => { setAssetMetadata(prev => ({ ...prev, commodityType: v })); clearFieldError('commodityType'); }} />
               <FormField label="Storage Location" placeholder="London, UK (LBMA Vault)" value={assetAddress} onChange={setAssetAddress} />
               <FormField label="Total Value (USD)" placeholder="50,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
-              <FormField label="Purity / Grade" placeholder="99.99% Fine Gold" value={assetMetadata?.purity} onChange={(v) => setAssetMetadata(prev => ({...prev, purity: v}))} />
-              <FormField label="Vault Provider" placeholder="Brinks / Loomis International" value={assetMetadata?.vaultProvider} onChange={(v) => setAssetMetadata(prev => ({...prev, vaultProvider: v}))} />
+              <FormField label="Purity / Grade" placeholder="99.99% Fine Gold" value={assetMetadata?.purity} onChange={(v) => setAssetMetadata(prev => ({ ...prev, purity: v }))} />
+              <FormField label="Vault Provider" placeholder="Brinks / Loomis International" value={assetMetadata?.vaultProvider} onChange={(v) => setAssetMetadata(prev => ({ ...prev, vaultProvider: v }))} />
             </>
           )}
 
           {selectedAssetType === 'data-centers' && (
             <>
               <FormField label="Facility Name" placeholder="Ashburn DC Campus Alpha" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
-              <FormField label="Total Capacity (MW)" placeholder="48" value={assetMetadata?.capacity} onChange={(v) => setAssetMetadata(prev => ({...prev, capacity: v}))} />
+              <FormField label="Total Capacity (MW)" placeholder="48" value={assetMetadata?.capacity} onChange={(v) => setAssetMetadata(prev => ({ ...prev, capacity: v }))} />
               <FormField label="Location" placeholder="Ashburn, VA, USA" required value={assetAddress} error={fieldError('assetAddress')} onChange={(v) => { setAssetAddress(v); clearFieldError('assetAddress'); }} />
               <FormField label="Appraised Value (USD)" placeholder="250,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
               <FormField label="Annual NOI (USD)" placeholder="18,500,000" value={assetIncome} onChange={setAssetIncome} />
-              <FormField label="Tier Level" placeholder="Select Tier" options={[{label: 'Tier I', value: 'tier-1'}, {label: 'Tier II', value: 'tier-2'}, {label: 'Tier III', value: 'tier-3'}, {label: 'Tier IV', value: 'tier-4'}]} value={assetMetadata?.tierLevel} onChange={(v) => setAssetMetadata(prev => ({...prev, tierLevel: v}))} />
+              <FormField label="Tier Level" placeholder="Select Tier" options={[{ label: 'Tier I', value: 'tier-1' }, { label: 'Tier II', value: 'tier-2' }, { label: 'Tier III', value: 'tier-3' }, { label: 'Tier IV', value: 'tier-4' }]} value={assetMetadata?.tierLevel} onChange={(v) => setAssetMetadata(prev => ({ ...prev, tierLevel: v }))} />
             </>
           )}
 
@@ -1474,10 +1481,10 @@ function IssuerOnboardingWizardForm({
             <>
               <FormField label="Loan / Bond Name" placeholder="Senior Secured Term Loan A" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
               <FormField label="Principal Amount (USD)" placeholder="25,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
-              <FormField label="Credit Type" placeholder="Select Type" required options={[{label: 'Senior Secured Term Loan', value: 'senior-secured'}, {label: 'Mezzanine Debt', value: 'mezzanine'}, {label: 'Unitranche', value: 'unitranche'}, {label: 'Convertible Note', value: 'convertible'}]} value={assetMetadata?.creditType} error={fieldError('creditType')} onChange={(v) => { setAssetMetadata(prev => ({...prev, creditType: v})); clearFieldError('creditType'); }} />
-              <FormField label="Interest Rate (%)" placeholder="SOFR + 450bps" value={assetMetadata?.interestRate} onChange={(v) => setAssetMetadata(prev => ({...prev, interestRate: v}))} />
-              <FormField label="Maturity Date" placeholder="Select Date" value={assetMetadata?.maturityDate} onChange={(v) => setAssetMetadata(prev => ({...prev, maturityDate: v}))} />
-              <FormField label="Credit Rating" placeholder="BB+ / Ba1" value={assetMetadata?.creditRating} onChange={(v) => setAssetMetadata(prev => ({...prev, creditRating: v}))} />
+              <FormField label="Credit Type" placeholder="Select Type" required options={[{ label: 'Senior Secured Term Loan', value: 'senior-secured' }, { label: 'Mezzanine Debt', value: 'mezzanine' }, { label: 'Unitranche', value: 'unitranche' }, { label: 'Convertible Note', value: 'convertible' }]} value={assetMetadata?.creditType} error={fieldError('creditType')} onChange={(v) => { setAssetMetadata(prev => ({ ...prev, creditType: v })); clearFieldError('creditType'); }} />
+              <FormField label="Interest Rate (%)" placeholder="SOFR + 450bps" value={assetMetadata?.interestRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, interestRate: v }))} />
+              <FormField label="Maturity Date" placeholder="Select Date" value={assetMetadata?.maturityDate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, maturityDate: v }))} />
+              <FormField label="Credit Rating" placeholder="BB+ / Ba1" value={assetMetadata?.creditRating} onChange={(v) => setAssetMetadata(prev => ({ ...prev, creditRating: v }))} />
             </>
           )}
 
@@ -1516,10 +1523,10 @@ function IssuerOnboardingWizardForm({
                 value={assetIncome}
                 onChange={setAssetIncome}
               />
-              <FormField label="Property Type" placeholder="Select Type" options={[{label: 'Residential', value: 'residential'}, {label: 'Commercial', value: 'commercial'}, {label: 'Industrial', value: 'industrial'}, {label: 'Mixed-Use', value: 'mixed-use'}, {label: 'Land', value: 'land'}]} value={assetMetadata?.propertyType} onChange={(v) => setAssetMetadata(prev => ({...prev, propertyType: v}))} />
-              <FormField label="Cap Rate (%)" placeholder="6.8" value={assetMetadata?.capRate} onChange={(v) => setAssetMetadata(prev => ({...prev, capRate: v}))} />
-              <FormField label="Occupancy Rate (%)" placeholder="94.2" value={assetMetadata?.occupancyRate} onChange={(v) => setAssetMetadata(prev => ({...prev, occupancyRate: v}))} />
-              <FormField label="Year Built / Renovated" placeholder="2018 / 2023" value={assetMetadata?.yearBuilt} onChange={(v) => setAssetMetadata(prev => ({...prev, yearBuilt: v}))} />
+              <FormField label="Property Type" placeholder="Select Type" options={[{ label: 'Residential', value: 'residential' }, { label: 'Commercial', value: 'commercial' }, { label: 'Industrial', value: 'industrial' }, { label: 'Mixed-Use', value: 'mixed-use' }, { label: 'Land', value: 'land' }]} value={assetMetadata?.propertyType} onChange={(v) => setAssetMetadata(prev => ({ ...prev, propertyType: v }))} />
+              <FormField label="Cap Rate (%)" placeholder="6.8" value={assetMetadata?.capRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, capRate: v }))} />
+              <FormField label="Occupancy Rate (%)" placeholder="94.2" value={assetMetadata?.occupancyRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, occupancyRate: v }))} />
+              <FormField label="Year Built / Renovated" placeholder="2018 / 2023" value={assetMetadata?.yearBuilt} onChange={(v) => setAssetMetadata(prev => ({ ...prev, yearBuilt: v }))} />
             </>
           )}
         </div>
@@ -1644,20 +1651,17 @@ function IssuerOnboardingWizardForm({
                   type="button"
                   disabled={isApprovedOrLocked}
                   onClick={isApprovedOrLocked ? undefined : right.toggle}
-                  className={`text-left p-6 rounded-2xl border-2 transition-all flex gap-4 w-full disabled:opacity-75 disabled:cursor-not-allowed ${
-                    isApprovedOrLocked ? 'cursor-not-allowed' : 'cursor-pointer'
-                  } ${
-                    checked
+                  className={`text-left p-6 rounded-2xl border-2 transition-all flex gap-4 w-full disabled:opacity-75 disabled:cursor-not-allowed ${isApprovedOrLocked ? 'cursor-not-allowed' : 'cursor-pointer'
+                    } ${checked
                       ? 'border-primary bg-ui-accent-tint'
                       : isApprovedOrLocked
                         ? 'border-ui-divider bg-ui-muted-surface'
                         : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${
-                      checked ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'
-                    }`}
+                    className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${checked ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'
+                      }`}
                     aria-hidden
                   >
                     {checked ? <div className="w-2 h-2 rounded-full bg-ui-card" /> : null}
@@ -1830,7 +1834,7 @@ function IssuerOnboardingWizardForm({
               { id: 'erc-3643', name: 'ERC-3643 (T-REX)', sub: 'MiCA-aligned compliance-first standard with on-chain KYC registry and transfer rules.' },
               { id: 'erc-20', name: 'ERC-20', sub: 'Fungible token standard offering maximum secondary market liquidity.' }
             ].map((std) => (
-              <div 
+              <div
                 key={std.id}
                 onClick={() => setSelectedTokenStandard(std.id)}
                 className={`p-6 rounded-2xl border-2 transition-all cursor-pointer flex gap-5 ${selectedTokenStandard === std.id ? 'border-primary bg-ui-accent-tint' : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'}`}
@@ -1880,11 +1884,10 @@ function IssuerOnboardingWizardForm({
                   key={net.id}
                   type="button"
                   onClick={() => setSelectedNetwork(net.id)}
-                  className={`p-6 rounded-2xl border transition-all flex flex-col items-center text-center gap-4 ${
-                    selected
-                      ? 'border-primary bg-ui-card shadow-sm'
-                      : 'border-ui-divider bg-ui-card hover:border-ui-border-strong'
-                  }`}
+                  className={`p-6 rounded-2xl border transition-all flex flex-col items-center text-center gap-4 ${selected
+                    ? 'border-primary bg-ui-card shadow-sm'
+                    : 'border-ui-divider bg-ui-card hover:border-ui-border-strong'
+                    }`}
                 >
                   {net.id === 'ethereum' ? (
                     <EthereumNetworkIcon className="h-7 w-auto shrink-0 text-ui-strong" />
@@ -1961,7 +1964,7 @@ function IssuerOnboardingWizardForm({
             { id: 'bitgo', name: 'BitGo', tag: 'Rating A', sub: 'Multi-signature institutional custody. $250M insurance coverage per wallet from Lloyd\'s of London.', badges: ['$250M Insurance', 'Multi-Sig', 'ISO 27001'] },
             { id: 'fireblocks', name: 'Fireblocks', tag: 'Rating A', sub: 'MPC-based custody technology with sub-second transaction settlement and full audit trail.', badges: ['MPC Technology', 'Real-Time Settlement', 'SOC 2 Type II'] }
           ].map((c) => (
-            <div 
+            <div
               key={c.id}
               onClick={() => setSelectedCustodian(c.id)}
               className={`p-8 rounded-3xl border-2 transition-all cursor-pointer flex gap-6 ${selectedCustodian === c.id ? 'border-primary bg-ui-accent-tint' : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'}`}
@@ -2156,11 +2159,10 @@ function IssuerOnboardingWizardForm({
 
       <div className={`rounded-3xl p-8 flex gap-5 items-start border ${step8BannerToneClass}`}>
         <div
-          className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
-            step8Banner.tone === 'purple'
-              ? 'bg-ui-purple-banner-icon-bg border-ui-purple-banner-border animate-pulse'
-              : 'bg-white/60 border-current/20'
-          }`}
+          className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${step8Banner.tone === 'purple'
+            ? 'bg-ui-purple-banner-icon-bg border-ui-purple-banner-border animate-pulse'
+            : 'bg-white/60 border-current/20'
+            }`}
         >
           <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -2208,40 +2210,39 @@ function IssuerOnboardingWizardForm({
             <p className="text-sm font-medium text-rose-600">{fieldError('acceptedTerms')}</p>
           ) : null}
           <div className="space-y-4">
-          {[
-            'I certify that all information provided is accurate and complete to the best of my knowledge.',
-            'I understand that providing false information may result in rejection and potential legal liability.',
-            'I agree to the Maxtronize Terms of Service, Privacy Policy, and Issuer Agreement.',
-            'I consent to background checks and verification of all submitted documentation.'
-          ].map((term, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-4 group cursor-pointer"
-              onClick={() => {
-                const newTerms = [...acceptedTerms];
-                newTerms[i] = !newTerms[i];
-                setAcceptedTerms(newTerms);
-                clearFieldError('acceptedTerms');
-              }}
-            >
+            {[
+              'I certify that all information provided is accurate and complete to the best of my knowledge.',
+              'I understand that providing false information may result in rejection and potential legal liability.',
+              'I agree to the Maxtronize Terms of Service, Privacy Policy, and Issuer Agreement.',
+              'I consent to background checks and verification of all submitted documentation.'
+            ].map((term, i) => (
               <div
-                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors shadow-sm ${
-                  acceptedTerms[i]
+                key={i}
+                className="flex items-center gap-4 group cursor-pointer"
+                onClick={() => {
+                  const newTerms = [...acceptedTerms];
+                  newTerms[i] = !newTerms[i];
+                  setAcceptedTerms(newTerms);
+                  clearFieldError('acceptedTerms');
+                }}
+              >
+                <div
+                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors shadow-sm ${acceptedTerms[i]
                     ? 'border-primary bg-primary shadow-primary/20'
                     : 'border-ui-border bg-ui-surface group-hover:border-primary/50'
-                }`}
-              >
-                {acceptedTerms[i] && (
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
+                    }`}
+                >
+                  {acceptedTerms[i] && (
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <p className="text-[11px] font-medium text-ui-body group-hover:text-ui-strong transition-colors">{term}</p>
               </div>
-              <p className="text-[11px] font-medium text-ui-body group-hover:text-ui-strong transition-colors">{term}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
       )}
 
       <div className={`flex flex-row items-center gap-3 border-t border-ui-border pt-6 ${applicationStatus.key === 'draft' ? 'justify-between' : 'justify-end'}`}>
@@ -2322,20 +2323,17 @@ function IssuerOnboardingWizardForm({
           ].map((item, i, arr) => (
             <div
               key={item.label}
-              className={`flex items-center justify-between gap-4 px-5 py-4 ${
-                i < arr.length - 1 ? 'border-b border-white/[0.08]' : ''
-              }`}
+              className={`flex items-center justify-between gap-4 px-5 py-4 ${i < arr.length - 1 ? 'border-b border-white/[0.08]' : ''
+                }`}
             >
               <div className="flex min-w-0 items-center gap-3 text-left">
                 <span
-                  className={`h-2 w-2 shrink-0 rounded-full ${
-                    item.status === 'active' ? 'bg-[var(--brand-cyan)] shadow-[0_0_10px_rgba(0,212,168,0.8)]' : 'bg-white/25'
-                  }`}
+                  className={`h-2 w-2 shrink-0 rounded-full ${item.status === 'active' ? 'bg-[var(--brand-cyan)] shadow-[0_0_10px_rgba(0,212,168,0.8)]' : 'bg-white/25'
+                    }`}
                 />
                 <span
-                  className={`truncate text-sm font-semibold ${
-                    item.status === 'active' ? 'text-white' : 'text-zinc-400'
-                  }`}
+                  className={`truncate text-sm font-semibold ${item.status === 'active' ? 'text-white' : 'text-zinc-400'
+                    }`}
                 >
                   {item.label}
                 </span>
@@ -2347,20 +2345,32 @@ function IssuerOnboardingWizardForm({
           ))}
         </div>
 
-        <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
+        {/* Animated redirect progress bar */}
+        <div className="w-full max-w-md space-y-3 text-center">
+          <p className="text-sm font-medium text-zinc-400">Redirecting to your dashboard...</p>
+          <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[var(--brand-cyan)] to-[#7C3AED] transition-all"
+              style={{ width: `${redirectProgress}%`, transitionDuration: '40ms', transitionTimingFunction: 'linear' }}
+            />
+          </div>
+        </div>
+
+        {/* Manual navigation fallback */}
+        <div className="flex w-full max-w-md flex-col gap-2 sm:flex-row sm:justify-center">
           <button
             type="button"
             onClick={beginAnotherAsset}
-            className="btn-gradient-primary rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl"
+            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-xs font-bold text-zinc-300 transition-colors hover:bg-white/10"
           >
             + Tokenize another asset
           </button>
           <button
             type="button"
             onClick={() => router.push('/issuer/dashboard')}
-            className="rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white hover:bg-white/15"
+            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-xs font-bold text-zinc-300 transition-colors hover:bg-white/10"
           >
-            Go to dashboard
+            Go to dashboard →
           </button>
         </div>
       </div>
@@ -2373,19 +2383,19 @@ function IssuerOnboardingWizardForm({
 
   return (
     <OnboardingLayout currentStep={effectiveStep} showSaved={effectiveStep === 2}>
-        {saveError ? (
-          <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-            {saveError}
-          </p>
-        ) : null}
-        {effectiveStep === 1 && renderStep1()}
-        {effectiveStep === 2 && renderStep2()}
-        {effectiveStep === 3 && renderStep3()}
-        {effectiveStep === 4 && renderStep4()}
-        {effectiveStep === 5 && renderStep5()}
-        {effectiveStep === 6 && renderStep6()}
-        {effectiveStep === 7 && renderStep7()}
-        {effectiveStep === 8 && renderStep8()}
+      {saveError ? (
+        <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          {saveError}
+        </p>
+      ) : null}
+      {effectiveStep === 1 && renderStep1()}
+      {effectiveStep === 2 && renderStep2()}
+      {effectiveStep === 3 && renderStep3()}
+      {effectiveStep === 4 && renderStep4()}
+      {effectiveStep === 5 && renderStep5()}
+      {effectiveStep === 6 && renderStep6()}
+      {effectiveStep === 7 && renderStep7()}
+      {effectiveStep === 8 && renderStep8()}
     </OnboardingLayout>
   );
 }

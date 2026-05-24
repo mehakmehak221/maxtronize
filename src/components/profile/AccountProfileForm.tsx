@@ -13,19 +13,25 @@ const inputClass =
 export function AccountProfileForm() {
   const { data: profile, isLoading: loadingProfile } =
     useAuthenticatedProfileQuery();
+
+  if (loadingProfile) {
+    return (
+      <p className="text-sm text-ui-muted-text">Loading profile…</p>
+    );
+  }
+
+  if (!profile) return null;
+
+  return <AccountProfileFormInner profile={profile} />;
+}
+
+function AccountProfileFormInner({ profile }: { profile: any }) {
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
-  const [fullName, setFullName] = useState("");
-  const [country, setCountry] = useState("");
+  const [fullName, setFullName] = useState(profile.fullName ?? "");
+  const [country, setCountry] = useState(profile.country ?? "");
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (profile) {
-      setFullName(profile.fullName ?? "");
-      setCountry(profile.country ?? "");
-    }
-  }, [profile]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,12 +46,6 @@ export function AccountProfileForm() {
     } catch (err) {
       setFormError(formatRequestError(err));
     }
-  }
-
-  if (loadingProfile) {
-    return (
-      <p className="text-sm text-ui-muted-text">Loading profile…</p>
-    );
   }
 
   return (

@@ -88,12 +88,17 @@ export default function AIIntelligencePage(): ReactElement {
             <div className="flex-1 space-y-8 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-background/10 bg-ui-card/5 px-4 py-2">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">AI Asset Intelligence Module | Coming Soon</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">AI Asset Intelligence | Coming Soon</span>
               </div>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
                 Institutional AI for <br className="hidden sm:block" />
                 <span className="bg-linear-to-r from-primary via-purple-400 to-primary/80 bg-clip-text text-transparent">Real-World Assets</span>
               </h1>
+              <div className="inline-flex items-center gap-2">
+                <span className="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Powered by</span>
+                <span className="text-[13px] font-extrabold tracking-tight bg-linear-to-r from-[#a78bfa] via-[#818cf8] to-[#6366f1] bg-clip-text text-transparent">Cortex</span>
+
+              </div>
               <p className="text-lg text-white/60 font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                 Machine learning, predictive models, and real-time analytics power better pricing, smarter investments, and institutional-grade compliance monitoring.
               </p>
@@ -118,7 +123,7 @@ export default function AIIntelligencePage(): ReactElement {
           </div>
         </div>
 
-        
+
         <div className="space-y-8">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-xl">✨</div>
@@ -132,7 +137,7 @@ export default function AIIntelligencePage(): ReactElement {
             {capabilities.map((cap, i) => (
               <div key={i} className="group bg-ui-card border border-ui-border rounded-[24px] md:rounded-[32px] p-6 md:p-10 hover:shadow-xl hover:shadow-primary/5 transition-all relative overflow-hidden flex flex-col">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/10 transition-all"></div>
-                
+
                 <div className="flex items-start justify-between mb-8">
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-black/5 group-hover:scale-110 transition-transform ${cap.color} text-white`}>
                     {cap.icon}

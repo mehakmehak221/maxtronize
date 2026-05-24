@@ -44,8 +44,6 @@ export function OnboardingCoverImageUpload({
     isSaving,
     isApprovedOrLocked,
   } = useOnboarding();
-  const [localPreview, setLocalPreview] = useState<string | null>(null);
-  const [remotePreview, setRemotePreview] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -55,22 +53,38 @@ export function OnboardingCoverImageUpload({
     [coverImageKey, coverImageUrl],
   );
 
-  useEffect(() => {
-    if (!pendingFile) {
-      setLocalPreview(null);
-      return;
+  const [prevPendingFile, setPrevPendingFile] = useState<File | null>(null);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+
+  if (pendingFile !== prevPendingFile) {
+    setPrevPendingFile(pendingFile);
+    if (localPreview) {
+      URL.revokeObjectURL(localPreview);
     }
-    const url = URL.createObjectURL(pendingFile);
-    setLocalPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [pendingFile]);
+    setLocalPreview(pendingFile ? URL.createObjectURL(pendingFile) : null);
+  }
+
+  const [prevCoverKey, setPrevCoverKey] = useState<string | null>(null);
+  const [prevCoverUrl, setPrevCoverUrl] = useState<string | null>(null);
+  const [remotePreview, setRemotePreview] = useState<string | null>(null);
+
+  if (coverImageKey !== prevCoverKey || coverImageUrl !== prevCoverUrl) {
+    setPrevCoverKey(coverImageKey);
+    setPrevCoverUrl(coverImageUrl);
+    setRemotePreview(null);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (localPreview) {
+        URL.revokeObjectURL(localPreview);
+      }
+    };
+  }, [localPreview]);
 
   useEffect(() => {
     if (localPreview || pendingFile) return;
-    if (!coverImageKey && !coverImageUrl) {
-      setRemotePreview(null);
-      return;
-    }
+    if (!coverImageKey && !coverImageUrl) return;
 
     let cancelled = false;
     let blobUrl: string | null = null;

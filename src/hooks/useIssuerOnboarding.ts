@@ -106,20 +106,29 @@ export function useIssuerOnboarding() {
     { skip },
   );
 
-  useEffect(() => {
-    if (!forceFreshStart) return;
+  const [prevForceFreshStart, setPrevForceFreshStart] = useState(false);
+  if (forceFreshStart && !prevForceFreshStart) {
+    setPrevForceFreshStart(true);
     clearIssuerOnboardingLocalSession();
     setSessionId(null);
-  }, [forceFreshStart]);
+  } else if (!forceFreshStart && prevForceFreshStart) {
+    setPrevForceFreshStart(false);
+  }
 
-  useEffect(() => {
-    if (!candidateOnboardingId || !stateIsError || !isApiNotFoundError(stateError)) {
-      return;
+  const [prevCandidateOnboardingId, setPrevCandidateOnboardingId] = useState<string | null>(null);
+  const [prevIsError, setPrevIsError] = useState(false);
+
+  if (candidateOnboardingId && stateIsError && isApiNotFoundError(stateError)) {
+    if (candidateOnboardingId !== prevCandidateOnboardingId || !prevIsError) {
+      setPrevCandidateOnboardingId(candidateOnboardingId);
+      setPrevIsError(true);
+      clearStoredOnboardingId();
+      setInvalidOnboardingId(candidateOnboardingId);
+      setSessionId(null);
     }
-    clearStoredOnboardingId();
-    setInvalidOnboardingId(candidateOnboardingId);
-    setSessionId(null);
-  }, [candidateOnboardingId, stateError, stateIsError]);
+  } else if (!stateIsError && prevIsError) {
+    setPrevIsError(false);
+  }
 
   const docsLoading = stateLoading;
   const refetchDocuments = refetchState;

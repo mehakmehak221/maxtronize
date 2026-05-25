@@ -26,6 +26,9 @@ export function MarketplaceAssetCover({
   sizes = '(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw',
 }: MarketplaceAssetCoverProps) {
   const showInfraIcon = assetType.toLowerCase().includes('infra');
+  const isRemoteImage = Boolean(
+    image && (image.startsWith('http://') || image.startsWith('https://')),
+  );
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
@@ -37,6 +40,7 @@ export function MarketplaceAssetCover({
           priority={priority}
           className={imageClassName}
           sizes={sizes}
+          unoptimized={isRemoteImage}
         />
       ) : (
         <div

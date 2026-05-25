@@ -214,7 +214,7 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
               Referral code{" "}
               <span className="font-normal normal-case text-[#9CA3AF]">
@@ -229,7 +229,7 @@ export default function SignUpPage() {
               placeholder="Enter code if you have one"
               className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
             />
-          </div>
+          </div> */}
 
           <button
             type="submit"

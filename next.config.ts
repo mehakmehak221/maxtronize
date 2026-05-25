@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
-function apiImageRemotePatterns(): NonNullable<
-  NextConfig["images"]
->["remotePatterns"] {
-  const patterns: NonNullable<NextConfig["images"]>["remotePatterns"] = [];
+type RemotePattern = NonNullable<
+  NonNullable<NextConfig["images"]>["remotePatterns"]
+>[number];
+
+function apiImageRemotePatterns(): RemotePattern[] {
+  const patterns: RemotePattern[] = [];
 
   function addPattern(urlLike: string | undefined) {
     if (!urlLike) return;

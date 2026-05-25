@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { Suspense, useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Hexagon, Triangle, type LucideIcon } from 'lucide-react';
@@ -10,12 +10,38 @@ import {
   OnboardingProvider,
   useOnboarding,
 } from '@/components/onboarding/OnboardingContext';
+import { OnboardingCoverImageUpload } from '@/components/onboarding/OnboardingCoverImageUpload';
 import { OnboardingDocumentUpload } from '@/components/onboarding/OnboardingDocumentUpload';
 import { resolveOnboardingApplicationStatus } from '@/lib/onboarding';
+import {
+  onboardingFieldError,
+  validateOnboardingForSubmit,
+  validateOnboardingStart,
+  validateOnboardingStep,
+  type OnboardingFormSnapshot,
+} from '@/lib/onboardingValidation';
+import { resolveStoragePublicUrl } from '@/lib/storageUrl';
+import { useIsClient } from '@/hooks/useIsClient';
+import {
+  buildOnboardingWizardInitialState,
+  type OnboardingWizardFormState,
+} from '@/lib/onboardingWizardInitialState';
 
 const iconStroke = 1.75;
 
 type AssetType = 'real-estate' | 'private-credit' | 'data-centers' | 'commodities';
+
+const ONBOARDING_ASSET_TYPES: {
+  id: AssetType;
+  name: string;
+  icon: React.ReactNode;
+  sub: string;
+}[] = [
+    { id: 'real-estate', name: 'Real Estate', icon: <IconBuilding className="w-6 h-6" />, sub: 'Commercial, residential, industrial' },
+    { id: 'private-credit', name: 'Private Credit', icon: <IconCard className="w-6 h-6" />, sub: 'Loans, bonds, structured credit' },
+    { id: 'data-centers', name: 'Data Centers', icon: <IconMonitor className="w-6 h-6" />, sub: 'Colocation, hyperscale, edge' },
+    { id: 'commodities', name: 'Commodities', icon: <IconDiamond className="w-6 h-6" />, sub: 'Gold, silver, oil, agricultural' },
+  ];
 
 function IconBuilding({ className }: { className?: string }) {
   return (
@@ -145,22 +171,305 @@ function IconLockClosedOutline({ className }: { className?: string }) {
   );
 }
 
+function OnboardingStartFallback() {
+  return (
+    <OnboardingLayout currentStep={1}>
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <p className="text-sm text-ui-muted-text">Loading tokenization wizard…</p>
+      </div>
+    </OnboardingLayout>
+  );
+}
+
+function StepValidationBanner({ message }: { message: string | null }) {
+  if (!message) return null;
+  return (
+    <div
+      role="alert"
+      className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-900"
+    >
+      <p className="font-bold">Please complete all required fields</p>
+      <p className="mt-1 text-rose-800">{message}</p>
+    </div>
+  );
+}
+
+function FormField({
+  label,
+  placeholder,
+  required,
+  fullWidth,
+  isSelect,
+  hint,
+  value,
+  onChange,
+  options,
+  inputType = 'text',
+  error,
+}: {
+  label: string;
+  placeholder: string;
+  required?: boolean;
+  fullWidth?: boolean;
+  isSelect?: boolean;
+  hint?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  options?: { label: string; value: string }[];
+  inputType?: string;
+  error?: string;
+}) {
+  const { isApprovedOrLocked } = useOnboarding();
+  const borderClass = error ? 'border-rose-400' : 'border-ui-border';
+
+  return (
+    <div className={`space-y-3 ${fullWidth ? 'md:col-span-2' : ''}`}>
+      {label ? (
+        <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest flex items-center gap-1">
+          {label}
+          {required && <span className="text-ui-danger-text font-bold">*</span>}
+        </label>
+      ) : null}
+      {hint ? <p className={`text-[10px] text-ui-faint leading-relaxed ${label ? '' : '-mt-1'}`}>{hint}</p> : null}
+      <div className="relative">
+        {options ? (
+          <select
+            value={value ?? ''}
+            onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+            disabled={isApprovedOrLocked}
+            className={`w-full min-w-0 px-4 py-3.5 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 appearance-none disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
+          >
+            <option value="" disabled>{placeholder}</option>
+            {options.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type={inputType}
+            placeholder={placeholder}
+            value={value ?? ''}
+            onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+            disabled={isApprovedOrLocked}
+            className={`w-full min-w-0 px-4 py-3.5 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
+          />
+        )}
+        {(isSelect || options) && (
+          <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg className="w-4 h-4 text-ui-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        )}
+      </div>
+      {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
+    </div>
+  );
+}
+
+function FileUploadField({ label, sub }: { label: string; sub: string }) {
+  return (
+    <div className="space-y-3">
+      <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">{label}</label>
+      <div className="p-6 border-2 border-dashed border-ui-border rounded-3xl bg-ui-muted-surface flex flex-col items-center justify-center gap-2 hover:bg-ui-muted-deep hover:border-ui-border-strong transition-all cursor-pointer group">
+        <p className="text-[10px] font-bold text-ui-faint uppercase tracking-wide group-hover:text-ui-muted-text transition-colors">{sub}</p>
+        <p className="text-[11px] font-bold text-primary group-hover:underline">Click to upload PDF / JPG</p>
+      </div>
+    </div>
+  );
+}
+
 export default function OnboardingPage() {
   return (
-    <OnboardingProvider>
-      <IssuerOnboardingWizard />
-    </OnboardingProvider>
+    <Suspense fallback={<OnboardingStartFallback />}>
+      <OnboardingProvider>
+        <IssuerOnboardingWizard />
+      </OnboardingProvider>
+    </Suspense>
+  );
+}
+
+type IssuerOnboardingStartPageProps = {
+  selectedAssetType: AssetType;
+  onSelectedAssetTypeChange: (type: AssetType) => void;
+  startAssetName: string;
+  onStartAssetNameChange: (value: string) => void;
+  startCoverFile: File | null;
+  onStartCoverFileChange: (file: File | null) => void;
+  coverImageKey: string | null;
+  coverImageUrl: string | null;
+  onCoverImageKeyChange: (key: string | null) => void;
+  onCoverImageUrlChange: (url: string | null) => void;
+  isStartingSession: boolean;
+  onIsStartingSessionChange: (value: boolean) => void;
+  stepValidationMessage: string | null;
+  fieldError: (key: string) => string | undefined;
+  onClearStartFieldError: (key: string) => void;
+  onValidationFail: (fieldErrors: Record<string, string>, message: string) => void;
+  onboardingSessionMissing: boolean;
+};
+
+function IssuerOnboardingStartPage({
+  selectedAssetType,
+  onSelectedAssetTypeChange,
+  startAssetName,
+  onStartAssetNameChange,
+  startCoverFile,
+  onStartCoverFileChange,
+  coverImageKey,
+  coverImageUrl,
+  onCoverImageKeyChange,
+  onCoverImageUrlChange,
+  isStartingSession,
+  onIsStartingSessionChange,
+  stepValidationMessage,
+  fieldError,
+  onClearStartFieldError,
+  onValidationFail,
+  onboardingSessionMissing,
+}: IssuerOnboardingStartPageProps) {
+  const router = useRouter();
+  const { forceStartOnboardingSession, saveError } = useOnboarding();
+
+  async function handleStartOnboarding() {
+    const startValidation = validateOnboardingStart({ startAssetName });
+    if (!startValidation.success) {
+      onValidationFail(startValidation.fieldErrors, startValidation.message);
+      return;
+    }
+    onIsStartingSessionChange(true);
+    const started = await forceStartOnboardingSession({
+      assetType: selectedAssetType,
+      assetName: startAssetName.trim(),
+      coverFile: startCoverFile,
+      coverImageKey: coverImageKey ?? undefined,
+      coverImageUrl: coverImageUrl ?? undefined,
+    });
+    if (!started?.id) {
+      onIsStartingSessionChange(false);
+      return;
+    }
+    onIsStartingSessionChange(false);
+    router.replace('/issuer/onboarding');
+  }
+
+  return (
+    <OnboardingLayout currentStep={0}>
+      <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <header>
+          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+            New tokenization
+          </p>
+          <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">
+            Tokenize a new asset
+          </h1>
+          <p className="text-ui-muted-text text-sm">
+            Each asset gets its own onboarding draft. Submit one application, then come back here
+            anytime to tokenize another asset.
+          </p>
+        </header>
+
+        {onboardingSessionMissing ? (
+          <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+            Your previous onboarding draft could not be found. Start a new application below.
+          </p>
+        ) : null}
+
+        <StepValidationBanner message={stepValidationMessage} />
+
+        <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
+          <h3 className="text-base font-bold text-ui-strong mb-1">Asset type</h3>
+          <p className="text-xs text-ui-faint mb-8">Select the category of asset you are tokenizing.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {ONBOARDING_ASSET_TYPES.map((type) => (
+              <button
+                type="button"
+                key={type.id}
+                onClick={() => onSelectedAssetTypeChange(type.id)}
+                className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 min-w-0 ${selectedAssetType === type.id
+                  ? 'border-primary bg-ui-accent-tint'
+                  : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+                  }`}
+              >
+                <div
+                  className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
+                    }`}
+                >
+                  {type.icon}
+                </div>
+                <div className="min-w-0">
+                  <p
+                    className={`text-sm font-bold mb-1 ${selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'
+                      }`}
+                  >
+                    {type.name}
+                  </p>
+                  <p className="text-[10px] text-ui-faint leading-relaxed">{type.sub}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
+          <h3 className="text-base font-bold text-ui-strong">Asset details</h3>
+          <div className="grid grid-cols-1 gap-8">
+            <FormField
+              label="Asset name"
+              placeholder="Palm Jumeirah Residences SPV"
+              required
+              fullWidth
+              value={startAssetName}
+              error={fieldError('startAssetName')}
+              onChange={(value) => {
+                onStartAssetNameChange(value);
+                onClearStartFieldError('startAssetName');
+              }}
+            />
+            <OnboardingCoverImageUpload
+              pendingFile={startCoverFile}
+              onPendingFileChange={onStartCoverFileChange}
+              coverImageKey={coverImageKey}
+              coverImageUrl={coverImageUrl}
+              onCoverImageKeyChange={onCoverImageKeyChange}
+              onCoverImageUrlChange={onCoverImageUrlChange}
+              uploadOnSelect={false}
+              assetType={selectedAssetType}
+              assetName={startAssetName}
+            />
+          </div>
+        </section>
+
+        {saveError ? (
+          <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+            {saveError}
+          </p>
+        ) : null}
+
+        <div className="flex justify-end border-t border-ui-border pt-6">
+          <button
+            type="button"
+            onClick={() => void handleStartOnboarding()}
+            disabled={isStartingSession || !startAssetName.trim()}
+            className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          >
+            {isStartingSession ? 'Starting draft…' : 'Start onboarding →'}
+          </button>
+        </div>
+      </div>
+    </OnboardingLayout>
   );
 }
 
 function IssuerOnboardingWizard() {
-  const router = useRouter();
   const {
     onboardingId,
     isReady,
     isLoading,
-    isSaving,
-    saveError,
+    onboardingSessionMissing,
+    forceFreshStart,
+    progressStep,
+    onboardingState,
     hydratedRegulation,
     hydratedAssetType,
     hydratedCustodian,
@@ -172,7 +481,152 @@ function IssuerOnboardingWizard() {
     hydratedLegalForm,
     hydratedOfferingForm,
     hydratedTokenizationForm,
-    progressStep,
+    clearSaveError,
+  } = useOnboarding();
+
+  const isClientReady = useIsClient();
+  const isPageReady = isClientReady && isReady;
+  const onStartPage =
+    isPageReady &&
+    (forceFreshStart || !onboardingId || onboardingSessionMissing);
+
+  const [selectedAssetType, setSelectedAssetType] = useState<AssetType>('real-estate');
+  const [startAssetName, setStartAssetName] = useState('');
+  const [startCoverFile, setStartCoverFile] = useState<File | null>(null);
+  const [coverImageKey, setCoverImageKey] = useState<string | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+  const [isStartingSession, setIsStartingSession] = useState(false);
+  const [stepValidation, setStepValidation] = useState<{
+    step: number;
+    fieldErrors: Record<string, string>;
+    message: string | null;
+  } | null>(null);
+  const lastStartFormResetKeyRef = useRef<string | null>(null);
+
+  const startFormResetKey = `${forceFreshStart ? '1' : '0'}:${onboardingId ?? ''}:${onboardingSessionMissing ? '1' : '0'}`;
+
+  useEffect(() => {
+    if (!isPageReady || !onStartPage) return;
+    if (lastStartFormResetKeyRef.current === startFormResetKey) return;
+    lastStartFormResetKeyRef.current = startFormResetKey;
+    setStartAssetName('');
+    setCoverImageKey(null);
+    setCoverImageUrl(null);
+    setStartCoverFile(null);
+    clearSaveError();
+  }, [clearSaveError, isPageReady, onStartPage, startFormResetKey]);
+
+  const validationAppliesToView =
+    stepValidation != null && onStartPage && stepValidation.step === 0;
+  const stepValidationMessage = validationAppliesToView ? stepValidation.message : null;
+  const fieldError = (key: string) =>
+    validationAppliesToView ? onboardingFieldError(stepValidation.fieldErrors, key) : undefined;
+
+  const draftWizardKey =
+    isPageReady && !onStartPage && Boolean(onboardingId) && !isLoading
+      ? `${onboardingId}:${progressStep ?? onboardingState?.currentStep ?? 1}`
+      : null;
+
+  if (!isPageReady) {
+    return (
+      <OnboardingLayout currentStep={0}>
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <p className="text-sm text-ui-muted-text">Loading…</p>
+        </div>
+      </OnboardingLayout>
+    );
+  }
+
+  if (onStartPage) {
+    return (
+      <IssuerOnboardingStartPage
+        selectedAssetType={selectedAssetType}
+        onSelectedAssetTypeChange={setSelectedAssetType}
+        startAssetName={startAssetName}
+        onStartAssetNameChange={setStartAssetName}
+        startCoverFile={startCoverFile}
+        onStartCoverFileChange={setStartCoverFile}
+        coverImageKey={coverImageKey}
+        coverImageUrl={coverImageUrl}
+        onCoverImageKeyChange={setCoverImageKey}
+        onCoverImageUrlChange={setCoverImageUrl}
+        isStartingSession={isStartingSession}
+        onIsStartingSessionChange={setIsStartingSession}
+        stepValidationMessage={stepValidationMessage}
+        fieldError={fieldError}
+        onClearStartFieldError={(key) => {
+          setStepValidation((prev) => {
+            if (!prev?.fieldErrors[key]) return prev;
+            const nextErrors = { ...prev.fieldErrors };
+            delete nextErrors[key];
+            return { ...prev, fieldErrors: nextErrors };
+          });
+        }}
+        onValidationFail={(fieldErrors, message) => {
+          setStepValidation({ step: 0, fieldErrors, message });
+        }}
+        onboardingSessionMissing={onboardingSessionMissing}
+      />
+    );
+  }
+
+  if (isLoading && Boolean(onboardingId)) {
+    return (
+      <OnboardingLayout currentStep={0}>
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <p className="text-sm text-ui-muted-text">Loading onboarding draft…</p>
+        </div>
+      </OnboardingLayout>
+    );
+  }
+
+  if (!draftWizardKey) {
+    return (
+      <OnboardingLayout currentStep={0}>
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <p className="text-sm text-ui-muted-text">Loading…</p>
+        </div>
+      </OnboardingLayout>
+    );
+  }
+
+  return (
+    <IssuerOnboardingWizardForm
+      key={draftWizardKey}
+      initialState={buildOnboardingWizardInitialState({
+        hydratedEntityForm,
+        hydratedRegulation,
+        hydratedAssetType,
+        hydratedCustodian,
+        hydratedAccreditedOnly,
+        hydratedVerificationMethod,
+        hydratedAssetForm,
+        hydratedCustodyForm,
+        hydratedLegalForm,
+        hydratedOfferingForm,
+        hydratedTokenizationForm,
+        progressStep,
+        onboardingCurrentStep: onboardingState?.currentStep,
+      })}
+    />
+  );
+}
+
+function IssuerOnboardingWizardForm({
+  initialState,
+}: {
+  initialState: OnboardingWizardFormState;
+}) {
+  const router = useRouter();
+  const {
+    onboardingId,
+    isLoading,
+    isSaving,
+    saveError,
+    isSessionTerminal,
+    clearSaveError,
+    coverImageKeyFromAsset,
+    coverImageUrlFromAsset,
     progress,
     review,
     onboardingState,
@@ -185,140 +639,158 @@ function IssuerOnboardingWizard() {
     saveTokenizationDraft,
     saveCustodyDraft,
     submitApplication,
+    documents,
   } = useOnboarding();
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedAssetType, setSelectedAssetType] = useState<AssetType>('real-estate');
-  const [selectedReg, setSelectedReg] = useState('reg-d-506c');
-  const [selectedTokenStandard, setSelectedTokenStandard] = useState('erc-1400');
-  const [selectedNetwork, setSelectedNetwork] = useState('ethereum');
-  const [selectedCustodian, setSelectedCustodian] = useState('anchorage');
+  const [currentStep, setCurrentStep] = useState(initialState.currentStep);
+  const [stepValidation, setStepValidation] = useState<{
+    step: number;
+    fieldErrors: Record<string, string>;
+    message: string | null;
+  } | null>(null);
+  const [selectedAssetType, setSelectedAssetType] = useState<AssetType>(initialState.selectedAssetType);
+  const [selectedReg, setSelectedReg] = useState(initialState.selectedReg);
+  const [selectedTokenStandard, setSelectedTokenStandard] = useState(initialState.selectedTokenStandard);
+  const [selectedNetwork, setSelectedNetwork] = useState(initialState.selectedNetwork);
+  const [selectedCustodian, setSelectedCustodian] = useState(initialState.selectedCustodian);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [redirectProgress, setRedirectProgress] = useState(0);
 
-  const [legalCompanyName, setLegalCompanyName] = useState('');
-  const [entityType, setEntityType] = useState('');
-  const [ein, setEin] = useState('');
-  const [businessAddress, setBusinessAddress] = useState('');
-  const [directorsNotes, setDirectorsNotes] = useState('');
-  const [ubosNotes, setUbosNotes] = useState('');
-  const [spvEntityName, setSpvEntityName] = useState('');
-  const [spvJurisdiction, setSpvJurisdiction] = useState('');
-  const [retainedOwnership, setRetainedOwnership] = useState('100');
-  const [proRataDistributions, setProRataDistributions] = useState(true);
-  const [votingRights, setVotingRights] = useState(false);
-  const [liquidationPreference, setLiquidationPreference] = useState(false);
-  const [informationRights, setInformationRights] = useState(true);
-  const [targetRaiseAmount, setTargetRaiseAmount] = useState('');
-  const [minimumInvestment, setMinimumInvestment] = useState('');
-  const [maximumInvestors, setMaximumInvestors] = useState('');
-  const [offeringCurrency, setOfferingCurrency] = useState('USD');
-  const [offeringOpenDate, setOfferingOpenDate] = useState('');
-  const [offeringCloseDate, setOfferingCloseDate] = useState('');
-  const [firstYieldDate, setFirstYieldDate] = useState('');
-  const [distributionFrequency, setDistributionFrequency] = useState('QUARTERLY');
-  const [lockupPeriod, setLockupPeriod] = useState('12 months');
-  const [secondaryMarket, setSecondaryMarket] = useState('RESTRICTED');
-  const [tokenName, setTokenName] = useState('');
-  const [tokenSymbol, setTokenSymbol] = useState('');
-  const [totalSupply, setTotalSupply] = useState('');
-  const [tokenPrice, setTokenPrice] = useState('');
-  const [accreditedOnly, setAccreditedOnly] = useState(true);
-  const [verificationMethod, setVerificationMethod] = useState('parallel-markets');
-  const [assetName, setAssetName] = useState('');
-  const [assetDescription, setAssetDescription] = useState('');
-  const [assetAddress, setAssetAddress] = useState('');
-  const [assetAppraisal, setAssetAppraisal] = useState('');
-  const [assetIncome, setAssetIncome] = useState('');
-  const [assetMetadata, setAssetMetadata] = useState<Record<string, string>>({});
-  const [coldStorageRatio, setColdStorageRatio] = useState('85');
-  const [multiSigConfig, setMultiSigConfig] = useState('2-of-3 multisig');
-  const [hydrated, setHydrated] = useState(false);
+  const [legalCompanyName, setLegalCompanyName] = useState(initialState.legalCompanyName);
+  const [entityType, setEntityType] = useState(initialState.entityType);
+  const [ein, setEin] = useState(initialState.ein);
+  const [businessAddress, setBusinessAddress] = useState(initialState.businessAddress);
+  const [directorsNotes, setDirectorsNotes] = useState(initialState.directorsNotes);
+  const [ubosNotes, setUbosNotes] = useState(initialState.ubosNotes);
+  const [spvEntityName, setSpvEntityName] = useState(initialState.spvEntityName);
+  const [spvJurisdiction, setSpvJurisdiction] = useState(initialState.spvJurisdiction);
+  const [retainedOwnership, setRetainedOwnership] = useState(initialState.retainedOwnership);
+  const [proRataDistributions, setProRataDistributions] = useState(initialState.proRataDistributions);
+  const [votingRights, setVotingRights] = useState(initialState.votingRights);
+  const [liquidationPreference, setLiquidationPreference] = useState(initialState.liquidationPreference);
+  const [informationRights, setInformationRights] = useState(initialState.informationRights);
+  const [targetRaiseAmount, setTargetRaiseAmount] = useState(initialState.targetRaiseAmount);
+  const [minimumInvestment, setMinimumInvestment] = useState(initialState.minimumInvestment);
+  const [maximumInvestors, setMaximumInvestors] = useState(initialState.maximumInvestors);
+  const [offeringCurrency, setOfferingCurrency] = useState(initialState.offeringCurrency);
+  const [offeringOpenDate, setOfferingOpenDate] = useState(initialState.offeringOpenDate);
+  const [offeringCloseDate, setOfferingCloseDate] = useState(initialState.offeringCloseDate);
+  const [firstYieldDate, setFirstYieldDate] = useState(initialState.firstYieldDate);
+  const [distributionFrequency, setDistributionFrequency] = useState(initialState.distributionFrequency);
+  const [lockupPeriod, setLockupPeriod] = useState(initialState.lockupPeriod);
+  const [secondaryMarket, setSecondaryMarket] = useState(initialState.secondaryMarket);
+  const [tokenName, setTokenName] = useState(initialState.tokenName);
+  const [tokenSymbol, setTokenSymbol] = useState(initialState.tokenSymbol);
+  const [totalSupply, setTotalSupply] = useState(initialState.totalSupply);
+  const [tokenPrice, setTokenPrice] = useState(initialState.tokenPrice);
+  const [accreditedOnly, setAccreditedOnly] = useState(initialState.accreditedOnly);
+  const [verificationMethod, setVerificationMethod] = useState(initialState.verificationMethod);
+  const [coverImageKey, setCoverImageKey] = useState<string | null>(initialState.coverImageKey);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(initialState.coverImageUrl);
+  const [assetName, setAssetName] = useState(initialState.assetName);
+  const [assetDescription, setAssetDescription] = useState(initialState.assetDescription);
+  const [assetAddress, setAssetAddress] = useState(initialState.assetAddress);
+  const [assetAppraisal, setAssetAppraisal] = useState(initialState.assetAppraisal);
+  const [assetIncome, setAssetIncome] = useState(initialState.assetIncome);
+  const [assetMetadata, setAssetMetadata] = useState<Record<string, string>>(initialState.assetMetadata);
+  const [coldStorageRatio, setColdStorageRatio] = useState(initialState.coldStorageRatio);
+  const [multiSigConfig, setMultiSigConfig] = useState(initialState.multiSigConfig);
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean[]>(initialState.acceptedTerms);
 
+  const entityDocumentTypes = useMemo(
+    () =>
+      documents
+        .map((doc) => doc.type)
+        .filter((type): type is string => Boolean(type)),
+    [documents],
+  );
+
+  // Auto-redirect to dashboard after successful submission
   useEffect(() => {
-    if (hydrated || isLoading || !isReady) return;
-    setLegalCompanyName(hydratedEntityForm.legalCompanyName);
-    setEntityType(hydratedEntityForm.entityType);
-    setEin(hydratedEntityForm.ein);
-    setBusinessAddress(hydratedEntityForm.businessAddress);
-    if (hydratedEntityForm.directorsNotes) {
-      setDirectorsNotes(hydratedEntityForm.directorsNotes);
+    if (!isSubmitted) return;
+    const DURATION_MS = 4000;
+    const TICK_MS = 40;
+    const totalSteps = DURATION_MS / TICK_MS;
+    let step = 0;
+    const timer = window.setInterval(() => {
+      step += 1;
+      const pct = Math.min((step / totalSteps) * 100, 100);
+      setRedirectProgress(pct);
+      if (step >= totalSteps) {
+        window.clearInterval(timer);
+        router.push('/issuer/dashboard');
+      }
+    }, TICK_MS);
+    return () => window.clearInterval(timer);
+  }, [isSubmitted, router]);
+
+  const clearFieldError = (key: string) => {
+    setStepValidation((prev) => {
+      if (!prev?.fieldErrors[key]) return prev;
+      const nextErrors = { ...prev.fieldErrors };
+      delete nextErrors[key];
+      return { ...prev, fieldErrors: nextErrors };
+    });
+  };
+
+  function buildFormSnapshot(): OnboardingFormSnapshot {
+    return {
+      startAssetName: assetName,
+      legalCompanyName,
+      entityType,
+      ein,
+      businessAddress,
+      directorsNotes,
+      ubosNotes,
+      entityDocumentTypes,
+      selectedReg,
+      verificationMethod,
+      selectedAssetType,
+      assetName,
+      assetAddress,
+      assetAppraisal,
+      assetMetadata,
+      spvEntityName,
+      spvJurisdiction,
+      retainedOwnership,
+      targetRaiseAmount,
+      minimumInvestment,
+      offeringOpenDate,
+      offeringCloseDate,
+      tokenName,
+      tokenSymbol,
+      tokenPrice,
+      selectedCustodian,
+      coldStorageRatio,
+      multiSigConfig,
+      acceptedTerms,
+    };
+  }
+
+  function applyStepValidation(step: number): boolean {
+    const result = validateOnboardingStep(step, buildFormSnapshot());
+    if (result.success) {
+      setStepValidation(null);
+      return true;
     }
-    if (hydratedEntityForm.ubosNotes) {
-      setUbosNotes(hydratedEntityForm.ubosNotes);
-    }
-    setSelectedReg(hydratedRegulation);
-    setSelectedAssetType(hydratedAssetType as AssetType);
-    setSelectedCustodian(hydratedCustodian);
-    setAccreditedOnly(hydratedAccreditedOnly);
-    if (hydratedVerificationMethod) {
-      setVerificationMethod(hydratedVerificationMethod);
-    }
-    setAssetName(hydratedAssetForm.name);
-    setAssetDescription(hydratedAssetForm.description);
-    setAssetAddress(hydratedAssetForm.address);
-    setAssetAppraisal(hydratedAssetForm.appraisalValue);
-    setAssetIncome(hydratedAssetForm.annualIncome);
-    setColdStorageRatio(hydratedCustodyForm.coldStorageRatio);
-    setMultiSigConfig(hydratedCustodyForm.multiSigConfig);
-    setSpvEntityName(hydratedLegalForm.spvEntityName);
-    setSpvJurisdiction(hydratedLegalForm.jurisdiction);
-    setRetainedOwnership(hydratedLegalForm.retainedOwnershipPercent);
-    setProRataDistributions(hydratedLegalForm.proRataDistributions);
-    setVotingRights(hydratedLegalForm.votingRights);
-    setLiquidationPreference(hydratedLegalForm.liquidationPreference);
-    setInformationRights(hydratedLegalForm.informationRights);
-    setTargetRaiseAmount(hydratedOfferingForm.targetRaiseAmount);
-    setMinimumInvestment(hydratedOfferingForm.minimumInvestment);
-    setMaximumInvestors(hydratedOfferingForm.maximumInvestors);
-    setOfferingCurrency(hydratedOfferingForm.currency || 'USD');
-    setOfferingOpenDate(hydratedOfferingForm.offeringOpenDate);
-    setOfferingCloseDate(hydratedOfferingForm.offeringCloseDate);
-    setFirstYieldDate(hydratedOfferingForm.firstYieldDate);
-    if (hydratedOfferingForm.distributionFrequency) {
-      setDistributionFrequency(hydratedOfferingForm.distributionFrequency);
-    }
-    if (hydratedOfferingForm.lockupPeriod) {
-      setLockupPeriod(hydratedOfferingForm.lockupPeriod);
-    }
-    if (hydratedOfferingForm.secondaryMarket) {
-      setSecondaryMarket(hydratedOfferingForm.secondaryMarket);
-    }
-    setTokenName(hydratedTokenizationForm.tokenName);
-    setTokenSymbol(hydratedTokenizationForm.tokenSymbol);
-    setTotalSupply(hydratedTokenizationForm.totalSupply);
-    setTokenPrice(hydratedTokenizationForm.tokenPrice);
-    if (hydratedTokenizationForm.tokenStandard) {
-      setSelectedTokenStandard(hydratedTokenizationForm.tokenStandard);
-    }
-    if (hydratedTokenizationForm.blockchainNetwork) {
-      setSelectedNetwork(hydratedTokenizationForm.blockchainNetwork);
-    }
-    if (progressStep) {
-      setCurrentStep(progressStep);
-    } else if (onboardingState?.currentStep) {
-      setCurrentStep(onboardingState.currentStep);
-    }
-    setHydrated(true);
-  }, [
-    hydrated,
-    hydratedAccreditedOnly,
-    hydratedVerificationMethod,
-    hydratedAssetForm,
-    hydratedAssetType,
-    hydratedCustodian,
-    hydratedCustodyForm,
-    hydratedEntityForm,
-    hydratedLegalForm,
-    hydratedOfferingForm,
-    hydratedRegulation,
-    hydratedTokenizationForm,
-    isLoading,
-    isReady,
-    onboardingState?.currentStep,
-    progressStep,
-  ]);
+    setStepValidation({
+      step,
+      fieldErrors: result.fieldErrors,
+      message: result.message,
+    });
+    return false;
+  }
+
+  const validationAppliesToView =
+    stepValidation != null && stepValidation.step === currentStep;
+
+  const activeFieldErrors = validationAppliesToView ? stepValidation.fieldErrors : {};
+  const stepValidationMessage = validationAppliesToView ? stepValidation.message : null;
+
+  const fieldError = (key: string) => onboardingFieldError(activeFieldErrors, key);
 
   async function advanceFromEntity() {
+    if (!applyStepValidation(1)) return;
     if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveEntityDraft({
         legalCompanyName,
@@ -334,6 +806,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromAccreditation() {
+    if (!applyStepValidation(2)) return;
     if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveAccreditationDraft({
         regulation: selectedReg,
@@ -346,6 +819,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromAsset() {
+    if (!applyStepValidation(3)) return;
     if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveAssetDraft({
         assetType: selectedAssetType,
@@ -354,7 +828,13 @@ function IssuerOnboardingWizard() {
         address: assetAddress || undefined,
         appraisalValue: assetAppraisal || undefined,
         annualIncome: assetIncome || undefined,
-        metadata: assetMetadata,
+        metadata: {
+          ...assetMetadata,
+          ...(coverImageKey ? { coverImageKey } : {}),
+          ...(resolveStoragePublicUrl(coverImageKey, coverImageUrl)
+            ? { coverImageUrl: resolveStoragePublicUrl(coverImageKey, coverImageUrl) }
+            : {}),
+        },
       });
       if (!ok) return;
     }
@@ -362,6 +842,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromCustody() {
+    if (!applyStepValidation(7)) return;
     if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveCustodyDraft({
         custodian: selectedCustodian,
@@ -374,6 +855,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromLegal() {
+    if (!applyStepValidation(4)) return;
     if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveLegalDraft({
         spvEntityName,
@@ -390,6 +872,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromOffering() {
+    if (!applyStepValidation(5)) return;
     if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveOfferingDraft(
         {
@@ -412,6 +895,7 @@ function IssuerOnboardingWizard() {
   }
 
   async function advanceFromTokenization() {
+    if (!applyStepValidation(6)) return;
     if (onboardingId && !isApprovedOrLocked) {
       const ok = await saveTokenizationDraft({
         tokenName,
@@ -432,6 +916,16 @@ function IssuerOnboardingWizard() {
       router.push('/issuer/dashboard');
       return;
     }
+    const submitValidation = validateOnboardingForSubmit(buildFormSnapshot());
+    if (!submitValidation.success) {
+      setStepValidation({
+        step: submitValidation.firstInvalidStep,
+        fieldErrors: submitValidation.fieldErrors,
+        message: submitValidation.message,
+      });
+      setCurrentStep(submitValidation.firstInvalidStep);
+      return;
+    }
     if (onboardingId) {
       const ok = await submitApplication();
       if (!ok) return;
@@ -439,26 +933,10 @@ function IssuerOnboardingWizard() {
     setIsSubmitted(true);
   }
 
-  useEffect(() => {
-    if (!isSubmitted) return;
-    const redirectMs = 5200;
-    const id = window.setTimeout(() => {
-      router.push('/issuer/dashboard');
-    }, redirectMs);
-    return () => window.clearTimeout(id);
-  }, [isSubmitted, router]);
-
-  const assetTypes: {
-    id: AssetType;
-    name: string;
-    icon: React.ReactNode;
-    sub: string;
-  }[] = [
-    { id: 'real-estate', name: 'Real Estate', icon: <IconBuilding className="w-6 h-6" />, sub: 'Commercial, residential, industrial' },
-    { id: 'private-credit', name: 'Private Credit', icon: <IconCard className="w-6 h-6" />, sub: 'Loans, bonds, structured credit' },
-    { id: 'data-centers', name: 'Data Centers', icon: <IconMonitor className="w-6 h-6" />, sub: 'Colocation, hyperscale, edge' },
-    { id: 'commodities', name: 'Commodities', icon: <IconDiamond className="w-6 h-6" />, sub: 'Gold, silver, oil, agricultural' },
-  ];
+  function beginAnotherAsset() {
+    clearSaveError();
+    router.replace('/issuer/onboarding?start=1');
+  }
 
   const assetDetailsTitle: Record<AssetType, string> = {
     'real-estate': 'Real Estate',
@@ -487,47 +965,47 @@ function IssuerOnboardingWizard() {
 
   const reviewSummaryItems = review?.sections?.length
     ? review.sections.map((section, index) => ({
-        name: section.title,
-        sub: section.subtitle,
-        step: index + 1,
-      }))
+      name: section.title,
+      sub: section.subtitle,
+      step: index + 1,
+    }))
     : [
-        {
-          name: 'Entity Setup',
-          sub: [legalCompanyName, entityType, ein].filter(Boolean).join(' · ') || 'Not provided',
-          step: 1,
-        },
-        {
-          name: 'Accreditation',
-          sub: `${selectedReg} · ${accreditedOnly ? 'Accredited investors only' : 'Open to eligible investors'}`,
-          step: 2,
-        },
-        {
-          name: 'Asset Details',
-          sub: [selectedAssetType, assetAddress, assetAppraisal && `$${assetAppraisal} valuation`].filter(Boolean).join(' · '),
-          step: 3,
-        },
-        {
-          name: 'Legal Structure',
-          sub: [spvEntityName, spvJurisdiction].filter(Boolean).join(' · ') || 'SPV configuration',
-          step: 4,
-        },
-        {
-          name: 'Offering Setup',
-          sub: [targetRaiseAmount && `$${targetRaiseAmount} target`, minimumInvestment && `$${minimumInvestment} minimum`].filter(Boolean).join(' · '),
-          step: 5,
-        },
-        {
-          name: 'Tokenization',
-          sub: [tokenSymbol, selectedTokenStandard, selectedNetwork].filter(Boolean).join(' · '),
-          step: 6,
-        },
-        {
-          name: 'Custody',
-          sub: `${selectedCustodian} · ${coldStorageRatio}% cold · ${multiSigConfig}`,
-          step: 7,
-        },
-      ];
+      {
+        name: 'Entity Setup',
+        sub: [legalCompanyName, entityType, ein].filter(Boolean).join(' · ') || 'Not provided',
+        step: 1,
+      },
+      {
+        name: 'Accreditation',
+        sub: `${selectedReg} · ${accreditedOnly ? 'Accredited investors only' : 'Open to eligible investors'}`,
+        step: 2,
+      },
+      {
+        name: 'Asset Details',
+        sub: [selectedAssetType, assetAddress, assetAppraisal && `$${assetAppraisal} valuation`].filter(Boolean).join(' · '),
+        step: 3,
+      },
+      {
+        name: 'Legal Structure',
+        sub: [spvEntityName, spvJurisdiction].filter(Boolean).join(' · ') || 'SPV configuration',
+        step: 4,
+      },
+      {
+        name: 'Offering Setup',
+        sub: [targetRaiseAmount && `$${targetRaiseAmount} target`, minimumInvestment && `$${minimumInvestment} minimum`].filter(Boolean).join(' · '),
+        step: 5,
+      },
+      {
+        name: 'Tokenization',
+        sub: [tokenSymbol, selectedTokenStandard, selectedNetwork].filter(Boolean).join(' · '),
+        step: 6,
+      },
+      {
+        name: 'Custody',
+        sub: `${selectedCustodian} · ${coldStorageRatio}% cold · ${multiSigConfig}`,
+        step: 7,
+      },
+    ];
 
   const renderStep1 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -538,6 +1016,8 @@ function IssuerOnboardingWizard() {
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Entity Setup</h1>
         <p className="text-ui-muted-text text-sm">Provide your entity details for Know Your Business (KYB) verification.</p>
       </header>
+
+      <StepValidationBanner message={stepValidationMessage} />
 
       <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
@@ -563,26 +1043,45 @@ function IssuerOnboardingWizard() {
               required
               fullWidth
               value={legalCompanyName}
-              onChange={setLegalCompanyName}
+              error={fieldError('legalCompanyName')}
+              onChange={(value) => {
+                setLegalCompanyName(value);
+                clearFieldError('legalCompanyName');
+              }}
             />
             <FormField
               label="Entity Type"
               placeholder="LLC"
+              required
               value={entityType}
-              onChange={setEntityType}
+              error={fieldError('entityType')}
+              onChange={(value) => {
+                setEntityType(value);
+                clearFieldError('entityType');
+              }}
             />
             <FormField
               label="Employer Identification Number (EIN)"
               placeholder="82-4519302"
+              required
               value={ein}
-              onChange={setEin}
+              error={fieldError('ein')}
+              onChange={(value) => {
+                setEin(value);
+                clearFieldError('ein');
+              }}
             />
             <FormField
               label="Registered Business Address"
               placeholder="1234 Financial District Blvd, Suite 800, New York, NY 10004"
+              required
               fullWidth
               value={businessAddress}
-              onChange={setBusinessAddress}
+              error={fieldError('businessAddress')}
+              onChange={(value) => {
+                setBusinessAddress(value);
+                clearFieldError('businessAddress');
+              }}
             />
           </div>
         </div>
@@ -591,28 +1090,44 @@ function IssuerOnboardingWizard() {
           <h3 className="text-base font-bold text-ui-strong">Directors & UBOs</h3>
           <div className="space-y-6">
             <label className="block space-y-3">
-              <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Directors</span>
+              <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
+                Directors <span className="text-ui-danger-text font-bold">*</span>
+              </span>
               <textarea
                 value={directorsNotes}
-                onChange={(e) => setDirectorsNotes(e.target.value)}
+                onChange={(e) => {
+                  setDirectorsNotes(e.target.value);
+                  clearFieldError('directorsNotes');
+                }}
                 rows={6}
                 disabled={isApprovedOrLocked}
-                className="w-full min-h-[160px] px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed"
+                className={`w-full min-h-[160px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${fieldError('directorsNotes') ? 'border-rose-400' : 'border-ui-border'
+                  }`}
                 placeholder="Full legal name, title, and identification details for each director or officer."
               />
+              {fieldError('directorsNotes') ? (
+                <p className="text-xs font-medium text-rose-600">{fieldError('directorsNotes')}</p>
+              ) : null}
             </label>
             <label className="block space-y-3">
               <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
-                Ultimate Beneficial Owners (UBOs)
+                Ultimate Beneficial Owners (UBOs) <span className="text-ui-danger-text font-bold">*</span>
               </span>
               <textarea
                 value={ubosNotes}
-                onChange={(e) => setUbosNotes(e.target.value)}
+                onChange={(e) => {
+                  setUbosNotes(e.target.value);
+                  clearFieldError('ubosNotes');
+                }}
                 rows={5}
                 disabled={isApprovedOrLocked}
-                className="w-full min-h-[120px] px-6 py-4 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed"
+                className={`w-full min-h-[120px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${fieldError('ubosNotes') ? 'border-rose-400' : 'border-ui-border'
+                  }`}
                 placeholder="List each beneficial owner and ownership percentage (must total 100%)."
               />
+              {fieldError('ubosNotes') ? (
+                <p className="text-xs font-medium text-rose-600">{fieldError('ubosNotes')}</p>
+              ) : null}
             </label>
           </div>
         </div>
@@ -620,6 +1135,9 @@ function IssuerOnboardingWizard() {
 
       <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <h3 className="text-base font-bold text-ui-strong">Supporting Documents</h3>
+        {fieldError('entityDocuments') ? (
+          <p className="text-sm font-medium text-rose-600">{fieldError('entityDocuments')}</p>
+        ) : null}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <OnboardingDocumentUpload
             label="Certificate of Formation / Incorporation"
@@ -663,6 +1181,8 @@ function IssuerOnboardingWizard() {
         <p className="text-ui-muted-text text-sm leading-relaxed">Configure your offering type and investor accreditation requirements.</p>
       </header>
 
+      <StepValidationBanner message={stepValidationMessage} />
+
       <div className="bg-alert-warn-bg border border-alert-warn-border rounded-2xl p-4 flex flex-col gap-4 items-start sm:flex-row sm:gap-5 sm:p-6 md:p-8">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-alert-warn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -687,7 +1207,7 @@ function IssuerOnboardingWizard() {
           <h3 className="text-sm font-bold text-ui-strong mb-1">Select Offering Regulation</h3>
           <p className="text-xs text-ui-faint">Choose the exemption under which you will conduct this offering.</p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { id: 'reg-d-506b', name: 'Reg D — Rule 506(b)', tag: 'Most Common', sub: 'Up to 35 non-accredited + unlimited accredited investors. No SEC registration. No general solicitation.', checks: ['No SEC filing required', 'Up to 35 non-accredited investors'], crosses: ['No advertising', 'Pre-existing relationships required'] },
@@ -698,47 +1218,44 @@ function IssuerOnboardingWizard() {
             const isSel = selectedReg === reg.id;
             const is506cBlue = isSel && reg.id === 'reg-d-506c';
             return (
-            <div
-              key={reg.id}
-              onClick={isApprovedOrLocked ? undefined : () => setSelectedReg(reg.id)}
-              className={`flex flex-col gap-4 rounded-2xl border-2 p-5 transition-all relative group sm:gap-5 sm:rounded-3xl sm:p-6 md:gap-6 md:p-8 ${
-                isApprovedOrLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
-              } ${
-                is506cBlue
-                  ? 'border-sky-500 bg-sky-50'
-                  : isSel
-                    ? 'border-primary bg-ui-accent-tint'
-                    : isApprovedOrLocked
-                      ? 'border-ui-border bg-ui-card'
-                      : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
-              }`}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
-                <h4 className={`min-w-0 flex-1 text-sm font-bold leading-snug ${is506cBlue ? 'text-sky-800' : isSel ? 'text-primary' : 'text-ui-strong'}`}>{reg.name}</h4>
-                <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${
-                  is506cBlue
+              <div
+                key={reg.id}
+                onClick={isApprovedOrLocked ? undefined : () => setSelectedReg(reg.id)}
+                className={`flex flex-col gap-4 rounded-2xl border-2 p-5 transition-all relative group sm:gap-5 sm:rounded-3xl sm:p-6 md:gap-6 md:p-8 ${isApprovedOrLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                  } ${is506cBlue
+                    ? 'border-sky-500 bg-sky-50'
+                    : isSel
+                      ? 'border-primary bg-ui-accent-tint'
+                      : isApprovedOrLocked
+                        ? 'border-ui-border bg-ui-card'
+                        : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+                  }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
+                  <h4 className={`min-w-0 flex-1 text-sm font-bold leading-snug ${is506cBlue ? 'text-sky-800' : isSel ? 'text-primary' : 'text-ui-strong'}`}>{reg.name}</h4>
+                  <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${is506cBlue
                     ? 'bg-sky-100 text-sky-800 border-sky-200'
                     : isSel
                       ? 'bg-ui-accent-tint text-primary border-primary/20'
                       : 'bg-ui-muted-deep text-ui-faint border-ui-border'
-                }`}>{reg.tag}</span>
+                    }`}>{reg.tag}</span>
+                </div>
+                <p className="text-[11px] text-ui-muted-text leading-relaxed">{reg.sub}</p>
+                <div className="space-y-2 pt-2 border-t border-ui-divider">
+                  {reg.checks.map((c, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <svg className="w-3 h-3 text-ui-success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                      <span className="text-[10px] font-medium text-ui-body">{c}</span>
+                    </div>
+                  ))}
+                  {reg.crosses.map((c, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <svg className="w-3 h-3 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                      <span className="text-[10px] font-medium text-ui-muted-text">{c}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="text-[11px] text-ui-muted-text leading-relaxed">{reg.sub}</p>
-              <div className="space-y-2 pt-2 border-t border-ui-divider">
-                {reg.checks.map((c, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <svg className="w-3 h-3 text-ui-success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                    <span className="text-[10px] font-medium text-ui-body">{c}</span>
-                  </div>
-                ))}
-                {reg.crosses.map((c, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <svg className="w-3 h-3 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
-                    <span className="text-[10px] font-medium text-ui-muted-text">{c}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
             );
           })}
         </div>
@@ -759,14 +1276,12 @@ function IssuerOnboardingWizard() {
             aria-checked={accreditedOnly}
             disabled={isApprovedOrLocked}
             onClick={isApprovedOrLocked ? undefined : () => setAccreditedOnly((v) => !v)}
-            className={`relative h-7 w-12 shrink-0 self-end rounded-full shadow-inner transition-colors sm:self-center disabled:opacity-75 disabled:cursor-not-allowed ${
-              accreditedOnly ? 'bg-primary shadow-primary/20' : 'bg-ui-border-strong'
-            }`}
+            className={`relative h-7 w-12 shrink-0 self-end rounded-full shadow-inner transition-colors sm:self-center disabled:opacity-75 disabled:cursor-not-allowed ${accreditedOnly ? 'bg-primary shadow-primary/20' : 'bg-ui-border-strong'
+              }`}
           >
             <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-ui-card shadow-sm transition-all ${
-                accreditedOnly ? 'right-1' : 'left-1'
-              }`}
+              className={`absolute top-1 h-5 w-5 rounded-full bg-ui-card shadow-sm transition-all ${accreditedOnly ? 'right-1' : 'left-1'
+                }`}
               aria-hidden
             />
           </button>
@@ -776,21 +1291,26 @@ function IssuerOnboardingWizard() {
           <label className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
             <svg className="shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <g clipPath="url(#clip0_accred_shield)">
-                <path d="M11.6556 7.57612C11.6556 10.49 9.61586 11.947 7.19149 12.792C7.06454 12.835 6.92664 12.833 6.80103 12.7862C4.37084 11.947 2.33112 10.49 2.33112 7.57612V3.49666C2.33112 3.3421 2.39252 3.19387 2.50181 3.08457C2.6111 2.97528 2.75933 2.91388 2.91389 2.91388C4.07945 2.91388 5.5364 2.21455 6.55044 1.32872C6.6739 1.22324 6.83096 1.16528 6.99335 1.16528C7.15574 1.16528 7.3128 1.22324 7.43626 1.32872C8.45612 2.22038 9.90724 2.91388 11.0728 2.91388C11.2274 2.91388 11.3756 2.97528 11.4849 3.08457C11.5942 3.19387 11.6556 3.3421 11.6556 3.49666V7.57612Z" stroke="#00BC7D" strokeWidth="1.16556" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M11.6556 7.57612C11.6556 10.49 9.61586 11.947 7.19149 12.792C7.06454 12.835 6.92664 12.833 6.80103 12.7862C4.37084 11.947 2.33112 10.49 2.33112 7.57612V3.49666C2.33112 3.3421 2.39252 3.19387 2.50181 3.08457C2.6111 2.97528 2.75933 2.91388 2.91389 2.91388C4.07945 2.91388 5.5364 2.21455 6.55044 1.32872C6.6739 1.22324 6.83096 1.16528 6.99335 1.16528C7.15574 1.16528 7.3128 1.22324 7.43626 1.32872C8.45612 2.22038 9.90724 2.91388 11.0728 2.91388C11.2274 2.91388 11.3756 2.97528 11.4849 3.08457C11.5942 3.19387 11.6556 3.3421 11.6556 3.49666V7.57612Z" stroke="#00BC7D" strokeWidth="1.16556" strokeLinecap="round" strokeLinejoin="round" />
               </g>
               <defs>
                 <clipPath id="clip0_accred_shield">
-                  <rect width="13.9867" height="13.9867" fill="white"/>
+                  <rect width="13.9867" height="13.9867" fill="white" />
                 </clipPath>
               </defs>
             </svg>
             <span>Accreditation Verification Method</span>
           </label>
-          <FormField 
-            label="" 
-            placeholder="Select Method" 
+          <FormField
+            label=""
+            placeholder="Select Method"
+            required
             value={verificationMethod}
-            onChange={setVerificationMethod}
+            error={fieldError('verificationMethod')}
+            onChange={(value) => {
+              setVerificationMethod(value);
+              clearFieldError('verificationMethod');
+            }}
             options={[
               { label: 'Parallel Markets', value: 'parallel-markets' },
               { label: 'Internal KYC/AML', value: 'internal' },
@@ -878,6 +1398,8 @@ function IssuerOnboardingWizard() {
         <p className="text-ui-muted-text text-sm">Submit asset details. Fields adjust dynamically based on your asset type.</p>
       </header>
 
+      <StepValidationBanner message={stepValidationMessage} />
+
       {/* Asset Type Selection */}
       <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
         <h3 className="text-base font-bold text-ui-strong mb-1">Asset Type</h3>
@@ -886,26 +1408,23 @@ function IssuerOnboardingWizard() {
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {assetTypes.map((type) => (
+          {ONBOARDING_ASSET_TYPES.map((type) => (
             <button
               type="button"
               key={type.id}
               disabled={isApprovedOrLocked}
               onClick={isApprovedOrLocked ? undefined : () => setSelectedAssetType(type.id as AssetType)}
-              className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 group select-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 min-w-0 disabled:opacity-75 disabled:cursor-not-allowed ${
-                selectedAssetType === type.id 
-                  ? 'border-primary bg-ui-accent-tint' 
-                  : isApprovedOrLocked
-                    ? 'border-ui-border bg-ui-card'
-                    : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
-              }`}
+              className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 group select-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 min-w-0 disabled:opacity-75 disabled:cursor-not-allowed ${selectedAssetType === type.id
+                ? 'border-primary bg-ui-accent-tint'
+                : isApprovedOrLocked
+                  ? 'border-ui-border bg-ui-card'
+                  : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
+                }`}
             >
               <div
-                className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl shadow-sm overflow-hidden transition-transform duration-200 ${
-                  !isApprovedOrLocked ? 'motion-safe:group-hover:scale-[1.06] motion-safe:group-focus-visible:scale-100' : ''
-                } ${
-                  selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
-                }`}
+                className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl shadow-sm overflow-hidden transition-transform duration-200 ${!isApprovedOrLocked ? 'motion-safe:group-hover:scale-[1.06] motion-safe:group-focus-visible:scale-100' : ''
+                  } ${selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
+                  }`}
               >
                 {type.icon}
               </div>
@@ -924,55 +1443,79 @@ function IssuerOnboardingWizard() {
           <h3 className="text-lg font-bold text-ui-strong">{assetDetailsTitle[selectedAssetType]} Details</h3>
         </div>
 
+        <OnboardingCoverImageUpload
+          coverImageKey={coverImageKey ?? coverImageKeyFromAsset}
+          coverImageUrl={coverImageUrl ?? coverImageUrlFromAsset}
+          onCoverImageKeyChange={setCoverImageKey}
+          onCoverImageUrlChange={setCoverImageUrl}
+          uploadOnSelect
+          assetType={selectedAssetType}
+          assetName={assetName}
+          disabled={isApprovedOrLocked}
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
           {selectedAssetType === 'commodities' && (
             <>
-              <FormField label="Asset Name" placeholder="Gold Bullion Reserve Series I" required value={assetName} onChange={setAssetName} />
-              <FormField label="Commodity Type" placeholder="Select Type" options={[{label: 'Precious Metals', value: 'precious-metals'}, {label: 'Base Metals', value: 'base-metals'}, {label: 'Energy', value: 'energy'}, {label: 'Agriculture', value: 'agriculture'}]} value={assetMetadata?.commodityType} onChange={(v) => setAssetMetadata(prev => ({...prev, commodityType: v}))} />
+              <FormField label="Asset Name" placeholder="Gold Bullion Reserve Series I" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
+              <FormField label="Commodity Type" placeholder="Select Type" required options={[{ label: 'Precious Metals', value: 'precious-metals' }, { label: 'Base Metals', value: 'base-metals' }, { label: 'Energy', value: 'energy' }, { label: 'Agriculture', value: 'agriculture' }]} value={assetMetadata?.commodityType} error={fieldError('commodityType')} onChange={(v) => { setAssetMetadata(prev => ({ ...prev, commodityType: v })); clearFieldError('commodityType'); }} />
               <FormField label="Storage Location" placeholder="London, UK (LBMA Vault)" value={assetAddress} onChange={setAssetAddress} />
-              <FormField label="Total Value (USD)" placeholder="50,000,000" value={assetAppraisal} onChange={setAssetAppraisal} />
-              <FormField label="Purity / Grade" placeholder="99.99% Fine Gold" value={assetMetadata?.purity} onChange={(v) => setAssetMetadata(prev => ({...prev, purity: v}))} />
-              <FormField label="Vault Provider" placeholder="Brinks / Loomis International" value={assetMetadata?.vaultProvider} onChange={(v) => setAssetMetadata(prev => ({...prev, vaultProvider: v}))} />
+              <FormField label="Total Value (USD)" placeholder="50,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
+              <FormField label="Purity / Grade" placeholder="99.99% Fine Gold" value={assetMetadata?.purity} onChange={(v) => setAssetMetadata(prev => ({ ...prev, purity: v }))} />
+              <FormField label="Vault Provider" placeholder="Brinks / Loomis International" value={assetMetadata?.vaultProvider} onChange={(v) => setAssetMetadata(prev => ({ ...prev, vaultProvider: v }))} />
             </>
           )}
 
           {selectedAssetType === 'data-centers' && (
             <>
-              <FormField label="Facility Name" placeholder="Ashburn DC Campus Alpha" required value={assetName} onChange={setAssetName} />
-              <FormField label="Total Capacity (MW)" placeholder="48" value={assetMetadata?.capacity} onChange={(v) => setAssetMetadata(prev => ({...prev, capacity: v}))} />
-              <FormField label="Location" placeholder="Ashburn, VA, USA" value={assetAddress} onChange={setAssetAddress} />
-              <FormField label="Appraised Value (USD)" placeholder="250,000,000" value={assetAppraisal} onChange={setAssetAppraisal} />
+              <FormField label="Facility Name" placeholder="Ashburn DC Campus Alpha" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
+              <FormField label="Total Capacity (MW)" placeholder="48" value={assetMetadata?.capacity} onChange={(v) => setAssetMetadata(prev => ({ ...prev, capacity: v }))} />
+              <FormField label="Location" placeholder="Ashburn, VA, USA" required value={assetAddress} error={fieldError('assetAddress')} onChange={(v) => { setAssetAddress(v); clearFieldError('assetAddress'); }} />
+              <FormField label="Appraised Value (USD)" placeholder="250,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
               <FormField label="Annual NOI (USD)" placeholder="18,500,000" value={assetIncome} onChange={setAssetIncome} />
-              <FormField label="Tier Level" placeholder="Select Tier" options={[{label: 'Tier I', value: 'tier-1'}, {label: 'Tier II', value: 'tier-2'}, {label: 'Tier III', value: 'tier-3'}, {label: 'Tier IV', value: 'tier-4'}]} value={assetMetadata?.tierLevel} onChange={(v) => setAssetMetadata(prev => ({...prev, tierLevel: v}))} />
+              <FormField label="Tier Level" placeholder="Select Tier" options={[{ label: 'Tier I', value: 'tier-1' }, { label: 'Tier II', value: 'tier-2' }, { label: 'Tier III', value: 'tier-3' }, { label: 'Tier IV', value: 'tier-4' }]} value={assetMetadata?.tierLevel} onChange={(v) => setAssetMetadata(prev => ({ ...prev, tierLevel: v }))} />
             </>
           )}
 
           {selectedAssetType === 'private-credit' && (
             <>
-              <FormField label="Loan / Bond Name" placeholder="Senior Secured Term Loan A" required value={assetName} onChange={setAssetName} />
-              <FormField label="Principal Amount (USD)" placeholder="25,000,000" required value={assetAppraisal} onChange={setAssetAppraisal} />
-              <FormField label="Credit Type" placeholder="Select Type" options={[{label: 'Senior Secured Term Loan', value: 'senior-secured'}, {label: 'Mezzanine Debt', value: 'mezzanine'}, {label: 'Unitranche', value: 'unitranche'}, {label: 'Convertible Note', value: 'convertible'}]} value={assetMetadata?.creditType} onChange={(v) => setAssetMetadata(prev => ({...prev, creditType: v}))} />
-              <FormField label="Interest Rate (%)" placeholder="SOFR + 450bps" value={assetMetadata?.interestRate} onChange={(v) => setAssetMetadata(prev => ({...prev, interestRate: v}))} />
-              <FormField label="Maturity Date" placeholder="Select Date" value={assetMetadata?.maturityDate} onChange={(v) => setAssetMetadata(prev => ({...prev, maturityDate: v}))} />
-              <FormField label="Credit Rating" placeholder="BB+ / Ba1" value={assetMetadata?.creditRating} onChange={(v) => setAssetMetadata(prev => ({...prev, creditRating: v}))} />
+              <FormField label="Loan / Bond Name" placeholder="Senior Secured Term Loan A" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
+              <FormField label="Principal Amount (USD)" placeholder="25,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
+              <FormField label="Credit Type" placeholder="Select Type" required options={[{ label: 'Senior Secured Term Loan', value: 'senior-secured' }, { label: 'Mezzanine Debt', value: 'mezzanine' }, { label: 'Unitranche', value: 'unitranche' }, { label: 'Convertible Note', value: 'convertible' }]} value={assetMetadata?.creditType} error={fieldError('creditType')} onChange={(v) => { setAssetMetadata(prev => ({ ...prev, creditType: v })); clearFieldError('creditType'); }} />
+              <FormField label="Interest Rate (%)" placeholder="SOFR + 450bps" value={assetMetadata?.interestRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, interestRate: v }))} />
+              <FormField label="Maturity Date" placeholder="Select Date" value={assetMetadata?.maturityDate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, maturityDate: v }))} />
+              <FormField label="Credit Rating" placeholder="BB+ / Ba1" value={assetMetadata?.creditRating} onChange={(v) => setAssetMetadata(prev => ({ ...prev, creditRating: v }))} />
             </>
           )}
 
           {selectedAssetType === 'real-estate' && (
             <>
+              {fieldError('assetName') ? (
+                <p className="md:col-span-2 text-xs font-medium text-rose-600">{fieldError('assetName')}</p>
+              ) : null}
               <FormField
                 label="Property Address"
                 placeholder="2847 Peachtree Rd NE, Atlanta, GA 30305"
+                required
                 fullWidth
                 value={assetAddress}
-                onChange={setAssetAddress}
+                error={fieldError('assetAddress')}
+                onChange={(v) => {
+                  setAssetAddress(v);
+                  clearFieldError('assetAddress');
+                }}
               />
               <FormField
                 label="Appraised Valuation (USD)"
                 placeholder="12,500,000"
+                required
                 hint="Must be from a licensed MAI appraiser."
                 value={assetAppraisal}
-                onChange={setAssetAppraisal}
+                error={fieldError('assetAppraisal')}
+                onChange={(v) => {
+                  setAssetAppraisal(v);
+                  clearFieldError('assetAppraisal');
+                }}
               />
               <FormField
                 label="Annual Rental Income (USD)"
@@ -980,10 +1523,10 @@ function IssuerOnboardingWizard() {
                 value={assetIncome}
                 onChange={setAssetIncome}
               />
-              <FormField label="Property Type" placeholder="Select Type" options={[{label: 'Residential', value: 'residential'}, {label: 'Commercial', value: 'commercial'}, {label: 'Industrial', value: 'industrial'}, {label: 'Mixed-Use', value: 'mixed-use'}, {label: 'Land', value: 'land'}]} value={assetMetadata?.propertyType} onChange={(v) => setAssetMetadata(prev => ({...prev, propertyType: v}))} />
-              <FormField label="Cap Rate (%)" placeholder="6.8" value={assetMetadata?.capRate} onChange={(v) => setAssetMetadata(prev => ({...prev, capRate: v}))} />
-              <FormField label="Occupancy Rate (%)" placeholder="94.2" value={assetMetadata?.occupancyRate} onChange={(v) => setAssetMetadata(prev => ({...prev, occupancyRate: v}))} />
-              <FormField label="Year Built / Renovated" placeholder="2018 / 2023" value={assetMetadata?.yearBuilt} onChange={(v) => setAssetMetadata(prev => ({...prev, yearBuilt: v}))} />
+              <FormField label="Property Type" placeholder="Select Type" options={[{ label: 'Residential', value: 'residential' }, { label: 'Commercial', value: 'commercial' }, { label: 'Industrial', value: 'industrial' }, { label: 'Mixed-Use', value: 'mixed-use' }, { label: 'Land', value: 'land' }]} value={assetMetadata?.propertyType} onChange={(v) => setAssetMetadata(prev => ({ ...prev, propertyType: v }))} />
+              <FormField label="Cap Rate (%)" placeholder="6.8" value={assetMetadata?.capRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, capRate: v }))} />
+              <FormField label="Occupancy Rate (%)" placeholder="94.2" value={assetMetadata?.occupancyRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, occupancyRate: v }))} />
+              <FormField label="Year Built / Renovated" placeholder="2018 / 2023" value={assetMetadata?.yearBuilt} onChange={(v) => setAssetMetadata(prev => ({ ...prev, yearBuilt: v }))} />
             </>
           )}
         </div>
@@ -1027,6 +1570,8 @@ function IssuerOnboardingWizard() {
         <p className="text-ui-muted-text text-sm">Set up the Special Purpose Vehicle (SPV) structure for this asset.</p>
       </header>
 
+      <StepValidationBanner message={stepValidationMessage} />
+
       {/* Info Box */}
       <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border flex items-center justify-center shrink-0">
@@ -1053,20 +1598,34 @@ function IssuerOnboardingWizard() {
               fullWidth
               hint="Will be registered as a Delaware LLC. Format: [Asset Name] Holdings LLC"
               value={spvEntityName}
-              onChange={setSpvEntityName}
+              error={fieldError('spvEntityName')}
+              onChange={(v) => {
+                setSpvEntityName(v);
+                clearFieldError('spvEntityName');
+              }}
             />
             <FormField
               label="SPV Jurisdiction"
               placeholder="ADGM"
+              required
               value={spvJurisdiction}
-              onChange={setSpvJurisdiction}
+              error={fieldError('spvJurisdiction')}
+              onChange={(v) => {
+                setSpvJurisdiction(v);
+                clearFieldError('spvJurisdiction');
+              }}
             />
             <FormField
               label="Issuer Retained Ownership (%)"
               placeholder="100"
+              required
               hint="Remaining % is available for investor token allocation"
               value={retainedOwnership}
-              onChange={setRetainedOwnership}
+              error={fieldError('retainedOwnership')}
+              onChange={(v) => {
+                setRetainedOwnership(v);
+                clearFieldError('retainedOwnership');
+              }}
             />
           </div>
         </div>
@@ -1092,20 +1651,17 @@ function IssuerOnboardingWizard() {
                   type="button"
                   disabled={isApprovedOrLocked}
                   onClick={isApprovedOrLocked ? undefined : right.toggle}
-                  className={`text-left p-6 rounded-2xl border-2 transition-all flex gap-4 w-full disabled:opacity-75 disabled:cursor-not-allowed ${
-                    isApprovedOrLocked ? 'cursor-not-allowed' : 'cursor-pointer'
-                  } ${
-                    checked
+                  className={`text-left p-6 rounded-2xl border-2 transition-all flex gap-4 w-full disabled:opacity-75 disabled:cursor-not-allowed ${isApprovedOrLocked ? 'cursor-not-allowed' : 'cursor-pointer'
+                    } ${checked
                       ? 'border-primary bg-ui-accent-tint'
                       : isApprovedOrLocked
                         ? 'border-ui-divider bg-ui-muted-surface'
                         : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${
-                      checked ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'
-                    }`}
+                    className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${checked ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'
+                      }`}
                     aria-hidden
                   >
                     {checked ? <div className="w-2 h-2 rounded-full bg-ui-card" /> : null}
@@ -1135,23 +1691,25 @@ function IssuerOnboardingWizard() {
 
       <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <h3 className="text-base font-bold text-ui-strong">Required Legal Documents</h3>
-        <div className="space-y-4">
-          {[
-            { name: 'Private Placement Memorandum (PPM)', status: 'Template Available' },
-            { name: 'Subscription Agreement', status: 'Template Available' },
-            { name: 'Operating Agreement (SPV)', status: 'Auto-Generated' },
-            { name: 'Transfer Restriction Agreement', status: 'Template Available' },
-          ].map((doc, i) => (
-            <div
-              key={i}
-              className="p-5 rounded-2xl border border-ui-border flex items-center justify-between hover:border-ui-border-strong transition-colors"
-            >
-              <div className="space-y-1">
-                <p className="text-sm font-bold text-ui-strong">{doc.name}</p>
-                <span className="text-[10px] font-bold text-[#10B981]">{doc.status}</span>
-              </div>
-            </div>
-          ))}
+        <p className="text-xs text-ui-faint">
+          Upload finalized documents, or use Maxtronize templates where noted.
+        </p>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <OnboardingDocumentUpload
+            label="Private Placement Memorandum (PPM)"
+            documentType="PPM"
+            sub="Upload PDF"
+          />
+          <OnboardingDocumentUpload
+            label="Subscription Agreement"
+            documentType="SUBSCRIPTION_AGREEMENT"
+            sub="Upload PDF"
+          />
+          <OnboardingDocumentUpload
+            label="Transfer Restriction Agreement"
+            documentType="TRANSFER_RESTRICTION_AGREEMENT"
+            sub="Upload PDF"
+          />
         </div>
       </section>
 
@@ -1184,13 +1742,15 @@ function IssuerOnboardingWizard() {
         <p className="text-ui-muted-text text-sm">Configure capital raise parameters, timeline, and transfer restrictions.</p>
       </header>
 
+      <StepValidationBanner message={stepValidationMessage} />
+
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
           <h3 className="text-sm font-bold text-ui-strong">Offering Configuration</h3>
           <p className="text-xs text-ui-faint -mt-6">Define the capital raise parameters for this offering.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Target Raise Amount (USD)" placeholder="5,000,000" required value={targetRaiseAmount} onChange={setTargetRaiseAmount} />
-            <FormField label="Minimum Investment (USD)" placeholder="25,000" required value={minimumInvestment} onChange={setMinimumInvestment} />
+            <FormField label="Target Raise Amount (USD)" placeholder="5,000,000" required value={targetRaiseAmount} error={fieldError('targetRaiseAmount')} onChange={(v) => { setTargetRaiseAmount(v); clearFieldError('targetRaiseAmount'); }} />
+            <FormField label="Minimum Investment (USD)" placeholder="25,000" required value={minimumInvestment} error={fieldError('minimumInvestment')} onChange={(v) => { setMinimumInvestment(v); clearFieldError('minimumInvestment'); }} />
             <FormField label="Maximum Investors" placeholder="250" value={maximumInvestors} onChange={setMaximumInvestors} />
             <FormField label="Offering Currency" placeholder="USD" value={offeringCurrency} onChange={setOfferingCurrency} />
           </div>
@@ -1199,8 +1759,8 @@ function IssuerOnboardingWizard() {
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <h3 className="text-sm font-bold text-ui-strong">Timeline</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Offering Open Date" placeholder="2026-06-01" inputType="date" value={offeringOpenDate} onChange={setOfferingOpenDate} />
-            <FormField label="Offering Close Date" placeholder="2026-09-30" inputType="date" value={offeringCloseDate} onChange={setOfferingCloseDate} />
+            <FormField label="Offering Open Date" placeholder="2026-06-01" inputType="date" required value={offeringOpenDate} error={fieldError('offeringOpenDate')} onChange={(v) => { setOfferingOpenDate(v); clearFieldError('offeringOpenDate'); }} />
+            <FormField label="Offering Close Date" placeholder="2026-09-30" inputType="date" required value={offeringCloseDate} error={fieldError('offeringCloseDate')} onChange={(v) => { setOfferingCloseDate(v); clearFieldError('offeringCloseDate'); }} />
             <FormField label="First Yield Distribution" placeholder="2026-10-15" inputType="date" value={firstYieldDate} onChange={setFirstYieldDate} />
             <FormField label="Distribution Frequency" placeholder="QUARTERLY" value={distributionFrequency} onChange={setDistributionFrequency} />
           </div>
@@ -1249,15 +1809,17 @@ function IssuerOnboardingWizard() {
         <p className="text-ui-muted-text text-sm">Configure the on-chain token parameters and blockchain network.</p>
       </header>
 
+      <StepValidationBanner message={stepValidationMessage} />
+
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
           <h3 className="text-sm font-bold text-ui-strong">Token Configuration</h3>
           <p className="text-xs text-ui-faint -mt-6">Define the on-chain token parameters for this asset.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Token Name" placeholder="Crescent Peachtree Tower Token" required value={tokenName} onChange={setTokenName} />
-            <FormField label="Token Symbol" placeholder="CPTT" required value={tokenSymbol} onChange={setTokenSymbol} />
+            <FormField label="Token Name" placeholder="Crescent Peachtree Tower Token" required value={tokenName} error={fieldError('tokenName')} onChange={(v) => { setTokenName(v); clearFieldError('tokenName'); }} />
+            <FormField label="Token Symbol" placeholder="CPTT" required value={tokenSymbol} error={fieldError('tokenSymbol')} onChange={(v) => { setTokenSymbol(v); clearFieldError('tokenSymbol'); }} />
             <FormField label="Total Supply" placeholder="1,000,000" value={totalSupply} onChange={setTotalSupply} />
-            <FormField label="Token Price (USD)" placeholder="5.00" required value={tokenPrice} onChange={setTokenPrice} />
+            <FormField label="Token Price (USD)" placeholder="5.00" required value={tokenPrice} error={fieldError('tokenPrice')} onChange={(v) => { setTokenPrice(v); clearFieldError('tokenPrice'); }} />
           </div>
         </div>
 
@@ -1272,7 +1834,7 @@ function IssuerOnboardingWizard() {
               { id: 'erc-3643', name: 'ERC-3643 (T-REX)', sub: 'MiCA-aligned compliance-first standard with on-chain KYC registry and transfer rules.' },
               { id: 'erc-20', name: 'ERC-20', sub: 'Fungible token standard offering maximum secondary market liquidity.' }
             ].map((std) => (
-              <div 
+              <div
                 key={std.id}
                 onClick={() => setSelectedTokenStandard(std.id)}
                 className={`p-6 rounded-2xl border-2 transition-all cursor-pointer flex gap-5 ${selectedTokenStandard === std.id ? 'border-primary bg-ui-accent-tint' : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'}`}
@@ -1322,11 +1884,10 @@ function IssuerOnboardingWizard() {
                   key={net.id}
                   type="button"
                   onClick={() => setSelectedNetwork(net.id)}
-                  className={`p-6 rounded-2xl border transition-all flex flex-col items-center text-center gap-4 ${
-                    selected
-                      ? 'border-primary bg-ui-card shadow-sm'
-                      : 'border-ui-divider bg-ui-card hover:border-ui-border-strong'
-                  }`}
+                  className={`p-6 rounded-2xl border transition-all flex flex-col items-center text-center gap-4 ${selected
+                    ? 'border-primary bg-ui-card shadow-sm'
+                    : 'border-ui-divider bg-ui-card hover:border-ui-border-strong'
+                    }`}
                 >
                   {net.id === 'ethereum' ? (
                     <EthereumNetworkIcon className="h-7 w-auto shrink-0 text-ui-strong" />
@@ -1376,6 +1937,8 @@ function IssuerOnboardingWizard() {
         <p className="text-ui-muted-text text-sm">Select a qualified custodian for your tokenized asset.</p>
       </header>
 
+      <StepValidationBanner message={stepValidationMessage} />
+
       <div className="bg-alert-info-bg border border-alert-info-border rounded-3xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-alert-info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1401,7 +1964,7 @@ function IssuerOnboardingWizard() {
             { id: 'bitgo', name: 'BitGo', tag: 'Rating A', sub: 'Multi-signature institutional custody. $250M insurance coverage per wallet from Lloyd\'s of London.', badges: ['$250M Insurance', 'Multi-Sig', 'ISO 27001'] },
             { id: 'fireblocks', name: 'Fireblocks', tag: 'Rating A', sub: 'MPC-based custody technology with sub-second transaction settlement and full audit trail.', badges: ['MPC Technology', 'Real-Time Settlement', 'SOC 2 Type II'] }
           ].map((c) => (
-            <div 
+            <div
               key={c.id}
               onClick={() => setSelectedCustodian(c.id)}
               className={`p-8 rounded-3xl border-2 transition-all cursor-pointer flex gap-6 ${selectedCustodian === c.id ? 'border-primary bg-ui-accent-tint' : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'}`}
@@ -1431,14 +1994,24 @@ function IssuerOnboardingWizard() {
             <FormField
               label="Cold Storage Ratio (%)"
               placeholder="85"
+              required
               value={coldStorageRatio}
-              onChange={setColdStorageRatio}
+              error={fieldError('coldStorageRatio')}
+              onChange={(v) => {
+                setColdStorageRatio(v);
+                clearFieldError('coldStorageRatio');
+              }}
             />
             <FormField
               label="Multi-Sig Configuration"
               placeholder="2-of-3 multisig"
+              required
               value={multiSigConfig}
-              onChange={setMultiSigConfig}
+              error={fieldError('multiSigConfig')}
+              onChange={(v) => {
+                setMultiSigConfig(v);
+                clearFieldError('multiSigConfig');
+              }}
             />
           </div>
         </div>
@@ -1523,6 +2096,8 @@ function IssuerOnboardingWizard() {
         ) : null}
       </header>
 
+      <StepValidationBanner message={stepValidationMessage} />
+
       <section className="bg-ui-card border border-ui-border rounded-3xl p-8 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-1 min-w-0">
@@ -1563,15 +2138,31 @@ function IssuerOnboardingWizard() {
             </li>
           </ul>
         ) : null}
+        {isSessionTerminal ? (
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-ui-border pt-6">
+            <button
+              type="button"
+              onClick={beginAnotherAsset}
+              className="btn-gradient-primary rounded-2xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20"
+            >
+              + Tokenize another asset
+            </button>
+            <Link
+              href="/issuer/dashboard"
+              className="rounded-2xl border border-ui-border px-5 py-2.5 text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep"
+            >
+              Go to dashboard
+            </Link>
+          </div>
+        ) : null}
       </section>
 
       <div className={`rounded-3xl p-8 flex gap-5 items-start border ${step8BannerToneClass}`}>
         <div
-          className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
-            step8Banner.tone === 'purple'
-              ? 'bg-ui-purple-banner-icon-bg border-ui-purple-banner-border animate-pulse'
-              : 'bg-white/60 border-current/20'
-          }`}
+          className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${step8Banner.tone === 'purple'
+            ? 'bg-ui-purple-banner-icon-bg border-ui-purple-banner-border animate-pulse'
+            : 'bg-white/60 border-current/20'
+            }`}
         >
           <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -1598,45 +2189,72 @@ function IssuerOnboardingWizard() {
                 <p className="text-[13px] font-bold text-ui-strong mb-0.5">{item.name}</p>
                 <p className="text-[10px] text-ui-faint font-medium leading-relaxed">{item.sub}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setCurrentStep(item.step)}
-                className="text-[10px] font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              {applicationStatus.key === 'draft' && (
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(item.step)}
+                  className="text-[10px] font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {applicationStatus.key === 'draft' && (
+        <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
+          <h3 className="text-sm font-bold text-ui-strong">Terms & Certification</h3>
+          {fieldError('acceptedTerms') ? (
+            <p className="text-sm font-medium text-rose-600">{fieldError('acceptedTerms')}</p>
+          ) : null}
+          <div className="space-y-4">
+            {[
+              'I certify that all information provided is accurate and complete to the best of my knowledge.',
+              'I understand that providing false information may result in rejection and potential legal liability.',
+              'I agree to the Maxtronize Terms of Service, Privacy Policy, and Issuer Agreement.',
+              'I consent to background checks and verification of all submitted documentation.'
+            ].map((term, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-4 group cursor-pointer"
+                onClick={() => {
+                  const newTerms = [...acceptedTerms];
+                  newTerms[i] = !newTerms[i];
+                  setAcceptedTerms(newTerms);
+                  clearFieldError('acceptedTerms');
+                }}
               >
-                Edit
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
-        <h3 className="text-sm font-bold text-ui-strong">Terms & Certification</h3>
-        <div className="space-y-4">
-          {[
-            'I certify that all information provided is accurate and complete to the best of my knowledge.',
-            'I understand that providing false information may result in rejection and potential legal liability.',
-            'I agree to the Maxtronize Terms of Service, Privacy Policy, and Issuer Agreement.',
-            'I consent to background checks and verification of all submitted documentation.'
-          ].map((term, i) => (
-            <div key={i} className="flex items-center gap-4 group cursor-pointer">
-              <div className="w-5 h-5 rounded-md border-2 border-primary bg-primary flex items-center justify-center shrink-0 shadow-sm shadow-primary/20">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>
+                <div
+                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors shadow-sm ${acceptedTerms[i]
+                    ? 'border-primary bg-primary shadow-primary/20'
+                    : 'border-ui-border bg-ui-surface group-hover:border-primary/50'
+                    }`}
+                >
+                  {acceptedTerms[i] && (
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <p className="text-[11px] font-medium text-ui-body group-hover:text-ui-strong transition-colors">{term}</p>
               </div>
-              <p className="text-[11px] font-medium text-ui-body group-hover:text-ui-strong transition-colors">{term}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
-      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
-        <button
-          type="button"
-          onClick={() => setCurrentStep(7)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
-        >
-          ← Back
-        </button>
+      <div className={`flex flex-row items-center gap-3 border-t border-ui-border pt-6 ${applicationStatus.key === 'draft' ? 'justify-between' : 'justify-end'}`}>
+        {applicationStatus.key === 'draft' && (
+          <button
+            type="button"
+            onClick={() => setCurrentStep(7)}
+            className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+          >
+            ← Back
+          </button>
+        )}
         <button
           type="button"
           onClick={() => void handleSubmitApplication()}
@@ -1705,20 +2323,17 @@ function IssuerOnboardingWizard() {
           ].map((item, i, arr) => (
             <div
               key={item.label}
-              className={`flex items-center justify-between gap-4 px-5 py-4 ${
-                i < arr.length - 1 ? 'border-b border-white/[0.08]' : ''
-              }`}
+              className={`flex items-center justify-between gap-4 px-5 py-4 ${i < arr.length - 1 ? 'border-b border-white/[0.08]' : ''
+                }`}
             >
               <div className="flex min-w-0 items-center gap-3 text-left">
                 <span
-                  className={`h-2 w-2 shrink-0 rounded-full ${
-                    item.status === 'active' ? 'bg-[var(--brand-cyan)] shadow-[0_0_10px_rgba(0,212,168,0.8)]' : 'bg-white/25'
-                  }`}
+                  className={`h-2 w-2 shrink-0 rounded-full ${item.status === 'active' ? 'bg-[var(--brand-cyan)] shadow-[0_0_10px_rgba(0,212,168,0.8)]' : 'bg-white/25'
+                    }`}
                 />
                 <span
-                  className={`truncate text-sm font-semibold ${
-                    item.status === 'active' ? 'text-white' : 'text-zinc-400'
-                  }`}
+                  className={`truncate text-sm font-semibold ${item.status === 'active' ? 'text-white' : 'text-zinc-400'
+                    }`}
                 >
                   {item.label}
                 </span>
@@ -1730,127 +2345,57 @@ function IssuerOnboardingWizard() {
           ))}
         </div>
 
-        <div className="w-full max-w-xs space-y-4 pt-2">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-white/45">
-            Redirecting to your dashboard...
-          </p>
-          <div className="mx-auto h-1 w-full overflow-hidden rounded-full bg-white/10">
-            <div className="animate-progress h-full origin-left bg-gradient-to-r from-[var(--primary)] via-[var(--brand-indigo)] to-[var(--brand-cyan)]" />
+        {/* Animated redirect progress bar */}
+        <div className="w-full max-w-md space-y-3 text-center">
+          <p className="text-sm font-medium text-zinc-400">Redirecting to your dashboard...</p>
+          <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[var(--brand-cyan)] to-[#7C3AED] transition-all"
+              style={{ width: `${redirectProgress}%`, transitionDuration: '40ms', transitionTimingFunction: 'linear' }}
+            />
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => router.push('/issuer/dashboard')}
-          className="text-sm font-bold text-white/55 transition-colors hover:text-white"
-        >
-          Skip to Dashboard →
-        </button>
+        {/* Manual navigation fallback */}
+        <div className="flex w-full max-w-md flex-col gap-2 sm:flex-row sm:justify-center">
+          <button
+            type="button"
+            onClick={beginAnotherAsset}
+            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-xs font-bold text-zinc-300 transition-colors hover:bg-white/10"
+          >
+            + Tokenize another asset
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/issuer/dashboard')}
+            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-xs font-bold text-zinc-300 transition-colors hover:bg-white/10"
+          >
+            Go to dashboard →
+          </button>
+        </div>
       </div>
     </div>
   );
 
   if (isSubmitted) return renderSuccess();
 
-  return (
-    <OnboardingLayout currentStep={currentStep} showSaved={currentStep === 2}>
-        {isLoading ? (
-          <p className="text-sm text-ui-muted-text">Loading onboarding draft…</p>
-        ) : null}
-        {isReady && saveError && !saveError.includes('No onboarding session') ? (
-          <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-            {saveError}
-          </p>
-        ) : null}
-        {currentStep === 1 && renderStep1()}
-        {currentStep === 2 && renderStep2()}
-        {currentStep === 3 && renderStep3()}
-        {currentStep === 4 && renderStep4()}
-        {currentStep === 5 && renderStep5()}
-        {currentStep === 6 && renderStep6()}
-        {currentStep === 7 && renderStep7()}
-        {currentStep === 8 && renderStep8()}
-    </OnboardingLayout>
-  );
-}
-
-function FormField({
-  label,
-  placeholder,
-  required,
-  fullWidth,
-  isSelect,
-  hint,
-  value,
-  onChange,
-  options,
-  inputType = 'text',
-}: {
-  label: string;
-  placeholder: string;
-  required?: boolean;
-  fullWidth?: boolean;
-  isSelect?: boolean;
-  hint?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-  options?: { label: string; value: string }[];
-  inputType?: string;
-}) {
-  const { isApprovedOrLocked } = useOnboarding();
+  const effectiveStep = applicationStatus.key !== 'draft' ? 8 : currentStep;
 
   return (
-    <div className={`space-y-3 ${fullWidth ? 'md:col-span-2' : ''}`}>
-      {label ? (
-        <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest flex items-center gap-1">
-          {label}
-          {required && <span className="text-ui-danger-text font-bold">*</span>}
-        </label>
+    <OnboardingLayout currentStep={effectiveStep} showSaved={effectiveStep === 2}>
+      {saveError ? (
+        <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          {saveError}
+        </p>
       ) : null}
-      {hint ? <p className={`text-[10px] text-ui-faint leading-relaxed ${label ? '' : '-mt-1'}`}>{hint}</p> : null}
-      <div className="relative">
-        {options ? (
-          <select
-            value={value ?? ''}
-            onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-            disabled={isApprovedOrLocked}
-            className="w-full min-w-0 px-4 py-3.5 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 appearance-none disabled:opacity-75 disabled:cursor-not-allowed"
-          >
-            <option value="" disabled>{placeholder}</option>
-            {options.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        ) : (
-          <input
-            type={inputType}
-            placeholder={placeholder}
-            value={value ?? ''}
-            onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-            disabled={isApprovedOrLocked}
-            className="w-full min-w-0 px-4 py-3.5 bg-ui-input border border-ui-border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 disabled:opacity-75 disabled:cursor-not-allowed"
-          />
-        )}
-        {(isSelect || options) && (
-          <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
-            <svg className="w-4 h-4 text-ui-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function FileUploadField({ label, sub }: { label: string, sub: string }) {
-  return (
-    <div className="space-y-3">
-      <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">{label}</label>
-      <div className="p-6 border-2 border-dashed border-ui-border rounded-3xl bg-ui-muted-surface flex flex-col items-center justify-center gap-2 hover:bg-ui-muted-deep hover:border-ui-border-strong transition-all cursor-pointer group">
-        <p className="text-[10px] font-bold text-ui-faint uppercase tracking-wide group-hover:text-ui-muted-text transition-colors">{sub}</p>
-        <p className="text-[11px] font-bold text-primary group-hover:underline">Click to upload PDF / JPG</p>
-      </div>
-    </div>
+      {effectiveStep === 1 && renderStep1()}
+      {effectiveStep === 2 && renderStep2()}
+      {effectiveStep === 3 && renderStep3()}
+      {effectiveStep === 4 && renderStep4()}
+      {effectiveStep === 5 && renderStep5()}
+      {effectiveStep === 6 && renderStep6()}
+      {effectiveStep === 7 && renderStep7()}
+      {effectiveStep === 8 && renderStep8()}
+    </OnboardingLayout>
   );
 }

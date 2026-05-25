@@ -1,5 +1,6 @@
 import { pickNumber, pickString, unwrapList, unwrapPayload } from "@/lib/apiParse";
 import { readStringField, toApiAssetType } from "@/lib/onboarding";
+import { resolveStoragePublicUrl } from "@/lib/storageUrl";
 
 export type OnboardingStepKey =
   | "ENTITY_SETUP"
@@ -54,7 +55,7 @@ export type TokenizationPayload = {
   totalSupply?: number;
   tokenPrice: number;
   tokenStandard: string;
-  blockchainNetwork: string;
+  network: string;
   contractAddress?: string;
   metadata?: Record<string, unknown>;
 };
@@ -62,7 +63,15 @@ export type TokenizationPayload = {
 export type StartOnboardingPayload = {
   assetType: string;
   assetName: string;
+  coverImageKey?: string;
+  coverImageUrl?: string;
   metadata?: Record<string, unknown>;
+};
+
+export type StartOnboardingSessionResult = {
+  id: string;
+  coverImageKey?: string;
+  coverImageUrl?: string;
 };
 
 export type OnboardingProgress = {
@@ -253,7 +262,7 @@ export function buildTokenizationPayload(ui: TokenizationFormState): Tokenizatio
     totalSupply: parseNumberish(ui.totalSupply),
     tokenPrice: parseNumberish(ui.tokenPrice) ?? 0,
     tokenStandard: toApiTokenStandard(ui.tokenStandard),
-    blockchainNetwork: toApiNetwork(ui.blockchainNetwork),
+    network: toApiNetwork(ui.blockchainNetwork),
     contractAddress: ui.contractAddress.trim() || undefined,
   };
 }
@@ -261,12 +270,27 @@ export function buildTokenizationPayload(ui: TokenizationFormState): Tokenizatio
 export function buildStartOnboardingPayload(ui: {
   assetType: string;
   assetName: string;
+  coverImageKey?: string | null;
+  coverImageUrl?: string | null;
   metadata?: Record<string, unknown>;
 }): StartOnboardingPayload {
+  const coverImageKey = ui.coverImageKey?.trim() || undefined;
+  const coverImageUrl =
+    resolveStoragePublicUrl(coverImageKey, ui.coverImageUrl?.trim() || undefined) ??
+    undefined;
+  const metadata = {
+    ...ui.metadata,
+    ...(coverImageKey ? { coverImageKey } : {}),
+    ...(coverImageUrl ? { coverImageUrl } : {}),
+  };
+  const hasMetadata = Object.keys(metadata).length > 0;
+
   return {
     assetType: toApiAssetType(ui.assetType),
     assetName: ui.assetName.trim() || "New Asset",
-    metadata: ui.metadata,
+    ...(coverImageKey ? { coverImageKey } : {}),
+    ...(coverImageUrl ? { coverImageUrl } : {}),
+    ...(hasMetadata ? { metadata } : {}),
   };
 }
 

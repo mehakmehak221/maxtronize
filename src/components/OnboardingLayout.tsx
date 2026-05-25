@@ -47,7 +47,8 @@ export default function OnboardingLayout({
   currentStep,
   showSaved = false,
 }: OnboardingLayoutProps) {
-  const progressPct = (currentStep / TOTAL_STEPS) * 100;
+  const progressPct =
+    currentStep <= 0 ? 0 : (currentStep / TOTAL_STEPS) * 100;
 
   return (
     <ForceLightTheme>
@@ -109,9 +110,9 @@ export default function OnboardingLayout({
             </h3>
             <nav className="motion-onboarding-nav space-y-1.5 pb-4">
               {STEP_ITEMS.map((step) => {
-                const done = step.id < currentStep;
-                const active = step.id === currentStep;
-                const locked = step.id > currentStep;
+                const done = currentStep > 0 && step.id < currentStep;
+                const active = currentStep > 0 && step.id === currentStep;
+                const locked = currentStep <= 0 || step.id > currentStep;
                 const StepIcon = step.Icon;
 
                 return (

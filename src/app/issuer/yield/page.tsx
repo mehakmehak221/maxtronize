@@ -14,7 +14,11 @@ import React, { useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { formatCompactCurrency } from '@/lib/issuerDashboard';
 import {
+  buildDistributionChartYTicks,
   chartScaleForAmounts,
+  distributionScheduleHasChartData,
+  exportYieldAssetBreakdownCsv,
+  formatDistributionChartYTick,
   formatShortPayoutDate,
   parseApyPercent,
   type DistributionScheduleMonth,
@@ -170,15 +174,21 @@ function DistributionScheduleChart({
   mode,
   months,
   chartValues,
+  projectedValues,
   maxChart,
   scaleSuffix,
+  hasChartData,
+  year,
   loading,
 }: {
   mode: 'bar' | 'area';
   months: DistributionScheduleMonth[];
   chartValues: number[];
+  projectedValues: number[];
   maxChart: number;
   scaleSuffix: string;
+  hasChartData: boolean;
+  year: number;
   loading: boolean;
 }) {
   const chartLeft = 48;
@@ -190,7 +200,7 @@ function DistributionScheduleChart({
   const n = chartValues.length;
   const gap = n > 0 ? chartW / n : chartW;
 
-  const yTicks = [0, 0.25, 0.5, 0.75, 1].map((pct) => maxChart * pct);
+  const yTicks = buildDistributionChartYTicks(maxChart);
 
   const areaPath = buildAreaPath(
     chartValues,
@@ -248,9 +258,7 @@ function DistributionScheduleChart({
                 strokeDasharray="4 6"
               />
               <text x={chartLeft - 6} y={y + 4} textAnchor="end" fill="#9CA3AF" className="text-[10px] font-bold">
-                {k === 0
-                  ? '$0'
-                  : `$${k.toFixed(scaleSuffix === 'M' ? 1 : 0)}${scaleSuffix}`}
+                {formatDistributionChartYTick(k, scaleSuffix)}
               </text>
             </g>
           );
@@ -258,6 +266,35 @@ function DistributionScheduleChart({
 
         {mode === 'area' ? (
           <>
+            <path
+              d={buildAreaPath(
+                projectedValues,
+                chartLeft,
+                chartW,
+                chartTop,
+                chartH,
+                maxChart,
+                chartBottom,
+              )}
+              fill="#EDE9FE"
+              opacity={0.6}
+            />
+            <path
+              d={buildLinePath(
+                projectedValues,
+                chartLeft,
+                chartW,
+                chartTop,
+                chartH,
+                maxChart,
+              )}
+              fill="none"
+              stroke="#C4B5FD"
+              strokeWidth="2"
+              strokeDasharray="6 4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
             <path d={areaPath} fill="url(#yieldDistAreaFill)" />
             <path
               d={buildLinePath(chartValues, chartLeft, chartW, chartTop, chartH, maxChart)}
@@ -270,27 +307,44 @@ function DistributionScheduleChart({
             {chartValues.map((v, i) => {
               const x = chartLeft + (n > 1 ? (i / (n - 1)) * chartW : chartW / 2);
               const y = chartTop + chartH - (v / maxChart) * chartH;
-              return <circle key={i} cx={x} cy={y} r="4" fill="#9810FA" />;
+              return <circle key={`actual-${i}`} cx={x} cy={y} r="4" fill="#9810FA" />;
             })}
           </>
         ) : (
           chartValues.map((v, i) => {
+            const projected = projectedValues[i] ?? 0;
+            const projectedBarH = (projected / maxChart) * chartH;
             const barH = (v / maxChart) * chartH;
             const x = chartLeft + i * gap + (gap - barW) / 2;
+            const projectedY = chartBottom - projectedBarH;
             const y = chartBottom - barH;
             return (
-              <rect
-                key={months[i]?.label ?? i}
-                x={x}
-                y={y}
-                width={barW}
-                height={barH}
-                rx="4"
-                ry="4"
-                fill="#9810FA"
-                className="motion-bar-grow"
-                style={{ animationDelay: `${i * 40}ms` }}
-              />
+              <g key={months[i]?.label ?? i}>
+                {projected > 0 ? (
+                  <rect
+                    x={x}
+                    y={projectedY}
+                    width={barW}
+                    height={projectedBarH}
+                    rx="4"
+                    ry="4"
+                    fill="#DDD6FE"
+                  />
+                ) : null}
+                {v > 0 ? (
+                  <rect
+                    x={x}
+                    y={y}
+                    width={barW}
+                    height={barH}
+                    rx="4"
+                    ry="4"
+                    fill="#9810FA"
+                    className="motion-bar-grow"
+                    style={{ animationDelay: `${i * 40}ms` }}
+                  />
+                ) : null}
+              </g>
             );
           })
         )}
@@ -317,6 +371,7 @@ function DistributionScheduleChart({
 
 export default function YieldPage() {
   const [chartMode, setChartMode] = useState<'bar' | 'area'>('bar');
+  const [exporting, setExporting] = useState(false);
   const currentYear = new Date().getFullYear();
 
   const { data: summary, isLoading: summaryLoading } = useGetYieldSummaryQuery();
@@ -406,13 +461,24 @@ export default function YieldPage() {
 
   const chartBundle = useMemo(() => {
     const months = schedule?.months ?? [];
-    const scale = chartScaleForAmounts([
-      ...months.map((m) => m.actual),
-      ...(schedule ? [schedule.eoyProjection, schedule.ytdActual] : []),
-    ]);
+    const hasChartData = distributionScheduleHasChartData(months);
+    const amountSeries = months.flatMap((m) => [m.actual, m.projected]);
+    const scale = chartScaleForAmounts(
+      hasChartData
+        ? [...amountSeries, schedule?.eoyProjection ?? 0, schedule?.ytdActual ?? 0]
+        : [0],
+    );
     const chartValues = months.map((m) => m.actual / scale.divisor);
-    const maxChart = Math.max(scale.max * 1.15, 1);
-    return { months, chartValues, maxChart, scaleSuffix: scale.suffix };
+    const projectedValues = months.map((m) => m.projected / scale.divisor);
+    const maxChart = hasChartData ? Math.max(scale.max * 1.15, 0.01) : 1;
+    return {
+      months,
+      chartValues,
+      projectedValues,
+      maxChart,
+      scaleSuffix: scale.suffix,
+      hasChartData,
+    };
   }, [schedule]);
 
   const apyAssets = useMemo(() => {
@@ -433,20 +499,19 @@ export default function YieldPage() {
   );
 
   const breakdownRows = useMemo((): BreakdownRow[] => {
-    if (yieldBreakdown && yieldBreakdown.length > 0) {
-      return yieldBreakdown.map((item: any, index: number) => {
+    if (yieldBreakdown.length > 0) {
+      return yieldBreakdown.map((item, index) => {
         const palette = APY_BAR_PALETTE[index % APY_BAR_PALETTE.length];
-        const status = item.status || 'On Track';
         return {
-          name: item.assetName || item.name || '—',
-          tag: item.ticker || '—',
+          name: item.name,
+          tag: item.ticker,
           dot: palette.dot,
-          apy: item.apy != null ? `${item.apy}%` : '—',
-          total: item.totalDistributedFormatted || (item.totalDistributed != null ? formatCompactCurrency(item.totalDistributed, item.currency || 'USD') : '—'),
-          freq: item.frequency || '—',
+          apy: item.apyDisplay,
+          total: item.totalDistributedFormatted,
+          freq: item.frequency,
           last: item.lastPayoutDate ? formatShortPayoutDate(item.lastPayoutDate) : '—',
           next: item.nextPayoutDate ? formatShortPayoutDate(item.nextPayoutDate) : '—',
-          status: status as BreakdownStatus,
+          status: item.status,
         };
       });
     }
@@ -504,6 +569,16 @@ export default function YieldPage() {
   }, [portfolioAssets, upcoming, summary, yieldBreakdown]);
 
   const highlightPayoutId = upcoming[0]?.id;
+
+  function handleExportBreakdownCsv() {
+    if (yieldBreakdown.length === 0 || exporting) return;
+    setExporting(true);
+    try {
+      exportYieldAssetBreakdownCsv(yieldBreakdown);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const scheduleFooter = useMemo(() => {
     const currency = schedule?.currency ?? 'USD';
@@ -601,8 +676,11 @@ export default function YieldPage() {
               mode={chartMode}
               months={chartBundle.months}
               chartValues={chartBundle.chartValues}
+              projectedValues={chartBundle.projectedValues}
               maxChart={chartBundle.maxChart}
               scaleSuffix={chartBundle.scaleSuffix}
+              hasChartData={chartBundle.hasChartData}
+              year={schedule?.year ?? currentYear}
               loading={scheduleLoading}
             />
 
@@ -707,14 +785,16 @@ export default function YieldPage() {
             </div>
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-[11px] font-bold text-ui-body shadow-sm transition-colors hover:bg-ui-muted"
+              disabled={exporting || breakdownLoading || yieldBreakdown.length === 0}
+              onClick={handleExportBreakdownCsv}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-[11px] font-bold text-ui-body shadow-sm transition-colors hover:bg-ui-muted disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Download className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
-              Export CSV
+              {exporting ? 'Exporting…' : 'Export CSV'}
             </button>
           </div>
 
-          {assetsLoading && payoutsLoading ? (
+          {breakdownLoading && breakdownRows.length === 0 ? (
             <p className="px-6 py-8 text-sm font-medium text-ui-faint">Loading breakdown…</p>
           ) : breakdownRows.length === 0 ? (
             <p className="px-6 py-8 text-sm font-medium text-ui-faint">

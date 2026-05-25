@@ -3,7 +3,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   AlertTriangle,
-  BarChart3,
   Brain,
   Building2,
   CheckCircle2,
@@ -25,7 +24,7 @@ import { HubCapTableTab } from '@/components/issuer/HubCapTableTab';
 import { HubComplianceTab } from '@/components/issuer/HubComplianceTab';
 import { HubInvestorsTab } from '@/components/issuer/HubInvestorsTab';
 import { HubDistributionsTab } from '@/components/issuer/HubDistributionsTab';
-import { HubAnalyticsTab } from '@/components/hub/HubAnalyticsTab';
+// import { HubAnalyticsTab } from '@/components/hub/HubAnalyticsTab';
 import { HubOverviewTab } from '@/components/issuer/HubOverviewTab';
 import { formatRequestError } from '@/lib/formatRequestError';
 import { buildAiAssistantDraftReply } from '@/lib/issuerAiAssistant';
@@ -75,7 +74,7 @@ type TabType =
   | 'investors'
   | 'distributions'
   | 'compliance'
-  | 'analytics'
+  // | 'analytics' // Investor-only API — hidden for issuer until issuer endpoints exist
   | 'ai-assistant';
 
 // Keep the richer analytics and AI assistant UI visible by request.
@@ -87,7 +86,7 @@ const HUB_TABS: { id: TabType; name: string; icon: LucideIcon; showDot?: boolean
   { id: 'investors', name: 'Investors', icon: Users },
   { id: 'distributions', name: 'Distributions', icon: DollarSign },
   { id: 'compliance', name: 'Compliance', icon: ShieldCheck },
-  { id: 'analytics', name: 'Analytics', icon: BarChart3 },
+  // { id: 'analytics', name: 'Analytics', icon: BarChart3 },
   { id: 'ai-assistant', name: 'AI Assistant', icon: Brain, showDot: true },
 ];
 
@@ -264,7 +263,7 @@ export default function IssuerHubPage() {
     <HubComplianceTab search={complianceSearch} onSearchChange={setComplianceSearch} />
   );
 
-  const renderAnalytics = () => <HubAnalyticsTab variant="issuer" />;
+  // const renderAnalytics = () => <HubAnalyticsTab variant="issuer" />;
 
   const renderAiAssistant = () => (
     <div className="min-w-0 max-w-full px-3 animate-in fade-in duration-500 sm:px-4 md:px-5">
@@ -519,7 +518,7 @@ export default function IssuerHubPage() {
           {activeTab === 'cap-table' && renderCapTable()}
           {activeTab === 'compliance' && renderCompliance()}
           {activeTab === 'distributions' && <HubDistributionsTab />}
-          {activeTab === 'analytics' && renderAnalytics()}
+          {/* {activeTab === 'analytics' && renderAnalytics()} */}
           {activeTab === 'ai-assistant' && renderAiAssistant()}
         </div>
       </div>

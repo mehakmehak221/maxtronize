@@ -114,7 +114,7 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
           </p>
         </div>
         <Link
-          href="/issuer/onboarding"
+          href="/issuer/onboarding?start=1"
           className="inline-flex justify-center rounded-full bg-primary px-6 py-2 text-[13px] font-bold text-white transition-colors hover:bg-issuer-primary-hover"
         >
           + New Asset

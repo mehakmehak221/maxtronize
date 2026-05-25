@@ -75,6 +75,20 @@ type UploadedStorageFile = {
 
 const INVESTOR_UPLOADED_FILES_STORAGE_KEY = 'investor_uploaded_storage_files';
 
+function resolveAbsoluteUrl(url: string): string {
+  if (!url) return '#';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/$/, '');
+  const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+  
+  if (!cleanUrl.startsWith('/storage/') && !cleanUrl.startsWith('/api/')) {
+    return `${baseUrl}/storage${cleanUrl}`;
+  }
+  return `${baseUrl}${cleanUrl}`;
+}
+
 function formatUploadedAt(date: Date) {
   return date.toLocaleString('en-US', {
     month: 'short',
@@ -499,7 +513,7 @@ export default function InvestorDocumentsPage() {
                     </div>
                   </div>
                   <a
-                    href={file.url}
+                    href={resolveAbsoluteUrl(file.url)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-ui-border px-4 py-2.5 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"

@@ -11,6 +11,7 @@ import {
 } from '@/lib/investorHubAnalytics';
 import {
   useGetInvestorHubAnalyticsInitQuery,
+  useGetInvestorHubAnalyticsPerformanceQuery,
   useGetInvestorHubAnalyticsSummaryQuery,
 } from '@/store/api/investorHubAnalyticsApi';
 
@@ -49,11 +50,23 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
     isLoading: initLoading,
     error: initError,
   } = useGetInvestorHubAnalyticsInitQuery({ period: ANALYTICS_PERIOD });
+  const {
+    data: analyticsPerformance,
+    isLoading: performanceLoading,
+    error: performanceError,
+  } = useGetInvestorHubAnalyticsPerformanceQuery(
+    { period: ANALYTICS_PERIOD },
+    { skip: isIssuer },
+  );
 
   const summary = analyticsSummary ?? analyticsInit?.summary;
-  const performance = analyticsInit?.performance;
-  const analyticsLoading = summaryLoading || initLoading;
-  const analyticsError = summaryError ?? initError;
+  const performance =
+    analyticsInit?.performance?.series.length
+      ? analyticsInit.performance
+      : analyticsPerformance;
+  const analyticsLoading =
+    summaryLoading || initLoading || (!isIssuer && performanceLoading);
+  const analyticsError = summaryError ?? initError ?? performanceError;
 
   const metricCardClass = isIssuer
     ? 'rounded-[24px] border border-card-border bg-card p-6 shadow-sm md:p-7'
@@ -115,8 +128,12 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
   );
 
   const performanceChart = useMemo(
-    () => buildPerformanceChartPaths(performance?.series ?? []),
-    [performance?.series],
+    () =>
+      buildPerformanceChartPaths(
+        performance?.series ?? [],
+        performance?.currency ?? "USD",
+      ),
+    [performance?.currency, performance?.series],
   );
 
   const monthLabels =
@@ -189,7 +206,7 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
       <div className={chartCardClass}>
         <h3 className={titleClass}>Portfolio Performance</h3>
         <p className={subClass}>
-          Indexed change vs. benchmark ({performance?.benchmarkLabel ?? 'S&P 500'}) from the first period
+          Your portfolio vs. benchmark ({performance?.benchmarkLabel ?? 'S&P 500'})
         </p>
         {analyticsLoading ? (
           <div className="mt-6 flex h-56 items-center justify-center rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70 text-sm text-text-muted dark:border-slate-700/80 dark:bg-slate-900/20 md:h-72">
@@ -250,12 +267,6 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
                   preserveAspectRatio="none"
                   aria-hidden
                 >
-                  <defs>
-                    <linearGradient id="hub-analytics-perf-fill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.22" />
-                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
                   {performanceChart.benchmarkPath ? (
                     <path
                       d={performanceChart.benchmarkPath}
@@ -267,7 +278,6 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
                       vectorEffect="nonScalingStroke"
                     />
                   ) : null}
-                  <path d={performanceChart.areaPath} fill="url(#hub-analytics-perf-fill)" />
                   <path
                     d={performanceChart.portfolioPath}
                     fill="none"

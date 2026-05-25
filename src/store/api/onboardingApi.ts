@@ -2,6 +2,7 @@ import { unwrapPayload } from "@/lib/apiParse";
 import {
   parseOnboardingDocuments,
   parseOnboardingState,
+  parseUploadedOnboardingDocument,
   type AccreditationPayload,
   type AssetDraftPayload,
   type CustodyPayload,
@@ -150,6 +151,7 @@ export const onboardingApi = baseApi.injectEndpoints({
         const formData = new FormData();
         formData.append("file", file);
         formData.append("type", type);
+        formData.append("documentType", type);
         if (metadata && Object.keys(metadata).length > 0) {
           formData.append("metadata", JSON.stringify(metadata));
         }
@@ -159,6 +161,8 @@ export const onboardingApi = baseApi.injectEndpoints({
           body: formData,
         };
       },
+      transformResponse: (response: unknown) =>
+        parseUploadedOnboardingDocument(response),
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Onboarding", id },
         { type: "Onboarding", id: `${id}-documents` },
@@ -269,6 +273,7 @@ export const onboardingApi = baseApi.injectEndpoints({
         { type: "Onboarding", id },
         { type: "Onboarding", id: `${id}-progress` },
         { type: "Onboarding", id: `${id}-review` },
+        "User",
       ],
     }),
     startOnboarding: build.mutation<

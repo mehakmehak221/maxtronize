@@ -13,6 +13,7 @@ import {
   formatOverviewTrendPercent,
 } from '@/lib/investorHubOverview';
 import { sectorIconClass } from '@/lib/investorHoldings';
+import { filterTransactionsByDisplayType } from '@/lib/investorHubTransactions';
 import {
   buildAllocationConicGradient,
   formatCompactCurrency,
@@ -20,7 +21,10 @@ import {
 import { HubAnalyticsTab } from '@/components/hub/HubAnalyticsTab';
 import { InvestorHubDistributionsTab } from '@/components/investor/InvestorHubDistributionsTab';
 import { InvestorHubInvestmentDocumentsTab } from '@/components/investor/InvestorHubInvestmentDocumentsTab';
-import { useGetInvestorHubOverviewInitQuery } from '@/store/api/investorHubOverviewApi';
+import {
+  useGetInvestorHubOverviewInitQuery,
+  useGetInvestorHubOverviewMonthlyEarningsQuery
+} from '@/store/api/investorHubOverviewApi';
 import { useListInvestorHoldingsQuery } from '@/store/api/investorHoldingsApi';
 import { useGetInvestorHubTabsQuery } from '@/store/api/investorHubTabsApi';
 import {
@@ -54,7 +58,6 @@ type NavSvg = ComponentType<SVGProps<SVGSVGElement>>;
 
 const OVERVIEW_PERIOD = '9m';
 
-// Map server tab keys → client TabType
 const TAB_KEY_MAP: Record<string, TabType> = {
   OVERVIEW: 'overview',
   MY_INVESTMENTS: 'investments',
@@ -88,10 +91,10 @@ function InvestorHubContent() {
     }
   }, [requestedTab]);
 
-  // ── Hub Tabs API ─────────────────────────────────────────────────────────
+
   const { data: hubTabsData } = useGetInvestorHubTabsQuery();
 
-  // ── Transactions API ─────────────────────────────────────────────────────
+
   const [txSearch, setTxSearch] = useState('');
   const [txType, setTxType] = useState('');
   const [txPage, setTxPage] = useState(1);
@@ -104,11 +107,24 @@ function InvestorHubContent() {
   const { data: txFilters } = useGetInvestorHubTransactionFiltersQuery();
   const [exportTx, { isLoading: exportLoading }] = useExportInvestorHubTransactionsMutation();
 
+  const filteredTransactions = useMemo(
+    () => filterTransactionsByDisplayType(txResult?.data ?? [], txType),
+    [txResult?.data, txType],
+  );
+  const serverAppliedTypeFilter =
+    !txType ||
+    filteredTransactions.length === (txResult?.data?.length ?? 0);
+  const transactionCount = serverAppliedTypeFilter
+    ? (txResult?.pagination.total ?? filteredTransactions.length)
+    : filteredTransactions.length;
+
   const {
     data: overviewInit,
     isLoading: overviewLoading,
     error: overviewError,
   } = useGetInvestorHubOverviewInitQuery({ period: OVERVIEW_PERIOD });
+
+  const { data: directMonthlyEarnings, isLoading: earningsLoading } = useGetInvestorHubOverviewMonthlyEarningsQuery({ period: OVERVIEW_PERIOD });
 
   const { data: holdingsResult, isLoading: holdingsLoading, error: holdingsError } =
     useListInvestorHoldingsQuery({ page: 1, limit: 50 });
@@ -146,30 +162,30 @@ function InvestorHubContent() {
     'asset-intelligence': AssetIntelligenceIcon,
   };
 
-  // Build tabs from API response; fall back to static list
+
   const tabs: { id: TabType; label: string; Icon: NavSvg; count?: number; badge?: string }[] =
     hubTabsData?.tabs.length
       ? hubTabsData.tabs
-          .map((t) => ({
-            id: TAB_KEY_MAP[t.key] as TabType,
-            label: t.label,
-            Icon: TAB_ICONS[TAB_KEY_MAP[t.key] as TabType] ?? Overview,
-            count: t.count ?? undefined,
-            badge: t.badge ?? undefined,
-          }))
-          .filter((t) => t.id)
+        .map((t) => ({
+          id: TAB_KEY_MAP[t.key] as TabType,
+          label: t.label,
+          Icon: TAB_ICONS[TAB_KEY_MAP[t.key] as TabType] ?? Overview,
+          count: t.count ?? undefined,
+          badge: t.badge ?? undefined,
+        }))
+        .filter((t) => t.id)
       : [
-          { id: 'overview' as TabType, label: 'Overview', Icon: Overview },
-          { id: 'investments' as TabType, label: 'My Investments', Icon: InvestmentIcon, count: holdingsTotal || undefined },
-          { id: 'transactions' as TabType, label: 'Transactions', Icon: SecondaryMarket },
-          { id: 'distributions' as TabType, label: 'Distributions', Icon: DistributionsIcon },
-          { id: 'documents' as TabType, label: 'Documents', Icon: Document },
-          { id: 'analytics' as TabType, label: 'Analytics', Icon: AnalyticIcon },
-          { id: 'lexa' as TabType, label: 'Lexa AI', Icon: LexaAiIcon, badge: 'AI' },
-          { id: 'asset-intelligence' as TabType, label: 'Asset Intelligence', Icon: AssetIntelligenceIcon },
-        ];
+        { id: 'overview' as TabType, label: 'Overview', Icon: Overview },
+        { id: 'investments' as TabType, label: 'My Investments', Icon: InvestmentIcon, count: holdingsTotal || undefined },
+        { id: 'transactions' as TabType, label: 'Transactions', Icon: SecondaryMarket },
+        { id: 'distributions' as TabType, label: 'Distributions', Icon: DistributionsIcon },
+        { id: 'documents' as TabType, label: 'Documents', Icon: Document },
+        { id: 'analytics' as TabType, label: 'Analytics', Icon: AnalyticIcon },
+        { id: 'lexa' as TabType, label: 'Lexa AI', Icon: LexaAiIcon, badge: 'AI' },
+        { id: 'asset-intelligence' as TabType, label: 'Asset Intelligence', Icon: AssetIntelligenceIcon },
+      ];
 
-  // Map tx type → icon + colour
+
   function txIconProps(type: string): { Icon: NavSvg; iconBg: string } {
     const t = type.toUpperCase();
     if (t === 'BUY') return { Icon: BuyIcon, iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' };
@@ -179,7 +195,7 @@ function InvestorHubContent() {
 
   const overviewHeader = overviewInit?.header;
   const overviewSummary = overviewInit?.summary;
-  const monthlyEarnings = overviewInit?.monthlyEarnings;
+  const monthlyEarnings = directMonthlyEarnings ?? overviewInit?.monthlyEarnings;
   const overviewAllocation = overviewInit?.allocation;
 
   const statsOverview = useMemo(() => {
@@ -190,10 +206,10 @@ function InvestorHubContent() {
         val: overviewLoading
           ? '…'
           : formatCompactCurrency(
-              s?.monthlyIncome.amount ?? 0,
-              s?.monthlyIncome.currency ?? 'USD',
-              { decimals: 0 },
-            ),
+            s?.monthlyIncome.amount ?? 0,
+            s?.monthlyIncome.currency ?? 'USD',
+            { decimals: 0 },
+          ),
         sub: s?.monthlyIncome.summary || 'Passive earnings',
         trend: formatOverviewTrendPercent(s?.monthlyIncome.changePercent ?? null),
         Icon: IncomeIcon,
@@ -254,7 +270,6 @@ function InvestorHubContent() {
   const earningsMonthLabels =
     earningsChart?.labels.length ? earningsChart.labels : months;
 
-  // ── Tab Content ──────────────────────────────────────────────────────────────
 
   const renderOverview = () => (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
@@ -277,9 +292,8 @@ function InvestorHubContent() {
               </div>
               {stat.trend ? (
                 <span
-                  className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[9px] font-bold md:text-[10px] ${
-                    stat.up ? 'bg-green-50 text-green-600 dark:bg-green-950/35 dark:text-green-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-950/35 dark:text-amber-400'
-                  }`}
+                  className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[9px] font-bold md:text-[10px] ${stat.up ? 'bg-green-50 text-green-600 dark:bg-green-950/35 dark:text-green-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-950/35 dark:text-amber-400'
+                    }`}
                 >
                   <ReturnIcon className="h-3 w-3 shrink-0" />
                   {stat.trend}
@@ -330,7 +344,7 @@ function InvestorHubContent() {
               ))}
             </div>
             <div className="absolute inset-y-0 left-8 right-0 motion-chart">
-              {overviewLoading ? (
+              {earningsLoading ? (
                 <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40 animate-pulse" />
               ) : earningsChart ? (
                 <>
@@ -452,45 +466,45 @@ function InvestorHubContent() {
       ) : null}
       {investments.map((inv) => {
         const card = (
-        <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-8 shadow-sm hover:shadow-md transition-all cursor-pointer group">
-          {/* Top row */}
-          <div className="flex items-center justify-between gap-4 mb-5 md:mb-8">
-            <div className="flex items-center gap-3 md:gap-4">
-              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center shrink-0 ${inv.iconBg}`}>
-                <inv.Icon className="h-5 w-5 md:h-6 md:w-6" />
+          <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] p-5 md:p-8 shadow-sm hover:shadow-md transition-all cursor-pointer group">
+            {/* Top row */}
+            <div className="flex items-center justify-between gap-4 mb-5 md:mb-8">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center shrink-0 ${inv.iconBg}`}>
+                  <inv.Icon className="h-5 w-5 md:h-6 md:w-6" />
+                </div>
+                <div>
+                  <h4 className="text-[13px] md:text-base font-bold text-ui-strong group-hover:text-primary transition-colors">{inv.name}</h4>
+                  <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{inv.ticker} · {inv.sector}</p>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-lg md:text-2xl font-bold text-ui-strong">{inv.currentVal}</p>
+                <p className={`text-[11px] md:text-sm font-bold flex items-center justify-end gap-1 ${inv.up ? 'text-green-500' : 'text-red-500'}`}>
+                  <span>{inv.up ? '↗' : '↙'}</span> {inv.gainPct}
+                </p>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-3 md:gap-8 border-t border-ui-divider pt-5 md:pt-6">
+              <div>
+                <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Invested</p>
+                <p className="text-sm md:text-base font-bold text-ui-strong">{inv.invested}</p>
               </div>
               <div>
-                <h4 className="text-[13px] md:text-base font-bold text-ui-strong group-hover:text-primary transition-colors">{inv.name}</h4>
-                <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{inv.ticker} · {inv.sector}</p>
+                <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Gain / Loss</p>
+                <p className={`text-sm md:text-base font-bold ${inv.up ? 'text-green-500' : 'text-red-500'}`}>{inv.gain}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Status</p>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1 text-[10px] font-bold text-green-700 dark:border-emerald-800/60 dark:bg-emerald-950/45 dark:text-emerald-300">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  {inv.status}
+                </span>
               </div>
             </div>
-            <div className="text-right shrink-0">
-              <p className="text-lg md:text-2xl font-bold text-ui-strong">{inv.currentVal}</p>
-              <p className={`text-[11px] md:text-sm font-bold flex items-center justify-end gap-1 ${inv.up ? 'text-green-500' : 'text-red-500'}`}>
-                <span>{inv.up ? '↗' : '↙'}</span> {inv.gainPct}
-              </p>
-            </div>
           </div>
-
-          {/* Stats row */}
-          <div className="grid grid-cols-3 gap-3 md:gap-8 border-t border-ui-divider pt-5 md:pt-6">
-            <div>
-              <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Invested</p>
-              <p className="text-sm md:text-base font-bold text-ui-strong">{inv.invested}</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Gain / Loss</p>
-              <p className={`text-sm md:text-base font-bold ${inv.up ? 'text-green-500' : 'text-red-500'}`}>{inv.gain}</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Status</p>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1 text-[10px] font-bold text-green-700 dark:border-emerald-800/60 dark:bg-emerald-950/45 dark:text-emerald-300">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                {inv.status}
-              </span>
-            </div>
-          </div>
-        </div>
         );
         if (inv.assetId) {
           return (
@@ -505,121 +519,122 @@ function InvestorHubContent() {
   );
 
   const renderTransactions = () => {
-    const rows = txResult?.data ?? [];
+    const rows = filteredTransactions;
     const pagination = txResult?.pagination;
     return (
-    <div className="animate-in fade-in duration-500 space-y-4">
-      <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
-        <div className="p-5 md:p-8 border-b border-ui-divider flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-base font-bold text-ui-strong">Transaction History</h3>
-            <p className="text-xs text-ui-faint mt-0.5">
-              {txLoading ? 'Loading…' : `${pagination?.total ?? 0} transaction${(pagination?.total ?? 0) === 1 ? '' : 's'}`}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Search */}
-            <input
-              value={txSearch}
-              onChange={e => { setTxSearch(e.target.value); setTxPage(1); }}
-              placeholder="Search…"
-              className="px-3 py-2 border border-ui-border rounded-xl text-[12px] font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10 w-36"
-            />
-            {/* Type filter */}
-            {(txFilters?.displayTypes.length ?? 0) > 0 && (
-              <select
-                value={txType}
-                onChange={e => { setTxType(e.target.value); setTxPage(1); }}
-                className="px-3 py-2 border border-ui-border rounded-xl text-[12px] font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10"
+      <div className="animate-in fade-in duration-500 space-y-4">
+        <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
+          <div className="p-5 md:p-8 border-b border-ui-divider flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-ui-strong">Transaction History</h3>
+              <p className="text-xs text-ui-faint mt-0.5">
+                {txLoading ? 'Loading…' : `${transactionCount} transaction${transactionCount === 1 ? '' : 's'}`}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Search */}
+              <input
+                value={txSearch}
+                onChange={e => { setTxSearch(e.target.value); setTxPage(1); }}
+                placeholder="Search…"
+                className="px-3 py-2 border border-ui-border rounded-xl text-[12px] font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10 w-36"
+              />
+              {/* Type filter */}
+              {(txFilters?.displayTypes.length ?? 0) > 0 && (
+                <select
+                  value={txType}
+                  onChange={e => { setTxType(e.target.value); setTxPage(1); }}
+                  className="px-3 py-2 border border-ui-border rounded-xl text-[12px] font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10"
+                >
+                  <option value="">All Types</option>
+                  {txFilters!.displayTypes.map(dt => (
+                    <option key={dt.key} value={dt.key}>{dt.label}</option>
+                  ))}
+                </select>
+              )}
+              {/* Export */}
+              <button
+                onClick={() => exportTx({ search: txSearch || undefined, displayType: txType || undefined })}
+                disabled={exportLoading}
+                className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-[12px] font-bold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
               >
-                <option value="">All Types</option>
-                {txFilters!.displayTypes.map(dt => (
-                  <option key={dt.key} value={dt.key}>{dt.label}</option>
-                ))}
-              </select>
-            )}
-            {/* Export */}
-            <button
-              onClick={() => exportTx({ search: txSearch || undefined, displayType: txType || undefined })}
-              disabled={exportLoading}
-              className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-[12px] font-bold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              {exportLoading ? 'Exporting…' : 'Export'}
-            </button>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                {exportLoading ? 'Exporting…' : 'Export'}
+              </button>
+            </div>
           </div>
+
+          {txLoading ? (
+            <div className="divide-y divide-ui-divider">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 px-5 md:px-8 py-4 animate-pulse">
+                  <div className="w-9 h-9 rounded-xl bg-ui-muted-deep shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-40 rounded bg-ui-muted-deep" />
+                    <div className="h-2 w-24 rounded bg-ui-muted-deep" />
+                  </div>
+                  <div className="text-right space-y-2">
+                    <div className="h-3 w-16 rounded bg-ui-muted-deep" />
+                    <div className="h-2 w-20 rounded bg-ui-muted-deep" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : rows.length === 0 ? (
+            <p className="px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+              No transactions found.
+            </p>
+          ) : (
+            <div className="divide-y divide-ui-divider">
+              {rows.map((tx) => {
+                const { Icon, iconBg } = txIconProps(tx.type);
+                return (
+                  <div key={tx.id} className="flex items-center gap-3 md:gap-6 px-5 md:px-8 py-4 md:py-5 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
+                    <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
+                      <Icon className="h-4 w-4 md:h-5 md:w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{tx.assetName}</p>
+                      <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{tx.subtitle}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className={`text-[13px] md:text-base font-bold ${tx.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                        {tx.amountFormatted}
+                      </p>
+                      <p className="text-[10px] text-ui-faint font-medium">{tx.date}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {txLoading ? (
-          <div className="divide-y divide-ui-divider">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 px-5 md:px-8 py-4 animate-pulse">
-                <div className="w-9 h-9 rounded-xl bg-ui-muted-deep shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3 w-40 rounded bg-ui-muted-deep" />
-                  <div className="h-2 w-24 rounded bg-ui-muted-deep" />
-                </div>
-                <div className="text-right space-y-2">
-                  <div className="h-3 w-16 rounded bg-ui-muted-deep" />
-                  <div className="h-2 w-20 rounded bg-ui-muted-deep" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : rows.length === 0 ? (
-          <p className="px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
-            No transactions found.
-          </p>
-        ) : (
-          <div className="divide-y divide-ui-divider">
-            {rows.map((tx) => {
-              const { Icon, iconBg } = txIconProps(tx.type);
-              return (
-                <div key={tx.id} className="flex items-center gap-3 md:gap-6 px-5 md:px-8 py-4 md:py-5 hover:bg-ui-muted-surface transition-colors group cursor-pointer">
-                  <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
-                    <Icon className="h-4 w-4 md:h-5 md:w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{tx.assetName}</p>
-                    <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{tx.id} · {tx.typeLabel}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className={`text-[13px] md:text-base font-bold ${tx.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                      {tx.amountFormatted}
-                    </p>
-                    <p className="text-[10px] text-ui-faint font-medium">{tx.date}</p>
-                  </div>
-                </div>
-              );
-            })}
+        {/* Pagination */}
+        {(pagination?.totalPages ?? 0) > 1 && (
+          <div className="flex items-center justify-between">
+            <button
+              disabled={!pagination?.hasPreviousPage}
+              onClick={() => setTxPage(p => p - 1)}
+              className="px-4 py-2 rounded-xl border border-ui-border text-[12px] font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
+            >
+              ← Previous
+            </button>
+            <span className="text-[12px] font-medium text-ui-faint">
+              Page {pagination?.page} of {pagination?.totalPages}
+            </span>
+            <button
+              disabled={!pagination?.hasNextPage}
+              onClick={() => setTxPage(p => p + 1)}
+              className="px-4 py-2 rounded-xl border border-ui-border text-[12px] font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
+            >
+              Next →
+            </button>
           </div>
         )}
       </div>
-
-      {/* Pagination */}
-      {(pagination?.totalPages ?? 0) > 1 && (
-        <div className="flex items-center justify-between">
-          <button
-            disabled={!pagination?.hasPreviousPage}
-            onClick={() => setTxPage(p => p - 1)}
-            className="px-4 py-2 rounded-xl border border-ui-border text-[12px] font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
-          >
-            ← Previous
-          </button>
-          <span className="text-[12px] font-medium text-ui-faint">
-            Page {pagination?.page} of {pagination?.totalPages}
-          </span>
-          <button
-            disabled={!pagination?.hasNextPage}
-            onClick={() => setTxPage(p => p + 1)}
-            className="px-4 py-2 rounded-xl border border-ui-border text-[12px] font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
-          >
-            Next →
-          </button>
-        </div>
-      )}
-    </div>
-  );}
+    );
+  }
 
 
   const renderAnalytics = () => <HubAnalyticsTab variant="investor" />;
@@ -653,16 +668,14 @@ function InvestorHubContent() {
         <div className="p-4 md:p-6 space-y-5 max-h-[420px] overflow-y-auto">
           {chatMessages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 ${
-                msg.role === 'ai' ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-ui-muted-text'
-              }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 ${msg.role === 'ai' ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-ui-muted-text'
+                }`}>
                 {msg.role === 'ai' ? <LexaAiIcon className="h-4 w-4" /> : <span className="text-[11px] font-bold">You</span>}
               </div>
-              <div className={`max-w-[80%] md:max-w-[70%] px-4 py-3 rounded-2xl text-[13px] font-medium leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-primary text-white rounded-tr-none'
-                  : 'bg-ui-muted-deep text-ui-body rounded-tl-none'
-              }`}>
+              <div className={`max-w-[80%] md:max-w-[70%] px-4 py-3 rounded-2xl text-[13px] font-medium leading-relaxed ${msg.role === 'user'
+                ? 'bg-primary text-white rounded-tr-none'
+                : 'bg-ui-muted-deep text-ui-body rounded-tl-none'
+                }`}>
                 {msg.text.split('\n').map((line, j) => <p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>)}
               </div>
             </div>
@@ -790,15 +803,14 @@ function InvestorHubContent() {
             {overviewLoading
               ? '…'
               : formatCompactCurrency(
-                  overviewHeader?.totalPortfolioValue.amount ?? 0,
-                  overviewHeader?.totalPortfolioValue.currency ?? 'USD',
-                  { decimals: 0 },
-                )}
+                overviewHeader?.totalPortfolioValue.amount ?? 0,
+                overviewHeader?.totalPortfolioValue.currency ?? 'USD',
+                { decimals: 0 },
+              )}
           </p>
           <p
-            className={`text-sm font-bold flex items-center justify-end gap-1 mt-1 ${
-              (overviewHeader?.annualReturnPercent ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'
-            }`}
+            className={`text-sm font-bold flex items-center justify-end gap-1 mt-1 ${(overviewHeader?.annualReturnPercent ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'
+              }`}
           >
             <ReturnIcon className="h-4 w-4 shrink-0" />
             {overviewLoading
@@ -815,11 +827,10 @@ function InvestorHubContent() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 md:px-6 py-4 border-b-2 text-[13px] font-bold transition-all whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-ui-faint hover:text-ui-body hover:border-ui-border-strong'
-              }`}
+              className={`flex items-center gap-2 px-4 md:px-6 py-4 border-b-2 text-[13px] font-bold transition-all whitespace-nowrap ${activeTab === tab.id
+                ? 'border-primary text-primary'
+                : 'border-transparent text-ui-faint hover:text-ui-body hover:border-ui-border-strong'
+                }`}
             >
               <tab.Icon className="h-4 w-4 shrink-0" />
               <span>{tab.label}</span>

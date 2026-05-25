@@ -4,13 +4,13 @@ import {
   parsePortfolioAssets,
   parsePortfolioFilters,
   parsePortfolioSummary,
-  parsePortfolioNavHistory,
+  parsePortfolioNavHistoryResult,
   type InvestorPortfolioInit,
   type PortfolioAsset,
   type PortfolioCategory,
   type PortfolioListResult,
   type PortfolioSummary,
-  type PortfolioNavPoint,
+  type PortfolioNavHistoryResult,
 } from "@/lib/portfolio";
 import { baseApi } from "./baseApi";
 
@@ -32,8 +32,11 @@ export const portfolioApi = baseApi.injectEndpoints({
     }),
     getPortfolioFilters: build.query<PortfolioCategory[], void>({
       query: () => {
-        const isInvestor = typeof window !== "undefined" && getSession().role === "investor";
-        const url = isInvestor ? "/investor/portfolio/filters" : "/portfolio/filters";
+        const isInvestor =
+          typeof window !== "undefined" && getSession().role === "investor";
+        const url = isInvestor
+          ? "/investor/portfolio/filters"
+          : "/portfolio/filters";
         return { url, method: "GET" };
       },
       transformResponse: (response: unknown) => parsePortfolioFilters(response),
@@ -41,28 +44,39 @@ export const portfolioApi = baseApi.injectEndpoints({
     }),
     getPortfolioSummary: build.query<PortfolioSummary, void>({
       query: () => {
-        const isInvestor = typeof window !== "undefined" && getSession().role === "investor";
-        const url = isInvestor ? "/investor/portfolio/summary" : "/portfolio/summary";
+        const isInvestor =
+          typeof window !== "undefined" && getSession().role === "investor";
+        const url = isInvestor
+          ? "/investor/portfolio/summary"
+          : "/portfolio/summary";
         return { url, method: "GET" };
       },
-      transformResponse: (response: unknown) =>
-        parsePortfolioSummary(response),
+      transformResponse: (response: unknown) => parsePortfolioSummary(response),
       providesTags: [{ type: "Portfolio", id: "SUMMARY" }],
     }),
-    getPortfolioNavHistory: build.query<PortfolioNavPoint[], void>({
+    getPortfolioNavHistory: build.query<PortfolioNavHistoryResult, void>({
       query: () => {
-        const isInvestor = typeof window !== "undefined" && getSession().role === "investor";
-        const url = isInvestor ? "/investor/portfolio/nav-history" : "/portfolio/summary";
+        const isInvestor =
+          typeof window !== "undefined" && getSession().role === "investor";
+        const url = isInvestor
+          ? "/investor/portfolio/nav-history"
+          : "/portfolio/summary";
         return { url, method: "GET" };
       },
       transformResponse: (response: unknown) =>
-        parsePortfolioNavHistory(response),
+        parsePortfolioNavHistoryResult(response),
       providesTags: [{ type: "Portfolio", id: "NAV_HISTORY" }],
     }),
-    listPortfolioAssets: build.query<PortfolioListResult, ListPortfolioAssetsParams>({
+    listPortfolioAssets: build.query<
+      PortfolioListResult,
+      ListPortfolioAssetsParams
+    >({
       query: ({ page = 1, limit = 20, search, category }) => {
-        const isInvestor = typeof window !== "undefined" && getSession().role === "investor";
-        const url = isInvestor ? "/investor/portfolio/assets" : "/portfolio/assets";
+        const isInvestor =
+          typeof window !== "undefined" && getSession().role === "investor";
+        const url = isInvestor
+          ? "/investor/portfolio/assets"
+          : "/portfolio/assets";
         return {
           url,
           method: "GET",
@@ -94,8 +108,7 @@ export const portfolioApi = baseApi.injectEndpoints({
           return { error: result.error };
         }
         const parsed = parsePortfolioAssets(result.data);
-        const asset =
-          parsed.items.find((item) => item.id === assetId) ?? null;
+        const asset = parsed.items.find((item) => item.id === assetId) ?? null;
         if (!asset) {
           return {
             error: {

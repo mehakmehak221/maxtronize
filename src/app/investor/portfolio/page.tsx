@@ -10,10 +10,10 @@ import {
   Unlock,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import React, { useMemo, useState } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
+import { MarketplaceAssetCover } from '@/components/investor/MarketplaceAssetCover';
 import { aggregatePortfolioAssetStats, filterLabelToCategoryKey } from '@/lib/portfolio';
 import {
   useGetInvestorPortfolioInitQuery,
@@ -76,7 +76,7 @@ export default function MyPortfolioPage() {
   const { data: initData } = useGetInvestorPortfolioInitQuery();
   const { data: categories = [] } = useGetPortfolioFiltersQuery();
   const { data: summary } = useGetPortfolioSummaryQuery();
-  const { data: navHistory = [] } = useGetPortfolioNavHistoryQuery();
+  const { data: navHistoryResult } = useGetPortfolioNavHistoryQuery();
   const categoryKey = filterLabelToCategoryKey(categories, activeFilter);
   const { data: assetsResult, isLoading: assetsLoading } = useListPortfolioAssetsQuery({
     page: 1,
@@ -108,9 +108,11 @@ export default function MyPortfolioPage() {
   }, [initData, summary]);
 
   const effectiveNavHistory = useMemo(() => {
-    if (navHistory.length > 0) return navHistory;
+    if (navHistoryResult?.points?.length) return navHistoryResult.points;
     return initData?.navHistory ?? [];
-  }, [initData, navHistory]);
+  }, [initData, navHistoryResult]);
+
+  const navHistoryYtd = navHistoryResult?.ytdGrowthPercent ?? effectiveSummary?.ytdPercent ?? 0;
 
   const effectiveAssets = useMemo(() => {
     if (assetsResult?.items?.length) return assetsResult.items;
@@ -122,7 +124,7 @@ export default function MyPortfolioPage() {
   const navValues = effectiveNavHistory.map((p) => p.value);
   const months = effectiveNavHistory.map((p) => p.label);
   const yMax = navValues.length > 0 ? Math.max(...navValues, 1) * 1.1 : 1;
-  const hasNavHistoryData = navValues.some((value) => value > 0);
+  const hasNavHistoryData = effectiveNavHistory.length > 0;
 
   const assetStats = useMemo(() => aggregatePortfolioAssetStats(assets), [assets]);
   const totalInvestors =
@@ -206,10 +208,7 @@ export default function MyPortfolioPage() {
                 <p className="text-[11px] font-medium text-ui-faint">USD Millions · 7-month trend</p>
               </div>
               <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
-                {effectiveSummary
-                  ? `${effectiveSummary.ytdPercent >= 0 ? '+' : ''}${effectiveSummary.ytdPercent.toFixed(1)}%`
-                  : '+0.0%'}{' '}
-                YTD
+                {`${navHistoryYtd >= 0 ? '+' : ''}${navHistoryYtd.toFixed(1)}%`} YTD
               </span>
             </div>
             <div className="max-w-full min-w-0 overflow-hidden">
@@ -264,6 +263,23 @@ export default function MyPortfolioPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
+                {navValues.map((v, i) => {
+                  const x =
+                    navValues.length > 1
+                      ? chartLeft + (i / (navValues.length - 1)) * chartW
+                      : chartLeft + chartW / 2;
+                  const y = chartTop + chartH - (v / yMax) * chartH;
+                  return (
+                    <circle
+                      key={`nav-dot-${i}`}
+                      cx={x}
+                      cy={y}
+                      r={3.5}
+                      className="fill-primary stroke-ui-card"
+                      strokeWidth={2}
+                    />
+                  );
+                })}
                 {months.map((m, i) => {
                   const x =
                     months.length > 1
@@ -394,15 +410,17 @@ export default function MyPortfolioPage() {
                 key={asset.id}
                 className="group flex max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm transition-shadow hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-950 md:rounded-3xl"
               >
-                <div className="relative h-44 w-full min-h-44 overflow-hidden md:h-48">
-                  <Image
-                    src={asset.image}
-                    alt=""
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/35 to-black/10" />
+                <MarketplaceAssetCover
+                  image={asset.image}
+                  alt={asset.name}
+                  assetType={asset.categoryLabel}
+                  className="relative h-44 w-full min-h-44 md:h-48"
+                  imageClassName="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                >
+                  {asset.image ? (
+                    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/80 via-black/35 to-black/10" />
+                  ) : null}
                   <div
                     className={`absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md ${st.ring}`}
                   >
@@ -423,7 +441,7 @@ export default function MyPortfolioPage() {
                       </span>
                     </p>
                   </div>
-                </div>
+                </MarketplaceAssetCover>
 
                 <div className="flex flex-1 flex-col bg-slate-50 p-5 dark:bg-zinc-900 md:p-6">
                   <div className="mb-5 flex items-start justify-between gap-3">

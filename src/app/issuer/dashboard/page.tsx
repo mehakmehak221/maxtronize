@@ -100,8 +100,8 @@ export default function DashboardPage() {
   const kpiCards = useMemo(() => buildKpiCards(summary), [summary]);
 
   const chart = useMemo(
-    () => buildCapitalChartPaths(capitalRaised?.series ?? []),
-    [capitalRaised?.series],
+    () => buildCapitalChartPaths(capitalRaised?.series ?? [], summary?.capitalRaised.currency ?? 'USD'),
+    [capitalRaised?.series, summary?.capitalRaised.currency],
   );
 
   const allocationGradient = useMemo(
@@ -119,10 +119,10 @@ export default function DashboardPage() {
 
   const heroValue = summary
     ? formatCompactCurrency(
-        summary.capitalRaised.total,
-        summary.capitalRaised.currency,
-        { decimals: 0 },
-      )
+      summary.capitalRaised.total,
+      summary.capitalRaised.currency,
+      { decimals: 0 },
+    )
     : summaryLoading
       ? '—'
       : '$0';
@@ -220,39 +220,74 @@ export default function DashboardPage() {
 
             <div className="relative mt-2 h-52 motion-chart md:h-64">
               {chart ? (
-                <svg
-                  className="absolute inset-0 h-full w-full text-primary"
-                  viewBox="0 0 1000 100"
-                  preserveAspectRatio="none"
-                  aria-hidden
-                >
-                  <defs>
-                    <linearGradient id="dash-capital-area" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
-                      <stop offset="55%" stopColor="#8b5cf6" stopOpacity="0.08" />
-                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <path d={chart.areaPath} fill="url(#dash-capital-area)" />
-                  <path
-                    d={chart.targetPath}
-                    fill="none"
-                    stroke="rgb(148 163 184)"
-                    strokeOpacity="0.9"
-                    strokeWidth="2.5"
-                    strokeDasharray="14 10"
-                    strokeLinecap="round"
-                    className="dark:stroke-slate-500"
-                  />
-                  <path
-                    d={chart.actualPath}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <>
+                  {/* Y-Axis Labels */}
+                  <div className="absolute bottom-0 left-0 top-0 w-12">
+                    {[
+                      { label: chart.yLabels[0], top: '12%' },
+                      { label: chart.yLabels[1], top: '29.5%' },
+                      { label: chart.yLabels[2], top: '47%' },
+                      { label: chart.yLabels[3], top: '64.5%' },
+                      { label: chart.yLabels[4], top: '82%' },
+                    ].map((item, idx) => (
+                      <span
+                        key={idx}
+                        className="absolute left-0 -translate-y-1/2 text-[10px] font-bold text-ui-placeholder"
+                        style={{ top: item.top }}
+                      >
+                        {item.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Chart Area */}
+                  <div className="absolute inset-y-0 left-12 right-0">
+                    {/* Horizontal Gridlines */}
+                    <div className="pointer-events-none absolute inset-0">
+                      {[12, 29.5, 47, 64.5, 82].map((top) => (
+                        <div
+                          key={top}
+                          className="absolute left-0 right-0 border-t border-dashed border-ui-divider"
+                          style={{ top: `${top}%` }}
+                        />
+                      ))}
+                    </div>
+
+                    <svg
+                      className="absolute inset-0 h-full w-full text-primary"
+                      viewBox="0 0 1000 100"
+                      preserveAspectRatio="none"
+                      aria-hidden
+                    >
+                      <defs>
+                        <linearGradient id="dash-capital-area" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
+                          <stop offset="55%" stopColor="#8b5cf6" stopOpacity="0.08" />
+                          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <path d={chart.areaPath} fill="url(#dash-capital-area)" />
+                      <path
+                        d={chart.targetPath}
+                        fill="none"
+                        stroke="rgb(148 163 184)"
+                        strokeOpacity="0.9"
+                        strokeWidth="2.5"
+                        strokeDasharray="14 10"
+                        strokeLinecap="round"
+                        className="dark:stroke-slate-500"
+                      />
+                      <path
+                        d={chart.actualPath}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </>
               ) : (
                 <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40">
                   <p className="text-xs font-medium text-ui-muted-text">
@@ -261,7 +296,7 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-            <div className="mt-5 flex justify-between overflow-x-auto px-0.5 pb-1">
+            <div className="mt-5 flex justify-between overflow-x-auto pl-12 pr-0.5 pb-1">
               {chartLabels.map((m) => (
                 <span
                   key={m}
@@ -382,11 +417,10 @@ export default function DashboardPage() {
                   >
                     <div className="flex min-w-0 items-center gap-3 sm:flex-1">
                       <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                          activity.tone === 'amber'
-                            ? 'bg-amber-500/12 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400'
-                            : 'bg-emerald-500/12 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
-                        }`}
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${activity.tone === 'amber'
+                          ? 'bg-amber-500/12 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400'
+                          : 'bg-emerald-500/12 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
+                          }`}
                       >
                         {activity.done ? (
                           <svg
@@ -498,7 +532,7 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 gap-4 pb-8 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 xl:pb-12">
           {[
             {
-              href: '/issuer/onboarding',
+              href: '/issuer/onboarding?start=1',
               label: 'Tokenize New Asset',
               sub: 'Start a new offering',
               Icon: IconNavSparkles,

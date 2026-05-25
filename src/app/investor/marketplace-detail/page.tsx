@@ -49,8 +49,9 @@ function MarketplaceDetailContent() {
   const [favorited, setFavorited] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [placedOrders, setPlacedOrders] = useState<any[]>([]);
 
-  // ── API Queries ─────────────────────────────────────────────────────────────
+
   const {
     data: listing,
     isLoading: isListingLoading,
@@ -58,10 +59,10 @@ function MarketplaceDetailContent() {
     refetch: refetchListing,
   } = useGetSecondaryListingQuery(listingId, { skip: !listingId });
 
-  const assetIdForChart = listing?.assetId || listingId;
+  const assetIdForChart = listing?.assetId;
   const { data: chartData, isLoading: isChartLoading } = useGetSecondaryAssetChartQuery(
     {
-      assetId: assetIdForChart,
+      assetId: assetIdForChart ?? "",
       interval: chartPeriod,
     },
     {
@@ -85,7 +86,7 @@ function MarketplaceDetailContent() {
     }
   }, [listing]);
 
-  // Reset status messages when order details change
+
   useEffect(() => {
     setStatusMsg(null);
   }, [activeOrder, orderType, amount, priceInput]);
@@ -103,12 +104,15 @@ function MarketplaceDetailContent() {
   const total = amount ? (parseFloat(amount) * activePrice).toFixed(2) : '0';
   const displayTotal = total === '0.00' ? '0' : total;
 
-  // ── Dynamic SVG Chart Logic ──────────────────────────────────────────────────
+
   const chartPoints = chartData?.series ?? [];
 
   const svgPath = useMemo(() => {
     if (!chartPoints || chartPoints.length === 0) {
-      return 'M0,75 Q200,68 400,58 T800,43 T1000,38'; // nice curved placeholder
+      return 'M0,75 Q200,68 400,58 T800,43 T1000,38';
+    }
+    if (chartPoints.length === 1) {
+      return 'M0.0,50.0 L1000.0,50.0';
     }
     const prices = chartPoints.map((p) => p.price);
     const maxPrice = Math.max(...prices);
@@ -126,6 +130,9 @@ function MarketplaceDetailContent() {
   const svgFillPath = useMemo(() => {
     if (!chartPoints || chartPoints.length === 0) {
       return 'M0,75 Q200,68 400,58 T800,43 T1000,38 L1000,100 L0,100 Z'; // nice area placeholder
+    }
+    if (chartPoints.length === 1) {
+      return 'M0.0,50.0 L1000.0,50.0 L1000,100 L0,100 Z';
     }
     const prices = chartPoints.map((p) => p.price);
     const maxPrice = Math.max(...prices);
@@ -154,6 +161,18 @@ function MarketplaceDetailContent() {
     const prices = chartPoints.map((p) => p.price);
     const maxPrice = Math.max(...prices);
     const minPrice = Math.min(...prices);
+
+    if (prices.length <= 1 || maxPrice === minPrice) {
+      const basePrice = maxPrice || 100;
+      return [
+        `$${(basePrice * 1.15).toFixed(0)}`,
+        `$${(basePrice * 1.05).toFixed(0)}`,
+        `$${basePrice.toFixed(0)}`,
+        `$${(basePrice * 0.95).toFixed(0)}`,
+        '$0',
+      ];
+    }
+
     const step = (maxPrice - minPrice) / 4;
     return Array.from({ length: 5 }).map((_, i) => {
       const val = maxPrice - i * step;
@@ -202,13 +221,15 @@ function MarketplaceDetailContent() {
     if (!amount || isPlacingOrder) return;
     setStatusMsg(null);
     try {
-      await placeOrder({
+      const response = await placeOrder({
         id: listingId,
         side: activeOrder.toUpperCase() as 'BUY' | 'SELL',
         orderType: orderType.toUpperCase() as 'LIMIT' | 'MARKET',
         tokenAmount: parseFloat(amount),
         pricePerToken: activePrice,
-      }).unwrap();
+      }).unwrap() as any;
+
+      setPlacedOrders((prev) => [response, ...prev]);
 
       setStatusMsg({
         type: 'success',
@@ -324,11 +345,10 @@ function MarketplaceDetailContent() {
           <button
             type="button"
             onClick={() => void handleShare()}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${
-              shareCopied
-                ? 'border-primary/40 bg-primary/10 text-primary'
-                : 'border-ui-border text-ui-faint hover:border-primary/30 hover:text-primary'
-            }`}
+            className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${shareCopied
+              ? 'border-primary/40 bg-primary/10 text-primary'
+              : 'border-ui-border text-ui-faint hover:border-primary/30 hover:text-primary'
+              }`}
             aria-label={shareCopied ? 'Link copied' : 'Share'}
           >
             <Share2 className="h-4 w-4" strokeWidth={iconStroke} />
@@ -354,9 +374,8 @@ function MarketplaceDetailContent() {
             <p className="text-base font-bold tabular-nums text-ui-strong md:text-xl">{s.val}</p>
             {s.sub && (
               <p
-                className={`mt-0.5 flex items-center gap-1 text-[10px] font-bold ${
-                  s.up ? 'text-ui-success-text' : 'text-ui-danger-text'
-                }`}
+                className={`mt-0.5 flex items-center gap-1 text-[10px] font-bold ${s.up ? 'text-ui-success-text' : 'text-ui-danger-text'
+                  }`}
               >
                 {s.up ? (
                   <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
@@ -388,11 +407,10 @@ function MarketplaceDetailContent() {
                     key={p}
                     type="button"
                     onClick={() => setChartPeriod(p)}
-                    className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all ${
-                      chartPeriod === p
-                        ? 'bg-primary text-white shadow-sm'
-                        : 'bg-ui-muted-deep text-ui-muted-text hover:bg-ui-muted-deep/80'
-                    }`}
+                    className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all ${chartPeriod === p
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-ui-muted-deep text-ui-muted-text hover:bg-ui-muted-deep/80'
+                      }`}
                   >
                     {p}
                   </button>
@@ -402,8 +420,8 @@ function MarketplaceDetailContent() {
 
             <div className="relative h-48 md:h-64">
               <div className="absolute bottom-0 left-0 top-0 flex flex-col justify-between pr-2 text-[9px] font-medium text-ui-placeholder">
-                {yLabels.map((l) => (
-                  <span key={l}>{l}</span>
+                {yLabels.map((l, idx) => (
+                  <span key={`${l}-${idx}`}>{l}</span>
                 ))}
               </div>
               <div className="absolute bottom-0 left-12 right-0 top-0">
@@ -470,22 +488,20 @@ function MarketplaceDetailContent() {
               <button
                 type="button"
                 onClick={() => setActiveOrder('buy')}
-                className={`py-4 text-[13px] font-bold transition-all ${
-                  activeOrder === 'buy'
-                    ? 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                    : 'text-ui-faint hover:bg-ui-muted-deep/50 hover:text-ui-muted-text'
-                }`}
+                className={`py-4 text-[13px] font-bold transition-all ${activeOrder === 'buy'
+                  ? 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                  : 'text-ui-faint hover:bg-ui-muted-deep/50 hover:text-ui-muted-text'
+                  }`}
               >
                 Buy {listing.ticker}
               </button>
               <button
                 type="button"
                 onClick={() => setActiveOrder('sell')}
-                className={`py-4 text-[13px] font-bold transition-all ${
-                  activeOrder === 'sell'
-                    ? 'border-b-2 border-rose-500 text-rose-600 dark:text-rose-400'
-                    : 'text-ui-faint hover:bg-ui-muted-deep/50 hover:text-ui-muted-text'
-                }`}
+                className={`py-4 text-[13px] font-bold transition-all ${activeOrder === 'sell'
+                  ? 'border-b-2 border-rose-500 text-rose-600 dark:text-rose-400'
+                  : 'text-ui-faint hover:bg-ui-muted-deep/50 hover:text-ui-muted-text'
+                  }`}
               >
                 Sell {listing.ticker}
               </button>
@@ -495,11 +511,10 @@ function MarketplaceDetailContent() {
               {/* Status feedback */}
               {statusMsg && (
                 <div
-                  className={`rounded-xl p-3.5 text-xs font-semibold leading-relaxed border ${
-                    statusMsg.type === 'success'
-                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                      : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'
-                  }`}
+                  className={`rounded-xl p-3.5 text-xs font-semibold leading-relaxed border ${statusMsg.type === 'success'
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'
+                    }`}
                 >
                   {statusMsg.text}
                 </div>
@@ -512,11 +527,10 @@ function MarketplaceDetailContent() {
                     key={t}
                     type="button"
                     onClick={() => setOrderType(t)}
-                    className={`rounded-lg py-2.5 text-[12px] font-bold transition-all ${
-                      orderType === t
-                        ? 'border border-ui-border bg-ui-card text-ui-strong shadow-sm'
-                        : 'text-ui-muted-text hover:text-ui-body'
-                    }`}
+                    className={`rounded-lg py-2.5 text-[12px] font-bold transition-all ${orderType === t
+                      ? 'border border-ui-border bg-ui-card text-ui-strong shadow-sm'
+                      : 'text-ui-muted-text hover:text-ui-body'
+                      }`}
                   >
                     {t === 'limit' ? 'Limit Order' : 'Market Order'}
                   </button>
@@ -577,11 +591,10 @@ function MarketplaceDetailContent() {
                 type="button"
                 onClick={handlePlaceOrder}
                 disabled={!amount || isPlacingOrder}
-                className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[14px] font-bold shadow-lg transition-all hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${
-                  activeOrder === 'buy'
-                    ? 'bg-emerald-500 text-white shadow-emerald-500/25 hover:bg-emerald-600'
-                    : 'bg-rose-500 text-white shadow-rose-500/25 hover:bg-rose-600'
-                }`}
+                className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[14px] font-bold shadow-lg transition-all hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${activeOrder === 'buy'
+                  ? 'bg-emerald-500 text-white shadow-emerald-500/25 hover:bg-emerald-600'
+                  : 'bg-rose-500 text-white shadow-rose-500/25 hover:bg-rose-600'
+                  }`}
               >
                 <ShoppingCart className="h-4 w-4" strokeWidth={iconStroke} />
                 {isPlacingOrder ? 'Processing...' : `Place ${activeOrder === 'buy' ? 'Buy' : 'Sell'} Order`}
@@ -602,6 +615,28 @@ function MarketplaceDetailContent() {
                   Linked to standard platform custody wallet
                 </p>
               </div>
+
+              {placedOrders.length > 0 && (
+                <div className="mt-4 space-y-3 border-t border-ui-border pt-4">
+                  <h4 className="text-[11px] font-bold uppercase tracking-widest text-ui-faint">Your Session Orders</h4>
+                  {placedOrders.map((order, i) => (
+                    <div key={order.id || i} className="rounded-xl border border-ui-border bg-ui-card p-3 text-[11px] shadow-sm">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className={`font-bold ${order.side === 'BUY' ? 'text-emerald-500' : 'text-rose-500'}`}>{order.side} {order.orderType}</span>
+                        <span className="font-bold text-ui-strong">${order.totalUsd}</span>
+                      </div>
+                      <div className="flex justify-between text-ui-muted-text">
+                        <span>{order.tokenAmount} tokens @ ${order.pricePerToken}</span>
+                        <span className="text-ui-faint">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                      </div>
+                      <div className="mt-1.5 flex justify-between items-center text-[10px]">
+                        <span className="text-ui-faint">ID: {order.id?.slice(0, 8)}...</span>
+                        <span className="font-bold text-emerald-500">{order.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </aside>

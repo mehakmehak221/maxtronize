@@ -1,4 +1,6 @@
 import type { UserRole } from "@/lib/auth";
+import { pickCoverImageKey } from "@/lib/onboarding";
+import { pickCoverImageUrl, resolveStoragePublicUrl } from "@/lib/storageUrl";
 
 export type UserProfile = {
   id: string | null;
@@ -162,17 +164,42 @@ export function isKycPendingReview(profile: UserProfile | null | undefined): boo
   return status.includes("PENDING") || status.includes("UNDER REVIEW") || status.includes("REVIEW");
 }
 
-export function parseUploadFileUrl(payload: unknown): string | null {
+function collectUploadRecords(payload: unknown): Record<string, unknown>[] {
   const record = unwrapRecord(payload);
-  if (!record) return null;
-  return pickString(record, [
-    "url",
-    "fileUrl",
-    "file_url",
-    "location",
-    "path",
-    "key",
-  ]);
+  if (!record) return [];
+  const candidates: Record<string, unknown>[] = [];
+  for (const field of ["file", "result", "upload"]) {
+    const nested = record[field];
+    if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+      candidates.push(nested as Record<string, unknown>);
+    }
+  }
+  candidates.push(record);
+  return candidates;
+}
+
+export type UploadFileParseResult = {
+  key: string | null;
+  /** Browser-loadable URL (absolute or API /storage/ path). */
+  url: string | null;
+};
+
+/** Parse storage key and public URL from POST /upload/file responses. */
+export function parseUploadFileResult(payload: unknown): UploadFileParseResult {
+  let key: string | null = null;
+  let explicitUrl: string | null = null;
+
+  for (const record of collectUploadRecords(payload)) {
+    key = key ?? pickCoverImageKey(record);
+    explicitUrl = explicitUrl ?? pickCoverImageUrl(record);
+  }
+
+  const url = resolveStoragePublicUrl(key, explicitUrl);
+  return { key, url };
+}
+
+export function parseUploadFileUrl(payload: unknown): string | null {
+  return parseUploadFileResult(payload).url;
 }
 
 export function parseAuthUser(payload: unknown): {

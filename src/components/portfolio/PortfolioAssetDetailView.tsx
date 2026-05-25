@@ -16,8 +16,8 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
+import { MarketplaceAssetCover } from '@/components/investor/MarketplaceAssetCover';
 import React, { useMemo, useState } from 'react';
 import {
   formatPortfolioTokenPrice,
@@ -81,6 +81,8 @@ export type PortfolioAssetDetailViewProps = {
   backLabel?: string;
   manageHref?: string;
   manageLabel?: string;
+  /** Issuer portfolio: API often has no cover image — use gradient header only. */
+  hideCoverMedia?: boolean;
 };
 
 export function PortfolioAssetDetailView({
@@ -89,6 +91,7 @@ export function PortfolioAssetDetailView({
   backLabel = 'Back',
   manageHref = '/issuer/hub',
   manageLabel = 'Manage in Hub',
+  hideCoverMedia = false,
 }: PortfolioAssetDetailViewProps) {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [shareCopied, setShareCopied] = useState(false);
@@ -197,10 +200,12 @@ export function PortfolioAssetDetailView({
 
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15 md:h-16 md:w-16 md:rounded-[18px]">
-            <Building2 className="h-7 w-7 md:h-8 md:w-8" strokeWidth={iconStroke} />
-          </div>
-          <div className="min-w-0 pt-0.5">
+          {!hideCoverMedia ? (
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15 md:h-16 md:w-16 md:rounded-[18px]">
+              <Building2 className="h-7 w-7 md:h-8 md:w-8" strokeWidth={iconStroke} />
+            </div>
+          ) : null}
+          <div className={`min-w-0 ${hideCoverMedia ? '' : 'pt-0.5'}`}>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl">
                 {asset.name}
@@ -258,49 +263,83 @@ export function PortfolioAssetDetailView({
         </div>
       </div>
 
-      <div className="relative h-52 overflow-hidden rounded-[24px] shadow-xl md:h-72 md:rounded-[32px]">
-        <Image
-          src={asset.image}
-          alt={asset.name}
-          fill
-          className="object-cover"
-          priority
-          sizes="(max-width: 1280px) 100vw, 1280px"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
-        <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md md:left-6 md:top-6">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          <span className="text-[10px] font-bold text-white">{asset.status}</span>
-        </div>
-        {asset.ticker !== '—' ? (
-          <div className="absolute right-4 top-4 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 backdrop-blur-md md:right-6 md:top-6">
-            <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
+      {hideCoverMedia ? (
+        <div className="relative h-52 overflow-hidden rounded-[24px] bg-linear-to-br from-zinc-800 via-primary to-violet-950 shadow-xl md:h-72 md:rounded-[32px]">
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-black/10" />
+          <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md md:left-6 md:top-6">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="text-[10px] font-bold text-white">{asset.status}</span>
           </div>
-        ) : null}
-        <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {heroMetrics.map((m) => (
-              <div
-                key={m.label}
-                className="rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-md md:p-4"
-              >
-                <div className="mb-1.5 flex items-center gap-1.5">
-                  <m.Icon
-                    className={`h-3.5 w-3.5 ${m.valClass === 'text-emerald-400' ? 'text-emerald-400' : 'text-white/60'}`}
-                    strokeWidth={iconStroke}
-                  />
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-white/55">
+          {asset.ticker !== '—' ? (
+            <div className="absolute right-4 top-4 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 backdrop-blur-md md:right-6 md:top-6">
+              <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
+            </div>
+          ) : null}
+          <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {heroMetrics.map((m) => (
+                <div
+                  key={m.label}
+                  className="rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-md md:p-4"
+                >
+                  <p className="mb-1.5 text-[9px] font-bold uppercase tracking-widest text-white/55">
                     {m.label}
                   </p>
+                  <p className={`text-lg font-bold tabular-nums md:text-xl ${m.valClass}`}>
+                    {m.val}
+                  </p>
                 </div>
-                <p className={`text-lg font-bold tabular-nums md:text-xl ${m.valClass}`}>
-                  {m.val}
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <MarketplaceAssetCover
+          image={asset.image}
+          alt={asset.name}
+          assetType={asset.categoryLabel}
+          className="relative h-52 overflow-hidden rounded-[24px] shadow-xl md:h-72 md:rounded-[32px]"
+          imageClassName="object-cover"
+          priority
+          sizes="(max-width: 1280px) 100vw, 1280px"
+        >
+          {asset.image ? (
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
+          ) : null}
+          <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md md:left-6 md:top-6">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="text-[10px] font-bold text-white">{asset.status}</span>
+          </div>
+          {asset.ticker !== '—' ? (
+            <div className="absolute right-4 top-4 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 backdrop-blur-md md:right-6 md:top-6">
+              <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
+            </div>
+          ) : null}
+          <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {heroMetrics.map((m) => (
+                <div
+                  key={m.label}
+                  className="rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-md md:p-4"
+                >
+                  <div className="mb-1.5 flex items-center gap-1.5">
+                    <m.Icon
+                      className={`h-3.5 w-3.5 ${m.valClass === 'text-emerald-400' ? 'text-emerald-400' : 'text-white/60'}`}
+                      strokeWidth={iconStroke}
+                    />
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-white/55">
+                      {m.label}
+                    </p>
+                  </div>
+                  <p className={`text-lg font-bold tabular-nums md:text-xl ${m.valClass}`}>
+                    {m.val}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </MarketplaceAssetCover>
+      )}
 
       <div className="-mt-4 rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:-mt-6 md:rounded-[28px]">
         <div className="border-b border-ui-border p-4 md:p-6">

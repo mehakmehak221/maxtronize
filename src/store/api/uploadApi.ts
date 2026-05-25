@@ -1,4 +1,4 @@
-import { parseUploadFileUrl } from "@/lib/profile";
+import { parseUploadFileResult } from "@/lib/profile";
 import { baseApi } from "./baseApi";
 
 export type UploadFileResponse = {
@@ -29,10 +29,13 @@ export const uploadApi = baseApi.injectEndpoints({
           body: formData,
         };
       },
-      transformResponse: (response: unknown): UploadFileResponse => ({
-        url: parseUploadFileUrl(response) ?? "",
-        raw: response,
-      }),
+      transformResponse: (response: unknown): UploadFileResponse => {
+        const parsed = parseUploadFileResult(response);
+        return {
+          url: parsed.url ?? "",
+          raw: response,
+        };
+      },
     }),
   }),
 });

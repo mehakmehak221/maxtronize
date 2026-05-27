@@ -238,27 +238,10 @@ function SignInContent() {
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-[#E5E7EB]"></div>
           </div>
-          <span className="relative bg-white px-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-            or continue with
-          </span>
+         
         </div>
 
-        <button
-          type="button"
-          className="w-full py-4 rounded-xl border border-[#E5E7EB] bg-white text-sm font-bold text-[#1F2937] transition-all hover:bg-[#F9FAFB] flex items-center justify-center gap-3"
-        >
-          <svg
-            className="h-5 w-5 text-[#9CA3AF]"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <rect x="2" y="5" width="20" height="14" rx="2" />
-            <path d="M12 11V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4" />
-          </svg>
-          Connect Wallet (MetaMask / WalletConnect)
-        </button>
+      
 
         <div className="text-center pt-2">
           <p className="text-sm font-medium text-[#9CA3AF]">

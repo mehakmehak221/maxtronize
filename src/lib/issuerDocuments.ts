@@ -1,16 +1,16 @@
 import { pickNumber, pickString, unwrapList } from "@/lib/apiParse";
 
-export type IssuerDocumentStatusType =
-  | "signed"
-  | "pending"
-  | "draft"
-  | "expired";
-
 export type IssuerDocumentCategoryLabel =
   | "LEGAL"
   | "COMPLIANCE"
   | "ASSET DOCS"
   | "REPORTS";
+
+export type IssuerDocumentStatusType =
+  | "draft"
+  | "pending"
+  | "signed"
+  | "expired";
 
 export type IssuerDocument = {
   id: string;
@@ -22,6 +22,7 @@ export type IssuerDocument = {
   assetTitle: string;
   status: string;
   statusLabel: string;
+  statusType: IssuerDocumentStatusType;
   signatureProgress: {
     completed: number;
     required: number;
@@ -204,6 +205,7 @@ function parseDocumentItem(record: Record<string, unknown>): IssuerDocument {
   const statusRaw = pickString(record, ["status", "signatureStatus", "state"]);
   const statusLabel =
     pickString(record, ["statusLabel", "status_label"]) ?? statusRaw ?? "—";
+  const statusType = normalizeStatusType(statusLabel);
 
   const assetId = pickString(record, ["assetId", "asset_id"]) ?? null;
   const assetTitle =
@@ -279,6 +281,7 @@ function parseDocumentItem(record: Record<string, unknown>): IssuerDocument {
     assetTitle,
     status: statusRaw ?? "—",
     statusLabel,
+    statusType,
     signatureProgress,
     documentDate,
     expiresAt,

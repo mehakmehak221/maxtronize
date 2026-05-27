@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FileText, X } from "lucide-react";
 import { formatRequestError } from "@/lib/formatRequestError";
 import type { IssuerDocument } from "@/lib/issuerDocuments";
 import { useGetIssuerDocumentQuery } from "@/store/api/issuerDocumentsApi";
+import { useIsClient } from "@/hooks/useIsClient";
 
 const iconStroke = 1.75;
 
@@ -38,15 +39,12 @@ export function DocumentDetailPanel({
   CategoryBadge,
   StatusBadge,
 }: DocumentDetailPanelProps) {
-  const [mounted, setMounted] = useState(false);
-  const { data: doc, isLoading, error } = useGetIssuerDocumentQuery(
-    documentId ?? "",
-    { skip: !documentId },
-  );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const isClient = useIsClient();
+  const {
+    data: doc,
+    isLoading,
+    error,
+  } = useGetIssuerDocumentQuery(documentId ?? "", { skip: !documentId });
 
   useEffect(() => {
     if (!documentId) return;
@@ -57,7 +55,7 @@ export function DocumentDetailPanel({
     };
   }, [documentId]);
 
-  if (!documentId || !mounted) return null;
+  if (!documentId || !isClient) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-4 md:p-6">
@@ -84,7 +82,7 @@ export function DocumentDetailPanel({
                 id="document-detail-title"
                 className="text-lg font-bold text-ui-strong"
               >
-                {isLoading ? "Loading…" : (doc?.name ?? "Document")}
+                {isLoading ? "Loading…" : (doc?.title ?? "Document")}
               </h2>
               {doc?.id ? (
                 <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-ui-faint">
@@ -118,9 +116,9 @@ export function DocumentDetailPanel({
                 <CategoryBadge catLabel={doc.categoryLabel} />
                 <StatusBadge status={doc.status} statusType={doc.statusType} />
               </div>
-              <DetailRow label="Asset" value={doc.assetName} />
-              <DetailRow label="Date" value={doc.date} />
-              <DetailRow label="Size" value={doc.size} />
+              <DetailRow label="Asset" value={doc.assetTitle} />
+              <DetailRow label="Date" value={doc.fileName} />
+              <DetailRow label="Size" value={doc.sizeLabel} />
               <DetailRow label="Category" value={doc.category} />
             </div>
           ) : (

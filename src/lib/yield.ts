@@ -53,6 +53,7 @@ export type DistributionSchedule = {
 export type UpcomingPayout = {
   id: string;
   scheduledDate: Record<string, unknown>;
+  scheduledDateStr: string;
   assetTitle: string;
   ticker: string;
   payoutType: string;
@@ -211,9 +212,27 @@ export function parseUpcomingPayouts(payload: unknown): UpcomingPayout[] {
     const currency = pickString(item, ["currency"]) ?? "USD";
     const statusRaw = pickString(item, ["status", "state"]) ?? "SCHEDULED";
 
+    const scheduledDateRaw = item.scheduledDate ?? {};
+    const scheduledDate =
+      scheduledDateRaw &&
+      typeof scheduledDateRaw === "object" &&
+      !Array.isArray(scheduledDateRaw)
+        ? (scheduledDateRaw as Record<string, unknown>)
+        : {};
+    const scheduledDateStr =
+      pickString(scheduledDate, [
+        "date",
+        "timestamp",
+        "scheduledAt",
+        "scheduled_at",
+      ]) ??
+      pickString(item, ["scheduledDate", "date", "timestamp"]) ??
+      "—";
+
     return {
       id: pickString(item, ["id", "_id", "payoutId"]) ?? `payout-${index}`,
-      scheduledDate: (item.scheduledDate ?? {}) as Record<string, unknown>,
+      scheduledDate,
+      scheduledDateStr,
       assetTitle:
         pickString(item, ["assetTitle", "asset_title", "asset", "assetName"]) ??
         "—",

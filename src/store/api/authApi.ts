@@ -6,50 +6,48 @@ import { baseApi } from "./baseApi";
 import type {
   ForgotPasswordRequest,
   LoginRequest,
-  RegisterRequest,
   ResetPasswordRequest,
+  SendOtpRequest,
   SetupProfileRequest,
   UpdateProfileRequest,
   VerifyForgotPasswordOtpRequest,
+  VerifyOtpRequest,
 } from "./auth.types";
 
 export type { AuthRole } from "./auth.types";
 export type {
   ForgotPasswordRequest,
   LoginRequest,
-  RegisterRequest,
   ResetPasswordRequest,
+  SendOtpRequest,
   SetupProfileRequest,
   UpdateProfileRequest,
   VerifyForgotPasswordOtpRequest,
+  VerifyOtpRequest,
 } from "./auth.types";
 
 export const authApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    register: build.mutation<unknown, RegisterRequest>({
-      query: (body) => {
-        const payload: Record<string, string> = {
-          fullName: body.fullName,
-          email: body.email,
-          password: body.password,
-          role: body.role,
-        };
-        const ref = body.referralCode?.trim();
-        if (ref) payload.referralCode = ref;
-        return {
-          url: "/auth/register",
-          method: "POST",
-          body: payload,
-        };
-      },
+    sendOtp: build.mutation<unknown, SendOtpRequest>({
+      query: (body) => ({
+        url: "/auth/send-otp",
+        method: "POST",
+        body,
+      }),
+    }),
+    verifyOtp: build.mutation<unknown, VerifyOtpRequest>({
+      query: (body) => ({
+        url: "/auth/verify-otp",
+        method: "POST",
+        body,
+      }),
       async onQueryStarted(arg, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           persistAccessToken(data);
           syncSessionFromAuthResponse(data, {
             email: arg.email,
-            role: arg.role,
           });
         } catch {
           /* handled by caller */
@@ -139,7 +137,8 @@ export const authApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useRegisterMutation,
+  useSendOtpMutation,
+  useVerifyOtpMutation,
   useLoginMutation,
   useForgotPasswordMutation,
   useVerifyForgotPasswordOtpMutation,

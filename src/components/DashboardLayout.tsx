@@ -163,7 +163,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="h-2 w-2 animate-pulse rounded-full bg-ui-success-icon shadow-[0_0_8px_rgba(16,185,129,0.45)]" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-ui-success-text">All systems operational</p>
               </div>
-              <p className="text-[9px] font-medium leading-relaxed text-ui-success-text/90">99.98% uptime · Blockchain synced</p>
+              {/* <p className="text-[9px] font-medium leading-relaxed text-ui-success-text/90">99.98% uptime · Blockchain synced</p> */}
             </div>
             <div className="flex flex-col gap-3 lg:hidden">
               {/* <button

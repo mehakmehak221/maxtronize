@@ -1,11 +1,15 @@
 export type AuthRole = "INVESTOR" | "ISSUER" | "ADMIN" | "AGENT";
 
-export type RegisterRequest = {
+export type SendOtpRequest = {
   fullName: string;
   email: string;
   password: string;
   role: AuthRole;
-  referralCode?: string;
+};
+
+export type VerifyOtpRequest = {
+  email: string;
+  otp: string;
 };
 
 export type LoginRequest = {

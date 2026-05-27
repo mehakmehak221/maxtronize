@@ -5,7 +5,7 @@ import { useState } from "react";
 import AuthLayout from "@/components/AuthLayout";
 import { formatRequestError } from "@/lib/formatRequestError";
 import { uiPersonaToApiRole } from "@/lib/authUi";
-import { useRegisterMutation } from "@/store/api/authApi";
+import { useSendOtpMutation, useVerifyOtpMutation } from "@/store/api/authApi";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -15,12 +15,14 @@ export default function SignUpPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [referralCode, setReferralCode] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
 
-  const [register, { isLoading }] = useRegisterMutation();
+  const [sendOtp, { isLoading: isSendingOtp }] = useSendOtpMutation();
+  const [verifyOtp, { isLoading: isVerifyingOtp }] = useVerifyOtpMutation();
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
     const fullName = `${firstName} ${lastName}`.trim();
@@ -29,12 +31,29 @@ export default function SignUpPage() {
       return;
     }
     try {
-      await register({
+      await sendOtp({
         fullName,
         email: email.trim(),
         password,
         role: uiPersonaToApiRole(role),
-        ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}),
+      }).unwrap();
+      setOtpSent(true);
+    } catch (err) {
+      setFormError(formatRequestError(err));
+    }
+  }
+
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setFormError(null);
+    if (!otp.trim()) {
+      setFormError("Please enter the OTP sent to your email.");
+      return;
+    }
+    try {
+      await verifyOtp({
+        email: email.trim(),
+        otp: otp.trim(),
       }).unwrap();
       router.push("/setup-profile");
     } catch (err) {
@@ -103,138 +122,155 @@ export default function SignUpPage() {
           </p>
         )}
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form
+          className="space-y-6"
+          onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}
+        >
+          {!otpSent && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                    First Name
+                  </label>
+                  <input
+                    required
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    autoComplete="given-name"
+                    placeholder="Alex"
+                    className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                    Last Name
+                  </label>
+                  <input
+                    required
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    autoComplete="family-name"
+                    placeholder="Chen"
+                    className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                  Work Email
+                </label>
+                <input
+                  required
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  placeholder="you@yourfirm.com"
+                  className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    required
+                    type={passwordVisible ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                    minLength={8}
+                    placeholder="Create a strong password"
+                    className="w-full px-5 py-4 pr-12 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPasswordVisible((v) => !v)}
+                    aria-label={
+                      passwordVisible ? "Hide password" : "Show password"
+                    }
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563]"
+                  >
+                    {passwordVisible ? (
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {otpSent && (
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
-                First Name
+                Enter OTP
               </label>
               <input
                 required
                 type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                autoComplete="given-name"
-                placeholder="Alex"
-                className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                autoComplete="one-time-code"
+                placeholder="Enter 6-digit OTP"
+                maxLength={6}
+                className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20 text-center tracking-widest"
               />
+              <p className="text-xs text-[#9CA3AF]">OTP sent to {email}</p>
             </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
-                Last Name
-              </label>
-              <input
-                required
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                autoComplete="family-name"
-                placeholder="Chen"
-                className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
-              Work Email
-            </label>
-            <input
-              required
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              placeholder="you@yourfirm.com"
-              className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                required
-                type={passwordVisible ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-                minLength={8}
-                placeholder="Create a strong password"
-                className="w-full px-5 py-4 pr-12 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
-              />
-              <button
-                type="button"
-                onClick={() => setPasswordVisible((v) => !v)}
-                aria-label={passwordVisible ? "Hide password" : "Show password"}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563]"
-              >
-                {passwordVisible ? (
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
-              Referral code{" "}
-              <span className="font-normal normal-case text-[#9CA3AF]">
-                (optional)
-              </span>
-            </label>
-            <input
-              type="text"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value)}
-              autoComplete="off"
-              placeholder="Enter code if you have one"
-              className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
-            />
-          </div> */}
+          )}
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isSendingOtp || isVerifyingOtp}
             className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-sm group disabled:opacity-60"
           >
-            {isLoading ? "Creating account…" : "Create Account"}
+            {isSendingOtp
+              ? "Sending OTP…"
+              : isVerifyingOtp
+                ? "Verifying…"
+                : otpSent
+                  ? "Verify & Create Account"
+                  : "Send OTP"}
             <svg
               className="w-4 h-4 transition-transform group-hover:translate-x-1"
               fill="none"
@@ -256,8 +292,6 @@ export default function SignUpPage() {
             <div className="w-full border-t border-[#E5E7EB]"></div>
           </div>
         </div>
-
-        
 
         <div className="text-center pt-2">
           <p className="text-sm font-medium text-[#9CA3AF]">

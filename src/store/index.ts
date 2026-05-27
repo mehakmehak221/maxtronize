@@ -6,15 +6,14 @@ export {
   useLazyGetProfileQuery,
   useLoginMutation,
   useLogoutMutation,
-  useRegisterMutation,
   useResetPasswordMutation,
   useSetupProfileMutation,
   useUpdateProfileMutation,
   useVerifyForgotPasswordOtpMutation,
+  useSendOtpMutation,
+  useVerifyOtpMutation,
 } from "./api/authApi";
-export {
-  useUploadFileMutation,
-} from "./api/uploadApi";
+export { useUploadFileMutation } from "./api/uploadApi";
 export type { UploadFileRequest, UploadFileResponse } from "./api/uploadApi";
 export {
   issuerHubApi,
@@ -97,11 +96,21 @@ export {
   useGetUpcomingPayoutsQuery,
   useGetYieldSummaryQuery,
   useGetYieldAssetBreakdownQuery,
+  useGetDistributionHistoryQuery,
+  useSchedulePayoutMutation,
+  useCancelPayoutMutation,
+  useProcessPayoutMutation,
+  useSetProjectionMutation,
 } from "./api/yieldApi";
 export type {
   DistributionSchedule,
   UpcomingPayout,
   YieldSummary,
+  SchedulePayoutRequest,
+  ProjectionRequest,
+  ProjectionResponse,
+  DistributionHistoryItem,
+  PayoutDetails,
 } from "@/lib/yield";
 export {
   issuerDocumentsApi,

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertTriangle,
@@ -9,21 +9,21 @@ import {
   ShieldCheck,
   TrendingUp,
   Users,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import React, { useMemo } from 'react';
-import { formatCompactCurrency } from '@/lib/issuerDashboard';
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import React, { useMemo } from "react";
+import { formatCompactCurrency } from "@/lib/issuerDashboard";
 import {
   capitalVelocityChartValues,
   formatHubUpdatedAt,
   formatSignedChange,
   type HubOverviewActivityItem,
-} from '@/lib/issuerHub';
+} from "@/lib/issuerHub";
 import {
   useGetIssuerHubCapitalVelocityQuery,
   useGetIssuerHubOverviewActivityQuery,
   useGetIssuerHubOverviewSummaryQuery,
-} from '@/store/api/issuerHubApi';
+} from "@/store/api/issuerHubApi";
 
 const iconStroke = 1.75;
 
@@ -36,7 +36,7 @@ function MetricIconCircle({
 }) {
   return (
     <div
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${className ?? ''}`}
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${className ?? ""}`}
     >
       {children}
     </div>
@@ -52,14 +52,14 @@ function buildLinePath(
   maxM: number,
 ) {
   const n = values.length;
-  if (n === 0) return '';
+  if (n === 0) return "";
   return values
     .map((m, i) => {
       const x = chartLeft + (i / Math.max(n - 1, 1)) * chartW;
       const y = chartTop + chartH - (m / maxM) * chartH;
-      return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+      return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
     })
-    .join(' ');
+    .join(" ");
 }
 
 function buildAreaPath(
@@ -72,7 +72,7 @@ function buildAreaPath(
   baselineY: number,
 ) {
   const n = values.length;
-  if (n === 0) return '';
+  if (n === 0) return "";
   const pts = values.map((m, i) => {
     const x = chartLeft + (i / Math.max(n - 1, 1)) * chartW;
     const y = chartTop + chartH - (m / maxM) * chartH;
@@ -86,15 +86,17 @@ function buildAreaPath(
   return d;
 }
 
-const ACTIVITY_RING: Record<HubOverviewActivityItem['tone'], string> = {
-  primary: 'bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300',
-  info: 'bg-sky-100 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400',
-  success: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400',
-  warn: 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
-  danger: 'bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400',
+const ACTIVITY_RING: Record<HubOverviewActivityItem["tone"], string> = {
+  primary:
+    "bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300",
+  info: "bg-sky-100 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400",
+  success:
+    "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400",
+  warn: "bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400",
+  danger: "bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400",
 };
 
-const ACTIVITY_ICON: Record<HubOverviewActivityItem['tone'], LucideIcon> = {
+const ACTIVITY_ICON: Record<HubOverviewActivityItem["tone"], LucideIcon> = {
   primary: DollarSign,
   info: ShieldCheck,
   success: TrendingUp,
@@ -109,7 +111,7 @@ export function HubOverviewTab() {
   const { data: activityData, isLoading: activityLoading } =
     useGetIssuerHubOverviewActivityQuery({ page: 1, limit: 8 });
 
-  const currency = summary?.totalCapitalRaised.currency ?? 'USD';
+  const currency = summary?.totalCapitalRaised.currency ?? "USD";
   const chart = useMemo(
     () => capitalVelocityChartValues(velocity?.series ?? []),
     [velocity?.series],
@@ -117,7 +119,10 @@ export function HubOverviewTab() {
 
   const yTicks = useMemo(() => {
     const steps = 4;
-    return Array.from({ length: steps + 1 }, (_, i) => (chart.maxM / steps) * i);
+    return Array.from(
+      { length: steps + 1 },
+      (_, i) => (chart.maxM / steps) * i,
+    );
   }, [chart.maxM]);
 
   const activities = activityData?.items ?? [];
@@ -129,7 +134,10 @@ export function HubOverviewTab() {
           <div className="absolute inset-0 bg-mesh opacity-40" />
           <div className="relative z-10 space-y-4 sm:space-y-5 md:space-y-6">
             <MetricIconCircle className="bg-white/20 ring-1 ring-white/25">
-              <DollarSign className="h-5 w-5 text-white" strokeWidth={iconStroke} />
+              <DollarSign
+                className="h-5 w-5 text-white"
+                strokeWidth={iconStroke}
+              />
             </MetricIconCircle>
             <div>
               <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/60">
@@ -137,7 +145,7 @@ export function HubOverviewTab() {
               </p>
               <h3 className="text-3xl font-bold tracking-tight tabular-nums sm:text-4xl">
                 {summaryLoading
-                  ? '—'
+                  ? "—"
                   : formatCompactCurrency(
                       summary?.totalCapitalRaised.amount ?? 0,
                       currency,
@@ -145,20 +153,20 @@ export function HubOverviewTab() {
                     )}
               </h3>
               <p className="mt-2 text-xs font-medium text-white/60">
-                across {summary?.totalCapitalRaised.activeOfferingsCount ?? 0} active
-                offering
+                across {summary?.totalCapitalRaised.activeOfferingsCount ?? 0}{" "}
+                active offering
                 {(summary?.totalCapitalRaised.activeOfferingsCount ?? 0) === 1
-                  ? ''
-                  : 's'}
+                  ? ""
+                  : "s"}
               </p>
             </div>
             <div className="border-t border-white/10 pt-4">
               <span className="flex items-center gap-2 text-[11px] font-bold text-issuer-hero-trend-fg">
                 {summaryLoading
-                  ? '—'
+                  ? "—"
                   : formatSignedChange(
                       summary?.totalCapitalRaised.weeklyChange ?? 0,
-                      { suffix: ' this week' },
+                      { suffix: " this week" },
                     )}
               </span>
             </div>
@@ -172,10 +180,13 @@ export function HubOverviewTab() {
             </MetricIconCircle>
             <span className="rounded-full bg-ui-success-bg-soft px-2 py-1 text-[10px] font-bold text-ui-success-text">
               {summaryLoading
-                ? '—'
-                : formatSignedChange(summary?.activeAssets.quarterlyChange ?? 0, {
-                    suffix: ' this quarter',
-                  })}
+                ? "—"
+                : formatSignedChange(
+                    summary?.activeAssets.quarterlyChange ?? 0,
+                    {
+                      suffix: " this quarter",
+                    },
+                  )}
             </span>
           </div>
           <div>
@@ -183,10 +194,10 @@ export function HubOverviewTab() {
               Active Assets
             </p>
             <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">
-              {summary?.activeAssets.total ?? (summaryLoading ? '—' : 0)}
+              {summary?.activeAssets.total ?? (summaryLoading ? "—" : 0)}
             </h3>
             <p className="mt-2 text-xs font-medium text-text-muted">
-              {summary?.activeAssets.inFunding ?? 0} in funding ·{' '}
+              {summary?.activeAssets.inFunding ?? 0} in funding ·{" "}
               {summary?.activeAssets.fullyFunded ?? 0} fully funded
             </p>
           </div>
@@ -199,10 +210,13 @@ export function HubOverviewTab() {
             </MetricIconCircle>
             <span className="rounded-full bg-ui-success-bg-soft px-2 py-1 text-[10px] font-bold text-ui-success-text">
               {summaryLoading
-                ? '—'
-                : formatSignedChange(summary?.totalInvestors.monthlyChange ?? 0, {
-                    suffix: ' this month',
-                  })}
+                ? "—"
+                : formatSignedChange(
+                    summary?.totalInvestors.monthlyChange ?? 0,
+                    {
+                      suffix: " this month",
+                    },
+                  )}
             </span>
           </div>
           <div>
@@ -210,10 +224,10 @@ export function HubOverviewTab() {
               Total Investors
             </p>
             <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">
-              {summary?.totalInvestors.total ?? (summaryLoading ? '—' : 0)}
+              {summary?.totalInvestors.total ?? (summaryLoading ? "—" : 0)}
             </h3>
             <p className="mt-2 text-xs font-medium text-text-muted">
-              {summary?.totalInvestors.funded ?? 0} funded ·{' '}
+              {summary?.totalInvestors.funded ?? 0} funded ·{" "}
               {summary?.totalInvestors.committed ?? 0} committed
             </p>
           </div>
@@ -222,7 +236,10 @@ export function HubOverviewTab() {
         <div className="space-y-4 rounded-2xl bg-issuer-yield-card p-5 text-issuer-yield-card-fg shadow-sm sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
           <div className="flex items-start justify-between">
             <MetricIconCircle className="bg-white/15 ring-1 ring-white/20">
-              <TrendingUp className="h-5 w-5 text-issuer-yield-card-fg" strokeWidth={iconStroke} />
+              <TrendingUp
+                className="h-5 w-5 text-issuer-yield-card-fg"
+                strokeWidth={iconStroke}
+              />
             </MetricIconCircle>
           </div>
           <div>
@@ -231,7 +248,7 @@ export function HubOverviewTab() {
             </p>
             <h3 className="text-3xl font-bold tracking-tight tabular-nums sm:text-4xl">
               {summaryLoading
-                ? '—'
+                ? "—"
                 : `${(summary?.blendedYield.percent ?? 0).toFixed(1)}%`}
             </h3>
             <p className="mt-2 text-xs font-medium text-issuer-yield-card-fg/80">
@@ -241,10 +258,10 @@ export function HubOverviewTab() {
           <div className="border-t border-white/20 pt-4">
             <span className="flex items-center gap-2 text-[11px] font-bold text-issuer-yield-card-fg">
               {summaryLoading
-                ? '—'
+                ? "—"
                 : formatSignedChange(
                     summary?.blendedYield.quarterlyChangePercent ?? 0,
-                    { suffix: ' vs last quarter', isPercent: true },
+                    { suffix: " vs last quarter", isPercent: true },
                   )}
             </span>
           </div>
@@ -264,10 +281,10 @@ export function HubOverviewTab() {
               Pending KYC
             </p>
             <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">
-              {summary?.pendingKyc.total ?? (summaryLoading ? '—' : 0)}
+              {summary?.pendingKyc.total ?? (summaryLoading ? "—" : 0)}
             </h3>
             <p className="mt-2 text-xs font-medium text-warning">
-              {summary?.pendingKyc.awaitingDocuments ?? 0} awaiting docs ·{' '}
+              {summary?.pendingKyc.awaitingDocuments ?? 0} awaiting docs ·{" "}
               {summary?.pendingKyc.inReview ?? 0} in review
               {(summary?.pendingKyc.overdueCount ?? 0) > 0 ? (
                 <>
@@ -299,11 +316,11 @@ export function HubOverviewTab() {
                     { decimals: 0 },
                   )
                 : summaryLoading
-                  ? '—'
-                  : '—'}
+                  ? "—"
+                  : "—"}
             </h3>
             <p className="mt-2 text-xs font-medium text-text-muted">
-              {summary?.nextDistribution?.label ?? 'No distribution scheduled'}
+              {summary?.nextDistribution?.label ?? "No distribution scheduled"}
             </p>
           </div>
         </div>
@@ -313,9 +330,12 @@ export function HubOverviewTab() {
         <div className="min-w-0 rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-8 xl:col-span-2 xl:rounded-[40px] xl:p-10">
           <div className="mb-5 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-start sm:justify-between md:mb-8">
             <div>
-              <h3 className="mb-1 text-lg font-bold text-foreground">Capital Velocity</h3>
+              <h3 className="mb-1 text-lg font-bold text-foreground">
+                Capital Velocity
+              </h3>
               <p className="text-xs text-text-muted">
-                Raised vs. committed capital — last {velocity?.weeks ?? 12} weeks
+                Raised vs. committed capital — last {velocity?.weeks ?? 12}{" "}
+                weeks
               </p>
             </div>
             <div className="flex flex-wrap gap-6">
@@ -343,9 +363,23 @@ export function HubOverviewTab() {
               aria-label="Capital raised and committed over time"
             >
               <defs>
-                <linearGradient id="issuerHubRaisedFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--issuer-chart-line-primary)" stopOpacity="0.32" />
-                  <stop offset="100%" stopColor="var(--issuer-chart-line-primary)" stopOpacity="0" />
+                <linearGradient
+                  id="issuerHubRaisedFill"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="0%"
+                    stopColor="var(--issuer-chart-line-primary)"
+                    stopOpacity="0.32"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="var(--issuer-chart-line-primary)"
+                    stopOpacity="0"
+                  />
                 </linearGradient>
               </defs>
 
@@ -372,76 +406,90 @@ export function HubOverviewTab() {
                       fill="var(--text-muted)"
                       className="text-[10px] font-bold"
                     >
-                      {m === 0 ? '$0' : `$${m}M`}
+                      {m === 0 ? "$0" : `$${m}M`}
                     </text>
                   </g>
                 );
               })}
 
-              {chart.raisedM.length > 0 ? (
-                (() => {
-                  const chartLeft = 56;
-                  const chartW = 564;
-                  const chartTop = 28;
-                  const chartH = 132;
-                  const chartBottom = chartTop + chartH;
-                  const raisedPath = buildLinePath(
-                    chart.raisedM,
-                    chartLeft,
-                    chartW,
-                    chartTop,
-                    chartH,
-                    chart.maxM,
-                  );
-                  const committedPath = buildLinePath(
-                    chart.committedM,
-                    chartLeft,
-                    chartW,
-                    chartTop,
-                    chartH,
-                    chart.maxM,
-                  );
-                  const areaPath = buildAreaPath(
-                    chart.raisedM,
-                    chartLeft,
-                    chartW,
-                    chartTop,
-                    chartH,
-                    chart.maxM,
-                    chartBottom,
-                  );
-                  return (
-                    <>
-                      <path d={areaPath} fill="url(#issuerHubRaisedFill)" />
-                      <path
-                        d={committedPath}
-                        fill="none"
-                        stroke="var(--palette-success)"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        opacity={0.9}
-                      />
-                      <path
-                        d={raisedPath}
-                        fill="none"
-                        stroke="var(--issuer-chart-line-primary)"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </>
-                  );
-                })()
-              ) : null}
+              {chart.raisedM.length > 0
+                ? (() => {
+                    const chartLeft = 56;
+                    const chartW = 564;
+                    const chartTop = 28;
+                    const chartH = 132;
+                    const chartBottom = chartTop + chartH;
+                    const raisedPath = buildLinePath(
+                      chart.raisedM,
+                      chartLeft,
+                      chartW,
+                      chartTop,
+                      chartH,
+                      chart.maxM,
+                    );
+                    const committedPath = buildLinePath(
+                      chart.committedM,
+                      chartLeft,
+                      chartW,
+                      chartTop,
+                      chartH,
+                      chart.maxM,
+                    );
+                    const areaPath = buildAreaPath(
+                      chart.raisedM,
+                      chartLeft,
+                      chartW,
+                      chartTop,
+                      chartH,
+                      chart.maxM,
+                      chartBottom,
+                    );
+                    return (
+                      <>
+                        <path d={areaPath} fill="url(#issuerHubRaisedFill)" />
+                        <path
+                          d={committedPath}
+                          fill="none"
+                          stroke="var(--palette-success)"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          opacity={0.9}
+                        />
+                        <path
+                          d={raisedPath}
+                          fill="none"
+                          stroke="var(--issuer-chart-line-primary)"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </>
+                    );
+                  })()
+                : null}
 
               {(chart.weekLabels.length > 0
                 ? chart.weekLabels
-                : ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12']
+                : [
+                    "W1",
+                    "W2",
+                    "W3",
+                    "W4",
+                    "W5",
+                    "W6",
+                    "W7",
+                    "W8",
+                    "W9",
+                    "W10",
+                    "W11",
+                    "W12",
+                  ]
               ).map((label, i, arr) => {
                 const chartLeft = 56;
                 const chartW = 564;
-                const x = chartLeft + (i / Math.max(arr.length - 1, 1)) * chartW;
+                const x =
+                  chartLeft + (i / Math.max(arr.length - 1, 1)) * chartW;
                 return (
                   <text
                     key={`${label}-${i}`}
@@ -460,7 +508,9 @@ export function HubOverviewTab() {
         </div>
 
         <div className="flex min-w-0 flex-col rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-8 xl:rounded-[40px] xl:p-10">
-          <h3 className="mb-1 text-lg font-bold text-foreground">Recent Activity</h3>
+          <h3 className="mb-1 text-lg font-bold text-foreground">
+            Recent Activity
+          </h3>
           <p className="mb-5 text-xs text-text-muted sm:mb-6 md:mb-8">
             Investor actions & compliance events
           </p>
@@ -475,14 +525,21 @@ export function HubOverviewTab() {
                     key={activity.id}
                     className="group -mx-2 flex cursor-pointer gap-4 rounded-xl p-2 transition-colors hover:bg-surface"
                   >
-                    <MetricIconCircle className={`${ACTIVITY_RING[activity.tone]} shadow-sm`}>
+                    <MetricIconCircle
+                      className={`${ACTIVITY_RING[activity.tone]} shadow-sm`}
+                    >
                       <RowIcon className="h-4 w-4" strokeWidth={iconStroke} />
                     </MetricIconCircle>
                     <div className="min-w-0 flex-1">
                       <p className="mb-0.5 line-clamp-3 text-[11px] font-bold leading-snug text-foreground transition-colors group-hover:text-primary xl:line-clamp-2">
-                        {activity.label}
+                        {activity.title}
                       </p>
-                      <p className="text-[10px] text-text-muted">{activity.time}</p>
+                      <p className="mb-0.5 line-clamp-2 text-[10px] text-text-muted xl:line-clamp-1">
+                        {activity.description}
+                      </p>
+                      <p className="text-[10px] text-text-muted">
+                        {activity.time}
+                      </p>
                     </div>
                   </div>
                 );

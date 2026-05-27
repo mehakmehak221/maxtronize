@@ -1,14 +1,23 @@
-'use client';
+"use client";
 
-import { Calendar, Clock, DollarSign, Plus, Target, TrendingUp } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
-import { chartScaleForAmounts } from '@/lib/yield';
-import { formatCompactCurrency } from '@/lib/issuerDashboard';
+import {
+  Calendar,
+  Clock,
+  DollarSign,
+  Plus,
+  Target,
+  TrendingUp,
+  X,
+} from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { chartScaleForAmounts } from "@/lib/yield";
+import { formatCompactCurrency } from "@/lib/issuerDashboard";
 import {
   useGetDistributionScheduleQuery,
   useGetUpcomingPayoutsQuery,
   useGetYieldSummaryQuery,
-} from '@/store/api/yieldApi';
+  useSchedulePayoutMutation,
+} from "@/store/api/yieldApi";
 
 const iconStroke = 1.75;
 
@@ -21,7 +30,7 @@ function MetricIconCircle({
 }) {
   return (
     <div
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${className ?? ''}`}
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${className ?? ""}`}
     >
       {children}
     </div>
@@ -31,12 +40,46 @@ function MetricIconCircle({
 export function HubDistributionsTab() {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [formData, setFormData] = useState({
+    assetId: "",
+    title: "",
+    payoutType: "",
+    scheduledDate: "",
+    totalAmount: "",
+  });
 
-  const { data: summary, isLoading: summaryLoading } = useGetYieldSummaryQuery();
+  const { data: summary, isLoading: summaryLoading } =
+    useGetYieldSummaryQuery();
   const { data: schedule, isLoading: scheduleLoading } =
     useGetDistributionScheduleQuery({ year });
   const { data: upcoming = [], isLoading: payoutsLoading } =
     useGetUpcomingPayoutsQuery();
+  const [schedulePayout, { isLoading: isScheduling }] =
+    useSchedulePayoutMutation();
+
+  async function handleSchedulePayout(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      await schedulePayout({
+        assetId: formData.assetId,
+        title: formData.title,
+        payoutType: formData.payoutType,
+        scheduledDate: formData.scheduledDate,
+        totalAmount: Number(formData.totalAmount),
+      }).unwrap();
+      setShowScheduleModal(false);
+      setFormData({
+        assetId: "",
+        title: "",
+        payoutType: "",
+        scheduledDate: "",
+        totalAmount: "",
+      });
+    } catch (error) {
+      console.error("Failed to schedule payout:", error);
+    }
+  }
 
   const chartData = useMemo(() => {
     const months = schedule?.months ?? [];
@@ -64,8 +107,8 @@ export function HubDistributionsTab() {
         { decimals: 0 },
       )
     : summaryLoading
-      ? '—'
-      : '$0';
+      ? "—"
+      : "$0";
 
   const nextPayout = summary?.nextDistribution
     ? formatCompactCurrency(
@@ -74,14 +117,14 @@ export function HubDistributionsTab() {
         { decimals: 0 },
       )
     : summaryLoading
-      ? '—'
-      : '—';
+      ? "—"
+      : "—";
 
   const avgApy = summary
     ? `${summary.portfolioAvgApy.percent.toFixed(1)}%`
     : summaryLoading
-      ? '—'
-      : '0%';
+      ? "—"
+      : "0%";
 
   return (
     <div className="max-w-full min-w-0 space-y-8 animate-in fade-in duration-500">
@@ -89,25 +132,25 @@ export function HubDistributionsTab() {
         {(
           [
             {
-              label: 'Total Distributed',
+              label: "Total Distributed",
               value: totalDistributed,
               Icon: DollarSign,
             },
             {
-              label: 'Next Payout',
+              label: "Next Payout",
               value: nextPayout,
               sub: summary?.nextDistribution?.label,
               Icon: Calendar,
             },
             {
-              label: 'Portfolio Average APY',
+              label: "Portfolio Average APY",
               value: avgApy,
               sub: summary?.portfolioAvgApy.summary,
               Icon: TrendingUp,
             },
             {
-              label: 'Scheduled Payouts',
-              value: payoutsLoading ? '—' : String(upcoming.length),
+              label: "Scheduled Payouts",
+              value: payoutsLoading ? "—" : String(upcoming.length),
               Icon: Clock,
             },
           ] as const
@@ -124,9 +167,13 @@ export function HubDistributionsTab() {
               <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
                 {card.label}
               </p>
-              <p className="text-2xl font-bold tracking-tight text-foreground">{card.value}</p>
-              {'sub' in card && card.sub ? (
-                <p className="mt-1 text-xs font-medium text-text-muted">{card.sub}</p>
+              <p className="text-2xl font-bold tracking-tight text-foreground">
+                {card.value}
+              </p>
+              {"sub" in card && card.sub ? (
+                <p className="mt-1 text-xs font-medium text-text-muted">
+                  {card.sub}
+                </p>
               ) : null}
             </div>
           );
@@ -141,8 +188,8 @@ export function HubDistributionsTab() {
             </h3>
             <p className="text-xs text-text-muted">
               {scheduleLoading
-                ? 'Loading monthly actual vs projected…'
-                : `YTD ${formatCompactCurrency(schedule?.ytdActual ?? 0, schedule?.currency ?? 'USD', { decimals: 0 })} · EOY projection ${formatCompactCurrency(schedule?.eoyProjection ?? 0, schedule?.currency ?? 'USD', { decimals: 0 })} · ${(schedule?.achievementRate ?? 0).toFixed(0)}% of target`}
+                ? "Loading monthly actual vs projected…"
+                : `YTD ${formatCompactCurrency(schedule?.ytdActual ?? 0, schedule?.currency ?? "USD", { decimals: 0 })} · EOY projection ${formatCompactCurrency(schedule?.eoyProjection ?? 0, schedule?.currency ?? "USD", { decimals: 0 })} · ${(schedule?.achievementRate ?? 0).toFixed(0)}% of target`}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -160,6 +207,7 @@ export function HubDistributionsTab() {
             </select>
             <button
               type="button"
+              onClick={() => setShowScheduleModal(true)}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-90"
             >
               <Plus className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
@@ -214,8 +262,8 @@ export function HubDistributionsTab() {
                     className="text-[10px] font-bold"
                   >
                     {pct === 0
-                      ? '$0'
-                      : `$${k.toFixed(suffix === 'M' ? 1 : 0)}${suffix}`}
+                      ? "$0"
+                      : `$${k.toFixed(suffix === "M" ? 1 : 0)}${suffix}`}
                   </text>
                 </g>
               );
@@ -276,8 +324,9 @@ export function HubDistributionsTab() {
                 )}
               </p>
               <p className="text-xs text-text-muted">
-                {summary.ytdDistributions.changePercent >= 0 ? '+' : ''}
-                {summary.ytdDistributions.changePercent.toFixed(1)}% vs prior year
+                {summary.ytdDistributions.changePercent >= 0 ? "+" : ""}
+                {summary.ytdDistributions.changePercent.toFixed(1)}% vs prior
+                year
               </p>
             </div>
             <div className="rounded-2xl border border-card-border bg-surface px-4 py-3">
@@ -291,9 +340,11 @@ export function HubDistributionsTab() {
             </div>
             <div className="rounded-2xl border border-card-border bg-surface px-4 py-3">
               <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
-                {summary.totalDistributed.summary || 'All-time total'}
+                {summary.totalDistributed.summary || "All-time total"}
               </p>
-              <p className="mt-1 text-lg font-bold text-foreground">{totalDistributed}</p>
+              <p className="mt-1 text-lg font-bold text-foreground">
+                {totalDistributed}
+              </p>
             </div>
           </div>
         ) : null}
@@ -301,75 +352,234 @@ export function HubDistributionsTab() {
 
       <div className="max-w-full min-w-0 overflow-x-auto rounded-[32px] border border-card-border bg-card shadow-sm">
         <div className="border-b border-card-border px-6 py-4">
-          <h3 className="text-lg font-bold text-foreground">Upcoming Payouts</h3>
-          <p className="text-xs text-text-muted">Scheduled distributions across assets</p>
+          <h3 className="text-lg font-bold text-foreground">
+            Upcoming Payouts
+          </h3>
+          <p className="text-xs text-text-muted">
+            Scheduled distributions across assets
+          </p>
         </div>
         <table className="w-full min-w-0 table-fixed text-left">
           <thead className="border-b border-card-border bg-surface">
             <tr>
-              {['Period', 'Asset', 'Type', 'Amount', 'Investors', 'Date', 'Status'].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className="px-3 py-3 text-[9px] font-bold uppercase tracking-widest text-text-muted sm:px-6 sm:py-4"
-                  >
-                    {h}
-                  </th>
-                ),
-              )}
+              {[
+                "Period",
+                "Asset",
+                "Type",
+                "Amount",
+                "Investors",
+                "Date",
+                "Status",
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="px-3 py-3 text-[9px] font-bold uppercase tracking-widest text-text-muted sm:px-6 sm:py-4"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {payoutsLoading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-sm text-text-muted">
+                <td
+                  colSpan={7}
+                  className="px-6 py-8 text-center text-sm text-text-muted"
+                >
                   Loading upcoming payouts…
                 </td>
               </tr>
             ) : upcoming.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-sm text-text-muted">
+                <td
+                  colSpan={7}
+                  className="px-6 py-8 text-center text-sm text-text-muted"
+                >
                   No upcoming payouts scheduled.
                 </td>
               </tr>
             ) : (
-              upcoming.map((row) => (
-                <tr key={row.id} className="transition-colors hover:bg-surface">
-                  <td className="min-w-0 break-words px-3 py-3 text-sm font-semibold text-foreground sm:px-6 sm:py-4">
-                    {row.period}
-                  </td>
-                  <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
-                    <span className="text-sm font-bold text-primary">{row.asset}</span>
-                  </td>
-                  <td className="min-w-0 break-words px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
-                    {row.type}
-                  </td>
-                  <td className="min-w-0 px-3 py-3 text-sm font-bold text-foreground sm:px-6 sm:py-4">
-                    {row.amountFormatted}
-                  </td>
-                  <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
-                    {row.investors}
-                  </td>
-                  <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
-                    {row.date}
-                  </td>
-                  <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
-                    <span
-                      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold ${
-                        row.status.toLowerCase() === 'completed'
-                          ? 'border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg'
-                          : 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300'
-                      }`}
-                    >
-                      {row.status}
-                    </span>
-                  </td>
-                </tr>
-              ))
+              upcoming.map((row) => {
+                const amountFormatted = formatCompactCurrency(
+                  row.expectedAmount,
+                  row.currency,
+                  { decimals: 0 },
+                );
+                const dateStr =
+                  row.scheduledDate && typeof row.scheduledDate === "object"
+                    ? ((row.scheduledDate as Record<string, unknown>)
+                        .date as string)
+                    : null;
+                const formattedDate = dateStr
+                  ? new Date(dateStr).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "—";
+
+                return (
+                  <tr
+                    key={row.id}
+                    className="transition-colors hover:bg-surface"
+                  >
+                    <td className="min-w-0 break-words px-3 py-3 text-sm font-semibold text-foreground sm:px-6 sm:py-4">
+                      {row.frequencyLabel}
+                    </td>
+                    <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-primary">
+                          {row.assetTitle}
+                        </span>
+                        <span className="text-xs text-text-muted">
+                          {row.ticker}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="min-w-0 break-words px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
+                      {row.payoutType}
+                    </td>
+                    <td className="min-w-0 px-3 py-3 text-sm font-bold text-foreground sm:px-6 sm:py-4">
+                      {amountFormatted}
+                    </td>
+                    <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
+                      {row.investorCount}
+                    </td>
+                    <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
+                      {formattedDate}
+                    </td>
+                    <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
+                      <span
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+                          row.status === "COMPLETED"
+                            ? "border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg"
+                            : "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300"
+                        }`}
+                      >
+                        {row.status}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
+
+      {showScheduleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-card-border bg-card p-6 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-foreground">
+                Schedule Payout
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowScheduleModal(false)}
+                className="text-text-muted hover:text-foreground"
+              >
+                <X className="h-5 w-5" strokeWidth={iconStroke} />
+              </button>
+            </div>
+            <form onSubmit={handleSchedulePayout} className="space-y-4">
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                  Asset ID
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.assetId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, assetId: e.target.value })
+                  }
+                  placeholder="Enter asset UUID"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  placeholder="e.g., Q2 2026 Yield Distribution"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                  Payout Type
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.payoutType}
+                  onChange={(e) =>
+                    setFormData({ ...formData, payoutType: e.target.value })
+                  }
+                  placeholder="e.g., Quarterly Yield"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                  Scheduled Date
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={formData.scheduledDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, scheduledDate: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                  Total Amount
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={formData.totalAmount}
+                  onChange={(e) =>
+                    setFormData({ ...formData, totalAmount: e.target.value })
+                  }
+                  placeholder="Enter amount"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowScheduleModal(false)}
+                  className="flex-1 rounded-lg border border-card-border bg-surface px-4 py-2 text-sm font-bold text-foreground hover:bg-surface/80"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isScheduling}
+                  className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+                >
+                  {isScheduling ? "Scheduling..." : "Schedule"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

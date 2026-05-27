@@ -1,6 +1,10 @@
 import { pickNumber, pickString, unwrapList } from "@/lib/apiParse";
 
-export type IssuerDocumentStatusType = "signed" | "pending" | "draft" | "expired";
+export type IssuerDocumentStatusType =
+  | "signed"
+  | "pending"
+  | "draft"
+  | "expired";
 
 export type IssuerDocumentCategoryLabel =
   | "LEGAL"
@@ -10,14 +14,27 @@ export type IssuerDocumentCategoryLabel =
 
 export type IssuerDocument = {
   id: string;
-  name: string;
+  documentCode: string;
+  title: string;
   category: string;
   categoryLabel: IssuerDocumentCategoryLabel;
-  assetName: string;
+  assetId: string | null;
+  assetTitle: string;
   status: string;
-  statusType: IssuerDocumentStatusType;
-  date: string;
-  size: string;
+  statusLabel: string;
+  signatureProgress: {
+    completed: number;
+    required: number;
+    label: string;
+  };
+  documentDate: Record<string, unknown>;
+  expiresAt: Record<string, unknown>;
+  size: number;
+  sizeLabel: string;
+  fileName: string;
+  mimeType: string;
+  signedUrl: string;
+  createdAt: Record<string, unknown>;
 };
 
 export type PaginationMeta = {
@@ -173,63 +190,104 @@ function parsePagination(payload: unknown): PaginationMeta {
 function parseDocumentItem(record: Record<string, unknown>): IssuerDocument {
   const id =
     pickString(record, ["id", "_id", "documentId", "document_id"]) ?? "";
-  const name =
-    pickString(record, [
-      "name",
-      "title",
-      "fileName",
-      "file_name",
-      "documentName",
-      "document_name",
-    ]) ?? "Untitled document";
+  const documentCode =
+    pickString(record, ["documentCode", "document_code"]) ?? "";
+  const title =
+    pickString(record, ["title", "name", "fileName", "file_name"]) ??
+    "Untitled document";
 
   const categoryRaw = pickString(record, ["category", "type", "documentType"]);
-  const categoryLabel = normalizeCategoryLabel(categoryRaw);
+  const categoryLabel = (pickString(record, [
+    "categoryLabel",
+    "category_label",
+  ]) ?? normalizeCategoryLabel(categoryRaw)) as IssuerDocumentCategoryLabel;
   const statusRaw = pickString(record, ["status", "signatureStatus", "state"]);
-  const statusType = normalizeStatusType(statusRaw);
+  const statusLabel =
+    pickString(record, ["statusLabel", "status_label"]) ?? statusRaw ?? "—";
 
-  const assetRecord =
-    record.asset && typeof record.asset === "object"
-      ? (record.asset as Record<string, unknown>)
-      : null;
-  const assetName =
-    pickString(record, ["assetName", "asset_name", "assetTitle"]) ??
-    (assetRecord
-      ? pickString(assetRecord, ["name", "title", "assetName"])
-      : null) ??
-    "—";
-
-  const sizeBytes = pickNumber(record, [
-    "sizeBytes",
-    "size_bytes",
-    "fileSize",
-    "file_size",
-  ]);
-  const size =
-    pickString(record, ["size", "fileSizeLabel", "file_size_label"]) ??
-    formatFileSize(sizeBytes);
-
-  const date = formatDocumentDate(
+  const assetId = pickString(record, ["assetId", "asset_id"]) ?? null;
+  const assetTitle =
     pickString(record, [
-      "date",
-      "createdAt",
-      "created_at",
-      "updatedAt",
-      "updated_at",
-      "uploadedAt",
-    ]),
-  );
+      "assetTitle",
+      "asset_title",
+      "assetName",
+      "asset_name",
+    ]) ?? "—";
+
+  const signatureProgressRaw =
+    record.signatureProgress ?? record.signature_progress;
+  const signatureProgress =
+    signatureProgressRaw &&
+    typeof signatureProgressRaw === "object" &&
+    !Array.isArray(signatureProgressRaw)
+      ? {
+          completed:
+            pickNumber(signatureProgressRaw as Record<string, unknown>, [
+              "completed",
+            ]) ?? 0,
+          required:
+            pickNumber(signatureProgressRaw as Record<string, unknown>, [
+              "required",
+            ]) ?? 0,
+          label:
+            pickString(signatureProgressRaw as Record<string, unknown>, [
+              "label",
+            ]) ?? "0/0",
+        }
+      : { completed: 0, required: 0, label: "0/0" };
+
+  const documentDateRaw = record.documentDate ?? record.document_date ?? {};
+  const documentDate =
+    documentDateRaw &&
+    typeof documentDateRaw === "object" &&
+    !Array.isArray(documentDateRaw)
+      ? (documentDateRaw as Record<string, unknown>)
+      : {};
+
+  const expiresAtRaw = record.expiresAt ?? record.expires_at ?? {};
+  const expiresAt =
+    expiresAtRaw &&
+    typeof expiresAtRaw === "object" &&
+    !Array.isArray(expiresAtRaw)
+      ? (expiresAtRaw as Record<string, unknown>)
+      : {};
+
+  const size = pickNumber(record, ["size", "fileSize", "file_size"]) ?? 0;
+  const sizeLabel =
+    pickString(record, ["sizeLabel", "size_label"]) ?? formatFileSize(size);
+
+  const fileName = pickString(record, ["fileName", "file_name"]) ?? "";
+  const mimeType = pickString(record, ["mimeType", "mime_type", "type"]) ?? "";
+  const signedUrl =
+    pickString(record, ["signedUrl", "signed_url", "url"]) ?? "";
+
+  const createdAtRaw = record.createdAt ?? record.created_at ?? {};
+  const createdAt =
+    createdAtRaw &&
+    typeof createdAtRaw === "object" &&
+    !Array.isArray(createdAtRaw)
+      ? (createdAtRaw as Record<string, unknown>)
+      : {};
 
   return {
-    id: id || name,
-    name,
+    id: id || title,
+    documentCode,
+    title,
     category: categoryRaw ?? categoryLabel,
     categoryLabel,
-    assetName,
-    status: formatStatusLabel(statusRaw, statusType),
-    statusType,
-    date,
+    assetId,
+    assetTitle,
+    status: statusRaw ?? "—",
+    statusLabel,
+    signatureProgress,
+    documentDate,
+    expiresAt,
     size,
+    sizeLabel,
+    fileName,
+    mimeType,
+    signedUrl,
+    createdAt,
   };
 }
 
@@ -261,14 +319,19 @@ export type DocumentCategoryTab = {
   count: number;
 };
 
-export function parseDocumentCategories(payload: unknown): DocumentCategoryTab[] {
+export function parseDocumentCategories(
+  payload: unknown,
+): DocumentCategoryTab[] {
   if (!payload || typeof payload !== "object") return [];
   const root = payload as Record<string, unknown>;
   const tabs = root.tabs;
   if (!Array.isArray(tabs)) return [];
 
   return tabs
-    .filter((tab): tab is Record<string, unknown> => Boolean(tab) && typeof tab === "object")
+    .filter(
+      (tab): tab is Record<string, unknown> =>
+        Boolean(tab) && typeof tab === "object",
+    )
     .map((tab) => ({
       key: pickString(tab, ["key", "id", "value"]) ?? "ALL",
       label: pickString(tab, ["label", "name"]) ?? "All Documents",
@@ -332,7 +395,8 @@ export function parseIssuerDocumentsSummary(
     fullySigned: {
       count: pickNumber(fullySignedRecord, ["count"]) ?? 0,
       completionRate:
-        pickNumber(fullySignedRecord, ["completionRate", "completion_rate"]) ?? 0,
+        pickNumber(fullySignedRecord, ["completionRate", "completion_rate"]) ??
+        0,
     },
     pendingSignature,
     complianceScore: {

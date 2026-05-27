@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   CheckCircle2,
@@ -16,23 +16,23 @@ import {
   ShieldCheck,
   Upload,
   XCircle,
-} from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
-import { DocumentDetailPanel } from '@/components/issuer/DocumentDetailPanel';
-import { IssuerDocumentUploadModal } from '@/components/issuer/IssuerDocumentUploadModal';
-import { formatRequestError } from '@/lib/formatRequestError';
+} from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import DashboardLayout from "@/components/DashboardLayout";
+import { DocumentDetailPanel } from "@/components/issuer/DocumentDetailPanel";
+import { IssuerDocumentUploadModal } from "@/components/issuer/IssuerDocumentUploadModal";
+import { formatRequestError } from "@/lib/formatRequestError";
 import {
   categoryQueryFromKey,
   type IssuerDocument,
   type IssuerDocumentCategoryLabel,
   type IssuerDocumentStatusType,
-} from '@/lib/issuerDocuments';
+} from "@/lib/issuerDocuments";
 import {
   useGetIssuerDocumentCategoriesQuery,
   useGetIssuerDocumentsSummaryQuery,
   useListIssuerDocumentsQuery,
-} from '@/store/api/issuerDocumentsApi';
+} from "@/store/api/issuerDocumentsApi";
 
 const iconStroke = 1.75;
 
@@ -43,37 +43,62 @@ const STAT_ICONS: Record<
   string,
   { Icon: LucideIcon; iconClass: string; highlight?: boolean }
 > = {
-  'Total Documents': {
+  "Total Documents": {
     Icon: Folder,
-    iconClass: 'bg-violet-100 text-[#7C3AED]',
+    iconClass: "bg-violet-100 text-[#7C3AED]",
   },
-  'Fully Signed': {
+  "Fully Signed": {
     Icon: CheckCircle2,
-    iconClass: 'bg-violet-100 text-[#7C3AED]',
+    iconClass: "bg-violet-100 text-[#7C3AED]",
   },
-  'Pending Signature': {
+  "Pending Signature": {
     Icon: Clock,
-    iconClass: 'bg-amber-100 text-amber-600',
+    iconClass: "bg-amber-100 text-amber-600",
     highlight: true,
   },
-  'Compliance Score': {
+  "Compliance Score": {
     Icon: Shield,
-    iconClass: 'bg-violet-100 text-[#7C3AED]',
+    iconClass: "bg-violet-100 text-[#7C3AED]",
   },
 };
 
-const CATEGORY_STYLES: Record<DocCategory, { pill: string; Icon: LucideIcon }> = {
-  LEGAL: { pill: 'border-app-status-purple-border bg-app-status-purple-bg text-app-status-purple-fg', Icon: Scale },
-  COMPLIANCE: { pill: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300', Icon: ShieldCheck },
-  'ASSET DOCS': { pill: 'border-app-status-warn-border bg-app-status-warn-bg text-app-status-warn-fg', Icon: Package },
-  REPORTS: { pill: 'border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg', Icon: BarChart3 },
-};
+const CATEGORY_STYLES: Record<DocCategory, { pill: string; Icon: LucideIcon }> =
+  {
+    LEGAL: {
+      pill: "border-app-status-purple-border bg-app-status-purple-bg text-app-status-purple-fg",
+      Icon: Scale,
+    },
+    COMPLIANCE: {
+      pill: "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300",
+      Icon: ShieldCheck,
+    },
+    "ASSET DOCS": {
+      pill: "border-app-status-warn-border bg-app-status-warn-bg text-app-status-warn-fg",
+      Icon: Package,
+    },
+    REPORTS: {
+      pill: "border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg",
+      Icon: BarChart3,
+    },
+  };
 
 const STATUS_STYLES: Record<DocStatus, { pill: string; Icon: LucideIcon }> = {
-  signed: { pill: 'border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg', Icon: CheckCircle2 },
-  pending: { pill: 'border-app-status-warn-border bg-app-status-warn-bg text-app-status-warn-fg', Icon: Clock },
-  draft: { pill: 'border-ui-border bg-ui-muted-deep text-ui-muted-text', Icon: FileText },
-  expired: { pill: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300', Icon: XCircle },
+  signed: {
+    pill: "border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg",
+    Icon: CheckCircle2,
+  },
+  pending: {
+    pill: "border-app-status-warn-border bg-app-status-warn-bg text-app-status-warn-fg",
+    Icon: Clock,
+  },
+  draft: {
+    pill: "border-ui-border bg-ui-muted-deep text-ui-muted-text",
+    Icon: FileText,
+  },
+  expired: {
+    pill: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300",
+    Icon: XCircle,
+  },
 };
 
 interface DocStatCardProps {
@@ -97,25 +122,31 @@ function DocStatCard({
     <div
       className={
         highlight
-          ? 'flex items-center gap-3 rounded-2xl border border-amber-200/80 bg-[#FFFBEB] p-4 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/25 sm:gap-4 sm:rounded-[20px] sm:p-5 xl:rounded-[24px] xl:p-6'
-          : 'flex items-center gap-3 rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:gap-4 sm:rounded-[20px] sm:p-5 xl:rounded-[24px] xl:p-6'
+          ? "flex items-center gap-3 rounded-2xl border border-amber-200/80 bg-[#FFFBEB] p-4 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/25 sm:gap-4 sm:rounded-[20px] sm:p-5 xl:rounded-[24px] xl:p-6"
+          : "flex items-center gap-3 rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:gap-4 sm:rounded-[20px] sm:p-5 xl:rounded-[24px] xl:p-6"
       }
     >
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}>
+      <div
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}
+      >
         <Icon className="h-5 w-5" strokeWidth={iconStroke} />
       </div>
       <div className="min-w-0">
         <p
           className={`mb-1 text-[10px] font-bold uppercase tracking-widest ${
-            highlight ? 'text-amber-700/80' : 'text-ui-faint'
+            highlight ? "text-amber-700/80" : "text-ui-faint"
           }`}
         >
           {label}
         </p>
-        <p className={`text-2xl font-bold tracking-tight ${highlight ? 'text-amber-700' : 'text-ui-strong'}`}>
+        <p
+          className={`text-2xl font-bold tracking-tight ${highlight ? "text-amber-700" : "text-ui-strong"}`}
+        >
           {value}
         </p>
-        <p className={`mt-0.5 text-[11px] font-medium ${highlight ? 'text-amber-600/90' : 'text-ui-faint'}`}>
+        <p
+          className={`mt-0.5 text-[11px] font-medium ${highlight ? "text-amber-600/90" : "text-ui-faint"}`}
+        >
           {sub}
         </p>
       </div>
@@ -124,19 +155,34 @@ function DocStatCard({
 }
 
 function CategoryBadge({ catLabel }: { catLabel: DocCategory }) {
-  const { pill, Icon } = CATEGORY_STYLES[catLabel];
+  const normalizedKey = catLabel.toUpperCase() as DocCategory;
+  const { pill, Icon } =
+    CATEGORY_STYLES[normalizedKey] || CATEGORY_STYLES["LEGAL"];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide ${pill}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide ${pill}`}
+    >
       <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={iconStroke} />
       {catLabel}
     </span>
   );
 }
 
-function StatusBadge({ status, statusType }: { status: string; statusType: DocStatus }) {
+function StatusBadge({ status }: { status: string }) {
+  const statusLower = status.toLowerCase();
+  let statusType: DocStatus = "draft";
+  if (statusLower.includes("sign") && !statusLower.includes("pending")) {
+    statusType = "signed";
+  } else if (statusLower.includes("pending") || statusLower.includes("await")) {
+    statusType = "pending";
+  } else if (statusLower.includes("expir")) {
+    statusType = "expired";
+  }
   const { pill, Icon } = STATUS_STYLES[statusType];
   return (
-    <span className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold ${pill}`}>
+    <span
+      className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold ${pill}`}
+    >
       <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={iconStroke} />
       <span className="line-clamp-2 sm:whitespace-nowrap">{status}</span>
     </span>
@@ -156,7 +202,7 @@ function DocRowCard({
       tabIndex={0}
       onClick={() => onSelect(doc.id)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onSelect(doc.id);
         }
@@ -168,29 +214,39 @@ function DocRowCard({
           <FileText className="h-5 w-5" strokeWidth={iconStroke} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="line-clamp-2 text-[13px] font-bold leading-snug text-ui-strong">{doc.name}</p>
+          <p className="line-clamp-2 text-[13px] font-bold leading-snug text-ui-strong">
+            {doc.title}
+          </p>
           <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-ui-faint">
-            {doc.id ? `DOC · ${doc.id.slice(0, 8)}` : '—'}
+            {doc.documentCode ? `DOC · ${doc.documentCode}` : "—"}
           </p>
         </div>
       </div>
       <div className="space-y-3 border-t border-ui-divider pt-3">
         <div className="flex flex-wrap items-center gap-2">
           <CategoryBadge catLabel={doc.categoryLabel} />
-          <StatusBadge status={doc.status} statusType={doc.statusType} />
+          <StatusBadge status={doc.statusLabel} />
         </div>
         <div className="grid grid-cols-3 gap-4 text-[11px]">
           <div className="min-w-0">
-            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Asset</p>
-            <p className="line-clamp-2 font-medium text-ui-body">{doc.assetName}</p>
+            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
+              Asset
+            </p>
+            <p className="line-clamp-2 font-medium text-ui-body">
+              {doc.assetTitle}
+            </p>
           </div>
           <div>
-            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Date</p>
-            <p className="font-medium text-ui-muted-text">{doc.date}</p>
+            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
+              Date
+            </p>
+            <p className="font-medium text-ui-muted-text">{doc.fileName}</p>
           </div>
           <div>
-            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Size</p>
-            <p className="font-medium text-ui-muted-text">{doc.size}</p>
+            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
+              Size
+            </p>
+            <p className="font-medium text-ui-muted-text">{doc.sizeLabel}</p>
           </div>
         </div>
       </div>
@@ -199,14 +255,19 @@ function DocRowCard({
 }
 
 export default function DocumentsPage() {
-  const [activeTabKey, setActiveTabKey] = useState('ALL');
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [activeTabKey, setActiveTabKey] = useState("ALL");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
+    null,
+  );
   const [uploadOpen, setUploadOpen] = useState(false);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    const timer = window.setTimeout(
+      () => setDebouncedSearch(search.trim()),
+      300,
+    );
     return () => window.clearTimeout(timer);
   }, [search]);
 
@@ -241,29 +302,29 @@ export default function DocumentsPage() {
     const pendingCount = summary?.pendingSignature.count ?? 0;
     return [
       {
-        label: 'Total Documents',
+        label: "Total Documents",
         value: String(summary?.totalDocuments.count ?? 0),
-        sub: summary?.totalDocuments.summary || 'Across all assets',
-        ...STAT_ICONS['Total Documents'],
+        sub: summary?.totalDocuments.summary || "Across all assets",
+        ...STAT_ICONS["Total Documents"],
       },
       {
-        label: 'Fully Signed',
+        label: "Fully Signed",
         value: String(summary?.fullySigned.count ?? 0),
         sub: `${summary?.fullySigned.completionRate ?? 0}% completion rate`,
-        ...STAT_ICONS['Fully Signed'],
+        ...STAT_ICONS["Fully Signed"],
       },
       {
-        label: 'Pending Signature',
+        label: "Pending Signature",
         value: String(pendingCount),
-        sub: summary?.pendingSignature.summary || 'Action required',
+        sub: summary?.pendingSignature.summary || "Action required",
         highlight: pendingCount > 0,
-        ...STAT_ICONS['Pending Signature'],
+        ...STAT_ICONS["Pending Signature"],
       },
       {
-        label: 'Compliance Score',
+        label: "Compliance Score",
         value: `${summary?.complianceScore.percent ?? 0}%`,
-        sub: summary?.complianceScore.summary || '—',
-        ...STAT_ICONS['Compliance Score'],
+        sub: summary?.complianceScore.summary || "—",
+        ...STAT_ICONS["Compliance Score"],
       },
     ];
   }, [summary]);
@@ -274,9 +335,12 @@ export default function DocumentsPage() {
         {/* Header */}
         <div className="animate-slide-up flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div className="min-w-0 space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">Documents</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">
+              Documents
+            </h1>
             <p className="text-sm font-medium text-ui-muted-text">
-              Legal agreements, compliance filings, and asset documentation — all in one secure vault.
+              Legal agreements, compliance filings, and asset documentation —
+              all in one secure vault.
             </p>
           </div>
           <button
@@ -309,11 +373,15 @@ export default function DocumentsPage() {
                   className="h-[104px] animate-pulse rounded-2xl border border-ui-border bg-ui-muted-deep sm:rounded-[20px] xl:rounded-[24px]"
                 />
               ))
-            : docStats.map((stat) => <DocStatCard key={stat.label} {...stat} />)}
+            : docStats.map((stat) => (
+                <DocStatCard key={stat.label} {...stat} />
+              ))}
         </div>
 
         {(isLoading || isFetching) && (
-          <p className="text-sm font-medium text-ui-muted-text">Loading documents…</p>
+          <p className="text-sm font-medium text-ui-muted-text">
+            Loading documents…
+          </p>
         )}
 
         {/* Filters + search */}
@@ -331,8 +399,8 @@ export default function DocumentsPage() {
                     onClick={() => setActiveTabKey(tab.key)}
                     className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-bold transition-all md:px-5 md:py-2.5 md:text-[13px] ${
                       active
-                        ? 'bg-dash-filter-active-bg text-dash-filter-active-fg shadow-md'
-                        : 'bg-ui-muted-deep text-ui-body hover:bg-ui-border hover:text-ui-strong'
+                        ? "bg-dash-filter-active-bg text-dash-filter-active-fg shadow-md"
+                        : "bg-ui-muted-deep text-ui-body hover:bg-ui-border hover:text-ui-strong"
                     }`}
                   >
                     {tab.label} ({tab.count})
@@ -379,11 +447,20 @@ export default function DocumentsPage() {
             <table className="w-full min-w-[720px] text-left">
               <thead>
                 <tr className="border-b border-ui-border bg-ui-muted">
-                  {['Document', 'Category', 'Asset', 'Status', 'Date', 'Size'].map((col) => (
+                  {[
+                    "Document",
+                    "Category",
+                    "Asset",
+                    "Status",
+                    "Date",
+                    "Size",
+                  ].map((col) => (
                     <th
                       key={col}
                       className={`px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
-                        col === 'Document' ? 'sticky left-0 z-10 bg-ui-muted pl-6 xl:pl-8' : ''
+                        col === "Document"
+                          ? "sticky left-0 z-10 bg-ui-muted pl-6 xl:pl-8"
+                          : ""
                       }`}
                     >
                       {col}
@@ -395,7 +472,9 @@ export default function DocumentsPage() {
                 {!isLoading && documents.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-8 py-14 text-center">
-                      <p className="text-[13px] font-medium text-ui-faint">No documents match your filters.</p>
+                      <p className="text-[13px] font-medium text-ui-faint">
+                        No documents match your filters.
+                      </p>
                     </td>
                   </tr>
                 ) : (
@@ -408,12 +487,19 @@ export default function DocumentsPage() {
                       <td className="sticky left-0 z-10 bg-ui-card px-4 py-5 group-hover:bg-ui-muted xl:px-8 xl:py-6">
                         <div className="flex min-w-[200px] items-center gap-4">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ui-muted-deep text-ui-muted-text transition-colors group-hover:bg-violet-100 group-hover:text-[#7C3AED]">
-                            <FileText className="h-5 w-5" strokeWidth={iconStroke} />
+                            <FileText
+                              className="h-5 w-5"
+                              strokeWidth={iconStroke}
+                            />
                           </div>
                           <div className="min-w-0">
-                            <p className="line-clamp-2 text-[13px] font-bold text-ui-strong">{doc.name}</p>
+                            <p className="line-clamp-2 text-[13px] font-bold text-ui-strong">
+                              {doc.title}
+                            </p>
                             <p className="text-[10px] font-medium uppercase tracking-widest text-ui-faint">
-                              {doc.id ? `DOC · ${doc.id.slice(0, 8)}` : '—'}
+                              {doc.documentCode
+                                ? `DOC · ${doc.documentCode}`
+                                : "—"}
                             </p>
                           </div>
                         </div>
@@ -422,16 +508,22 @@ export default function DocumentsPage() {
                         <CategoryBadge catLabel={doc.categoryLabel} />
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
-                        <p className="max-w-[180px] line-clamp-2 text-[12px] font-medium text-ui-body">{doc.assetName}</p>
+                        <p className="max-w-[180px] line-clamp-2 text-[12px] font-medium text-ui-body">
+                          {doc.assetTitle}
+                        </p>
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
-                        <StatusBadge status={doc.status} statusType={doc.statusType} />
+                        <StatusBadge status={doc.statusLabel} />
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
-                        <span className="whitespace-nowrap text-[12px] font-medium text-ui-muted-text">{doc.date}</span>
+                        <span className="whitespace-nowrap text-[12px] font-medium text-ui-muted-text">
+                          {doc.fileName}
+                        </span>
                       </td>
                       <td className="px-4 py-5 last:pr-6 xl:px-8 xl:py-6 xl:pr-8">
-                        <span className="text-[12px] font-medium text-ui-muted-text">{doc.size}</span>
+                        <span className="text-[12px] font-medium text-ui-muted-text">
+                          {doc.sizeLabel}
+                        </span>
                       </td>
                     </tr>
                   ))

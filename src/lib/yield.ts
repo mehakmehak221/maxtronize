@@ -36,6 +36,9 @@ export type DistributionScheduleMonth = {
   label: string;
   actual: number;
   projected: number;
+  scheduledCount: number;
+  isPast: boolean;
+  isCurrent: boolean;
 };
 
 export type DistributionSchedule = {
@@ -49,13 +52,16 @@ export type DistributionSchedule = {
 
 export type UpcomingPayout = {
   id: string;
-  period: string;
-  asset: string;
-  type: string;
-  amount: number;
-  amountFormatted: string;
-  investors: string;
-  date: string;
+  scheduledDate: Record<string, unknown>;
+  assetTitle: string;
+  ticker: string;
+  payoutType: string;
+  expectedAmount: number;
+  perInvestorEstimate: number | null;
+  frequency: string | null;
+  frequencyLabel: string;
+  investorCount: number;
+  currency: string;
   status: string;
 };
 
@@ -166,13 +172,24 @@ export function parseDistributionSchedule(
 
   const root = record as Record<string, unknown>;
   const monthsRaw = root.months ?? root.schedule;
-  const months = unwrapList(monthsRaw).map((item, index) => ({
-    month: pickNumber(item, ["month"]) ?? index + 1,
-    label: pickString(item, ["label", "name"]) ?? `M${index + 1}`,
-    actual: pickNumber(item, ["actual", "actualAmount", "paid"]) ?? 0,
-    projected:
-      pickNumber(item, ["projected", "projectedAmount", "target"]) ?? 0,
-  }));
+  const months = unwrapList(monthsRaw).map((item, index) => {
+    const isPastRaw = item.isPast ?? item.is_past;
+    const isCurrentRaw = item.isCurrent ?? item.is_current;
+    return {
+      month: pickNumber(item, ["month"]) ?? index + 1,
+      label: pickString(item, ["label", "name"]) ?? `M${index + 1}`,
+      actual: pickNumber(item, ["actual", "actualAmount", "paid"]) ?? 0,
+      projected:
+        pickNumber(item, ["projected", "projectedAmount", "target"]) ?? 0,
+      scheduledCount:
+        pickNumber(item, ["scheduledCount", "scheduled_count"]) ?? 0,
+      isPast: typeof isPastRaw === "boolean" ? isPastRaw : isPastRaw === "true",
+      isCurrent:
+        typeof isCurrentRaw === "boolean"
+          ? isCurrentRaw
+          : isCurrentRaw === "true",
+    };
+  });
 
   return {
     year: pickNumber(root, ["year"]) ?? new Date().getFullYear(),
@@ -189,36 +206,30 @@ export function parseDistributionSchedule(
 export function parseUpcomingPayouts(payload: unknown): UpcomingPayout[] {
   const list = unwrapList(payload);
   return list.map((item, index) => {
-    const amount = pickNumber(item, ["amount", "value", "payoutAmount"]) ?? 0;
+    const expectedAmount =
+      pickNumber(item, ["expectedAmount", "expected_amount", "amount"]) ?? 0;
     const currency = pickString(item, ["currency"]) ?? "USD";
-    const statusRaw = pickString(item, ["status", "state"]) ?? "Scheduled";
-    const status =
-      statusRaw.charAt(0).toUpperCase() + statusRaw.slice(1).toLowerCase();
+    const statusRaw = pickString(item, ["status", "state"]) ?? "SCHEDULED";
 
     return {
       id: pickString(item, ["id", "_id", "payoutId"]) ?? `payout-${index}`,
-      period: pickString(item, ["period", "quarter", "label"]) ?? "—",
-      asset:
-        pickString(item, ["asset", "assetName", "name", "offeringName"]) ?? "—",
-      type: pickString(item, ["type", "distributionType", "payoutType"]) ?? "—",
-      amount,
-      amountFormatted: formatCompactCurrency(amount, currency, { decimals: 0 }),
-      investors: (() => {
-        const count = pickNumber(item, [
-          "investors",
-          "investorCount",
-          "recipients",
-        ]);
-        return count != null ? String(count) : "—";
-      })(),
-      date:
-        pickString(item, [
-          "date",
-          "scheduledAt",
-          "scheduled_at",
-          "payoutDate",
-        ]) ?? "—",
-      status,
+      scheduledDate: (item.scheduledDate ?? {}) as Record<string, unknown>,
+      assetTitle:
+        pickString(item, ["assetTitle", "asset_title", "asset", "assetName"]) ??
+        "—",
+      ticker: pickString(item, ["ticker", "symbol"]) ?? "—",
+      payoutType:
+        pickString(item, ["payoutType", "payout_type", "type"]) ?? "—",
+      expectedAmount,
+      perInvestorEstimate:
+        pickNumber(item, ["perInvestorEstimate", "per_investor_estimate"]) ??
+        null,
+      frequency: pickString(item, ["frequency"]) ?? null,
+      frequencyLabel:
+        pickString(item, ["frequencyLabel", "frequency_label"]) ?? "—",
+      investorCount: pickNumber(item, ["investorCount", "investor_count"]) ?? 0,
+      currency,
+      status: statusRaw.toUpperCase(),
     };
   });
 }

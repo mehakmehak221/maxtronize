@@ -1,5 +1,10 @@
 import { resolveMarketplaceCoverImage } from "@/lib/assets";
-import { pickNumber, pickString, unwrapList, unwrapPayload } from "@/lib/apiParse";
+import {
+  pickNumber,
+  pickString,
+  unwrapList,
+  unwrapPayload,
+} from "@/lib/apiParse";
 import type { PaginationMeta } from "@/lib/issuerDocuments";
 
 const DEFAULT_PAGINATION: PaginationMeta = {
@@ -71,7 +76,10 @@ function formatNavHistoryLabel(recordedAt: string, index: number): string {
             minute: "2-digit",
           });
         }
-        return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
       }
     } catch {
       // ignore
@@ -82,10 +90,13 @@ function formatNavHistoryLabel(recordedAt: string, index: number): string {
 
 function mapNavHistorySeries(series: unknown[]): PortfolioNavPoint[] {
   const points = series
-    .filter((p): p is Record<string, unknown> => Boolean(p) && typeof p === "object")
+    .filter(
+      (p): p is Record<string, unknown> => Boolean(p) && typeof p === "object",
+    )
     .map((point, index) => {
       const recordedAt =
-        pickString(point, ["recordedAt", "date", "label", "month"]) ?? `M${index + 1}`;
+        pickString(point, ["recordedAt", "date", "label", "month"]) ??
+        `M${index + 1}`;
       const nav = pickNumber(point, ["nav", "value", "amount"]) ?? 0;
       return {
         label: formatNavHistoryLabel(recordedAt, index),
@@ -173,7 +184,10 @@ function parsePagination(payload: Record<string, unknown>): PaginationMeta {
   };
 }
 
-function parseAsset(record: Record<string, unknown>, index: number): PortfolioAsset {
+function parseAsset(
+  record: Record<string, unknown>,
+  index: number,
+): PortfolioAsset {
   const categoryKey =
     pickString(record, ["category", "categoryKey", "assetCategory"]) ?? "ALL";
   const categoryLabel =
@@ -182,10 +196,14 @@ function parseAsset(record: Record<string, unknown>, index: number): PortfolioAs
     categoryKey;
 
   const priceChangeNum =
-    pickNumber(record, ["priceChangePercent", "price_change_percent", "change"]) ??
-    0;
+    pickNumber(record, [
+      "priceChangePercent",
+      "price_change_percent",
+      "change",
+    ]) ?? 0;
   const statusRaw =
-    pickString(record, ["status", "displayStatus", "offeringStatus"]) ?? "Active";
+    pickString(record, ["status", "displayStatus", "offeringStatus"]) ??
+    "Active";
   const status =
     statusRaw.charAt(0).toUpperCase() + statusRaw.slice(1).toLowerCase();
 
@@ -204,7 +222,8 @@ function parseAsset(record: Record<string, unknown>, index: number): PortfolioAs
   return {
     id: pickString(record, ["id", "_id"]) ?? `asset-${index}`,
     name:
-      pickString(record, ["name", "assetName", "title"]) ?? `Asset ${index + 1}`,
+      pickString(record, ["name", "assetName", "title"]) ??
+      `Asset ${index + 1}`,
     ticker: pickString(record, ["ticker", "symbol", "tokenSymbol"]) ?? "—",
     location:
       pickString(record, [
@@ -225,8 +244,12 @@ function parseAsset(record: Record<string, unknown>, index: number): PortfolioAs
     apy: `${apyNum.toFixed(1)}%`,
     investors: String(investorCount),
     lockup:
-      pickString(record, ["lockup", "lockupPeriod", "lockLabel", "lock_label"]) ??
-      "—",
+      pickString(record, [
+        "lockup",
+        "lockupPeriod",
+        "lockLabel",
+        "lock_label",
+      ]) ?? "—",
     image: resolveMarketplaceCoverImage(record),
     categoryKey,
     categoryLabel,
@@ -241,11 +264,17 @@ function parseAsset(record: Record<string, unknown>, index: number): PortfolioAs
   };
 }
 
-export function parsePortfolioAssetDetail(payload: unknown): PortfolioAsset | null {
+export function parsePortfolioAssetDetail(
+  payload: unknown,
+): PortfolioAsset | null {
   if (!payload || typeof payload !== "object") return null;
   const root = payload as Record<string, unknown>;
 
-  if (Array.isArray(root.data) && root.data[0] && typeof root.data[0] === "object") {
+  if (
+    Array.isArray(root.data) &&
+    root.data[0] &&
+    typeof root.data[0] === "object"
+  ) {
     return parseAsset(root.data[0] as Record<string, unknown>, 0);
   }
   if (root.data && typeof root.data === "object" && !Array.isArray(root.data)) {
@@ -287,14 +316,20 @@ export function parsePortfolioFilters(payload: unknown): PortfolioCategory[] {
     });
   }
   if (!record || typeof record !== "object") {
-    return Object.entries(CATEGORY_LABELS).map(([key, label]) => ({ key, label }));
+    return Object.entries(CATEGORY_LABELS).map(([key, label]) => ({
+      key,
+      label,
+    }));
   }
 
   const root = record as Record<string, unknown>;
   const categoriesRaw = root.categories ?? root.items ?? root.filters;
   const list = unwrapList(categoriesRaw);
   if (list.length === 0) {
-    return Object.entries(CATEGORY_LABELS).map(([key, label]) => ({ key, label }));
+    return Object.entries(CATEGORY_LABELS).map(([key, label]) => ({
+      key,
+      label,
+    }));
   }
 
   return list.map((item) => {
@@ -316,9 +351,7 @@ export function parsePortfolioAssets(payload: unknown): PortfolioListResult {
   // the array only and drop pagination, then fail the object guard below.
   const root = payload as Record<string, unknown>;
   const nested =
-    root.data &&
-    typeof root.data === "object" &&
-    !Array.isArray(root.data)
+    root.data && typeof root.data === "object" && !Array.isArray(root.data)
       ? (root.data as Record<string, unknown>)
       : null;
   const itemsRaw =
@@ -336,10 +369,7 @@ export function parsePortfolioAssets(payload: unknown): PortfolioListResult {
   };
 }
 
-export function parsePortfolioSummary(
-  payload: unknown,
-  months?: number,
-): PortfolioSummary {
+export function parsePortfolioSummary(payload: unknown): PortfolioSummary {
   const record = unwrapPayload(payload);
   if (!record || typeof record !== "object" || Array.isArray(record)) {
     return {
@@ -356,34 +386,69 @@ export function parsePortfolioSummary(
   const root = record as Record<string, unknown>;
 
   // Check nested or top-level totalNav
-  const totalNavObj = root.totalNav && typeof root.totalNav === "object"
-    ? (root.totalNav as Record<string, unknown>)
-    : null;
+  const totalNavObj =
+    root.totalNav && typeof root.totalNav === "object"
+      ? (root.totalNav as Record<string, unknown>)
+      : null;
   const totalNav = totalNavObj
-    ? (pickNumber(totalNavObj, ["amount"]) ?? 0)
+    ? (pickNumber(totalNavObj, ["value", "amount"]) ?? 0)
     : (pickNumber(root, ["totalNav", "total_nav", "nav", "totalValue"]) ?? 0);
 
   const ytdPercent = totalNavObj
-    ? (pickNumber(totalNavObj, ["ytdGrowthPercent", "ytdPercent"]) ?? 0)
-    : (pickNumber(root, ["ytdPercent", "ytd_percent", "ytdChange", "growthPercent"]) ?? 0);
+    ? (pickNumber(totalNavObj, [
+        "ytdChangePercent",
+        "ytdGrowthPercent",
+        "ytdPercent",
+      ]) ?? 0)
+    : (pickNumber(root, [
+        "ytdPercent",
+        "ytd_percent",
+        "ytdChange",
+        "growthPercent",
+      ]) ?? 0);
 
   const assetCount = totalNavObj
-    ? (pickNumber(totalNavObj, ["assetCount"]) ?? 0)
+    ? (pickNumber(totalNavObj, ["onChainAssetCount", "assetCount"]) ?? 0)
     : (pickNumber(root, ["assetCount", "asset_count", "assets", "count"]) ?? 0);
 
-  const totalInvestorsObj = root.totalInvestors && typeof root.totalInvestors === "object"
-    ? (root.totalInvestors as Record<string, unknown>)
-    : null;
+  const totalInvestorsObj =
+    root.totalInvestors && typeof root.totalInvestors === "object"
+      ? (root.totalInvestors as Record<string, unknown>)
+      : null;
   const totalInvestors = totalInvestorsObj
     ? pickNumber(totalInvestorsObj, ["count", "total"])
-    : pickNumber(root, ["totalInvestors", "total_investors", "investorCount", "investors"]);
+    : pickNumber(root, [
+        "totalInvestors",
+        "total_investors",
+        "investorCount",
+        "investors",
+      ]);
 
-  const avgApyObj = root.avgTokenYield && typeof root.avgTokenYield === "object"
-    ? (root.avgTokenYield as Record<string, unknown>)
-    : null;
+  const avgApyObj =
+    root.avgTokenYield && typeof root.avgTokenYield === "object"
+      ? (root.avgTokenYield as Record<string, unknown>)
+      : null;
   const avgApyPercent = avgApyObj
     ? pickNumber(avgApyObj, ["percent", "percentValue"])
-    : pickNumber(root, ["avgApyPercent", "avg_apy_percent", "averageApy", "avgApy", "blendedYield"]);
+    : pickNumber(root, [
+        "avgApyPercent",
+        "avg_apy_percent",
+        "averageApy",
+        "avgApy",
+        "blendedYield",
+      ]);
+
+  // Parse navHistory from the summary response
+  const navHistoryObj =
+    root.navHistory && typeof root.navHistory === "object"
+      ? (root.navHistory as Record<string, unknown>)
+      : null;
+  let navHistory: PortfolioNavPoint[] = [];
+  if (navHistoryObj) {
+    const seriesRaw = navHistoryObj.series ?? navHistoryObj.history ?? [];
+    const series = Array.isArray(seriesRaw) ? seriesRaw : [];
+    navHistory = mapNavHistorySeries(series);
+  }
 
   return {
     totalNav,
@@ -392,7 +457,7 @@ export function parsePortfolioSummary(
     assetCount,
     totalInvestors,
     avgApyPercent,
-    navHistory: [],
+    navHistory,
   };
 }
 
@@ -425,7 +490,9 @@ export function parsePortfolioNavHistoryResult(
   };
 }
 
-export function parsePortfolioNavHistory(payload: unknown): PortfolioNavPoint[] {
+export function parsePortfolioNavHistory(
+  payload: unknown,
+): PortfolioNavPoint[] {
   return parsePortfolioNavHistoryResult(payload).points;
 }
 
@@ -434,11 +501,11 @@ export function parseInvestorPortfolioInit(
 ): InvestorPortfolioInit {
   const root =
     payload && typeof payload === "object"
-      ? ((payload as Record<string, unknown>).data &&
+      ? (payload as Record<string, unknown>).data &&
         typeof (payload as Record<string, unknown>).data === "object" &&
         !Array.isArray((payload as Record<string, unknown>).data)
-          ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
-          : (payload as Record<string, unknown>))
+        ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
+        : (payload as Record<string, unknown>)
       : {};
 
   const summaryPayload =

@@ -97,12 +97,10 @@ export type RecentActivityItem = {
 
 export type UpcomingEventItem = {
   id: string;
-  label: string;
-  dateDisplay: string;
-  month: string;
-  day: string;
-  pillClass: string;
-  subtitle: string;
+  title: string;
+  assetTitle: string;
+  category: string;
+  date: Record<string, unknown>;
 };
 
 export type IssuerAsset = {
@@ -249,8 +247,7 @@ export function parseIssuerDashboardSummary(
           ])) ??
         0,
       currency:
-        (capital && pickString(capital, ["currency", "currencyCode"])) ??
-        "USD",
+        (capital && pickString(capital, ["currency", "currencyCode"])) ?? "USD",
     },
     assets: {
       count:
@@ -274,11 +271,15 @@ export function parseIssuerDashboardSummary(
         0,
     },
     activeRaises:
-      pickNumber(record, ["activeRaises", "active_raises", "activeRaisesCount"]) ??
-      0,
+      pickNumber(record, [
+        "activeRaises",
+        "active_raises",
+        "activeRaisesCount",
+      ]) ?? 0,
     investors: {
       total:
-        (investors && pickNumber(investors, ["total", "count", "investorCount"])) ??
+        (investors &&
+          pickNumber(investors, ["total", "count", "investorCount"])) ??
         0,
       kycVerifiedPercent:
         (investors &&
@@ -311,7 +312,9 @@ export function parseIssuerDashboardSummary(
   };
 }
 
-function parseCapitalPoint(record: Record<string, unknown>): CapitalRaisedPoint {
+function parseCapitalPoint(
+  record: Record<string, unknown>,
+): CapitalRaisedPoint {
   const label =
     pickString(record, [
       "label",
@@ -338,16 +341,18 @@ function parseCapitalPoint(record: Record<string, unknown>): CapitalRaisedPoint 
   return { label, actual, target };
 }
 
-export function parseIssuerCapitalRaised(payload: unknown): IssuerCapitalRaised {
+export function parseIssuerCapitalRaised(
+  payload: unknown,
+): IssuerCapitalRaised {
   const record = unwrapRecord(payload);
   const seriesRaw = record.series ?? record.points ?? record.data;
   const series = Array.isArray(seriesRaw)
     ? seriesRaw
-      .filter(
-        (item): item is Record<string, unknown> =>
-          Boolean(item) && typeof item === "object",
-      )
-      .map(parseCapitalPoint)
+        .filter(
+          (item): item is Record<string, unknown> =>
+            Boolean(item) && typeof item === "object",
+        )
+        .map(parseCapitalPoint)
     : unwrapList(seriesRaw).map(parseCapitalPoint);
 
   return {
@@ -401,20 +406,22 @@ export function parseIssuerDashboardAllocation(
   const segmentsRaw = record.segments ?? record.items ?? record.data;
   let segments = Array.isArray(segmentsRaw)
     ? segmentsRaw
-      .filter(
-        (item): item is Record<string, unknown> =>
-          Boolean(item) && typeof item === "object",
-      )
-      .map((item, i) => parseAllocationSegment(item, i))
-    : unwrapList(segmentsRaw).map((item, i) =>
-      parseAllocationSegment(item, i),
-    );
+        .filter(
+          (item): item is Record<string, unknown> =>
+            Boolean(item) && typeof item === "object",
+        )
+        .map((item, i) => parseAllocationSegment(item, i))
+    : unwrapList(segmentsRaw).map((item, i) => parseAllocationSegment(item, i));
 
   const total =
     pickNumber(record, ["total", "totalValue", "total_value"]) ??
     segments.reduce((sum, s) => sum + (s.value || s.percent), 0);
 
-  if (segments.length > 0 && segments.every((s) => s.percent === 0) && total > 0) {
+  if (
+    segments.length > 0 &&
+    segments.every((s) => s.percent === 0) &&
+    total > 0
+  ) {
     segments = segments.map((s) => ({
       ...s,
       percent: total > 0 ? (s.value / total) * 100 : 0,
@@ -425,9 +432,9 @@ export function parseIssuerDashboardAllocation(
     segments,
     total,
     weightBy:
-      pickString(record, ["weightBy", "weight_by", "weightedBy"]) ?? "appraisal",
-    currency:
-      pickString(record, ["currency", "currencyCode"]) ?? "USD",
+      pickString(record, ["weightBy", "weight_by", "weightedBy"]) ??
+      "appraisal",
+    currency: pickString(record, ["currency", "currencyCode"]) ?? "USD",
   };
 }
 
@@ -458,9 +465,10 @@ function parseTokenTickerItem(
 
   return {
     sym,
-    change: changeStr.startsWith("+") || changeStr.startsWith("-")
-      ? changeStr
-      : `${changeRaw >= 0 ? "+" : ""}${changeStr}`,
+    change:
+      changeStr.startsWith("+") || changeStr.startsWith("-")
+        ? changeStr
+        : `${changeRaw >= 0 ? "+" : ""}${changeStr}`,
     dotClass: TOKEN_DOT_CLASSES[index % TOKEN_DOT_CLASSES.length],
   };
 }
@@ -535,7 +543,9 @@ function parseRecentActivityItem(
       "countryCode",
       "country_code",
     ]) ?? "—";
-  const status = (pickString(record, ["status", "state", "type"]) ?? "").toLowerCase();
+  const status = (
+    pickString(record, ["status", "state", "type"]) ?? ""
+  ).toLowerCase();
   const done =
     record.completed === true ||
     record.isCompleted === true ||
@@ -553,7 +563,10 @@ function parseRecentActivityItem(
     id: id ? (id.startsWith("TX-") ? id : `TX-${id.slice(0, 8)}`) : "—",
     amount: formatActivityAmount(amountValue),
     time,
-    region: region.length <= 4 ? region.toUpperCase() : region.slice(0, 3).toUpperCase(),
+    region:
+      region.length <= 4
+        ? region.toUpperCase()
+        : region.slice(0, 3).toUpperCase(),
     tone,
     done,
   };
@@ -566,9 +579,9 @@ export function parseIssuerRecentActivity(
     return { items: [], pagination: DEFAULT_PAGINATION };
   }
   const record = payload as Record<string, unknown>;
-  const items = unwrapList(record.data ?? record.items ?? record.activities).map(
-    parseRecentActivityItem,
-  );
+  const items = unwrapList(
+    record.data ?? record.items ?? record.activities,
+  ).map(parseRecentActivityItem);
   return {
     items,
     pagination: parsePagination(payload),
@@ -583,13 +596,25 @@ function pillClassForUpcomingEvent(label: string, type: string | null): string {
   if (hay.includes("yield") || hay.includes("distribution")) {
     return "bg-violet-500/15 text-violet-700 dark:text-violet-300";
   }
-  if (hay.includes("kyc") || hay.includes("review") || hay.includes("compliance")) {
+  if (
+    hay.includes("kyc") ||
+    hay.includes("review") ||
+    hay.includes("compliance")
+  ) {
     return "bg-amber-500/15 text-amber-800 dark:text-amber-300";
   }
-  if (hay.includes("lock") || hay.includes("expir") || hay.includes("maturity")) {
+  if (
+    hay.includes("lock") ||
+    hay.includes("expir") ||
+    hay.includes("maturity")
+  ) {
     return "bg-sky-500/15 text-sky-800 dark:text-sky-300";
   }
-  if (hay.includes("onboard") || hay.includes("investor") || hay.includes("signup")) {
+  if (
+    hay.includes("onboard") ||
+    hay.includes("investor") ||
+    hay.includes("signup")
+  ) {
     return "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300";
   }
   return DEFAULT_EVENT_PILL;
@@ -628,67 +653,42 @@ function parseUpcomingEventItem(
   record: Record<string, unknown>,
   index: number,
 ): UpcomingEventItem {
-  const label =
+  const title =
     pickString(record, [
-      "label",
       "title",
+      "label",
       "name",
       "eventName",
       "event_name",
       "description",
     ]) ?? "Upcoming event";
-  const type = pickString(record, [
-    "type",
-    "eventType",
-    "event_type",
-    "category",
-    "kind",
-  ]);
-  const dateRaw =
-    pickString(record, [
-      "date",
-      "dateLabel",
-      "date_label",
-      "displayDate",
-      "scheduledAt",
-      "scheduled_at",
-      "eventDate",
-      "event_date",
-      "startsAt",
-      "starts_at",
-      "dueAt",
-      "due_at",
-    ]) ?? null;
-  const { dateDisplay, month, day } = formatUpcomingEventDate(dateRaw);
-  const subtitle =
-    pickString(record, [
-      "subtitle",
-      "sub",
-      "description",
-      "assetName",
-      "asset_name",
-      "status",
-      "statusLabel",
-    ]) ?? "Coming soon";
+  const assetTitle =
+    pickString(record, ["assetTitle", "asset_title", "asset"]) ?? "—";
+  const category =
+    pickString(record, ["category", "type", "eventType", "event_type"]) ?? "—";
+
+  const dateRaw = record.date ?? record.date_at ?? {};
+  const date =
+    dateRaw && typeof dateRaw === "object" && !Array.isArray(dateRaw)
+      ? (dateRaw as Record<string, unknown>)
+      : {};
+
   const id =
     pickString(record, ["id", "_id", "eventId", "event_id"]) ??
     `event-${index}`;
 
-  const pillFromApi = pickString(record, ["pillClass", "pill_class", "colorClass"]);
-  const pillClass = pillFromApi ?? pillClassForUpcomingEvent(label, type);
-
   return {
     id,
-    label,
-    dateDisplay,
-    month,
-    day,
-    pillClass,
-    subtitle,
+    title,
+    assetTitle,
+    category,
+    date,
   };
 }
 
-export function parseIssuerUpcomingEvents(payload: unknown): UpcomingEventItem[] {
+export function parseIssuerUpcomingEvents(
+  payload: unknown,
+): UpcomingEventItem[] {
   if (Array.isArray(payload)) {
     return payload
       .filter(
@@ -728,7 +728,9 @@ function parseIssuerAsset(record: Record<string, unknown>): IssuerAsset {
   };
 }
 
-export function parseIssuerAssetsList(payload: unknown): IssuerAssetsListResult {
+export function parseIssuerAssetsList(
+  payload: unknown,
+): IssuerAssetsListResult {
   if (!payload || typeof payload !== "object") {
     return { items: [], pagination: DEFAULT_PAGINATION };
   }
@@ -756,7 +758,9 @@ export function buildAllocationConicGradient(
   const stops: string[] = [];
   for (const segment of segments) {
     const weight =
-      segment.percent > 0 ? segment.percent : (segment.value / totalWeight) * 100;
+      segment.percent > 0
+        ? segment.percent
+        : (segment.value / totalWeight) * 100;
     const sweep = (weight / 100) * 360;
     const end = angle + sweep;
     stops.push(`${segment.color} ${angle}deg ${end}deg`);
@@ -807,7 +811,9 @@ export function buildCapitalChartPaths(
   const linePath = (points: { x: number; y: number }[]) => {
     if (points.length === 0) return "";
     return points
-      .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+      .map(
+        (p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`,
+      )
       .join(" ");
   };
 
@@ -850,7 +856,9 @@ export function greetingForHour(date = new Date()): string {
   return "Good evening";
 }
 
-export function firstNameFromProfile(fullName: string | null | undefined): string {
+export function firstNameFromProfile(
+  fullName: string | null | undefined,
+): string {
   if (!fullName?.trim()) return "there";
   return fullName.trim().split(/\s+/)[0] ?? "there";
 }

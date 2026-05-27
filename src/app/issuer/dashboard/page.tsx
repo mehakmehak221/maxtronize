@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import React, { useMemo } from 'react';
-import Link from 'next/link';
-import { OverviewHero } from '@/components/dashboard/OverviewHero';
-import { OverviewKpiGrid } from '@/components/dashboard/OverviewKpiGrid';
-import type { KpiCard } from '@/components/dashboard/OverviewKpiGrid';
-import DashboardLayout from '@/components/DashboardLayout';
+import React, { useMemo } from "react";
+import Link from "next/link";
+import { Calendar } from "lucide-react";
+import { OverviewHero } from "@/components/dashboard/OverviewHero";
+import { OverviewKpiGrid } from "@/components/dashboard/OverviewKpiGrid";
+import type { KpiCard } from "@/components/dashboard/OverviewKpiGrid";
+import DashboardLayout from "@/components/DashboardLayout";
 import {
   IconChartBar,
   IconClock,
@@ -17,7 +18,7 @@ import {
   IssuerStatIconTrend,
   IssuerStatIconUsers,
   IssuerStatIconWallet,
-} from '@/components/IssuerNavIcons';
+} from "@/components/IssuerNavIcons";
 import {
   buildAllocationConicGradient,
   buildCapitalChartPaths,
@@ -26,8 +27,8 @@ import {
   formatCompactNumber,
   formatPercent,
   greetingForHour,
-} from '@/lib/issuerDashboard';
-import { useAuthenticatedProfileQuery } from '@/store/api/authApi';
+} from "@/lib/issuerDashboard";
+import { useAuthenticatedProfileQuery } from "@/store/api/authApi";
 import {
   useGetIssuerCapitalRaisedQuery,
   useGetIssuerDashboardAllocationQuery,
@@ -35,12 +36,24 @@ import {
   useGetIssuerRecentActivityQuery,
   useGetIssuerTokenTickerQuery,
   useGetIssuerUpcomingEventsQuery,
-} from '@/store/api/issuerDashboardApi';
+} from "@/store/api/issuerDashboardApi";
 
-const MONTH_FALLBACK = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+const iconStroke = 1.75;
+
+const MONTH_FALLBACK = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+];
 
 function buildKpiCards(
-  summary: ReturnType<typeof useGetIssuerDashboardSummaryQuery>['data'],
+  summary: ReturnType<typeof useGetIssuerDashboardSummaryQuery>["data"],
 ): KpiCard[] {
   if (!summary) return [];
 
@@ -50,57 +63,67 @@ function buildKpiCards(
 
   return [
     {
-      label: 'Total Raised',
+      label: "Total Raised",
       val: formatCompactCurrency(capitalRaised.total, capitalRaised.currency),
-      trend: `${growth >= 0 ? '↗' : '↘'} ${formatPercent(growth)}`,
-      sub: 'versus prior quarter',
+      trend: `${growth >= 0 ? "↗" : "↘"} ${formatPercent(growth)}`,
+      sub: "versus prior quarter",
       up: growth >= 0,
       Icon: IssuerStatIconWallet,
-      well: 'bg-dash-kpi-violet-soft text-dash-kpi-violet-fg ring-1 ring-dash-kpi-violet-ring',
+      well: "bg-dash-kpi-violet-soft text-dash-kpi-violet-fg ring-1 ring-dash-kpi-violet-ring",
     },
     {
-      label: 'Assets Tokenized',
+      label: "Assets Tokenized",
       val: formatCompactCurrency(assets.tokenizedValue, capitalRaised.currency),
       trend: `${assets.count} assets`,
-      sub: `${assets.jurisdictionCount} jurisdiction${assets.jurisdictionCount === 1 ? '' : 's'}`,
+      sub: `${assets.jurisdictionCount} jurisdiction${assets.jurisdictionCount === 1 ? "" : "s"}`,
       up: true,
       Icon: IssuerStatIconBars,
-      well: 'bg-dash-kpi-blue-soft text-dash-kpi-blue-fg ring-1 ring-dash-kpi-blue-ring',
+      well: "bg-dash-kpi-blue-soft text-dash-kpi-blue-fg ring-1 ring-dash-kpi-blue-ring",
     },
     {
-      label: 'Active Investors',
+      label: "Active Investors",
       val: formatCompactNumber(investors.total),
       trend: `${investors.kycVerifiedPercent.toFixed(0)}% KYC verified`,
-      sub: 'verified investors',
+      sub: "verified investors",
       up: investors.kycVerifiedPercent >= 50,
       Icon: IssuerStatIconUsers,
-      well: 'bg-dash-kpi-green-soft text-dash-kpi-green-fg ring-1 ring-dash-kpi-green-ring',
+      well: "bg-dash-kpi-green-soft text-dash-kpi-green-fg ring-1 ring-dash-kpi-green-ring",
     },
     {
-      label: 'Platform Yield',
+      label: "Platform Yield",
       val: `${yieldData.averageApyPercent.toFixed(1)}%`,
-      trend: `${yieldChange >= 0 ? '↗' : '↘'} ${formatPercent(yieldChange)}`,
-      sub: 'Weighted average APY',
+      trend: `${yieldChange >= 0 ? "↗" : "↘"} ${formatPercent(yieldChange)}`,
+      sub: "Weighted average APY",
       up: yieldChange >= 0,
       Icon: IssuerStatIconTrend,
-      well: 'bg-dash-kpi-orange-soft text-dash-kpi-orange-fg ring-1 ring-dash-kpi-orange-ring',
+      well: "bg-dash-kpi-orange-soft text-dash-kpi-orange-fg ring-1 ring-dash-kpi-orange-ring",
     },
   ];
 }
 
 export default function DashboardPage() {
   const { data: profile } = useAuthenticatedProfileQuery();
-  const { data: summary, isLoading: summaryLoading } = useGetIssuerDashboardSummaryQuery();
-  const { data: capitalRaised } = useGetIssuerCapitalRaisedQuery({ period: '9m' });
+  const { data: summary, isLoading: summaryLoading } =
+    useGetIssuerDashboardSummaryQuery();
+  const { data: capitalRaised } = useGetIssuerCapitalRaisedQuery({
+    period: "9m",
+  });
   const { data: allocation } = useGetIssuerDashboardAllocationQuery();
   const { data: ticker = [] } = useGetIssuerTokenTickerQuery();
-  const { data: recentActivity } = useGetIssuerRecentActivityQuery({ page: 1, limit: 5 });
+  const { data: recentActivity } = useGetIssuerRecentActivityQuery({
+    page: 1,
+    limit: 5,
+  });
   const { data: upcomingEvents = [] } = useGetIssuerUpcomingEventsQuery();
 
   const kpiCards = useMemo(() => buildKpiCards(summary), [summary]);
 
   const chart = useMemo(
-    () => buildCapitalChartPaths(capitalRaised?.series ?? [], summary?.capitalRaised.currency ?? 'USD'),
+    () =>
+      buildCapitalChartPaths(
+        capitalRaised?.series ?? [],
+        summary?.capitalRaised.currency ?? "USD",
+      ),
     [capitalRaised?.series, summary?.capitalRaised.currency],
   );
 
@@ -109,23 +132,23 @@ export default function DashboardPage() {
     [allocation?.segments],
   );
 
-  const displayDate = new Date().toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+  const displayDate = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
 
   const greeting = `${greetingForHour()}, ${firstNameFromProfile(profile?.fullName)}`;
 
   const heroValue = summary
     ? formatCompactCurrency(
-      summary.capitalRaised.total,
-      summary.capitalRaised.currency,
-      { decimals: 0 },
-    )
+        summary.capitalRaised.total,
+        summary.capitalRaised.currency,
+        { decimals: 0 },
+      )
     : summaryLoading
-      ? '—'
-      : '$0';
+      ? "—"
+      : "$0";
 
   const growthPercent = summary?.capitalRaised.quarterlyGrowthPercent ?? 0;
   const tokenizedValue = summary?.assets.tokenizedValue ?? 0;
@@ -134,7 +157,7 @@ export default function DashboardPage() {
   const heroTokens =
     ticker.length > 0
       ? ticker.map((t) => ({ sym: t.sym, ch: t.change, dotClass: t.dotClass }))
-      : [{ sym: '—', ch: 'No tokens', dotClass: 'bg-white/30' }];
+      : [{ sym: "—", ch: "No tokens", dotClass: "bg-white/30" }];
 
   const activities = recentActivity?.items ?? [];
 
@@ -152,27 +175,27 @@ export default function DashboardPage() {
           subtitle="Total capital raised across all active offerings."
           badges={[
             {
-              type: growthPercent >= 0 ? 'positive' : 'neutral',
+              type: growthPercent >= 0 ? "positive" : "neutral",
               text: `${formatPercent(growthPercent)} vs last quarter`,
             },
             {
-              type: 'neutral',
-              text: `${formatCompactCurrency(tokenizedValue)} tokenized · ${assetCount} asset${assetCount === 1 ? '' : 's'}`,
+              type: "neutral",
+              text: `${formatCompactCurrency(tokenizedValue)} tokenized · ${assetCount} asset${assetCount === 1 ? "" : "s"}`,
             },
           ]}
           pillars={[
             {
-              label: 'Active Raises',
+              label: "Active Raises",
               value: String(summary?.activeRaises ?? 0),
               Icon: IconPulseActivity,
             },
             {
-              label: 'Investors',
+              label: "Investors",
               value: formatCompactNumber(summary?.investors.total ?? 0),
               Icon: IconNavUsers,
             },
             {
-              label: 'Average Yield',
+              label: "Average Yield",
               value: `${(summary?.yield.averageApyPercent ?? 0).toFixed(1)}%`,
               Icon: IconNavTrendingUp,
             },
@@ -197,7 +220,9 @@ export default function DashboardPage() {
           <div className="min-w-0 overflow-hidden rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] md:rounded-[28px] md:p-9 xl:col-span-2 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <div className="mb-8 flex flex-col justify-between gap-5 sm:mb-10 sm:flex-row sm:items-center">
               <div>
-                <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">Capital Raised</h3>
+                <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">
+                  Capital Raised
+                </h3>
                 <p className="text-xs font-medium text-ui-muted-text">
                   Cumulative vs. target · USD millions
                 </p>
@@ -224,11 +249,11 @@ export default function DashboardPage() {
                   {/* Y-Axis Labels */}
                   <div className="absolute bottom-0 left-0 top-0 w-12">
                     {[
-                      { label: chart.yLabels[0], top: '12%' },
-                      { label: chart.yLabels[1], top: '29.5%' },
-                      { label: chart.yLabels[2], top: '47%' },
-                      { label: chart.yLabels[3], top: '64.5%' },
-                      { label: chart.yLabels[4], top: '82%' },
+                      { label: chart.yLabels[0], top: "12%" },
+                      { label: chart.yLabels[1], top: "29.5%" },
+                      { label: chart.yLabels[2], top: "47%" },
+                      { label: chart.yLabels[3], top: "64.5%" },
+                      { label: chart.yLabels[4], top: "82%" },
                     ].map((item, idx) => (
                       <span
                         key={idx}
@@ -240,7 +265,7 @@ export default function DashboardPage() {
                     ))}
                   </div>
 
-                  {/* Chart Area */}
+                  
                   <div className="absolute inset-y-0 left-12 right-0">
                     {/* Horizontal Gridlines */}
                     <div className="pointer-events-none absolute inset-0">
@@ -260,10 +285,28 @@ export default function DashboardPage() {
                       aria-hidden
                     >
                       <defs>
-                        <linearGradient id="dash-capital-area" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
-                          <stop offset="55%" stopColor="#8b5cf6" stopOpacity="0.08" />
-                          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                        <linearGradient
+                          id="dash-capital-area"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="#8b5cf6"
+                            stopOpacity="0.35"
+                          />
+                          <stop
+                            offset="55%"
+                            stopColor="#8b5cf6"
+                            stopOpacity="0.08"
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#8b5cf6"
+                            stopOpacity="0"
+                          />
                         </linearGradient>
                       </defs>
                       <path d={chart.areaPath} fill="url(#dash-capital-area)" />
@@ -310,24 +353,26 @@ export default function DashboardPage() {
             <div className="mt-8 grid grid-cols-1 gap-6 border-t border-ui-divider pt-8 sm:grid-cols-3 sm:gap-8">
               {[
                 {
-                  label: 'Current Month',
+                  label: "Current Month",
                   val: formatCompactCurrency(capitalRaised?.currentMonth ?? 0),
                 },
                 {
-                  label: 'Target Gap',
+                  label: "Target Gap",
                   val: formatCompactCurrency(capitalRaised?.targetGap ?? 0),
                 },
                 {
-                  label: 'Completion',
+                  label: "Completion",
                   val: `${completionPercent.toFixed(1)}%`,
-                  color: 'text-ui-success-text',
+                  color: "text-ui-success-text",
                 },
               ].map((item) => (
                 <div key={item.label}>
                   <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
                     {item.label}
                   </p>
-                  <p className={`text-xl font-bold tabular-nums ${item.color ?? 'text-ui-strong'}`}>
+                  <p
+                    className={`text-xl font-bold tabular-nums ${item.color ?? "text-ui-strong"}`}
+                  >
                     {item.val}
                   </p>
                 </div>
@@ -337,10 +382,12 @@ export default function DashboardPage() {
 
           <div className="flex h-full flex-col rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <div className="mb-6 md:mb-8">
-              <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">Allocation</h3>
+              <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">
+                Allocation
+              </h3>
               <p className="text-xs font-medium text-ui-muted-text">
                 By asset class
-                {allocation?.weightBy ? ` · ${allocation.weightBy}` : ''}
+                {allocation?.weightBy ? ` · ${allocation.weightBy}` : ""}
               </p>
             </div>
 
@@ -350,12 +397,12 @@ export default function DashboardPage() {
                 style={{
                   background:
                     allocationGradient ??
-                    'conic-gradient(from -90deg, rgb(148 163 184 / 0.25) 0deg 360deg)',
+                    "conic-gradient(from -90deg, rgb(148 163 184 / 0.25) 0deg 360deg)",
                 }}
               >
                 <div className="flex h-full w-full flex-col items-center justify-center rounded-full bg-ui-card dark:bg-ui-card">
                   <p className="text-2xl font-bold tabular-nums text-ui-strong md:text-3xl">
-                    {(allocation?.segments.length ?? 0) > 0 ? '100%' : '—'}
+                    {(allocation?.segments.length ?? 0) > 0 ? "100%" : "—"}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
                     Total
@@ -399,7 +446,9 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-8">
           <div className="min-w-0 rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] sm:p-6 md:rounded-[28px] md:p-9 xl:col-span-2 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6 md:mb-8">
-              <h3 className="text-lg font-bold text-ui-strong md:text-xl">Recent Activity</h3>
+              <h3 className="text-lg font-bold text-ui-strong md:text-xl">
+                Recent Activity
+              </h3>
               <Link
                 href="/issuer/hub"
                 className="flex shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-primary transition-colors hover:text-primary-dark"
@@ -417,10 +466,11 @@ export default function DashboardPage() {
                   >
                     <div className="flex min-w-0 items-center gap-3 sm:flex-1">
                       <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${activity.tone === 'amber'
-                          ? 'bg-amber-500/12 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400'
-                          : 'bg-emerald-500/12 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
-                          }`}
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                          activity.tone === "amber"
+                            ? "bg-amber-500/12 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400"
+                            : "bg-emerald-500/12 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
+                        }`}
                       >
                         {activity.done ? (
                           <svg
@@ -475,9 +525,17 @@ export default function DashboardPage() {
 
           <div className="flex min-w-0 flex-col rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] sm:p-6 md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6 md:mb-8">
-              <h3 className="text-lg font-bold text-ui-strong md:text-xl">Upcoming</h3>
+              <h3 className="text-lg font-bold text-ui-strong md:text-xl">
+                Upcoming
+              </h3>
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -495,20 +553,18 @@ export default function DashboardPage() {
                     key={event.id}
                     className="flex cursor-pointer items-center gap-3 rounded-2xl border border-ui-border p-3.5 transition-all hover:border-primary/35 hover:bg-ui-muted-deep/50 md:gap-4 md:p-4"
                   >
-                    <div
-                      className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl text-center md:h-12 md:w-12 md:rounded-2xl ${event.pillClass}`}
-                    >
-                      <p className="text-[8px] font-bold uppercase leading-none opacity-90">
-                        {event.month}
-                      </p>
-                      <p className="text-sm font-bold leading-tight">{event.day}</p>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-primary md:h-12 md:w-12 md:rounded-2xl">
+                      <Calendar
+                        className="h-5 w-5 md:h-6 md:w-6"
+                        strokeWidth={iconStroke}
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-bold leading-snug text-ui-strong xl:line-clamp-2">
-                        {event.label}
+                        {event.title}
                       </p>
                       <p className="text-[10px] font-medium text-ui-muted-text">
-                        {event.subtitle}
+                        {event.assetTitle}
                       </p>
                     </div>
                   </div>
@@ -532,25 +588,25 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 gap-4 pb-8 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 xl:pb-12">
           {[
             {
-              href: '/issuer/onboarding?start=1',
-              label: 'Tokenize New Asset',
-              sub: 'Start a new offering',
+              href: "/issuer/onboarding?start=1",
+              label: "Tokenize New Asset",
+              sub: "Start a new offering",
               Icon: IconNavSparkles,
-              well: 'bg-gradient-to-br from-primary to-primary-dark shadow-lg shadow-primary/35',
+              well: "bg-gradient-to-br from-primary to-primary-dark shadow-lg shadow-primary/35",
             },
             {
-              href: '/issuer/hub',
-              label: 'Issuer Hub',
-              sub: 'Manage assets & raises',
+              href: "/issuer/hub",
+              label: "Issuer Hub",
+              sub: "Manage assets & raises",
               Icon: IconChartBar,
-              well: 'bg-gradient-to-br from-qa-hub-from to-qa-hub-to shadow-lg shadow-indigo-500/25',
+              well: "bg-gradient-to-br from-qa-hub-from to-qa-hub-to shadow-lg shadow-indigo-500/25",
             },
             {
-              href: '/issuer/yield',
-              label: 'Yield Center',
-              sub: 'Distributions & payouts',
+              href: "/issuer/yield",
+              label: "Yield Center",
+              sub: "Distributions & payouts",
               Icon: IconNavTrendingUp,
-              well: 'bg-gradient-to-br from-qa-yield-from to-qa-yield-to shadow-lg shadow-amber-500/20',
+              well: "bg-gradient-to-br from-qa-yield-from to-qa-yield-to shadow-lg shadow-amber-500/20",
             },
           ].map((action) => (
             <Link
@@ -564,7 +620,9 @@ export default function DashboardPage() {
                 <action.Icon className="!h-6 !w-6 text-white md:!h-7 md:!w-7" />
               </div>
               <div>
-                <h4 className="mb-1 text-[13px] font-bold text-ui-strong md:text-sm">{action.label}</h4>
+                <h4 className="mb-1 text-[13px] font-bold text-ui-strong md:text-sm">
+                  {action.label}
+                </h4>
                 <p className="text-[10px] font-medium leading-relaxed text-ui-muted-text md:text-[11px]">
                   {action.sub}
                 </p>

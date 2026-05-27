@@ -99,19 +99,16 @@ function unwrapRecord(payload: unknown): Record<string, unknown> {
   return root;
 }
 
-function parseMoney(
-  value: unknown,
-  fallbackCurrency = "USD",
-): MoneyAmount {
+function parseMoney(value: unknown, fallbackCurrency = "USD"): MoneyAmount {
   if (!value || typeof value !== "object") {
     return { amount: 0, currency: fallbackCurrency };
   }
   const record = value as Record<string, unknown>;
   return {
-    amount:
-      pickNumber(record, ["amount", "value", "total"]) ?? 0,
-    currency:
-      (pickString(record, ["currency", "currencyCode"]) ?? fallbackCurrency).toUpperCase(),
+    amount: pickNumber(record, ["amount", "value", "total"]) ?? 0,
+    currency: (
+      pickString(record, ["currency", "currencyCode"]) ?? fallbackCurrency
+    ).toUpperCase(),
   };
 }
 
@@ -151,7 +148,8 @@ export function parseInvestorDashboardOverview(
         ? (record.quick_stats as Record<string, unknown>)
         : {};
 
-  const tokensRaw = record.activeTokens ?? record.active_tokens ?? record.tokens;
+  const tokensRaw =
+    record.activeTokens ?? record.active_tokens ?? record.tokens;
   const activeTokens = parseIssuerTokenTicker(tokensRaw ?? []);
 
   return {
@@ -207,7 +205,8 @@ export function parseInvestorDashboardSummary(
         ? (record.unrealized_gain as Record<string, unknown>)
         : {};
   const distributions =
-    record.distributionsReceived && typeof record.distributionsReceived === "object"
+    record.distributionsReceived &&
+    typeof record.distributionsReceived === "object"
       ? (record.distributionsReceived as Record<string, unknown>)
       : record.distributions_received &&
           typeof record.distributions_received === "object"
@@ -249,15 +248,10 @@ export function parseInvestorDashboardSummary(
     activeHoldings:
       pickNumber(record, ["activeHoldings", "active_holdings"]) ?? 0,
     weightedYieldPercent:
-      pickNumber(record, [
-        "weightedYieldPercent",
-        "weighted_yield_percent",
-      ]) ?? null,
+      pickNumber(record, ["weightedYieldPercent", "weighted_yield_percent"]) ??
+      null,
     annualReturnPercent:
-      pickNumber(record, [
-        "annualReturnPercent",
-        "annual_return_percent",
-      ]) ?? 0,
+      pickNumber(record, ["annualReturnPercent", "annual_return_percent"]) ?? 0,
     monthlyIncome: pickNumber(record, ["monthlyIncome", "monthly_income"]) ?? 0,
     assetClassCount:
       pickNumber(record, ["assetClassCount", "asset_class_count"]) ?? 0,
@@ -280,8 +274,7 @@ export function parseInvestorCapitalDeployed(
 ): InvestorCapitalDeployed {
   const parsed = parseIssuerCapitalRaised(payload);
   const record = unwrapRecord(payload);
-  const currency =
-    pickString(record, ["currency", "currencyCode"]) ?? "USD";
+  const currency = pickString(record, ["currency", "currencyCode"]) ?? "USD";
   return { ...parsed, currency: currency.toUpperCase() };
 }
 
@@ -289,61 +282,33 @@ function parseInvestorUpcomingEvent(
   record: Record<string, unknown>,
   index: number,
 ): UpcomingEventItem {
-  const label =
+  const title =
     pickString(record, ["title", "label", "name", "eventName"]) ??
     "Upcoming event";
-  const category = pickString(record, ["category", "type", "eventType"]);
-  const dateRaw =
-    pickString(record, ["date", "scheduledAt", "scheduled_at", "dueAt"]) ??
-    null;
-  const subtitle =
-    pickString(record, [
-      "assetTitle",
-      "asset_title",
-      "subtitle",
-      "assetName",
-      "description",
-    ]) ?? "—";
+  const assetTitle =
+    pickString(record, ["assetTitle", "asset_title", "asset"]) ?? "—";
+  const category = pickString(record, ["category", "type", "eventType"]) ?? "—";
 
-  const parsed = new Date(dateRaw ?? "");
-  const month = !Number.isNaN(parsed.getTime())
-    ? parsed.toLocaleDateString("en-US", { month: "short" })
-    : "—";
-  const day = !Number.isNaN(parsed.getTime())
-    ? String(parsed.getDate())
-    : "—";
-  const dateDisplay = !Number.isNaN(parsed.getTime())
-    ? `${month} ${day}`
-    : (dateRaw ?? "—");
+  const dateRaw = record.date ?? record.date_at ?? {};
+  const date =
+    dateRaw && typeof dateRaw === "object" && !Array.isArray(dateRaw)
+      ? (dateRaw as Record<string, unknown>)
+      : {};
 
-  const hay = `${label} ${category ?? ""}`.toLowerCase();
-  let pillClass =
-    "bg-ui-muted-deep text-ui-muted-text dark:bg-white/10 dark:text-white/70";
-  if (hay.includes("yield") || hay.includes("distribution")) {
-    pillClass = "bg-violet-500/15 text-violet-700 dark:text-violet-300";
-  } else if (hay.includes("kyc") || hay.includes("review")) {
-    pillClass = "bg-amber-500/15 text-amber-800 dark:text-amber-300";
-  } else if (hay.includes("lock") || hay.includes("expir")) {
-    pillClass = "bg-sky-500/15 text-sky-800 dark:text-sky-300";
-  } else if (hay.includes("onboard")) {
-    pillClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300";
-  }
-
-  const id =
-    pickString(record, ["id", "_id", "eventId"]) ?? `event-${index}-${label}`;
+  const id = pickString(record, ["id", "_id", "eventId"]) ?? `event-${index}`;
 
   return {
     id,
-    label,
-    dateDisplay,
-    month,
-    day,
-    pillClass,
-    subtitle,
+    title,
+    assetTitle,
+    category,
+    date,
   };
 }
 
-export function parseInvestorUpcomingEvents(payload: unknown): UpcomingEventItem[] {
+export function parseInvestorUpcomingEvents(
+  payload: unknown,
+): UpcomingEventItem[] {
   if (Array.isArray(payload)) {
     return payload
       .filter(
@@ -359,11 +324,13 @@ export function parseInvestorUpcomingEvents(payload: unknown): UpcomingEventItem
   ).map(parseInvestorUpcomingEvent);
 }
 
-export function parseInvestorDashboardInit(payload: unknown): InvestorDashboardInit {
+export function parseInvestorDashboardInit(
+  payload: unknown,
+): InvestorDashboardInit {
   const record = unwrapRecord(payload);
   const overviewRaw = record.overview ?? record;
-  const recentRaw =
-    record.recentActivity ?? record.recent_activity ?? {
+  const recentRaw = record.recentActivity ??
+    record.recent_activity ?? {
       data: [],
       pagination: DEFAULT_PAGINATION,
     };

@@ -12,11 +12,7 @@ const DEFAULT_PAGINATION: PaginationMeta = {
 };
 
 /** Values accepted by GET /issuer/hub/assets?displayStatus= */
-export type HubAssetDisplayStatusApi =
-  | "LIVE"
-  | "FUNDED"
-  | "DRAFT"
-  | "OTHER";
+export type HubAssetDisplayStatusApi = "LIVE" | "FUNDED" | "DRAFT" | "OTHER";
 
 export const HUB_ASSET_DISPLAY_STATUS_API: HubAssetDisplayStatusApi[] = [
   "LIVE",
@@ -55,8 +51,13 @@ export function toHubAssetDisplayStatusApi(
   value: string | undefined,
 ): HubAssetDisplayStatusApi | undefined {
   if (!value?.trim()) return undefined;
-  const upper = value.trim().toUpperCase().replace(/[\s-]+/g, "_");
-  if (HUB_ASSET_DISPLAY_STATUS_API.includes(upper as HubAssetDisplayStatusApi)) {
+  const upper = value
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, "_");
+  if (
+    HUB_ASSET_DISPLAY_STATUS_API.includes(upper as HubAssetDisplayStatusApi)
+  ) {
     return upper as HubAssetDisplayStatusApi;
   }
   if (upper === "ACTIVE" || upper.includes("LIVE")) return "LIVE";
@@ -148,7 +149,10 @@ function barKeyForAsset(
   return BAR_KEYS[index % 3] ?? "a";
 }
 
-function parseHubAsset(record: Record<string, unknown>, index: number): HubAsset {
+function parseHubAsset(
+  record: Record<string, unknown>,
+  index: number,
+): HubAsset {
   const id = pickString(record, ["id", "_id", "assetId", "asset_id"]) ?? "";
   const name =
     pickString(record, [
@@ -190,10 +194,12 @@ function parseHubAsset(record: Record<string, unknown>, index: number): HubAsset
     "value",
   ]);
   const valuation =
-    pickString(record, ["valuationLabel", "valuation_label", "valuationDisplay"]) ??
-    (valuationValue !== null
-      ? formatCompactCurrency(valuationValue)
-      : "—");
+    pickString(record, [
+      "valuationLabel",
+      "valuation_label",
+      "valuationDisplay",
+    ]) ??
+    (valuationValue !== null ? formatCompactCurrency(valuationValue) : "—");
 
   const yieldPercent = pickNumber(record, [
     "yield",
@@ -468,10 +474,10 @@ function parseNestedRecord(
 export function parseHubAssetsSummary(payload: unknown): HubAssetsSummary {
   const record =
     payload && typeof payload === "object"
-      ? ((payload as Record<string, unknown>).data &&
+      ? (payload as Record<string, unknown>).data &&
         typeof (payload as Record<string, unknown>).data === "object"
-          ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
-          : (payload as Record<string, unknown>))
+        ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
+        : (payload as Record<string, unknown>)
       : {};
   return {
     totalAssets: pickNumber(record, ["totalAssets", "total_assets"]) ?? 0,
@@ -487,18 +493,15 @@ export function parseHubAssetsSummary(payload: unknown): HubAssetsSummary {
 export function parseHubCapTableSummary(payload: unknown): HubCapTableSummary {
   const record =
     payload && typeof payload === "object"
-      ? ((payload as Record<string, unknown>).data &&
+      ? (payload as Record<string, unknown>).data &&
         typeof (payload as Record<string, unknown>).data === "object"
-          ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
-          : (payload as Record<string, unknown>))
+        ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
+        : (payload as Record<string, unknown>)
       : {};
   return {
-    investorCount:
-      pickNumber(record, ["investorCount", "investor_count"]) ?? 0,
-    positionCount:
-      pickNumber(record, ["positionCount", "position_count"]) ?? 0,
-    totalInvested:
-      pickNumber(record, ["totalInvested", "total_invested"]) ?? 0,
+    investorCount: pickNumber(record, ["investorCount", "investor_count"]) ?? 0,
+    positionCount: pickNumber(record, ["positionCount", "position_count"]) ?? 0,
+    totalInvested: pickNumber(record, ["totalInvested", "total_invested"]) ?? 0,
     totalDistributed:
       pickNumber(record, ["totalDistributed", "total_distributed"]) ?? 0,
     currency: pickString(record, ["currency", "currencyCode"]) ?? "USD",
@@ -513,13 +516,15 @@ function parseCapTableRow(
   const name =
     pickString(record, ["name", "investorName", "investor_name"]) ?? "—";
   const email = pickString(record, ["email", "investorEmail"]) ?? "";
-  const asset =
-    pickString(record, ["asset", "assetName", "asset_name"]) ?? "—";
-  const token =
-    pickString(record, ["token", "tokenSymbol", "symbol"]) ?? "—";
+  const asset = pickString(record, ["asset", "assetName", "asset_name"]) ?? "—";
+  const token = pickString(record, ["token", "tokenSymbol", "symbol"]) ?? "—";
   const tokens =
-    pickString(record, ["tokens", "tokenAmount", "token_amount", "tokenCount"]) ??
-    "—";
+    pickString(record, [
+      "tokens",
+      "tokenAmount",
+      "token_amount",
+      "tokenCount",
+    ]) ?? "—";
   const ownershipPercent =
     pickNumber(record, [
       "ownershipPercent",
@@ -612,8 +617,7 @@ function parseHubInvestor(
   const commitment =
     pickString(record, ["commitmentLabel", "commitment_display"]) ??
     (commitmentValue !== null ? formatCompactCurrency(commitmentValue) : "—");
-  const asset =
-    pickString(record, ["asset", "assetName", "asset_name"]) ?? "—";
+  const asset = pickString(record, ["asset", "assetName", "asset_name"]) ?? "—";
   const jurisdiction =
     pickString(record, ["jurisdiction", "country", "region"]) ?? "—";
   const source = pickString(record, ["source", "channel"]) ?? "—";
@@ -641,7 +645,9 @@ function parseHubInvestor(
   };
 }
 
-export function parseHubInvestorsList(payload: unknown): HubInvestorsListResult {
+export function parseHubInvestorsList(
+  payload: unknown,
+): HubInvestorsListResult {
   if (!payload || typeof payload !== "object") {
     return { items: [], pagination: DEFAULT_PAGINATION };
   }
@@ -650,13 +656,15 @@ export function parseHubInvestorsList(payload: unknown): HubInvestorsListResult 
   return { items, pagination: parsePagination(payload) };
 }
 
-export function parseHubComplianceSummary(payload: unknown): HubComplianceSummary {
+export function parseHubComplianceSummary(
+  payload: unknown,
+): HubComplianceSummary {
   const record =
     payload && typeof payload === "object"
-      ? ((payload as Record<string, unknown>).data &&
+      ? (payload as Record<string, unknown>).data &&
         typeof (payload as Record<string, unknown>).data === "object"
-          ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
-          : (payload as Record<string, unknown>))
+        ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
+        : (payload as Record<string, unknown>)
       : {};
   const score = parseNestedRecord(record, "complianceScore");
   const sec = parseNestedRecord(record, "secFilings");
@@ -669,7 +677,8 @@ export function parseHubComplianceSummary(payload: unknown): HubComplianceSummar
       score: pickNumber(score, ["score"]) ?? 0,
       maxScore: pickNumber(score, ["maxScore", "max_score"]) ?? 100,
       summary:
-        pickString(score, ["summary", "label"]) ?? "Compliance score unavailable",
+        pickString(score, ["summary", "label"]) ??
+        "Compliance score unavailable",
     },
     secFilings: {
       current: pickNumber(sec, ["current"]) ?? 0,
@@ -680,8 +689,7 @@ export function parseHubComplianceSummary(payload: unknown): HubComplianceSummar
     kycCompletion: {
       ratePercent:
         pickNumber(kyc, ["ratePercent", "rate_percent", "rate"]) ?? 0,
-      verifiedCount:
-        pickNumber(kyc, ["verifiedCount", "verified_count"]) ?? 0,
+      verifiedCount: pickNumber(kyc, ["verifiedCount", "verified_count"]) ?? 0,
       totalCount: pickNumber(kyc, ["totalCount", "total_count"]) ?? 0,
       summary: pickString(kyc, ["summary"]) ?? "",
     },
@@ -697,7 +705,9 @@ export function parseHubComplianceSummary(payload: unknown): HubComplianceSummar
   };
 }
 
-function regulatoryStatusTone(status: string): HubRegulatoryStatusRow["statusTone"] {
+function regulatoryStatusTone(
+  status: string,
+): HubRegulatoryStatusRow["statusTone"] {
   const lower = status.toLowerCase();
   if (
     lower.includes("filed") ||
@@ -747,9 +757,9 @@ export function parseHubRegulatoryStatusList(
     return { items: [], pagination: DEFAULT_PAGINATION };
   }
   const record = payload as Record<string, unknown>;
-  const items = unwrapList(
-    record.data ?? record.items ?? record.filings,
-  ).map(parseRegulatoryStatusRow);
+  const items = unwrapList(record.data ?? record.items ?? record.filings).map(
+    parseRegulatoryStatusRow,
+  );
   return { items, pagination: parsePagination(payload) };
 }
 
@@ -813,7 +823,14 @@ export type HubCapitalVelocity = {
 
 export type HubOverviewActivityItem = {
   id: string;
-  label: string;
+  category: string;
+  title: string;
+  description: string;
+  investorName: string | null;
+  assetTitle: string;
+  amount: number;
+  currency: string;
+  occurredAt: Record<string, unknown>;
   time: string;
   tone: "primary" | "info" | "success" | "warn" | "danger";
 };
@@ -839,19 +856,19 @@ function parseNested(
   return nested as Record<string, unknown>;
 }
 
-export function parseHubInvestorsSummary(payload: unknown): HubInvestorsSummary {
+export function parseHubInvestorsSummary(
+  payload: unknown,
+): HubInvestorsSummary {
   const record =
     payload && typeof payload === "object"
-      ? ((payload as Record<string, unknown>).data &&
+      ? (payload as Record<string, unknown>).data &&
         typeof (payload as Record<string, unknown>).data === "object"
-          ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
-          : (payload as Record<string, unknown>))
+        ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
+        : (payload as Record<string, unknown>)
       : {};
   return {
-    kycApproved:
-      pickNumber(record, ["kycApproved", "kyc_approved"]) ?? 0,
-    pendingReview:
-      pickNumber(record, ["pendingReview", "pending_review"]) ?? 0,
+    kycApproved: pickNumber(record, ["kycApproved", "kyc_approved"]) ?? 0,
+    pendingReview: pickNumber(record, ["pendingReview", "pending_review"]) ?? 0,
     actionRequired:
       pickNumber(record, ["actionRequired", "action_required"]) ?? 0,
     totalPositions:
@@ -862,10 +879,10 @@ export function parseHubInvestorsSummary(payload: unknown): HubInvestorsSummary 
 export function parseHubOverviewSummary(payload: unknown): HubOverviewSummary {
   const record =
     payload && typeof payload === "object"
-      ? ((payload as Record<string, unknown>).data &&
+      ? (payload as Record<string, unknown>).data &&
         typeof (payload as Record<string, unknown>).data === "object"
-          ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
-          : (payload as Record<string, unknown>))
+        ? ((payload as Record<string, unknown>).data as Record<string, unknown>)
+        : (payload as Record<string, unknown>)
       : {};
 
   const org = parseNested(record, "organization");
@@ -911,14 +928,12 @@ export function parseHubOverviewSummary(payload: unknown): HubOverviewSummary {
           "activeOfferingsCount",
           "active_offerings_count",
         ]) ?? 0,
-      weeklyChange:
-        pickNumber(capital, ["weeklyChange", "weekly_change"]) ?? 0,
+      weeklyChange: pickNumber(capital, ["weeklyChange", "weekly_change"]) ?? 0,
     },
     activeAssets: {
       total: pickNumber(assets, ["total", "count"]) ?? 0,
       inFunding: pickNumber(assets, ["inFunding", "in_funding"]) ?? 0,
-      fullyFunded:
-        pickNumber(assets, ["fullyFunded", "fully_funded"]) ?? 0,
+      fullyFunded: pickNumber(assets, ["fullyFunded", "fully_funded"]) ?? 0,
       quarterlyChange:
         pickNumber(assets, ["quarterlyChange", "quarterly_change"]) ?? 0,
     },
@@ -930,8 +945,7 @@ export function parseHubOverviewSummary(payload: unknown): HubOverviewSummary {
         pickNumber(investors, ["monthlyChange", "monthly_change"]) ?? 0,
     },
     blendedYield: {
-      percent:
-        pickNumber(yieldData, ["percent", "apy", "averageApy"]) ?? 0,
+      percent: pickNumber(yieldData, ["percent", "apy", "averageApy"]) ?? 0,
       quarterlyChangePercent:
         pickNumber(yieldData, [
           "quarterlyChangePercent",
@@ -943,8 +957,7 @@ export function parseHubOverviewSummary(payload: unknown): HubOverviewSummary {
       awaitingDocuments:
         pickNumber(kyc, ["awaitingDocuments", "awaiting_documents"]) ?? 0,
       inReview: pickNumber(kyc, ["inReview", "in_review"]) ?? 0,
-      overdueCount:
-        pickNumber(kyc, ["overdueCount", "overdue_count"]) ?? 0,
+      overdueCount: pickNumber(kyc, ["overdueCount", "overdue_count"]) ?? 0,
     },
     nextDistribution,
   };
@@ -958,8 +971,11 @@ function parseCapitalVelocityPoint(
     raised:
       pickNumber(record, ["raised", "raisedAmount", "raised_amount"]) ?? 0,
     committed:
-      pickNumber(record, ["committed", "committedAmount", "committed_amount"]) ??
-      0,
+      pickNumber(record, [
+        "committed",
+        "committedAmount",
+        "committed_amount",
+      ]) ?? 0,
   };
 }
 
@@ -978,7 +994,8 @@ export function parseHubCapitalVelocity(payload: unknown): HubCapitalVelocity {
         .map(parseCapitalVelocityPoint)
     : [];
   return {
-    weeks: pickNumber(record, ["weeks", "weekCount", "week_count"]) ?? series.length,
+    weeks:
+      pickNumber(record, ["weeks", "weekCount", "week_count"]) ?? series.length,
     series,
   };
 }
@@ -986,11 +1003,16 @@ export function parseHubCapitalVelocity(payload: unknown): HubCapitalVelocity {
 function overviewActivityTone(
   record: Record<string, unknown>,
 ): HubOverviewActivityItem["tone"] {
-  const hay = `${pickString(record, ["type", "category", "status", "eventType"]) ?? ""}`.toLowerCase();
+  const hay =
+    `${pickString(record, ["type", "category", "status", "eventType"]) ?? ""}`.toLowerCase();
   if (hay.includes("ofac") || hay.includes("flag") || hay.includes("danger")) {
     return "danger";
   }
-  if (hay.includes("kyc") || hay.includes("compliance") || hay.includes("review")) {
+  if (
+    hay.includes("kyc") ||
+    hay.includes("compliance") ||
+    hay.includes("review")
+  ) {
     return "warn";
   }
   if (hay.includes("distribution") || hay.includes("yield")) return "success";
@@ -1002,30 +1024,36 @@ function parseOverviewActivityItem(
   record: Record<string, unknown>,
   index: number,
 ): HubOverviewActivityItem {
-  const label =
-    pickString(record, [
-      "label",
-      "title",
-      "description",
-      "message",
-      "name",
-      "summary",
-    ]) ?? "Activity";
+  const occurredAtRaw = record.occurredAt ?? record.occurred_at ?? {};
+  const occurredAt =
+    occurredAtRaw &&
+    typeof occurredAtRaw === "object" &&
+    !Array.isArray(occurredAtRaw)
+      ? (occurredAtRaw as Record<string, unknown>)
+      : {};
   const time =
     pickString(record, ["time", "timeAgo", "relativeTime"]) ??
     formatRelativeHubTime(
-      pickString(record, [
+      pickString(occurredAt, [
+        "date",
+        "timestamp",
         "createdAt",
         "created_at",
-        "occurredAt",
-        "occurred_at",
-        "timestamp",
-      ]),
+      ]) ?? pickString(record, ["createdAt", "created_at", "timestamp"]),
     );
 
   return {
     id: pickString(record, ["id", "_id"]) ?? `activity-${index}`,
-    label,
+    category: pickString(record, ["category", "type"]) ?? "—",
+    title: pickString(record, ["title", "label"]) ?? "—",
+    description:
+      pickString(record, ["description", "message", "summary"]) ?? "",
+    investorName: pickString(record, ["investorName", "investor_name"]) ?? null,
+    assetTitle:
+      pickString(record, ["assetTitle", "asset_title", "asset"]) ?? "—",
+    amount: pickNumber(record, ["amount", "value"]) ?? 0,
+    currency: pickString(record, ["currency"]) ?? "USD",
+    occurredAt,
     time,
     tone: overviewActivityTone(record),
   };
@@ -1054,9 +1082,9 @@ export function parseHubOverviewActivity(
     return { items: [], pagination: DEFAULT_PAGINATION };
   }
   const record = payload as Record<string, unknown>;
-  const items = unwrapList(record.data ?? record.items ?? record.activities).map(
-    parseOverviewActivityItem,
-  );
+  const items = unwrapList(
+    record.data ?? record.items ?? record.activities,
+  ).map(parseOverviewActivityItem);
   return { items, pagination: parsePagination(payload) };
 }
 
@@ -1088,7 +1116,10 @@ export function formatHubUpdatedAt(iso: string | null): string {
   });
 }
 
-export function formatSignedChange(value: number, options?: { suffix?: string; isPercent?: boolean }): string {
+export function formatSignedChange(
+  value: number,
+  options?: { suffix?: string; isPercent?: boolean },
+): string {
   const suffix = options?.suffix ?? "";
   const formatted = options?.isPercent
     ? `${Math.abs(value).toFixed(1)}%`

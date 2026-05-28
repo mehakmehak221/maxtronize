@@ -26,8 +26,6 @@ export default function Bridge() {
   return (
     <section id="bridge" className="relative overflow-hidden bg-white py-10">
       <div className="mx-auto max-w-[96rem]  text-center">
-        
-        
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -38,7 +36,6 @@ export default function Bridge() {
           Bridging Two <span className="text-[#513C9E]">Worlds</span>
         </motion.h2>
 
-        
         <motion.p
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -46,10 +43,10 @@ export default function Bridge() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
           className="mt-4 sm:mt-5 md:mt-6 text-[16px] sm:text-[18px] md:text-[20px] font-medium text-[#111111]"
         >
-          The Evolution Of <span className="text-[#6452B0]">Real World Assets</span>
+          The Evolution Of{" "}
+          <span className="text-[#6452B0]">Real World Assets</span>
         </motion.p>
 
-        
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -57,7 +54,6 @@ export default function Bridge() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
           className="mx-auto  w-full max-w-[96rem]"
         >
-          
           <img
             src="/images/bridge.webp"
             alt="Bridging Two Worlds - The Evolution of Real World Assets"
@@ -65,7 +61,6 @@ export default function Bridge() {
           />
         </motion.div>
 
-       
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -75,7 +70,7 @@ export default function Bridge() {
         >
           <motion.a
             ref={btnRef}
-            href="/sign-up"
+            href="https://beta.maxtronize.com/signin"
             onMouseMove={onBtnMove}
             onMouseEnter={() => setBtnHovered(true)}
             onMouseLeave={onBtnLeave}
@@ -108,7 +103,6 @@ export default function Bridge() {
             </span>
           </motion.a>
         </motion.div>
-        
       </div>
     </section>
   );

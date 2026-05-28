@@ -200,7 +200,10 @@ export default function Intelligence() {
             </motion.ul>
 
             <motion.div custom={0.2} variants={fadeLeft}>
-              <CTAButton href="/sign-up" label="Join as an Investor" />
+              <CTAButton
+                href="https://beta.maxtronize.com/signin"
+                label="Join as an Investor"
+              />
             </motion.div>
           </motion.div>
 
@@ -247,7 +250,6 @@ export default function Intelligence() {
                 The Ultimate Sales Force
               </span>
             </motion.h3>
-
             <motion.ul
               custom={0.1}
               variants={fadeRight}
@@ -260,7 +262,7 @@ export default function Intelligence() {
 
               <Feature
                 title="Lead Scoring"
-                description='Focus on high-value prospects while AI nurtures the rest 24/7.'
+                description="Focus on high-value prospects while AI nurtures the rest 24/7."
               />
 
               <Feature
@@ -268,7 +270,7 @@ export default function Intelligence() {
                 description="Intelligent drip campaigns keep every lead warm and conversion-ready."
               />
             </motion.ul>
-
+            https://beta.maxtronize.comni
             <motion.div custom={0.2} variants={fadeRight}>
               <CTAButton href="/sign-up" label="Join as an Asset Issuer" />
             </motion.div>

@@ -5,7 +5,6 @@ import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-
 const assets = [
   {
     title: "Gold and Gold Mines",
@@ -51,7 +50,6 @@ const assets = [
   },
 ];
 
-
 function NavBtn({
   onClick,
   children,
@@ -72,7 +70,6 @@ function NavBtn({
   );
 }
 
-
 function AssetCard({ asset }: { asset: (typeof assets)[0] }) {
   const [hovered, setHovered] = useState(false);
 
@@ -84,7 +81,6 @@ function AssetCard({ asset }: { asset: (typeof assets)[0] }) {
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300, damping: 28 }}
     >
-     
       <motion.img
         src={asset.image}
         alt={asset.title}
@@ -93,10 +89,8 @@ function AssetCard({ asset }: { asset: (typeof assets)[0] }) {
         transition={{ duration: 0.6, ease: "easeOut" }}
       />
 
-   
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-     
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
         initial={{ x: "-100%" }}
@@ -104,7 +98,6 @@ function AssetCard({ asset }: { asset: (typeof assets)[0] }) {
         transition={{ duration: 0.8 }}
       />
 
-    
       <div className="absolute inset-x-0 bottom-0 p-5">
         <motion.h3
           className="mb-1.5 text-[15px] lg:text-[20px] font-bold uppercase tracking-wider text-white"
@@ -121,7 +114,6 @@ function AssetCard({ asset }: { asset: (typeof assets)[0] }) {
           {asset.description}
         </motion.p>
 
-       
         <motion.div
           className="mt-2.5 h-[2px] rounded-full bg-gradient-to-r from-[#6653AF] to-[#9B8CE8]"
           initial={{ width: 0 }}
@@ -133,13 +125,11 @@ function AssetCard({ asset }: { asset: (typeof assets)[0] }) {
   );
 }
 
-
 export default function Asset() {
   const [virtualIndex, setVirtualIndex] = useState(assets.length);
   const [isAnimating, setIsAnimating] = useState(true);
   const [itemsPerView, setItemsPerView] = useState(3);
 
- 
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
@@ -160,7 +150,6 @@ export default function Asset() {
   const prev = () => setVirtualIndex((p) => p - 1);
   const next = () => setVirtualIndex((p) => p + 1);
 
-  
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const onTouchStart = (e: React.TouchEvent) => {
@@ -176,12 +165,10 @@ export default function Asset() {
     if (d < -50) prev();
   };
 
-
   useEffect(() => {
     const t = setInterval(() => setVirtualIndex((p) => p + 1), 4000);
     return () => clearInterval(t);
   }, []);
-
 
   const onComplete = () => {
     const min = assets.length;
@@ -190,11 +177,10 @@ export default function Asset() {
       setIsAnimating(false);
       setVirtualIndex(assets.length + norm(virtualIndex));
       requestAnimationFrame(() =>
-        requestAnimationFrame(() => setIsAnimating(true))
+        requestAnimationFrame(() => setIsAnimating(true)),
       );
     }
   };
-
 
   const btnRef = useRef<HTMLAnchorElement>(null);
   const bX = useMotionValue(0);
@@ -216,11 +202,7 @@ export default function Asset() {
   };
 
   return (
-    <section
-      id="assets"
-      className="relative overflow-hidden bg-white "
-    >
-    
+    <section id="assets" className="relative overflow-hidden bg-white ">
       <div className="mx-auto max-w-[96rem] px-4 py-16 sm:px-6 sm:py-20 md:px-10 md:py-24 lg:px-20 lg:py-28">
         <div className="mb-8 flex items-center justify-between">
           <motion.h2
@@ -250,7 +232,6 @@ export default function Asset() {
           </motion.div>
         </div>
 
-    
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -285,26 +266,20 @@ export default function Asset() {
             </motion.div>
           </div>
 
-         
           <div className="mt-5 flex justify-center gap-1.5">
             {assets.map((_, i) => (
               <button
                 key={i}
-                onClick={() =>
-                  setVirtualIndex(assets.length + norm(i))
-                }
+                onClick={() => setVirtualIndex(assets.length + norm(i))}
                 aria-label={`Go to slide ${i + 1}`}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentIndex
-                    ? "w-6 bg-[#6653AF]"
-                    : "w-1.5 bg-[#CCCCCC]"
+                  i === currentIndex ? "w-6 bg-[#6653AF]" : "w-1.5 bg-[#CCCCCC]"
                 }`}
               />
             ))}
           </div>
         </motion.div>
 
-        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -314,7 +289,7 @@ export default function Asset() {
         >
           <motion.a
             ref={btnRef}
-            href="/sign-up"
+            href="https://beta.maxtronize.com/signin"
             onMouseMove={onBtnMove}
             onMouseEnter={() => setBtnHovered(true)}
             onMouseLeave={onBtnLeave}
@@ -323,7 +298,6 @@ export default function Asset() {
             whileTap={{ scale: 0.96 }}
             className="w-fit group relative inline-flex items-center gap-3 overflow-hidden rounded-md bg-[#1A1A1A] pl-5 pr-4 py-2.5 text-[14px] font-medium text-white shadow-md hover:shadow-lg"
           >
-           
             <motion.span
               className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"
               initial={{ x: "0%" }}

@@ -63,7 +63,13 @@ function NavBtn({
   );
 }
 
-function TokenizeCard({ item, active }: { item: (typeof audiences)[0]; active: boolean }) {
+function TokenizeCard({
+  item,
+  active,
+}: {
+  item: (typeof audiences)[0];
+  active: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
   const isHighlighted = active || hovered;
 
@@ -84,12 +90,10 @@ function TokenizeCard({ item, active }: { item: (typeof audiences)[0]; active: b
         transition={{ duration: 0.6, ease: "easeOut" }}
       />
 
-     
-      <div 
-        className={`absolute inset-0 transition-opacity duration-300 bg-gradient-to-b from-white/90 via-white/20 to-transparent ${isHighlighted ? 'opacity-0' : 'opacity-100'}`} 
+      <div
+        className={`absolute inset-0 transition-opacity duration-300 bg-gradient-to-b from-white/90 via-white/20 to-transparent ${isHighlighted ? "opacity-0" : "opacity-100"}`}
       />
 
-     
       <div
         className="absolute inset-0 transition-opacity duration-300"
         style={{
@@ -98,21 +102,21 @@ function TokenizeCard({ item, active }: { item: (typeof audiences)[0]; active: b
           opacity: isHighlighted ? 0.85 : 0,
         }}
       />
-      
+
       {isHighlighted && (
         <div className="absolute inset-0 rounded-lg ring-2 ring-[#6653AF]/60 ring-offset-0" />
       )}
 
       <div className="absolute inset-x-0 top-0 p-5">
         <motion.h3
-          className={`mb-1.5 text-[15px] lg:text-[20px] font-bold uppercase tracking-wider transition-colors duration-300 ${isHighlighted ? 'text-white' : 'text-[#111111]'}`}
+          className={`mb-1.5 text-[15px] lg:text-[20px] font-bold uppercase tracking-wider transition-colors duration-300 ${isHighlighted ? "text-white" : "text-[#111111]"}`}
           animate={{ y: hovered ? 4 : 0 }}
           transition={{ duration: 0.3 }}
         >
           {item.title}
         </motion.h3>
         <motion.p
-          className={`text-[12px] leading-relaxed transition-colors duration-300 ${isHighlighted ? 'text-white/90' : 'text-[#444444]'}`}
+          className={`text-[12px] leading-relaxed transition-colors duration-300 ${isHighlighted ? "text-white/90" : "text-[#444444]"}`}
           animate={{ y: hovered ? 4 : 0 }}
           transition={{ duration: 0.3, delay: 0.04 }}
         >
@@ -120,7 +124,7 @@ function TokenizeCard({ item, active }: { item: (typeof audiences)[0]; active: b
         </motion.p>
 
         <motion.div
-          className={`mt-2.5 h-[2px] rounded-full transition-colors duration-300 ${isHighlighted ? 'bg-white' : 'bg-gradient-to-r from-[#6653AF] to-[#9B8CE8]'}`}
+          className={`mt-2.5 h-[2px] rounded-full transition-colors duration-300 ${isHighlighted ? "bg-white" : "bg-gradient-to-r from-[#6653AF] to-[#9B8CE8]"}`}
           initial={{ width: 0 }}
           animate={{ width: hovered ? "40%" : 0 }}
           transition={{ duration: 0.4 }}
@@ -183,12 +187,11 @@ export default function Tokenize() {
       setIsAnimating(false);
       setVirtualIndex(audiences.length + norm(virtualIndex));
       requestAnimationFrame(() =>
-        requestAnimationFrame(() => setIsAnimating(true))
+        requestAnimationFrame(() => setIsAnimating(true)),
       );
     }
   };
 
- 
   const btnRef = useRef<HTMLAnchorElement>(null);
   const bX = useMotionValue(0);
   const bY = useMotionValue(0);
@@ -209,10 +212,7 @@ export default function Tokenize() {
   };
 
   return (
-    <section
-      id="tokenize"
-      className="relative overflow-hidden bg-white "
-    >
+    <section id="tokenize" className="relative overflow-hidden bg-white ">
       <div className="mx-auto max-w-[96rem] px-4 py-16 sm:px-6 sm:py-20 md:px-10 md:py-24 lg:px-20 lg:py-28">
         <div className="mb-8 flex items-center justify-between">
           <motion.h2
@@ -241,7 +241,6 @@ export default function Tokenize() {
           </motion.div>
         </div>
 
-       
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -270,16 +269,12 @@ export default function Tokenize() {
                   className="w-full flex-shrink-0"
                   style={{ width: `${100 / itemsPerView}%` }}
                 >
-                  <TokenizeCard
-                    item={item}
-                    active={norm(i) === currentIndex}
-                  />
+                  <TokenizeCard item={item} active={norm(i) === currentIndex} />
                 </div>
               ))}
             </motion.div>
           </div>
 
-        
           <div className="mt-5 flex justify-center gap-1.5">
             {audiences.map((_, i) => (
               <button
@@ -287,16 +282,13 @@ export default function Tokenize() {
                 onClick={() => setVirtualIndex(audiences.length + norm(i))}
                 aria-label={`Go to slide ${i + 1}`}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentIndex
-                    ? "w-6 bg-[#6653AF]"
-                    : "w-1.5 bg-[#CCCCCC]"
+                  i === currentIndex ? "w-6 bg-[#6653AF]" : "w-1.5 bg-[#CCCCCC]"
                 }`}
               />
             ))}
           </div>
         </motion.div>
 
-     
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -306,7 +298,7 @@ export default function Tokenize() {
         >
           <motion.a
             ref={btnRef}
-            href="/sign-up"
+            href="https://beta.maxtronize.com/signin"
             onMouseMove={onBtnMove}
             onMouseEnter={() => setBtnHovered(true)}
             onMouseLeave={onBtnLeave}

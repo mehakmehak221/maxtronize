@@ -62,7 +62,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <AuthLayout isSignUp={true} onToggle={() => router.push("/signin")}>
+    <AuthLayout isSignUp={true}>
       <div className="space-y-8 animate-in fade-in duration-500">
         <div>
           <p className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-4">

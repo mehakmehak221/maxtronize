@@ -8,14 +8,12 @@ import { MaxtronizeLogo } from "@/components/MaxtronizeLogo";
 interface AuthLayoutProps {
   children: React.ReactNode;
   isSignUp: boolean;
-  onToggle: (val: boolean) => void;
   hideToggle?: boolean;
 }
 
 export default function AuthLayout({
   children,
   isSignUp,
-  onToggle,
   hideToggle = false,
 }: AuthLayoutProps) {
   useLayoutEffect(() => {
@@ -222,18 +220,18 @@ export default function AuthLayout({
 
             {!hideToggle && (
               <div className="flex rounded-full border border-[#E5E7EB] bg-[#F3F4F6] p-1 shadow-inner">
-                <button
-                  onClick={() => onToggle(false)}
-                  className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all md:px-6 md:py-3 md:text-[15px] ${!isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
+                <a
+                  href="https://beta.maxtronize.com/signin"
+                  className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all md:px-6 md:py-3 md:text-[15px] text-center ${!isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
                 >
                   Sign In
-                </button>
-                <button
-                  onClick={() => onToggle(true)}
-                  className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all md:px-6 md:py-3 md:text-[15px] ${isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
+                </a>
+                <a
+                  href="https://beta.maxtronize.com/signin"
+                  className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all md:px-6 md:py-3 md:text-[15px] text-center ${isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
                 >
                   Sign Up
-                </button>
+                </a>
               </div>
             )}
 

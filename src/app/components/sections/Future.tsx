@@ -33,7 +33,10 @@ export default function Future() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section id="future" className="relative bg-white py-6 sm:py-8 md:py-9 lg:py-10 overflow-hidden">
+    <section
+      id="future"
+      className="relative bg-white py-6 sm:py-8 md:py-9 lg:py-10 overflow-hidden"
+    >
       <div className="mx-auto max-w-[96rem] px-4 sm:px-6 md:px-10 lg:px-20">
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
@@ -46,7 +49,6 @@ export default function Future() {
         </motion.h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-         
           <div className="flex flex-col w-full  mx-auto lg:mx-0">
             {features.map((feature, idx) => {
               const isActive = activeIndex === idx;
@@ -64,12 +66,16 @@ export default function Future() {
                     <div className="flex items-center gap-4">
                       <Icon
                         className={`h-[22px] w-[22px] sm:h-6 sm:w-6 transition-colors duration-300 ${
-                          isActive ? "text-[#513C9E]" : "text-[#888888] group-hover:text-[#513C9E]"
+                          isActive
+                            ? "text-[#513C9E]"
+                            : "text-[#888888] group-hover:text-[#513C9E]"
                         }`}
                       />
                       <span
                         className={`text-[16px] sm:text-[18px] md:text-[20px] font-medium transition-colors duration-300 ${
-                          isActive ? "text-[#111111]" : "text-[#444444] group-hover:text-[#111111]"
+                          isActive
+                            ? "text-[#111111]"
+                            : "text-[#444444] group-hover:text-[#111111]"
                         }`}
                       >
                         {feature.title}
@@ -97,7 +103,7 @@ export default function Future() {
                           </p>
 
                           <Link
-                            href="/sign-up"
+                            href="https://beta.maxtronize.com/signin"
                             className="group relative inline-flex w-fit items-center gap-3 overflow-hidden rounded-md bg-[#1A1A1A] px-5 py-2.5 text-[14px] font-medium text-white shadow-md transition-shadow hover:shadow-lg"
                           >
                             <motion.span
@@ -126,7 +132,6 @@ export default function Future() {
                             </span>
                           </Link>
 
-                          
                           <div className="mt-8 relative w-full aspect-[4/3] flex lg:hidden items-center justify-center overflow-hidden">
                             <motion.img
                               initial={{ opacity: 0, y: 10 }}
@@ -146,7 +151,6 @@ export default function Future() {
             })}
           </div>
 
-         
           <div className="hidden lg:flex relative lg:bottom-10 w-full lg:h-[400px] items-center justify-center overflow-hidden">
             <AnimatePresence mode="popLayout">
               <motion.img

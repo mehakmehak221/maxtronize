@@ -103,11 +103,7 @@ export default function ForgotPasswordPage() {
         : "Choose a strong password for your account.";
 
   return (
-    <AuthLayout
-      isSignUp={false}
-      hideToggle
-      onToggle={() => router.push("/signup")}
-    >
+    <AuthLayout isSignUp={false} hideToggle>
       <div className="min-w-0 space-y-6 animate-fade-in sm:space-y-8">
         <div>
           <button

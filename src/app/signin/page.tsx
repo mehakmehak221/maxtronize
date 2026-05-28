@@ -40,7 +40,7 @@ function SignInContent() {
   }
 
   return (
-    <AuthLayout isSignUp={false} onToggle={() => router.push("/signup")}>
+    <AuthLayout isSignUp={false}>
       <div className="space-y-8 animate-in fade-in duration-500">
         <div>
           <p className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-4">
@@ -238,10 +238,7 @@ function SignInContent() {
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-[#E5E7EB]"></div>
           </div>
-         
         </div>
-
-      
 
         <div className="text-center pt-2">
           <p className="text-sm font-medium text-[#9CA3AF]">
@@ -262,7 +259,7 @@ function SignInContent() {
 
 function SignInFallback() {
   return (
-    <AuthLayout isSignUp={false} onToggle={() => {}}>
+    <AuthLayout isSignUp={false}>
       <div className="space-y-8 animate-in fade-in duration-500">
         <div className="h-28 animate-pulse rounded-2xl bg-ui-muted-deep" />
         <div className="h-64 animate-pulse rounded-2xl bg-ui-muted-deep" />

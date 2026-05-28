@@ -28,11 +28,7 @@ export default function SetupProfilePage() {
   }, [isLoading, profile, router]);
 
   return (
-    <AuthLayout
-      isSignUp={false}
-      hideToggle
-      onToggle={() => router.push("/signup")}
-    >
+    <AuthLayout isSignUp={false} hideToggle>
       <div className="min-w-0 space-y-6 animate-fade-in sm:space-y-8">
         <div>
           <h2 className="mb-2 text-xl font-bold text-[#111827] sm:text-2xl">

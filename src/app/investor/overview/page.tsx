@@ -252,20 +252,20 @@ export default function InvestorOverviewPage() {
                 <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">
                   Capital Deployed
                 </h3>
-                <p className="text-xs font-medium text-ui-muted-text">
+                <p className="text-base font-medium text-ui-muted-text">
                   Cumulative vs. target · {currency}
                 </p>
               </div>
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
                   <div className="h-1 w-4 rounded-full bg-primary" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-ui-muted-text">
+                  <span className="text-xs font-bold uppercase tracking-widest text-ui-muted-text">
                     Actual
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-0 w-4 border-t-2 border-dashed border-ui-border-strong" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-ui-muted-text">
+                  <span className="text-xs font-bold uppercase tracking-widest text-ui-muted-text">
                     Target
                   </span>
                 </div>
@@ -288,7 +288,7 @@ export default function InvestorOverviewPage() {
                     ].map((item, idx) => (
                       <span
                         key={idx}
-                        className="absolute left-0 -translate-y-1/2 text-[10px] font-bold text-ui-placeholder"
+                        className="absolute left-0 -translate-y-1/2 text-xs font-bold text-ui-placeholder"
                         style={{ top: item.top }}
                       >
                         {item.label}
@@ -364,7 +364,7 @@ export default function InvestorOverviewPage() {
                 </>
               ) : (
                 <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40">
-                  <p className="text-xs font-medium text-ui-muted-text">
+                  <p className="text-base font-medium text-ui-muted-text">
                     No capital deployed data for this period
                   </p>
                 </div>
@@ -374,7 +374,7 @@ export default function InvestorOverviewPage() {
               {chartLabels.map((m) => (
                 <span
                   key={m}
-                  className="text-[10px] font-bold uppercase tracking-widest text-ui-placeholder"
+                  className="text-xs font-bold uppercase tracking-widest text-ui-placeholder"
                 >
                   {m}
                 </span>
@@ -404,7 +404,7 @@ export default function InvestorOverviewPage() {
                 },
               ].map((item) => (
                 <div key={item.label}>
-                  <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-widest text-ui-faint">
                     {item.label}
                   </p>
                   <p
@@ -422,7 +422,7 @@ export default function InvestorOverviewPage() {
               <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">
                 Allocation
               </h3>
-              <p className="text-xs font-medium text-ui-muted-text">
+              <p className="text-base font-medium text-ui-muted-text">
                 By asset class
                 {allocation?.weightBy ? ` · ${allocation.weightBy}` : ""}
               </p>
@@ -441,7 +441,7 @@ export default function InvestorOverviewPage() {
                   <p className="text-2xl font-bold tabular-nums text-ui-strong md:text-3xl">
                     {(allocation?.segments.length ?? 0) > 0 ? "100%" : "0%"}
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                  <p className="text-xs font-bold uppercase tracking-widest text-ui-faint">
                     Total
                   </p>
                 </div>
@@ -452,7 +452,7 @@ export default function InvestorOverviewPage() {
                   allocation!.segments.map((item) => (
                     <div
                       key={item.label}
-                      className="flex items-center justify-between gap-3 text-[12px]"
+                      className="flex items-center justify-between gap-3 text-sm"
                     >
                       <div className="flex min-w-0 items-center gap-2.5">
                         <span
@@ -471,7 +471,7 @@ export default function InvestorOverviewPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center text-xs font-medium text-ui-muted-text">
+                  <p className="text-center text-base font-medium text-ui-muted-text">
                     No allocation data yet
                   </p>
                 )}
@@ -487,13 +487,13 @@ export default function InvestorOverviewPage() {
                 <h3 className="text-lg font-bold text-ui-strong md:text-xl">
                   Recent Activity
                 </h3>
-                <p className="mt-0.5 text-xs font-medium text-ui-muted-text">
+                <p className="mt-0.5 text-base font-medium text-ui-muted-text">
                   Capital flows & distributions
                 </p>
               </div>
               <Link
                 href="/investor/hub?tab=transactions"
-                className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-primary transition-colors hover:text-primary/80"
+                className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-primary transition-colors hover:text-primary/80"
               >
                 View all
                 <ChevronRight className="h-4 w-4" strokeWidth={iconStroke} />
@@ -524,22 +524,22 @@ export default function InvestorOverviewPage() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="mb-0.5 truncate text-[13px] font-bold text-ui-strong">
+                      <p className="mb-0.5 truncate text-base font-bold text-ui-strong">
                         {item.name}
                       </p>
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-ui-faint">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-ui-faint">
                         {item.id}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center justify-between gap-3 sm:block sm:text-right">
-                      <p className="text-[13px] font-bold text-ui-success-text sm:mb-0.5">
+                      <p className="text-base font-bold text-ui-success-text sm:mb-0.5">
                         {item.amount}
                       </p>
                       <div className="flex items-center gap-2 sm:justify-end">
                         <span className="rounded bg-ui-muted-deep px-1.5 py-0.5 text-[8px] font-bold uppercase text-ui-muted-text">
                           {item.region}
                         </span>
-                        <p className="text-[10px] font-medium text-ui-placeholder">
+                        <p className="text-xs font-medium text-ui-placeholder">
                           {item.time}
                         </p>
                       </div>
@@ -547,7 +547,7 @@ export default function InvestorOverviewPage() {
                   </div>
                 ))
               ) : (
-                <p className="py-8 text-center text-xs font-medium text-ui-muted-text">
+                <p className="py-8 text-center text-base font-medium text-ui-muted-text">
                   No recent activity
                 </p>
               )}
@@ -560,7 +560,7 @@ export default function InvestorOverviewPage() {
                 <h3 className="text-lg font-bold text-ui-strong md:text-xl">
                   Upcoming
                 </h3>
-                <p className="mt-0.5 text-xs font-medium text-ui-muted-text">
+                <p className="mt-0.5 text-base font-medium text-ui-muted-text">
                   Deadlines & events
                 </p>
               </div>
@@ -583,17 +583,17 @@ export default function InvestorOverviewPage() {
                       />
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] font-bold text-ui-strong">
+                      <p className="truncate text-base font-bold text-ui-strong">
                         {event.title}
                       </p>
-                      <p className="text-[10px] font-medium text-ui-muted-text">
+                      <p className="text-xs font-medium text-ui-muted-text">
                         {event.assetTitle}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="py-8 text-center text-xs font-medium text-ui-muted-text">
+                <p className="py-8 text-center text-base font-medium text-ui-muted-text">
                   No upcoming events
                 </p>
               )}
@@ -601,7 +601,7 @@ export default function InvestorOverviewPage() {
 
             <Link
               href="/investor/hub?tab=overview"
-              className="mt-6 flex w-full items-center justify-center gap-1 rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-[11px] font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
+              className="mt-6 flex w-full items-center justify-center gap-1 rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-xs font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
             >
               Full Calendar
               <ChevronRight className="h-4 w-4" strokeWidth={iconStroke} />

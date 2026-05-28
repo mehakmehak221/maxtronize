@@ -64,21 +64,21 @@ export default function OnboardingLayout({
               />
             </div>
             <div className="hidden md:block h-5 w-px bg-ui-border shrink-0" />
-            <span className="hidden md:block text-sm font-medium text-ui-muted-text truncate">
+            <span className="hidden md:block text-base font-medium text-ui-muted-text truncate">
               Asset Issuance Onboarding
             </span>
           </div>
 
           <div className="flex items-center gap-5 md:gap-8 shrink-0">
             {showSaved && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs md:text-sm font-medium text-emerald-600">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-base md:text-base font-medium text-emerald-600">
                 <Check className="h-4 w-4 shrink-0" strokeWidth={2.5} />
                 Saved
               </span>
             )}
             <Link
               href="/issuer/dashboard"
-              className="text-xs md:text-sm font-semibold text-[#6B7280] hover:text-[#7C3AED] flex items-center gap-1.5 transition-colors"
+              className="text-base md:text-base font-semibold text-[#6B7280] hover:text-[#7C3AED] flex items-center gap-1.5 transition-colors"
             >
               <span className="hidden sm:inline">Skip to Dashboard</span>
               <span className="sm:hidden">Skip</span>
@@ -105,7 +105,7 @@ export default function OnboardingLayout({
       <div className="flex flex-1 min-h-0">
         <aside className="sticky top-[70px] hidden h-[calc(100vh-70px)] w-72 shrink-0 flex-col self-start border-r border-ui-border bg-ui-sidebar py-8 pl-7 pr-5 xl:flex xl:w-80">
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2">
-            <h3 className="mb-6 text-[10px] font-bold uppercase tracking-[0.22em] text-[#9CA3AF]">
+            <h3 className="mb-6 text-xs font-bold uppercase tracking-[0.22em] text-[#9CA3AF]">
               Onboarding Steps
             </h3>
             <nav className="motion-onboarding-nav space-y-1.5 pb-4">
@@ -141,7 +141,7 @@ export default function OnboardingLayout({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p
-                        className={`text-[13px] font-bold leading-snug ${
+                        className={`text-base font-bold leading-snug ${
                           active
                             ? 'text-[#6D28D9]'
                             : done
@@ -152,7 +152,7 @@ export default function OnboardingLayout({
                         {step.name}
                       </p>
                       <p
-                        className={`mt-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${
+                        className={`mt-0.5 text-xs font-semibold uppercase tracking-[0.08em] ${
                           active ? 'text-[#6B7280]' : done ? 'text-[#6B7280]' : 'text-[#E5E7EB]'
                         }`}
                       >
@@ -177,13 +177,13 @@ export default function OnboardingLayout({
               <div className="mb-4 flex h-8 w-8 items-center justify-center rounded-xl border border-ui-border bg-ui-card shadow-sm">
                 <CircleHelp className="h-4 w-4 text-primary" strokeWidth={iconStroke} />
               </div>
-              <h4 className="text-sm font-bold text-ui-strong mb-2">Need help?</h4>
-              <p className="text-[11px] text-ui-muted-text leading-relaxed mb-4">
+              <h4 className="text-base font-bold text-ui-strong mb-2">Need help?</h4>
+              <p className="text-xs text-ui-muted-text leading-relaxed mb-4">
                 Our compliance team is available Mon–Fri 9am–6pm ET to guide you.
               </p>
               <button
                 type="button"
-                className="text-[11px] font-bold text-primary flex items-center gap-2 group-hover:gap-3 transition-all"
+                className="text-xs font-bold text-primary flex items-center gap-2 group-hover:gap-3 transition-all"
               >
                 Talk to Compliance
                 <ChevronRight className="h-3 w-3" strokeWidth={iconStroke} />

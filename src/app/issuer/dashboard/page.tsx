@@ -223,20 +223,20 @@ export default function DashboardPage() {
                 <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">
                   Capital Raised
                 </h3>
-                <p className="text-xs font-medium text-ui-muted-text">
+                <p className="text-base font-medium text-ui-muted-text">
                   Cumulative vs. target · USD millions
                 </p>
               </div>
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
                   <div className="h-1 w-4 rounded-full bg-primary" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-ui-muted-text">
+                  <span className="text-xs font-bold uppercase tracking-widest text-ui-muted-text">
                     Actual
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-0 w-4 border-t-2 border-dashed border-ui-border-strong" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-ui-muted-text">
+                  <span className="text-xs font-bold uppercase tracking-widest text-ui-muted-text">
                     Target
                   </span>
                 </div>
@@ -257,7 +257,7 @@ export default function DashboardPage() {
                     ].map((item, idx) => (
                       <span
                         key={idx}
-                        className="absolute left-0 -translate-y-1/2 text-[10px] font-bold text-ui-placeholder"
+                        className="absolute left-0 -translate-y-1/2 text-xs font-bold text-ui-placeholder"
                         style={{ top: item.top }}
                       >
                         {item.label}
@@ -333,7 +333,7 @@ export default function DashboardPage() {
                 </>
               ) : (
                 <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40">
-                  <p className="text-xs font-medium text-ui-muted-text">
+                  <p className="text-base font-medium text-ui-muted-text">
                     No capital raised data for this period
                   </p>
                 </div>
@@ -343,7 +343,7 @@ export default function DashboardPage() {
               {chartLabels.map((m) => (
                 <span
                   key={m}
-                  className="text-[10px] font-bold uppercase tracking-widest text-ui-placeholder"
+                  className="text-xs font-bold uppercase tracking-widest text-ui-placeholder"
                 >
                   {m}
                 </span>
@@ -367,7 +367,7 @@ export default function DashboardPage() {
                 },
               ].map((item) => (
                 <div key={item.label}>
-                  <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-widest text-ui-faint">
                     {item.label}
                   </p>
                   <p
@@ -385,7 +385,7 @@ export default function DashboardPage() {
               <h3 className="mb-1 text-lg font-bold text-ui-strong md:text-xl">
                 Allocation
               </h3>
-              <p className="text-xs font-medium text-ui-muted-text">
+              <p className="text-base font-medium text-ui-muted-text">
                 By asset class
                 {allocation?.weightBy ? ` · ${allocation.weightBy}` : ""}
               </p>
@@ -404,7 +404,7 @@ export default function DashboardPage() {
                   <p className="text-2xl font-bold tabular-nums text-ui-strong md:text-3xl">
                     {(allocation?.segments.length ?? 0) > 0 ? "100%" : "—"}
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                  <p className="text-xs font-bold uppercase tracking-widest text-ui-faint">
                     Total
                   </p>
                 </div>
@@ -415,7 +415,7 @@ export default function DashboardPage() {
                   allocation!.segments.map((item) => (
                     <div
                       key={item.label}
-                      className="flex items-center justify-between gap-3 text-[12px]"
+                      className="flex items-center justify-between gap-3 text-sm"
                     >
                       <div className="flex min-w-0 items-center gap-2.5">
                         <span
@@ -434,7 +434,7 @@ export default function DashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center text-xs font-medium text-ui-muted-text">
+                  <p className="text-center text-base font-medium text-ui-muted-text">
                     No allocation data yet
                   </p>
                 )}
@@ -451,7 +451,7 @@ export default function DashboardPage() {
               </h3>
               <Link
                 href="/issuer/hub"
-                className="flex shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-primary transition-colors hover:text-primary-dark"
+                className="flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary transition-colors hover:text-primary-dark"
               >
                 View all <span aria-hidden>→</span>
               </Link>
@@ -492,23 +492,23 @@ export default function DashboardPage() {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="mb-0.5 line-clamp-2 text-[13px] font-bold leading-snug text-ui-strong sm:truncate sm:line-clamp-none">
+                        <p className="mb-0.5 line-clamp-2 text-base font-bold leading-snug text-ui-strong sm:truncate sm:line-clamp-none">
                           {activity.name}
                         </p>
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-ui-faint">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-ui-faint">
                           {activity.id}
                         </p>
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center justify-between gap-3 sm:block sm:text-right">
-                      <p className="text-[13px] font-bold text-ui-success-text sm:mb-0.5">
+                      <p className="text-base font-bold text-ui-success-text sm:mb-0.5">
                         {activity.amount}
                       </p>
                       <div className="flex items-center gap-2 sm:justify-end">
                         <span className="rounded bg-ui-muted-deep px-1.5 py-0.5 text-[8px] font-bold uppercase text-ui-muted-text">
                           {activity.region}
                         </span>
-                        <p className="text-[10px] font-medium text-ui-placeholder">
+                        <p className="text-xs font-medium text-ui-placeholder">
                           {activity.time}
                         </p>
                       </div>
@@ -516,7 +516,7 @@ export default function DashboardPage() {
                   </div>
                 ))
               ) : (
-                <p className="py-8 text-center text-xs font-medium text-ui-muted-text">
+                <p className="py-8 text-center text-base font-medium text-ui-muted-text">
                   No recent activity
                 </p>
               )}
@@ -560,17 +560,17 @@ export default function DashboardPage() {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-bold leading-snug text-ui-strong xl:line-clamp-2">
+                      <p className="text-base font-bold leading-snug text-ui-strong xl:line-clamp-2">
                         {event.title}
                       </p>
-                      <p className="text-[10px] font-medium text-ui-muted-text">
+                      <p className="text-xs font-medium text-ui-muted-text">
                         {event.assetTitle}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="flex flex-1 flex-col items-center justify-center py-10 text-center text-xs font-medium text-ui-muted-text">
+                <p className="flex flex-1 flex-col items-center justify-center py-10 text-center text-base font-medium text-ui-muted-text">
                   No upcoming events
                 </p>
               )}
@@ -578,7 +578,7 @@ export default function DashboardPage() {
 
             <Link
               href="/issuer/yield"
-              className="mt-6 block w-full rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-center text-[11px] font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
+              className="mt-6 block w-full rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-center text-xs font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
             >
               Full Calendar <span aria-hidden>→</span>
             </Link>
@@ -620,10 +620,10 @@ export default function DashboardPage() {
                 <action.Icon className="!h-6 !w-6 text-white md:!h-7 md:!w-7" />
               </div>
               <div>
-                <h4 className="mb-1 text-[13px] font-bold text-ui-strong md:text-sm">
+                <h4 className="mb-1 text-base font-bold text-ui-strong md:text-base">
                   {action.label}
                 </h4>
-                <p className="text-[10px] font-medium leading-relaxed text-ui-muted-text md:text-[11px]">
+                <p className="text-xs font-medium leading-relaxed text-ui-muted-text md:text-[11px]">
                   {action.sub}
                 </p>
               </div>

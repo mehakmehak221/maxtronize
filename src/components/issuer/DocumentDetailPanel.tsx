@@ -28,7 +28,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
         {label}
       </p>
-      <p className="text-[13px] font-medium text-ui-strong">{value}</p>
+      <p className="text-base font-medium text-ui-strong">{value}</p>
     </div>
   );
 }
@@ -85,7 +85,7 @@ export function DocumentDetailPanel({
                 {isLoading ? "Loading…" : (doc?.title ?? "Document")}
               </h2>
               {doc?.id ? (
-                <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-ui-faint">
+                <p className="mt-1 text-xs font-medium uppercase tracking-widest text-ui-faint">
                   DOC · {doc.id}
                 </p>
               ) : null}
@@ -103,13 +103,13 @@ export function DocumentDetailPanel({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
           {error ? (
-            <p className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700">
               {formatRequestError(error)}
             </p>
           ) : null}
 
           {isLoading ? (
-            <p className="text-sm text-ui-muted-text">Loading document…</p>
+            <p className="text-base text-ui-muted-text">Loading document…</p>
           ) : doc ? (
             <div className="space-y-5">
               <div className="flex flex-wrap gap-2">
@@ -122,7 +122,7 @@ export function DocumentDetailPanel({
               <DetailRow label="Category" value={doc.category} />
             </div>
           ) : (
-            <p className="text-sm text-ui-muted-text">Document not found.</p>
+            <p className="text-base text-ui-muted-text">Document not found.</p>
           )}
         </div>
       </div>

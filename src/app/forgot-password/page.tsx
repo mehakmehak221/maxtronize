@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
           <button
             type="button"
             onClick={() => router.push("/signin")}
-            className="mb-4 flex items-center gap-1.5 text-xs font-bold text-[#6B7280] transition-colors hover:text-[#7C3AED]"
+            className="mb-4 flex items-center gap-1.5 text-base font-bold text-[#6B7280] transition-colors hover:text-[#7C3AED]"
           >
             <svg
               className="h-4 w-4"
@@ -130,21 +130,21 @@ export default function ForgotPasswordPage() {
           <h2 className="mb-2 text-xl font-bold text-[#111827] sm:text-2xl">
             {stepTitle}
           </h2>
-          <p className="text-sm leading-relaxed text-[#6B7280]">
+          <p className="text-base leading-relaxed text-[#6B7280]">
             {stepDescription}
           </p>
         </div>
 
         {formError && (
           <p
-            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700"
             role="alert"
           >
             {formError}
           </p>
         )}
         {successMessage && step !== "email" && (
-          <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-base text-emerald-700">
             {successMessage}
           </p>
         )}
@@ -152,7 +152,7 @@ export default function ForgotPasswordPage() {
         {step === "email" && (
           <form className="space-y-6" onSubmit={handleEmailSubmit}>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+              <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
                 Work Email
               </label>
               <input
@@ -162,13 +162,13 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 placeholder="alex@maxtronize.com"
-                className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
+                className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
               />
             </div>
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary group flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-bold text-white shadow-lg shadow-[#8B5CF6]/25 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 disabled:opacity-60"
+              className="btn-gradient-primary group flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 disabled:opacity-60"
             >
               {sending ? "Sending…" : "Send reset code"}
               <svg
@@ -192,7 +192,7 @@ export default function ForgotPasswordPage() {
         {step === "otp" && (
           <form className="space-y-6" onSubmit={handleOtpSubmit}>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+              <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
                 One-time code
               </label>
               <input
@@ -204,19 +204,19 @@ export default function ForgotPasswordPage() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 placeholder="123456"
-                className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
+                className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
               />
             </div>
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary w-full rounded-xl py-4 text-sm font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
+              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
             >
               {verifying ? "Verifying…" : "Verify code"}
             </button>
             <button
               type="button"
-              className="w-full text-sm font-semibold text-[#7C3AED] hover:underline"
+              className="w-full text-base font-semibold text-[#7C3AED] hover:underline"
               onClick={() => {
                 setStep("email");
                 setFormError(null);
@@ -231,7 +231,7 @@ export default function ForgotPasswordPage() {
         {step === "password" && (
           <form className="space-y-6" onSubmit={handlePasswordSubmit}>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+              <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
                 New password
               </label>
               <input
@@ -242,20 +242,20 @@ export default function ForgotPasswordPage() {
                 autoComplete="new-password"
                 minLength={8}
                 placeholder="Create a new password"
-                className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
+                className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
               />
             </div>
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary w-full rounded-xl py-4 text-sm font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
+              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
             >
               {resetting ? "Saving…" : "Update password"}
             </button>
           </form>
         )}
 
-        <p className="text-center text-xs leading-relaxed text-[#9CA3AF]">
+        <p className="text-center text-base leading-relaxed text-[#9CA3AF]">
           Codes expire after 30 minutes. Need help?{" "}
           <Link
             href="mailto:support@maxtronize.com"

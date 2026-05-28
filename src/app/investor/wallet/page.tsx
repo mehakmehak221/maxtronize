@@ -158,7 +158,7 @@ function WalletActionForm({
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-ui-strong">{title}</h2>
-          <p className="mt-1 text-sm text-ui-muted-text">
+          <p className="mt-1 text-base text-ui-muted-text">
             {action === 'connect'
               ? 'Add a wallet connection using the live investor wallet API.'
               : 'Submit this action through the live investor wallet API.'}
@@ -167,7 +167,7 @@ function WalletActionForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl border border-ui-border px-3 py-2 text-xs font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+          className="rounded-xl border border-ui-border px-3 py-2 text-base font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
         >
           Close
         </button>
@@ -177,7 +177,7 @@ function WalletActionForm({
         {action !== 'connect' ? (
           <>
             <label className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Amount</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Amount</span>
               <input
                 type="number"
                 min="0"
@@ -186,19 +186,19 @@ function WalletActionForm({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, amount: event.target.value }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                 placeholder="1000"
               />
             </label>
             <label className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Currency</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Currency</span>
               <input
                 type="text"
                 value={form.currency}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, currency: event.target.value.toUpperCase() }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                 placeholder="USD"
               />
             </label>
@@ -206,26 +206,26 @@ function WalletActionForm({
         ) : (
           <>
             <label className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Wallet Name</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Wallet Name</span>
               <input
                 type="text"
                 value={form.name}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, name: event.target.value }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                 placeholder="Primary Wallet"
               />
             </label>
             <label className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Network</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Network</span>
               <input
                 type="text"
                 value={form.network}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, network: event.target.value }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                 placeholder="Ethereum"
               />
             </label>
@@ -234,14 +234,14 @@ function WalletActionForm({
 
         {action === 'transfer' ? (
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Recipient Address</span>
+            <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Recipient Address</span>
             <input
               type="text"
               value={form.recipientAddress}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, recipientAddress: event.target.value }))
               }
-              className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+              className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
               placeholder="0x..."
             />
           </label>
@@ -249,14 +249,14 @@ function WalletActionForm({
 
         {action === 'connect' ? (
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Wallet Address</span>
+            <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Wallet Address</span>
             <input
               type="text"
               value={form.address}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, address: event.target.value }))
               }
-              className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+              className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
               placeholder="0x..."
             />
           </label>
@@ -264,12 +264,12 @@ function WalletActionForm({
       </div>
 
       {error ? (
-        <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-base font-medium text-red-700">
           {error}
         </p>
       ) : null}
       {success ? (
-        <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+        <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-base font-medium text-emerald-700">
           {success}
         </p>
       ) : null}
@@ -279,14 +279,14 @@ function WalletActionForm({
           type="button"
           onClick={() => void onSubmit()}
           disabled={isSubmitting}
-          className="rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2xl bg-primary px-5 py-3 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? 'Submitting...' : submitLabel}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-2xl border border-ui-border px-5 py-3 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+          className="rounded-2xl border border-ui-border px-5 py-3 text-base font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
         >
           Cancel
         </button>
@@ -454,7 +454,7 @@ export default function InvestorWalletPage() {
       <div className="space-y-6 animate-in fade-in duration-700">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Wallet</h1>
-          <p className="mt-1 text-sm font-medium text-ui-faint">
+          <p className="mt-1 text-base font-medium text-ui-faint">
             Connected wallets, token holdings, and on-chain transaction history.
           </p>
         </div>
@@ -466,7 +466,7 @@ export default function InvestorWalletPage() {
             <div className="min-w-0">
               <div className="mb-3 flex items-center gap-2">
                 <Wallet className="h-4 w-4 shrink-0 text-white/50" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Total Portfolio Value</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-white/50">Total Portfolio Value</p>
               </div>
               <p className="text-4xl font-bold tracking-tight md:text-6xl">{totalValueFormatted}</p>
               <span className="motion-chart mt-2 block w-fit">
@@ -486,10 +486,10 @@ export default function InvestorWalletPage() {
                   />
                 </svg>
               </span>
-              <p className="mt-3 text-[11px] font-medium text-white/45">
+              <p className="mt-3 text-xs font-medium text-white/45">
                 {(summary?.walletCount ?? wallets.length)} connected {(summary?.walletCount ?? wallets.length) === 1 ? 'wallet' : 'wallets'} · {(summary?.holdingCount ?? holdings.length)} token {(summary?.holdingCount ?? holdings.length) === 1 ? 'position' : 'positions'}
               </p>
-              <p className="mt-1.5 flex items-center gap-1 text-[12px] font-bold text-emerald-400">
+              <p className="mt-1.5 flex items-center gap-1 text-sm font-bold text-emerald-400">
                 <span aria-hidden>↗</span> {monthlyChangeText}
               </p>
             </div>
@@ -499,7 +499,7 @@ export default function InvestorWalletPage() {
                   key={action.label}
                   type="button"
                   onClick={action.onClick}
-                  className={`flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[13px] font-bold transition-all hover:scale-[1.01] active:scale-[0.99] ${
+                  className={`flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-base font-bold transition-all hover:scale-[1.01] active:scale-[0.99] ${
                     action.primary
                       ? 'bg-white text-slate-900 shadow-lg hover:bg-white/95'
                       : 'border border-white/75 bg-transparent text-white hover:bg-white/10'
@@ -529,7 +529,7 @@ export default function InvestorWalletPage() {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 2xl:grid-cols-3">
           <section className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:rounded-[32px]">
             <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
-              <h3 className="text-[14px] font-bold text-ui-strong">Connected Wallets</h3>
+              <h3 className="text-base font-bold text-ui-strong">Connected Wallets</h3>
               <button
                 type="button"
                 onClick={() => openAction('connect')}
@@ -541,7 +541,7 @@ export default function InvestorWalletPage() {
             </div>
             <div className="space-y-3 p-4">
               {isLoading ? (
-                <p className="rounded-2xl bg-ui-muted px-4 py-6 text-center text-sm font-medium text-ui-muted-text">
+                <p className="rounded-2xl bg-ui-muted px-4 py-6 text-center text-base font-medium text-ui-muted-text">
                   Loading wallets...
                 </p>
               ) : wallets.length > 0 ? (
@@ -558,11 +558,11 @@ export default function InvestorWalletPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-[13px] font-bold text-ui-strong">{wallet.name}</p>
+                          <p className="truncate text-base font-bold text-ui-strong">{wallet.name}</p>
                           {wallet.connected ? <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" /> : null}
                         </div>
-                        <p className="text-[10px] font-medium text-ui-faint">{wallet.network}</p>
-                        <p className="mt-0.5 text-[11px] font-bold text-ui-body">{wallet.balance}</p>
+                        <p className="text-xs font-medium text-ui-faint">{wallet.network}</p>
+                        <p className="mt-0.5 text-xs font-bold text-ui-body">{wallet.balance}</p>
                         <div className="mt-0.5 flex items-center gap-1.5">
                           <p className="truncate font-mono text-[9px] text-ui-placeholder">{wallet.address}</p>
                           <button
@@ -595,8 +595,8 @@ export default function InvestorWalletPage() {
                 })
               ) : (
                 <div className="rounded-2xl border border-dashed border-ui-border px-4 py-8 text-center">
-                  <p className="text-sm font-bold text-ui-strong">No connected wallets yet</p>
-                  <p className="mt-1 text-xs font-medium text-ui-muted-text">
+                  <p className="text-base font-bold text-ui-strong">No connected wallets yet</p>
+                  <p className="mt-1 text-base font-medium text-ui-muted-text">
                     Connect an investor wallet to start using wallet actions.
                   </p>
                 </div>
@@ -606,8 +606,8 @@ export default function InvestorWalletPage() {
 
           <section id="investor-wallet-holdings" className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:rounded-[32px]">
             <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
-              <h3 className="text-[14px] font-bold text-ui-strong">Token Holdings</h3>
-              <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-primary dark:bg-violet-950/50 dark:text-violet-300">
+              <h3 className="text-base font-bold text-ui-strong">Token Holdings</h3>
+              <span className="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-bold text-primary dark:bg-violet-950/50 dark:text-violet-300">
                 {holdings.length} {holdings.length === 1 ? 'position' : 'positions'}
               </span>
             </div>
@@ -617,7 +617,7 @@ export default function InvestorWalletPage() {
                   <div>
                     <div className="mb-2 flex items-center justify-between">
                       <p className="text-[9px] font-bold uppercase tracking-widest text-ui-faint">Portfolio Distribution</p>
-                      <p className="text-[11px] font-bold text-ui-strong">{totalValueFormatted} total</p>
+                      <p className="text-xs font-bold text-ui-strong">{totalValueFormatted} total</p>
                     </div>
                     <div className="flex h-2.5 w-full overflow-hidden rounded-full">
                       {holdings.map((holding, index) => (
@@ -637,17 +637,17 @@ export default function InvestorWalletPage() {
                         className="group flex items-center gap-3 rounded-2xl p-3 transition-colors hover:bg-ui-muted-deep"
                       >
                         <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[10px] font-bold text-white ${holding.color || 'bg-violet-600'}`}
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white ${holding.color || 'bg-violet-600'}`}
                         >
                           {holding.ticker.slice(0, 2)}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[12px] font-bold text-ui-strong">{holding.ticker}</p>
-                          <p className="truncate text-[10px] font-medium text-ui-faint">{holding.name}</p>
+                          <p className="truncate text-sm font-bold text-ui-strong">{holding.ticker}</p>
+                          <p className="truncate text-xs font-medium text-ui-faint">{holding.name}</p>
                         </div>
                         <div className="shrink-0 text-right">
-                          <p className="text-[13px] font-bold text-ui-strong">{holding.value}</p>
-                          <p className={`text-[10px] font-bold ${holding.up ? 'text-emerald-500' : 'text-red-500'}`}>
+                          <p className="text-base font-bold text-ui-strong">{holding.value}</p>
+                          <p className={`text-xs font-bold ${holding.up ? 'text-emerald-500' : 'text-red-500'}`}>
                             {holding.up ? '↗ ' : '↙ '}
                             {holding.change}
                           </p>
@@ -658,8 +658,8 @@ export default function InvestorWalletPage() {
                 </>
               ) : (
                 <div className="rounded-2xl border border-dashed border-ui-border px-4 py-8 text-center">
-                  <p className="text-sm font-bold text-ui-strong">No holdings yet</p>
-                  <p className="mt-1 text-xs font-medium text-ui-muted-text">
+                  <p className="text-base font-bold text-ui-strong">No holdings yet</p>
+                  <p className="mt-1 text-base font-medium text-ui-muted-text">
                     Holdings will appear here once your investor wallet owns tokenized assets.
                   </p>
                 </div>
@@ -667,7 +667,7 @@ export default function InvestorWalletPage() {
 
               <Link
                 href="/investor/portfolio"
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ui-border py-3 text-[12px] font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ui-border py-3 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep"
               >
                 All Holdings
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -679,7 +679,7 @@ export default function InvestorWalletPage() {
 
           <section id="investor-wallet-transactions" className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:col-span-2 md:rounded-[32px] 2xl:col-span-1">
             <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
-              <h3 className="text-[14px] font-bold text-ui-strong">Transactions</h3>
+              <h3 className="text-base font-bold text-ui-strong">Transactions</h3>
               <div className="flex items-center gap-2">
                 <div className="relative flex h-4 w-4 items-center justify-center">
                   <span className="absolute h-2 w-2 animate-ping rounded-full bg-red-500/60" />
@@ -694,7 +694,7 @@ export default function InvestorWalletPage() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-red-500">Live</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-red-500">Live</span>
               </div>
             </div>
             <div className="divide-y divide-ui-divider">
@@ -723,14 +723,14 @@ export default function InvestorWalletPage() {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[12px] font-bold text-ui-strong transition-colors group-hover:text-primary">
+                        <p className="truncate text-sm font-bold text-ui-strong transition-colors group-hover:text-primary">
                           {transaction.label}
                         </p>
-                        <p className="text-[10px] font-medium text-ui-faint">{transaction.time}</p>
+                        <p className="text-xs font-medium text-ui-faint">{transaction.time}</p>
                       </div>
                       <div className="shrink-0 text-right">
                         <p
-                          className={`text-[13px] font-bold ${
+                          className={`text-base font-bold ${
                             isWithdraw ? 'text-ui-strong' : positive ? 'text-emerald-500' : 'text-red-500'
                           }`}
                         >
@@ -746,7 +746,7 @@ export default function InvestorWalletPage() {
                   );
                 })
               ) : (
-                <p className="px-6 py-10 text-center text-sm font-medium text-ui-muted-text">
+                <p className="px-6 py-10 text-center text-base font-medium text-ui-muted-text">
                   No wallet transactions yet.
                 </p>
               )}
@@ -754,7 +754,7 @@ export default function InvestorWalletPage() {
             <div className="border-t border-ui-divider p-4 md:p-5">
               <Link
                 href="/investor/hub?tab=transactions"
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ui-border py-3 text-[12px] font-bold text-ui-muted-text transition-all hover:bg-ui-muted"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ui-border py-3 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted"
               >
                 Full History
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

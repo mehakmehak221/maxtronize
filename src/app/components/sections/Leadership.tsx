@@ -109,7 +109,7 @@ export default function Leadership() {
                   <h3 className="text-[20px] md:text-[22px] font-semibold text-[#1a1a1a] font-teachers">
                     {leader.name}
                   </h3>
-                  <p className="text-[14px] md:text-[15px] text-[#4E449A]/70 font-medium tracking-wide uppercase">
+                  <p className="text-base md:text-[15px] text-[#4E449A]/70 font-medium tracking-wide uppercase">
                     {leader.role}
                   </p>
                 </div>
@@ -119,7 +119,7 @@ export default function Leadership() {
                   {leader.bio.map((paragraph, pIndex) => (
                     <p 
                       key={pIndex} 
-                      className="text-[14px] md:text-[15px] text-slate-600 leading-relaxed text-center font-inter"
+                      className="text-base md:text-[15px] text-slate-600 leading-relaxed text-center font-inter"
                     >
                       {paragraph}
                     </p>
@@ -135,7 +135,7 @@ export default function Leadership() {
                 href="https://www.maxtron.ai/our-team"
                 whileHover={{ x: 5, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-fit group relative flex items-center gap-3 rounded-md bg-[#1A1A1A] pl-5 pr-4 py-2.5 text-[14px] font-medium text-white transition-all shadow-md hover:shadow-lg overflow-hidden"
+                className="w-fit group relative flex items-center gap-3 rounded-md bg-[#1A1A1A] pl-5 pr-4 py-2.5 text-base font-medium text-white transition-all shadow-md hover:shadow-lg overflow-hidden"
               >
                 <motion.span
                   className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"

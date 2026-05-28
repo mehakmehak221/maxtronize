@@ -277,7 +277,7 @@ export default function IssuerHubPage() {
               <h3 className="text-lg font-bold text-foreground sm:text-xl">
                 {aiConfig?.name || 'Maxtronize AI Assistant'}
               </h3>
-              <p className="mt-0.5 text-xs font-semibold text-primary sm:text-[13px]">
+              <p className="mt-0.5 text-base font-semibold text-primary sm:text-[13px]">
                 {aiConfig?.subtitle || 'Strategy · Compliance · Pricing · Investor Insights'}
               </p>
             </div>
@@ -285,7 +285,7 @@ export default function IssuerHubPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2 self-start rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-2 sm:self-auto dark:border-emerald-700/60 dark:bg-emerald-950/50">
               <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
                 {aiConfig?.status || 'Live'}
               </span>
             </div>
@@ -293,7 +293,7 @@ export default function IssuerHubPage() {
               type="button"
               onClick={() => void handleAiBootstrap()}
               disabled={isBootstrappingAi}
-              className="inline-flex items-center gap-2 rounded-full border border-card-border bg-surface px-4 py-2 text-[11px] font-bold text-foreground transition-colors hover:border-primary/30 hover:text-primary disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-full border border-card-border bg-surface px-4 py-2 text-xs font-bold text-foreground transition-colors hover:border-primary/30 hover:text-primary disabled:opacity-60"
             >
               <RefreshCw
                 className={`h-3.5 w-3.5 ${isBootstrappingAi ? 'animate-spin' : ''}`}
@@ -306,19 +306,19 @@ export default function IssuerHubPage() {
 
         <div className="space-y-6 p-6 sm:p-8 md:px-10 md:py-9">
           {aiStatusMsg ? (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 dark:border-emerald-700/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-base font-semibold text-emerald-700 dark:border-emerald-700/60 dark:bg-emerald-950/40 dark:text-emerald-300">
               {aiStatusMsg}
             </div>
           ) : null}
 
           {aiErrorMsg || aiInitError ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 dark:border-rose-700/60 dark:bg-rose-950/40 dark:text-rose-300">
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-base font-semibold text-rose-700 dark:border-rose-700/60 dark:bg-rose-950/40 dark:text-rose-300">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span>{aiErrorMsg || formatRequestError(aiInitError)}</span>
                 <button
                   type="button"
                   onClick={() => refetchAiInit()}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-bold text-rose-700 transition-colors hover:border-rose-300 dark:border-rose-800 dark:bg-transparent dark:text-rose-300"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-bold text-rose-700 transition-colors hover:border-rose-300 dark:border-rose-800 dark:bg-transparent dark:text-rose-300"
                 >
                   <RefreshCw className="h-3.5 w-3.5" strokeWidth={iconStroke} />
                   Retry
@@ -353,11 +353,11 @@ export default function IssuerHubPage() {
                           : 'rounded-tr-md border border-card-border bg-surface dark:border-zinc-700 dark:bg-zinc-900/60'
                       }`}
                     >
-                      <p className="text-sm leading-relaxed text-foreground sm:text-[15px] sm:leading-relaxed">
+                      <p className="text-base leading-relaxed text-foreground sm:text-[15px] sm:leading-relaxed">
                         {message.content}
                       </p>
                       {message.createdAt ? (
-                        <p className="mt-4 text-[10px] font-medium text-text-muted sm:text-[11px]">
+                        <p className="mt-4 text-xs font-medium text-text-muted sm:text-[11px]">
                           {message.createdAt}
                         </p>
                       ) : null}
@@ -373,10 +373,10 @@ export default function IssuerHubPage() {
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-card-border bg-surface px-5 py-8 text-center">
-              <p className="text-sm font-semibold text-foreground">
+              <p className="text-base font-semibold text-foreground">
                 The assistant is ready to help with offering structure, compliance, and investor strategy.
               </p>
-              <p className="mt-2 text-xs text-text-muted">
+              <p className="mt-2 text-base text-text-muted">
                 Initialize the assistant or send your first message to start a live thread.
               </p>
             </div>
@@ -390,7 +390,7 @@ export default function IssuerHubPage() {
                     type="button"
                     onClick={() => void handleAiSend(prompt.text)}
                     disabled={isSendingAi}
-                    className="max-w-full rounded-full border border-card-border bg-surface px-5 py-2.5 text-left text-[11px] font-semibold text-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-violet-50/80 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-violet-500/40 dark:hover:bg-violet-950/40"
+                    className="max-w-full rounded-full border border-card-border bg-surface px-5 py-2.5 text-left text-xs font-semibold text-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-violet-50/80 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-violet-500/40 dark:hover:bg-violet-950/40"
                   >
                     {prompt.text}
                   </button>
@@ -404,7 +404,7 @@ export default function IssuerHubPage() {
                     key={prompt}
                     type="button"
                     onClick={() => setAiDraft(prompt)}
-                    className="max-w-full rounded-full border border-card-border bg-surface px-5 py-2.5 text-left text-[11px] font-semibold text-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-violet-50/80 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-violet-500/40 dark:hover:bg-violet-950/40"
+                    className="max-w-full rounded-full border border-card-border bg-surface px-5 py-2.5 text-left text-xs font-semibold text-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-violet-50/80 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-violet-500/40 dark:hover:bg-violet-950/40"
                   >
                     {prompt}
                   </button>
@@ -425,7 +425,7 @@ export default function IssuerHubPage() {
                 }
               }}
               placeholder="Ask about offering structure, pricing, compliance, investor insights..."
-              className="min-w-0 flex-1 bg-transparent py-0.5 text-sm text-foreground outline-none placeholder:text-text-muted sm:text-[15px]"
+              className="min-w-0 flex-1 bg-transparent py-0.5 text-base text-foreground outline-none placeholder:text-text-muted sm:text-[15px]"
             />
             <button
               type="button"
@@ -448,7 +448,7 @@ export default function IssuerHubPage() {
         <header className="-mx-5 mb-6 flex flex-col gap-3 px-5 py-4 sm:-mx-6 sm:px-6 md:-mx-8 md:mb-8 md:flex md:h-16 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-0 lg:mb-10">
           <div className="flex min-w-0 flex-col gap-0.5 md:flex-row md:items-baseline md:gap-2.5">
             <h1 className="truncate text-lg font-bold tracking-tight text-foreground">Issuer Hub</h1>
-            <span className="truncate text-xs font-semibold text-primary">
+            <span className="truncate text-base font-semibold text-primary">
               {overviewSummary?.organizationName?.trim() || 'Issuer Hub'}
             </span>
           </div>
@@ -457,7 +457,7 @@ export default function IssuerHubPage() {
               <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span className="text-[10px] font-bold uppercase tracking-widest">
+              <span className="text-xs font-bold uppercase tracking-widest">
                 {overviewSummary?.updatedAt
                   ? `Updated ${formatHubUpdatedAt(overviewSummary.updatedAt)}`
                   : 'Updated —'}
@@ -478,7 +478,7 @@ export default function IssuerHubPage() {
                 value={hubSearchValue}
                 onChange={(event) => onHubSearchChange(event.target.value)}
                 placeholder={hubSearchPlaceholder}
-                className="h-9 w-full rounded-full border border-card-border bg-card py-1.5 pl-9 pr-4 text-xs text-foreground outline-none focus:border-primary md:w-64"
+                className="h-9 w-full rounded-full border border-card-border bg-card py-1.5 pl-9 pr-4 text-base text-foreground outline-none focus:border-primary md:w-64"
               />
             </div>
           </div>
@@ -499,7 +499,7 @@ export default function IssuerHubPage() {
                 }`}
               >
                 <TabIcon Icon={tab.icon} active={active} />
-                <span className="whitespace-nowrap text-[13px]">{tab.name}</span>
+                <span className="whitespace-nowrap text-base">{tab.name}</span>
                 {tab.showDot ? (
                   <span
                     className="ml-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary ring-2 ring-card"

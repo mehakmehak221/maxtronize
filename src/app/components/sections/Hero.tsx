@@ -61,11 +61,11 @@ export default function Hero() {
 
           <div className="mt-8 flex items-center gap-4">
             <motion.a
-              href="https://beta.maxtronize.com/signin"
+              href="/signin"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="relative overflow-hidden px-6 py-3 bg-white text-black text-sm font-medium rounded-sm shadow-md"
+              className="relative overflow-hidden px-6 py-3 bg-white text-black text-base font-medium rounded-sm shadow-md"
             >
               <span className="relative z-10">Get started</span>
 
@@ -84,7 +84,7 @@ export default function Hero() {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="relative overflow-hidden px-6 py-3 border border-white text-white text-sm font-medium rounded-sm"
+              className="relative overflow-hidden px-6 py-3 border border-white text-white text-base font-medium rounded-sm"
             >
               <span className="relative z-10">Book a demo</span>
 

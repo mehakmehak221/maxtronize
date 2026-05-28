@@ -12,7 +12,7 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export default function Avatar({ src, name = "", size = "md", online = false, className = "", ...props }: AvatarProps) {
   const initials = name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase();
-  const sizes: Record<string, string> = { xs: "w-6 h-6 text-[10px]", sm: "w-8 h-8 text-xs", md: "w-10 h-10 text-sm", lg: "w-12 h-12 text-base", xl: "w-16 h-16 text-lg" };
+  const sizes: Record<string, string> = { xs: "w-6 h-6 text-xs", sm: "w-8 h-8 text-base", md: "w-10 h-10 text-base", lg: "w-12 h-12 text-base", xl: "w-16 h-16 text-lg" };
   const badgeSizes: Record<string, string> = { xs: "w-1.5 h-1.5 -bottom-0.5 -right-0.5", sm: "w-2 h-2 -bottom-0.5 -right-0.5", md: "w-2.5 h-2.5 bottom-0 right-0", lg: "w-3 h-3 bottom-0 right-0", xl: "w-3.5 h-3.5 bottom-0.5 right-0.5" };
   return (
     <div className={`relative inline-flex shrink-0 ${className}`} {...props}>

@@ -79,13 +79,13 @@ export function ComingSoonModal({
           <Sparkles className="h-6 w-6" strokeWidth={iconStroke} aria-hidden />
         </div>
 
-        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
           AI Intelligence
         </p>
         <h2 id="coming-soon-title" className="pr-8 text-xl font-bold tracking-tight text-ui-strong sm:text-2xl">
           {title}
         </h2>
-        <p className="mt-3 text-sm font-medium leading-relaxed text-ui-muted-text">
+        <p className="mt-3 text-base font-medium leading-relaxed text-ui-muted-text">
           {description}
         </p>
 
@@ -93,11 +93,11 @@ export function ComingSoonModal({
           <button
             type="button"
             onClick={onClose}
-            className="btn-gradient-primary w-full rounded-2xl py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
+            className="btn-gradient-primary w-full rounded-2xl py-3.5 text-base font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
           >
             Got it — preview the modules
           </button>
-          <p className="text-center text-xs font-medium leading-relaxed text-ui-faint">
+          <p className="text-center text-base font-medium leading-relaxed text-ui-faint">
             {dismissNote}
           </p>
         </div>

@@ -20,7 +20,7 @@ const statusStyles: Record<string, { dot: string; text: string }> = {
 function InvestorAvatar({ name }: { name: string }) {
   return (
     <div
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/10 bg-primary/5 text-xs font-bold text-primary"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/10 bg-primary/5 text-base font-bold text-primary"
       aria-hidden
     >
       {name
@@ -50,18 +50,18 @@ export default function InvestorsPage() {
         <input
           type="search"
           placeholder="Search by name, email, or type..."
-          className="w-full rounded-xl border border-transparent bg-ui-muted-deep py-3 pl-12 pr-4 text-[13px] font-medium text-ui-strong outline-none transition-all focus:border-primary/20 focus:bg-ui-input-focus"
+          className="w-full rounded-xl border border-transparent bg-ui-muted-deep py-3 pl-12 pr-4 text-base font-medium text-ui-strong outline-none transition-all focus:border-primary/20 focus:bg-ui-input-focus"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:shrink-0">
-        <select className="w-full rounded-lg border border-transparent bg-ui-muted-deep px-4 py-2.5 text-xs font-bold text-ui-muted-text outline-none sm:w-auto">
+        <select className="w-full rounded-lg border border-transparent bg-ui-muted-deep px-4 py-2.5 text-base font-bold text-ui-muted-text outline-none sm:w-auto">
           <option>All Statuses</option>
           <option>Approved</option>
           <option>Pending</option>
         </select>
-        <select className="w-full rounded-lg border border-transparent bg-ui-muted-deep px-4 py-2.5 text-xs font-bold text-ui-muted-text outline-none sm:w-auto">
+        <select className="w-full rounded-lg border border-transparent bg-ui-muted-deep px-4 py-2.5 text-base font-bold text-ui-muted-text outline-none sm:w-auto">
           <option>All Types</option>
           <option>Accredited</option>
           <option>Institutional</option>
@@ -76,20 +76,20 @@ export default function InvestorsPage() {
         <header className="flex flex-col gap-4 sm:gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="min-w-0 space-y-1 sm:space-y-2">
             <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">Investors</h1>
-            <p className="text-sm font-medium text-ui-faint sm:text-base">
+            <p className="text-base font-medium text-ui-faint sm:text-base">
               Manage your institutional and accredited investor base.
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap xl:w-auto xl:justify-end">
             <button
               type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-3 text-[13px] font-bold text-ui-strong shadow-sm transition-all hover:bg-ui-muted-deep sm:w-auto sm:px-6"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-3 text-base font-bold text-ui-strong shadow-sm transition-all hover:bg-ui-muted-deep sm:w-auto sm:px-6"
             >
               <span aria-hidden>📥</span> Export List
             </button>
             <button
               type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-[13px] font-bold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl sm:w-auto sm:px-6"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-base font-bold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl sm:w-auto sm:px-6"
             >
               <span aria-hidden>➕</span> Invite Investor
             </button>
@@ -107,11 +107,11 @@ export default function InvestorsPage() {
               key={i}
               className="rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm transition-all hover:border-primary/20 sm:rounded-3xl sm:p-6 xl:rounded-[32px] xl:p-8"
             >
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-ui-faint">{stat.label}</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-ui-faint">{stat.label}</p>
               <div className="flex items-end justify-between gap-3">
                 <h3 className="text-2xl font-bold tracking-tight tabular-nums text-ui-strong">{stat.val}</h3>
                 <span
-                  className={`shrink-0 text-[10px] font-bold ${stat.trend.startsWith('+') ? stat.color : 'text-ui-faint'}`}
+                  className={`shrink-0 text-xs font-bold ${stat.trend.startsWith('+') ? stat.color : 'text-ui-faint'}`}
                 >
                   {stat.trend}
                 </span>
@@ -124,7 +124,7 @@ export default function InvestorsPage() {
         <div className="space-y-4 lg:hidden">
           <div className="flex flex-col gap-4 rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm sm:p-5">
             {filterBar}
-            <p className="text-center text-[11px] font-medium text-ui-faint sm:text-left">
+            <p className="text-center text-xs font-medium text-ui-faint sm:text-left">
               Showing {filtered.length} of 1,284 investors
             </p>
           </div>
@@ -141,16 +141,16 @@ export default function InvestorsPage() {
                     <div className="flex min-w-0 items-center gap-3">
                       <InvestorAvatar name={inv.name} />
                       <div className="min-w-0">
-                        <p className="truncate text-[13px] font-bold text-ui-strong">{inv.name}</p>
-                        <p className="truncate text-[10px] font-medium text-ui-faint">{inv.email}</p>
+                        <p className="truncate text-base font-bold text-ui-strong">{inv.name}</p>
+                        <p className="truncate text-xs font-medium text-ui-faint">{inv.email}</p>
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} aria-hidden />
-                      <span className={`text-[10px] font-bold ${status.text}`}>{inv.status}</span>
+                      <span className={`text-xs font-bold ${status.text}`}>{inv.status}</span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 border-t border-ui-divider pt-3 text-[11px]">
+                  <div className="grid grid-cols-2 gap-3 border-t border-ui-divider pt-3 text-xs">
                     <div>
                       <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Type</p>
                       <p className="font-bold text-ui-body">{inv.type}</p>
@@ -187,7 +187,7 @@ export default function InvestorsPage() {
                   {['Investor', 'Type', 'Status', 'Active Assets', 'Total Investment', 'Last Active', ''].map((h) => (
                     <th
                       key={h || 'actions'}
-                      className={`px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
+                      className={`px-4 py-4 text-xs font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
                         h === 'Investor' ? 'sticky left-0 z-10 bg-ui-muted-surface' : ''
                       } ${h === 'Last Active' ? 'hidden xl:table-cell' : ''} ${h === 'Type' ? 'hidden md:table-cell' : ''}`}
                     >
@@ -205,29 +205,29 @@ export default function InvestorsPage() {
                         <div className="flex min-w-[200px] items-center gap-3">
                           <InvestorAvatar name={inv.name} />
                           <div className="min-w-0">
-                            <p className="truncate text-[13px] font-bold text-ui-strong">{inv.name}</p>
-                            <p className="truncate text-[10px] font-medium text-ui-faint">{inv.email}</p>
+                            <p className="truncate text-base font-bold text-ui-strong">{inv.name}</p>
+                            <p className="truncate text-xs font-medium text-ui-faint">{inv.email}</p>
                           </div>
                         </div>
                       </td>
                       <td className="hidden px-4 py-5 md:table-cell xl:px-8 xl:py-6">
-                        <span className="inline-block max-w-[140px] truncate rounded-full bg-ui-muted-deep px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-ui-body">
+                        <span className="inline-block max-w-[140px] truncate rounded-full bg-ui-muted-deep px-3 py-1 text-xs font-bold uppercase tracking-wider text-ui-body">
                           {inv.type}
                         </span>
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
                         <div className="flex items-center gap-2">
                           <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status.dot}`} aria-hidden />
-                          <span className={`whitespace-nowrap text-[11px] font-bold ${status.text}`}>{inv.status}</span>
+                          <span className={`whitespace-nowrap text-xs font-bold ${status.text}`}>{inv.status}</span>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-5 text-[13px] font-bold text-ui-strong xl:px-8 xl:py-6">
+                      <td className="whitespace-nowrap px-4 py-5 text-base font-bold text-ui-strong xl:px-8 xl:py-6">
                         {inv.assets} {inv.assets === 1 ? 'asset' : 'assets'}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-5 text-[13px] font-bold tabular-nums text-ui-strong xl:px-8 xl:py-6">
+                      <td className="whitespace-nowrap px-4 py-5 text-base font-bold tabular-nums text-ui-strong xl:px-8 xl:py-6">
                         {inv.investment}
                       </td>
-                      <td className="hidden whitespace-nowrap px-4 py-5 text-[11px] font-medium text-ui-faint xl:table-cell xl:px-8 xl:py-6">
+                      <td className="hidden whitespace-nowrap px-4 py-5 text-xs font-medium text-ui-faint xl:table-cell xl:px-8 xl:py-6">
                         {inv.lastActive}
                       </td>
                       <td className="px-4 py-5 text-right xl:px-8 xl:py-6">
@@ -254,7 +254,7 @@ export default function InvestorsPage() {
           </div>
 
           <div className="flex flex-col gap-4 border-t border-ui-divider bg-ui-muted-deep/20 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 xl:p-8">
-            <p className="text-center text-[11px] font-medium text-ui-faint sm:text-left">
+            <p className="text-center text-xs font-medium text-ui-faint sm:text-left">
               Showing {filtered.length} of 1,284 investors
             </p>
             <div className="flex items-center justify-center gap-2 sm:justify-end">
@@ -265,18 +265,18 @@ export default function InvestorsPage() {
               >
                 ←
               </button>
-              <button type="button" className="h-8 w-8 rounded-lg bg-primary text-[11px] font-bold text-white shadow-sm">
+              <button type="button" className="h-8 w-8 rounded-lg bg-primary text-xs font-bold text-white shadow-sm">
                 1
               </button>
               <button
                 type="button"
-                className="h-8 w-8 rounded-lg border border-ui-border bg-ui-card text-[11px] font-bold text-ui-faint"
+                className="h-8 w-8 rounded-lg border border-ui-border bg-ui-card text-xs font-bold text-ui-faint"
               >
                 2
               </button>
               <button
                 type="button"
-                className="h-8 w-8 rounded-lg border border-ui-border bg-ui-card text-[11px] font-bold text-ui-faint"
+                className="h-8 w-8 rounded-lg border border-ui-border bg-ui-card text-xs font-bold text-ui-faint"
               >
                 3
               </button>

@@ -78,7 +78,7 @@ const AssetRegisterFAQ = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <span className="text-[var(--primary)] text-xs font-bold tracking-widest uppercase mb-4 block">
+              <span className="text-[var(--primary)] text-base font-bold tracking-widest uppercase mb-4 block">
                 LEARN MORE
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-text-primary)] mb-8 leading-tight">

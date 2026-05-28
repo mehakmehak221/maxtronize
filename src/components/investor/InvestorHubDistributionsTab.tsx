@@ -106,7 +106,7 @@ export function InvestorHubDistributionsTab() {
             <p className={card.compact ? 'text-base font-bold text-ui-strong md:text-lg' : 'text-2xl font-bold text-ui-strong'}>
               {card.value}
             </p>
-            {card.sub ? <p className="mt-1 text-[10px] font-medium text-ui-faint">{card.sub}</p> : null}
+            {card.sub ? <p className="mt-1 text-xs font-medium text-ui-faint">{card.sub}</p> : null}
           </div>
         ))}
       </div>
@@ -115,7 +115,7 @@ export function InvestorHubDistributionsTab() {
         <div className="flex flex-col gap-4 border-b border-ui-divider p-5 md:flex-row md:items-end md:justify-between md:p-8">
           <div>
             <h3 className="text-base font-bold text-ui-strong">Distribution History</h3>
-            <p className="mt-0.5 text-xs text-ui-faint">Yield and income payouts across your holdings</p>
+            <p className="mt-0.5 text-base text-ui-faint">Yield and income payouts across your holdings</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <input
@@ -123,25 +123,25 @@ export function InvestorHubDistributionsTab() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search assets…"
-              className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-[12px] font-medium outline-none focus:ring-2 focus:ring-primary/20"
+              className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20"
             />
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-[12px] font-medium"
+              className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-sm font-medium"
             />
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-[12px] font-medium"
+              className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-sm font-medium"
             />
             <button
               type="button"
               onClick={() => void handleExport()}
               disabled={exporting}
-              className="inline-flex items-center gap-2 rounded-xl border border-ui-border px-4 py-2 text-[12px] font-bold text-primary transition-colors hover:bg-primary/5 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl border border-ui-border px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/5 disabled:opacity-60"
             >
               <Download className="h-3.5 w-3.5" strokeWidth={iconStroke} />
               {exporting ? 'Exporting…' : 'Export'}
@@ -150,15 +150,15 @@ export function InvestorHubDistributionsTab() {
         </div>
 
         {listError ? (
-          <p className="px-6 py-8 text-center text-sm text-rose-600" role="alert">
+          <p className="px-6 py-8 text-center text-base text-rose-600" role="alert">
             {formatRequestError(listError)}
           </p>
         ) : listLoading ? (
-          <p className="px-6 py-12 text-center text-[13px] font-medium text-ui-faint animate-pulse">
+          <p className="px-6 py-12 text-center text-base font-medium text-ui-faint animate-pulse">
             Loading distributions…
           </p>
         ) : items.length === 0 ? (
-          <p className="px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+          <p className="px-6 py-12 text-center text-base font-medium text-ui-faint">
             No distributions found for this period.
           </p>
         ) : (
@@ -172,14 +172,14 @@ export function InvestorHubDistributionsTab() {
                   <DollarSign className="h-5 w-5" strokeWidth={iconStroke} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-bold text-ui-strong">{item.assetName}</p>
-                  <p className="text-[10px] font-medium uppercase tracking-widest text-ui-faint">
+                  <p className="truncate text-base font-bold text-ui-strong">{item.assetName}</p>
+                  <p className="text-xs font-medium uppercase tracking-widest text-ui-faint">
                     {item.type} · {item.status}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-[13px] font-bold text-emerald-600">{item.amountFormatted}</p>
-                  <p className="text-[10px] font-medium text-ui-faint">{item.date}</p>
+                  <p className="text-base font-bold text-emerald-600">{item.amountFormatted}</p>
+                  <p className="text-xs font-medium text-ui-faint">{item.date}</p>
                 </div>
               </div>
             ))}

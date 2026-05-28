@@ -133,7 +133,7 @@ export default function TokenizeAssetPage() {
               }`}></div>
             ))}
           </div>
-          <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Step 1 of 6</span>
+          <span className="text-xs font-bold text-primary uppercase tracking-widest">Step 1 of 6</span>
         </div>
         <h2 className="text-4xl font-bold text-ui-strong tracking-tight">Jurisdiction</h2>
         <p className="text-ui-faint font-medium">Select legal region & framework</p>
@@ -141,7 +141,7 @@ export default function TokenizeAssetPage() {
 
       <div className="bg-ui-card border border-ui-border rounded-[40px] p-10 shadow-sm space-y-12">
         <div className="space-y-6">
-          <h3 className="text-sm font-bold text-ui-strong">Select primary jurisdiction</h3>
+          <h3 className="text-base font-bold text-ui-strong">Select primary jurisdiction</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {jurisdictions.map((j) => (
               <button
@@ -156,8 +156,8 @@ export default function TokenizeAssetPage() {
                 <div className="flex items-center gap-4 text-left">
                   <span className="text-2xl">{j.flag}</span>
                   <div>
-                    <p className="text-[13px] font-bold text-ui-strong">{j.name}</p>
-                    <p className="text-[10px] text-ui-faint font-medium">{j.sub}</p>
+                    <p className="text-base font-bold text-ui-strong">{j.name}</p>
+                    <p className="text-xs text-ui-faint font-medium">{j.sub}</p>
                   </div>
                 </div>
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -175,7 +175,7 @@ export default function TokenizeAssetPage() {
         </div>
 
         <div className="space-y-6">
-          <h3 className="text-sm font-bold text-ui-strong">Regulatory framework</h3>
+          <h3 className="text-base font-bold text-ui-strong">Regulatory framework</h3>
           <div className="space-y-3">
             {frameworks.map((f) => (
               <button
@@ -198,8 +198,8 @@ export default function TokenizeAssetPage() {
                     )}
                   </div>
                   <div>
-                    <p className="text-[13px] font-bold text-ui-strong">{f.name}</p>
-                    <p className="text-[10px] text-ui-faint font-medium">{f.desc}</p>
+                    <p className="text-base font-bold text-ui-strong">{f.name}</p>
+                    <p className="text-xs text-ui-faint font-medium">{f.desc}</p>
                   </div>
                 </div>
               </button>
@@ -208,8 +208,8 @@ export default function TokenizeAssetPage() {
         </div>
 
         <div className="p-6 bg-alert-info-bg rounded-[24px] border border-alert-info-border flex gap-4 items-start">
-          <div className="w-8 h-8 rounded-full bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border flex items-center justify-center text-alert-info-icon shadow-sm shrink-0 mt-0.5 text-sm font-bold">i</div>
-          <p className="text-[11px] text-alert-info-title/80 leading-relaxed font-medium italic">
+          <div className="w-8 h-8 rounded-full bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border flex items-center justify-center text-alert-info-icon shadow-sm shrink-0 mt-0.5 text-base font-bold">i</div>
+          <p className="text-xs text-alert-info-title/80 leading-relaxed font-medium italic">
             Jurisdiction selection affects investor eligibility, transfer restrictions, and token holder reporting obligations. Our compliance team will review your selection before launch.
           </p>
         </div>
@@ -228,7 +228,7 @@ export default function TokenizeAssetPage() {
               }`}></div>
             ))}
           </div>
-          <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Step 2 of 6</span>
+          <span className="text-xs font-bold text-primary uppercase tracking-widest">Step 2 of 6</span>
         </div>
         <h2 className="text-4xl font-bold text-ui-strong tracking-tight">Asset Details</h2>
         <p className="text-ui-faint font-medium">Define the underlying asset</p>
@@ -237,14 +237,14 @@ export default function TokenizeAssetPage() {
       <div className="bg-ui-card border border-ui-border rounded-[40px] p-10 shadow-sm space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="md:col-span-2 space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Asset Name *</label>
-            <input type="text" placeholder="e.g. Prime Office Tower — New York City" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Asset Name *</label>
+            <input type="text" placeholder="e.g. Prime Office Tower — New York City" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Asset Class *</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Asset Class *</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Commercial Real Estate</option>
                 <option>Private Equity</option>
                 <option>Venture Capital</option>
@@ -255,31 +255,31 @@ export default function TokenizeAssetPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Appraised Valuation (USD) *</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Appraised Valuation (USD) *</label>
             <div className="relative">
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-ui-faint font-bold">$</span>
-              <input type="text" placeholder="5,000,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+              <input type="text" placeholder="5,000,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Asset Location</label>
-            <input type="text" placeholder="City, State / Country" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Asset Location</label>
+            <input type="text" placeholder="City, State / Country" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Expected Annual Yield (%)</label>
-            <input type="text" placeholder="e.g. 8.5" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Expected Annual Yield (%)</label>
+            <input type="text" placeholder="e.g. 8.5" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="md:col-span-2 space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Asset Description</label>
-            <textarea placeholder="Describe the asset, its investment highlights, income potential, and risk factors..." rows={4} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all resize-none"></textarea>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Asset Description</label>
+            <textarea placeholder="Describe the asset, its investment highlights, income potential, and risk factors..." rows={4} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all resize-none"></textarea>
           </div>
         </div>
 
         <div className="space-y-6 pt-6 border-t border-ui-divider">
-          <h3 className="text-sm font-bold text-ui-strong">Supporting Documents</h3>
+          <h3 className="text-base font-bold text-ui-strong">Supporting Documents</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { label: 'Property Appraisal', sub: 'Certified third-party appraisal (PDF)' },
@@ -292,8 +292,8 @@ export default function TokenizeAssetPage() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 </div>
                 <div>
-                  <p className="text-[13px] font-bold text-ui-strong">{doc.label}</p>
-                  <p className="text-[10px] text-ui-faint font-medium">{doc.sub}</p>
+                  <p className="text-base font-bold text-ui-strong">{doc.label}</p>
+                  <p className="text-xs text-ui-faint font-medium">{doc.sub}</p>
                 </div>
               </div>
             ))}
@@ -314,7 +314,7 @@ export default function TokenizeAssetPage() {
               }`}></div>
             ))}
           </div>
-          <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Step 3 of 6</span>
+          <span className="text-xs font-bold text-primary uppercase tracking-widest">Step 3 of 6</span>
         </div>
         <h2 className="text-4xl font-bold text-ui-strong tracking-tight">Legal Structure</h2>
         <p className="text-ui-faint font-medium">Configure SPV & compliance</p>
@@ -322,7 +322,7 @@ export default function TokenizeAssetPage() {
 
       <div className="bg-ui-card border border-ui-border rounded-[40px] p-10 shadow-sm space-y-10">
         <div className="space-y-6">
-          <h3 className="text-sm font-bold text-ui-strong">Entity / SPV Structure</h3>
+          <h3 className="text-base font-bold text-ui-strong">Entity / SPV Structure</h3>
           <div className="space-y-3">
             {entities.map((e) => (
               <button
@@ -345,8 +345,8 @@ export default function TokenizeAssetPage() {
                     )}
                   </div>
                   <div>
-                    <p className="text-[13px] font-bold text-ui-strong">{e.name}</p>
-                    <p className="text-[10px] text-ui-faint font-medium leading-relaxed max-w-xl">{e.desc}</p>
+                    <p className="text-base font-bold text-ui-strong">{e.name}</p>
+                    <p className="text-xs text-ui-faint font-medium leading-relaxed max-w-xl">{e.desc}</p>
                   </div>
                 </div>
               </button>
@@ -356,19 +356,19 @@ export default function TokenizeAssetPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Operating Agreement</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Operating Agreement</label>
             <div className="p-6 border-2 border-dashed border-ui-border rounded-[24px] hover:border-primary/20 hover:bg-primary/5 transition-all group cursor-pointer flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-ui-muted-deep flex items-center justify-center text-primary group-hover:bg-ui-card shadow-sm transition-all">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
               </div>
-              <p className="text-[11px] font-bold text-ui-muted-text">Upload signed agreement (PDF)</p>
+              <p className="text-xs font-bold text-ui-muted-text">Upload signed agreement (PDF)</p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Formation Jurisdiction</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Formation Jurisdiction</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Delaware, US</option>
                 <option>British Virgin Islands</option>
                 <option>Cayman Islands</option>
@@ -378,9 +378,9 @@ export default function TokenizeAssetPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">KYC Provider</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">KYC Provider</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Maxtronize Default (Sumsub)</option>
                 <option>Jumio</option>
                 <option>Onfido</option>
@@ -390,9 +390,9 @@ export default function TokenizeAssetPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">AML Screening</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">AML Screening</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Real-time (Refinitiv)</option>
                 <option>Daily Batch</option>
                 <option>Manual Review</option>
@@ -446,7 +446,7 @@ export default function TokenizeAssetPage() {
                   </span>
                 </div>
                 <div className="mt-4 space-y-1">
-                  <p className="text-[11px] font-bold text-ui-strong">{feature.label}</p>
+                  <p className="text-xs font-bold text-ui-strong">{feature.label}</p>
                   <p className="text-[9px] font-medium leading-relaxed text-ui-faint">{feature.desc}</p>
                 </div>
               </button>
@@ -468,7 +468,7 @@ export default function TokenizeAssetPage() {
               }`}></div>
             ))}
           </div>
-          <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Step 4 of 6</span>
+          <span className="text-xs font-bold text-primary uppercase tracking-widest">Step 4 of 6</span>
         </div>
         <h2 className="text-4xl font-bold text-ui-strong tracking-tight">Offering Setup</h2>
         <p className="text-ui-faint font-medium">Set terms & investor access</p>
@@ -477,35 +477,35 @@ export default function TokenizeAssetPage() {
       <div className="bg-ui-card border border-ui-border rounded-[40px] p-10 shadow-sm space-y-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Offering Target (USD) *</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Offering Target (USD) *</label>
             <div className="relative">
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-ui-faint font-bold">$</span>
-              <input type="text" placeholder="10,000,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+              <input type="text" placeholder="10,000,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Minimum Investment (USD) *</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Minimum Investment (USD) *</label>
             <div className="relative">
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-ui-faint font-bold">$</span>
-              <input type="text" placeholder="25,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+              <input type="text" placeholder="25,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Offering Start Date</label>
-            <input type="date" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Offering Start Date</label>
+            <input type="date" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Offering End Date</label>
-            <input type="date" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Offering End Date</label>
+            <input type="date" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Investor Accreditation</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Investor Accreditation</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>SEC Accredited Only</option>
                 <option>Qualified Purchasers</option>
                 <option>Non-Accredited (Reg A+)</option>
@@ -515,9 +515,9 @@ export default function TokenizeAssetPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Distribution Frequency</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Distribution Frequency</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Quarterly Payouts</option>
                 <option>Monthly Payouts</option>
                 <option>Annual Payouts</option>
@@ -530,19 +530,19 @@ export default function TokenizeAssetPage() {
 
         {/* Offering Preview Panel */}
         <div className="p-10 bg-primary/5 rounded-[40px] border border-primary/10 space-y-8">
-          <p className="text-[11px] font-bold text-primary uppercase tracking-[0.2em]">Offering Preview</p>
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Offering Preview</p>
           <div className="grid grid-cols-3 gap-12">
             <div className="space-y-2">
               <p className="text-3xl font-bold text-ui-strong">$10.0M</p>
-              <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Target Capital</p>
+              <p className="text-xs font-bold text-ui-faint uppercase tracking-widest">Target Capital</p>
             </div>
             <div className="space-y-2 px-12 border-x border-primary/10">
               <p className="text-3xl font-bold text-ui-strong">1,000,000</p>
-              <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Estimated Tokens</p>
+              <p className="text-xs font-bold text-ui-faint uppercase tracking-widest">Estimated Tokens</p>
             </div>
             <div className="space-y-2 pl-4">
               <p className="text-3xl font-bold text-ui-strong">$10.00</p>
-              <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Token Price</p>
+              <p className="text-xs font-bold text-ui-faint uppercase tracking-widest">Token Price</p>
             </div>
           </div>
         </div>
@@ -561,7 +561,7 @@ export default function TokenizeAssetPage() {
               }`}></div>
             ))}
           </div>
-          <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Step 5 of 6</span>
+          <span className="text-xs font-bold text-primary uppercase tracking-widest">Step 5 of 6</span>
         </div>
         <h2 className="text-4xl font-bold text-ui-strong tracking-tight">Tokenization</h2>
         <p className="text-ui-faint font-medium">Deploy on-chain</p>
@@ -569,7 +569,7 @@ export default function TokenizeAssetPage() {
 
       <div className="bg-ui-card border border-ui-border rounded-[40px] p-10 shadow-sm space-y-10">
         <div className="space-y-6">
-          <h3 className="text-sm font-bold text-ui-strong">Select blockchain network</h3>
+          <h3 className="text-base font-bold text-ui-strong">Select blockchain network</h3>
           <div className="space-y-3">
             {networks.map((n) => (
               <button
@@ -587,10 +587,10 @@ export default function TokenizeAssetPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
-                      <p className="text-[13px] font-bold text-ui-strong">{n.name}</p>
+                      <p className="text-base font-bold text-ui-strong">{n.name}</p>
                       <span className="px-2 py-0.5 bg-ui-muted-deep text-ui-muted-text rounded text-[9px] font-bold uppercase tracking-wider">{n.standard}</span>
                     </div>
-                    <p className="text-[10px] text-ui-faint font-medium leading-relaxed max-w-xl">{n.desc}</p>
+                    <p className="text-xs text-ui-faint font-medium leading-relaxed max-w-xl">{n.desc}</p>
                   </div>
                 </div>
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -609,28 +609,28 @@ export default function TokenizeAssetPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Token Name *</label>
-            <input type="text" placeholder="e.g. Prime Office NYC Token" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Token Name *</label>
+            <input type="text" placeholder="e.g. Prime Office NYC Token" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Token Symbol *</label>
-            <input type="text" placeholder="E.G. PONYC" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Token Symbol *</label>
+            <input type="text" placeholder="E.G. PONYC" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Total Token Supply</label>
-            <input type="text" placeholder="1,000,000" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Total Token Supply</label>
+            <input type="text" placeholder="1,000,000" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-ui-faint uppercase tracking-widest">Initial Token Price (USD)</label>
+            <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Initial Token Price (USD)</label>
             <div className="relative">
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-ui-faint font-bold">$</span>
-              <input type="text" placeholder="10.00" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-[13px] font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+              <input type="text" placeholder="10.00" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
             </div>
           </div>
         </div>
 
         <div className="space-y-6 pt-6 border-t border-ui-divider">
-          <h3 className="text-sm font-bold text-ui-strong">Smart Contract Features</h3>
+          <h3 className="text-base font-bold text-ui-strong">Smart Contract Features</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {TOKENIZATION_SMART_FEATURES.map((f) => {
               const active = tokenizationSmartToggles[f.id];
@@ -659,8 +659,8 @@ export default function TokenizeAssetPage() {
                       <Icon className="h-4 w-4 shrink-0" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[12px] font-bold text-ui-strong">{f.label}</p>
-                      <p className="text-[10px] font-medium text-ui-faint">{f.desc}</p>
+                      <p className="text-sm font-bold text-ui-strong">{f.label}</p>
+                      <p className="text-xs font-medium text-ui-faint">{f.desc}</p>
                     </div>
                   </div>
                   <span
@@ -702,7 +702,7 @@ export default function TokenizeAssetPage() {
                   className="h-2 w-2 shrink-0 rounded-full bg-[#00FFA3] shadow-[0_0_14px_rgba(0,255,163,0.7)]"
                   aria-hidden
                 />
-                <p className="text-[14px] font-semibold tracking-tight text-white">Ready to Deploy</p>
+                <p className="text-base font-semibold tracking-tight text-white">Ready to Deploy</p>
               </div>
 
               <div className="grid min-w-0 flex-1 grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-10 lg:ml-auto lg:max-w-2xl lg:gap-14">
@@ -712,7 +712,7 @@ export default function TokenizeAssetPage() {
                   { label: 'Est. Gas', value: '~$45' },
                 ].map((row) => (
                   <div key={row.label} className="min-w-0">
-                    <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#90A1B9]">
+                    <p className="mb-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#90A1B9]">
                       {row.label}
                     </p>
                     <p className="text-[15px] font-bold tracking-tight text-white">{row.value}</p>
@@ -721,7 +721,7 @@ export default function TokenizeAssetPage() {
               </div>
             </div>
 
-            <p className="max-w-3xl text-left text-[11px] font-medium leading-relaxed text-[#90A1B9]">
+            <p className="max-w-3xl text-left text-xs font-medium leading-relaxed text-[#90A1B9]">
               Clicking &quot;Complete Setup&quot; will submit this configuration for Maxtronize compliance review. Smart
               contract deployment typically occurs within 48 hours of approval.
             </p>
@@ -818,7 +818,7 @@ export default function TokenizeAssetPage() {
                 />
               ))}
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Step 6 of 6</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">Step 6 of 6</span>
           </div>
           <h2 className="text-4xl font-bold tracking-tight text-ui-strong">Review &amp; Submit</h2>
           <p className="font-medium text-ui-faint">Final review before launch</p>
@@ -836,7 +836,7 @@ export default function TokenizeAssetPage() {
                 />
               </svg>
             </div>
-            <p className="text-[12px] font-medium leading-relaxed text-[#5b21b6]/90 md:text-[13px]">
+            <p className="text-sm font-medium leading-relaxed text-[#5b21b6]/90 md:text-[13px]">
               Please review all details carefully before submitting. Once submitted, our compliance team will review your
               application within 48 hours. You will receive an email confirmation.
             </p>
@@ -849,15 +849,15 @@ export default function TokenizeAssetPage() {
                 className={idx < reviewSections.length - 1 ? 'border-b border-[#eceef2] pb-10' : ''}
               >
                 <span
-                  className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${section.badgeClass}`}
+                  className={`inline-flex rounded-lg px-2.5 py-1 text-xs font-bold uppercase tracking-[0.12em] ${section.badgeClass}`}
                 >
                   {section.badge}
                 </span>
                 <div className="mt-5 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-2">
                   {section.rows.map((row) => (
                     <div key={`${section.badge}-${row.label}`} className="min-w-0 space-y-1.5">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#94a3b8]">{row.label}</p>
-                      <p className="text-[13px] font-bold leading-snug text-ui-strong">{row.value}</p>
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#94a3b8]">{row.label}</p>
+                      <p className="text-base font-bold leading-snug text-ui-strong">{row.value}</p>
                     </div>
                   ))}
                 </div>
@@ -928,7 +928,7 @@ export default function TokenizeAssetPage() {
 
         <div className="shrink-0 p-8 border-b border-ui-divider">
           <h2 className="text-lg font-bold text-ui-strong mb-1">Tokenization Wizard</h2>
-          <p className="text-xs text-ui-faint font-medium">6-step guided asset setup</p>
+          <p className="text-base text-ui-faint font-medium">6-step guided asset setup</p>
         </div>
 
         <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-8 space-y-6 scrollbar-hide">
@@ -951,10 +951,10 @@ export default function TokenizeAssetPage() {
                 )}
               </div>
               <div className="pt-1">
-                <p className={`text-[13px] font-bold transition-colors ${
+                <p className={`text-base font-bold transition-colors ${
                   currentStep === step.id ? 'text-ui-strong' : 'text-ui-faint'
                 }`}>{step.name}</p>
-                <p className="text-[10px] text-ui-faint font-medium leading-relaxed">{step.desc}</p>
+                <p className="text-xs text-ui-faint font-medium leading-relaxed">{step.desc}</p>
               </div>
             </div>
           ))}
@@ -963,19 +963,19 @@ export default function TokenizeAssetPage() {
         <div className="shrink-0 p-8 border-t border-ui-divider bg-ui-muted-surface">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">Progress</p>
-              <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{Math.round(((currentStep - 1) / 6) * 100)}%</p>
+              <p className="text-xs font-bold text-ui-faint uppercase tracking-widest">Progress</p>
+              <p className="text-xs font-bold text-primary uppercase tracking-widest">{Math.round(((currentStep - 1) / 6) * 100)}%</p>
             </div>
             <div className="w-full h-1.5 bg-ui-muted-deep rounded-full overflow-hidden">
               <div className="h-full bg-primary transition-all duration-500" style={{ width: `${((currentStep - 1) / 6) * 100}%` }}></div>
             </div>
-            <p className="text-[10px] text-ui-faint font-medium">Step {currentStep} of 6</p>
+            <p className="text-xs text-ui-faint font-medium">Step {currentStep} of 6</p>
           </div>
 
           <div className="mt-10 p-6 bg-primary/5 rounded-[24px] border border-primary/10 relative">
-            <p className="text-[11px] font-bold text-ui-strong mb-2">Need compliance help?</p>
-            <p className="text-[10px] text-ui-muted-text leading-relaxed mb-4">Our legal team is available 24/7 to guide your setup.</p>
-            <button className="text-[10px] font-bold text-primary flex items-center gap-2 group">
+            <p className="text-xs font-bold text-ui-strong mb-2">Need compliance help?</p>
+            <p className="text-xs text-ui-muted-text leading-relaxed mb-4">Our legal team is available 24/7 to guide your setup.</p>
+            <button className="text-xs font-bold text-primary flex items-center gap-2 group">
               Contact Support 
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </button>
@@ -988,13 +988,13 @@ export default function TokenizeAssetPage() {
         <header className="z-30 shrink-0 bg-card border-b border-ui-border">
           <div className="h-0.5 w-full bg-primary" aria-hidden />
           <div className="h-16 flex items-center justify-between px-4 md:px-8 lg:px-10 gap-4">
-            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm">
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-base sm:text-base">
               <span className="shrink-0 font-medium text-text-muted">Platform</span>
               <span className="shrink-0 text-ui-faint">›</span>
               <span className="min-w-0 truncate font-bold text-foreground">Tokenize Asset</span>
             </div>
             <div className="flex items-center gap-5 md:gap-8 shrink-0">
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs md:text-sm font-medium text-emerald-600">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-base md:text-base font-medium text-emerald-600">
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                 </svg>
@@ -1002,7 +1002,7 @@ export default function TokenizeAssetPage() {
               </span>
               <Link
                 href="/issuer/dashboard"
-                className="text-xs md:text-sm font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1.5 transition-colors"
+                className="text-base md:text-base font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1.5 transition-colors"
               >
                 <span className="hidden sm:inline">Skip to Dashboard</span>
                 <span className="sm:hidden">Skip</span>
@@ -1037,7 +1037,7 @@ export default function TokenizeAssetPage() {
                     setCurrentStep(Math.max(1, currentStep - 1));
                   }
                 }}
-                className="flex w-fit items-center gap-2 text-[13px] font-bold text-ui-faint transition-colors hover:text-primary"
+                className="flex w-fit items-center gap-2 text-base font-bold text-ui-faint transition-colors hover:text-primary"
               >
                 <span className="text-lg">←</span>
                 {currentStep === 1 ? 'Back to Dashboard' : currentStep === 6 ? 'Back' : 'Previous Step'}
@@ -1045,7 +1045,7 @@ export default function TokenizeAssetPage() {
               {currentStep < 6 && (
                 <button
                   type="button"
-                  className="rounded-xl border border-primary/10 bg-primary/5 px-4 py-2 text-[11px] font-bold text-primary"
+                  className="rounded-xl border border-primary/10 bg-primary/5 px-4 py-2 text-xs font-bold text-primary"
                 >
                   Save Draft
                 </button>
@@ -1080,13 +1080,13 @@ export default function TokenizeAssetPage() {
                     { label: 'Status', val: 'Under Review', color: 'text-primary' }
                   ].map((card, i) => (
                     <div key={i} className="bg-ui-card border border-ui-border rounded-[24px] p-6 shadow-sm">
-                      <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest mb-2">{card.label}</p>
+                      <p className="text-xs font-bold text-ui-faint uppercase tracking-widest mb-2">{card.label}</p>
                       <p className={`text-xl font-bold ${card.color || 'text-ui-strong'}`}>{card.val}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center gap-3 text-[13px] font-bold text-primary animate-pulse">
+                <div className="flex items-center gap-3 text-base font-bold text-primary animate-pulse">
                   <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                   Redirecting to Dashboard...
                 </div>
@@ -1103,7 +1103,7 @@ export default function TokenizeAssetPage() {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(5)}
-                  className="text-[13px] font-semibold text-[#64748b] transition-colors hover:text-ui-strong"
+                  className="text-base font-semibold text-[#64748b] transition-colors hover:text-ui-strong"
                 >
                   Back
                 </button>
@@ -1115,7 +1115,7 @@ export default function TokenizeAssetPage() {
                       window.location.href = '/issuer/dashboard';
                     }, 4000);
                   }}
-                  className="flex items-center gap-2 rounded-xl bg-linear-to-r from-[#9810FA] to-[#4F39F6] px-6 py-3.5 text-[13px] font-bold text-white shadow-lg shadow-[#9810FA]/25 transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-[#4F39F6]/30 active:translate-y-px"
+                  className="flex items-center gap-2 rounded-xl bg-linear-to-r from-[#9810FA] to-[#4F39F6] px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-[#9810FA]/25 transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-[#4F39F6]/30 active:translate-y-px"
                 >
                   <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
@@ -1127,7 +1127,7 @@ export default function TokenizeAssetPage() {
               <>
                 <button
                   type="button"
-                  className="text-[13px] font-bold uppercase tracking-widest text-ui-faint transition-colors hover:text-ui-strong"
+                  className="text-base font-bold uppercase tracking-widest text-ui-faint transition-colors hover:text-ui-strong"
                   onClick={() => {
                     window.location.href = '/issuer/dashboard';
                   }}
@@ -1146,7 +1146,7 @@ export default function TokenizeAssetPage() {
                       }, 4000);
                     }
                   }}
-                  className="flex items-center gap-2 rounded-xl bg-linear-to-r from-[#9810FA] to-[#4F39F6] px-8 py-3 text-[13px] font-bold text-white shadow-lg shadow-[#9810FA]/25 transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-[#4F39F6]/30 active:translate-y-px"
+                  className="flex items-center gap-2 rounded-xl bg-linear-to-r from-[#9810FA] to-[#4F39F6] px-8 py-3 text-base font-bold text-white shadow-lg shadow-[#9810FA]/25 transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-[#4F39F6]/30 active:translate-y-px"
                 >
                   Continue
                   <span className="text-lg">

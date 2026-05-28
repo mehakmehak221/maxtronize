@@ -112,7 +112,7 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
                     {card.count}
                   </p>
                   <p
-                    className={`text-[10px] font-bold uppercase tracking-widest ${card.countClass}`}
+                    className={`text-xs font-bold uppercase tracking-widest ${card.countClass}`}
                   >
                     {card.label}
                   </p>
@@ -146,14 +146,14 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search investors..."
-              className="w-64 rounded-full border border-card-border bg-card py-2 pl-9 pr-4 text-xs text-foreground outline-none focus:border-primary"
+              className="w-64 rounded-full border border-card-border bg-card py-2 pl-9 pr-4 text-base text-foreground outline-none focus:border-primary"
             />
           </div>
           <button
             type="button"
             disabled={exporting}
             onClick={() => exportInvestors(listParams)}
-            className="flex items-center gap-2 rounded-full border border-card-border bg-card px-4 py-2 text-xs font-bold text-foreground transition-colors hover:bg-surface disabled:opacity-60"
+            className="flex items-center gap-2 rounded-full border border-card-border bg-card px-4 py-2 text-base font-bold text-foreground transition-colors hover:bg-surface disabled:opacity-60"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -194,7 +194,7 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
           <tbody className="divide-y divide-border">
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-xs text-text-muted">
+                <td colSpan={8} className="px-6 py-12 text-center text-base text-text-muted">
                   Loading investors…
                 </td>
               </tr>
@@ -204,19 +204,19 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold ${REGISTRY_CHIP_CLASS[inv.chipIndex] ?? REGISTRY_CHIP_CLASS[1]}`}
+                        className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${REGISTRY_CHIP_CLASS[inv.chipIndex] ?? REGISTRY_CHIP_CLASS[1]}`}
                       >
                         {inv.initials}
                       </div>
                       <div>
-                        <p className="text-[13px] font-bold text-foreground">{inv.name}</p>
-                        <p className="text-[10px] text-text-muted">{inv.email}</p>
+                        <p className="text-base font-bold text-foreground">{inv.name}</p>
+                        <p className="text-xs text-text-muted">{inv.email}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+                      className={`rounded-full border px-2.5 py-1 text-xs font-bold ${
                         inv.kycApproved
                           ? 'border-ui-success-border/60 bg-ui-success-bg-soft text-ui-success-text'
                           : 'border-alert-warn-border bg-alert-warn-bg text-alert-warn-title'
@@ -227,7 +227,7 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+                      className={`rounded-full border px-2.5 py-1 text-xs font-bold ${
                         inv.accreditation.toLowerCase().includes('approv')
                           ? 'border-ui-success-border/60 bg-ui-success-bg-soft text-ui-success-text'
                           : 'border-alert-warn-border bg-alert-warn-bg text-alert-warn-title'
@@ -236,24 +236,24 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
                       {inv.accreditation}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-[13px] font-bold text-foreground">
+                  <td className="px-6 py-4 text-base font-bold text-foreground">
                     {inv.commitment}
                   </td>
-                  <td className="px-6 py-4 text-[12px] font-medium text-text-muted">
+                  <td className="px-6 py-4 text-sm font-medium text-text-muted">
                     {inv.asset}
                   </td>
-                  <td className="px-6 py-4 text-[12px] font-medium text-text-muted">
+                  <td className="px-6 py-4 text-sm font-medium text-text-muted">
                     {inv.jurisdiction}
                   </td>
-                  <td className="px-6 py-4 text-[12px] font-medium text-text-muted">
+                  <td className="px-6 py-4 text-sm font-medium text-text-muted">
                     {inv.source}
                   </td>
-                  <td className="px-6 py-4 text-[11px] text-text-muted">{inv.joinDate}</td>
+                  <td className="px-6 py-4 text-xs text-text-muted">{inv.joinDate}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-xs text-text-muted">
+                <td colSpan={8} className="px-6 py-12 text-center text-base text-text-muted">
                   No investors found
                 </td>
               </tr>

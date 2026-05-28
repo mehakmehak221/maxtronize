@@ -91,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link
               href={TOKENIZE_ONBOARDING_HREF}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="btn-press flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-brand-indigo py-3.5 text-[13px] font-bold text-white shadow-[0_12px_32px_-10px_rgba(91,33,182,0.55)] transition-all hover:brightness-[1.05] dark:shadow-[0_12px_32px_-12px_rgba(124,58,237,0.45)]"
+              className="btn-press flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-brand-indigo py-3.5 text-base font-bold text-white shadow-[0_12px_32px_-10px_rgba(91,33,182,0.55)] transition-all hover:brightness-[1.05] dark:shadow-[0_12px_32px_-12px_rgba(124,58,237,0.45)]"
             >
               <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.25} d="M12 4v16m8-8H4" />
@@ -104,7 +104,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {menuItems.map((category, idx) => (
               <div key={idx} className="space-y-1">
                 <div className="mb-3 flex items-center justify-between px-1">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ui-faint">{category.category}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-ui-faint">{category.category}</p>
                 </div>
                 <div className="space-y-1">
                   {category.items.map((item, i) => {
@@ -126,7 +126,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         />
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                           <span
-                            className={`truncate text-[13px] ${isActive ? 'font-bold text-primary' : 'font-medium text-ui-body'}`}
+                            className={`truncate text-base ${isActive ? 'font-bold text-primary' : 'font-medium text-ui-body'}`}
                           >
                             {item.name}
                           </span>
@@ -161,7 +161,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="hidden rounded-xl border border-ui-success-border/70 bg-ui-success-bg-soft p-4 lg:block">
               <div className="mb-1.5 flex items-center gap-2">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-ui-success-icon shadow-[0_0_8px_rgba(16,185,129,0.45)]" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-ui-success-text">All systems operational</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-ui-success-text">All systems operational</p>
               </div>
               {/* <p className="text-[9px] font-medium leading-relaxed text-ui-success-text/90">99.98% uptime · Blockchain synced</p> */}
             </div>
@@ -179,11 +179,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                   />
                 </svg>
-                <span className="text-[13px] font-semibold text-ui-body">Notifications</span>
+                <span className="text-base font-semibold text-ui-body">Notifications</span>
                 <span className="ml-auto h-2 w-2 rounded-full bg-[#7c3aed]" aria-hidden />
               </button> */}
               <div className="flex items-center justify-between gap-3 px-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">Appearance</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Appearance</span>
                 <ThemeToggle />
               </div>
               <UserProfileMenu variant="mobile" />
@@ -208,7 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <nav className="flex min-w-0 items-center gap-2 text-[13px] sm:text-sm" aria-label="Breadcrumb">
+              <nav className="flex min-w-0 items-center gap-2 text-base sm:text-base" aria-label="Breadcrumb">
                 <span className="shrink-0 font-medium text-ui-placeholder">Platform</span>
                 <span className="shrink-0 font-medium text-ui-faint" aria-hidden>
                   &gt;

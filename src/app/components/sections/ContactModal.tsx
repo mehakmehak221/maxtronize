@@ -205,7 +205,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                 <svg className="w-5 h-5 text-red-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <p className="text-red-700 font-medium text-sm">
+                                <p className="text-red-700 font-medium text-base">
                                   {errorMessage}
                                 </p>
                               </motion.div>

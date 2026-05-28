@@ -175,7 +175,7 @@ export default function Tokenization() {
           style={{ x: buttonSpringX, y: buttonSpringY }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="relative mt-8 sm:mt-10 md:mt-12 lg:mt-14 inline-flex items-center gap-2 sm:gap-3 rounded-md bg-black px-7 md:px-8 py-3 text-xs sm:text-sm md:text-base font-medium text-white shadow-lg transition-all hover:bg-zinc-800 hover:shadow-2xl group overflow-hidden"
+          className="relative mt-8 sm:mt-10 md:mt-12 lg:mt-14 inline-flex items-center gap-2 sm:gap-3 rounded-md bg-black px-7 md:px-8 py-3 text-base sm:text-base md:text-base font-medium text-white shadow-lg transition-all hover:bg-zinc-800 hover:shadow-2xl group overflow-hidden"
         >
           <motion.span
             className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"

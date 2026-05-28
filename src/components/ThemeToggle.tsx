@@ -10,7 +10,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`inline-flex items-center gap-2 rounded-full border border-ui-border bg-ui-card px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-ui-muted-text shadow-sm transition-colors hover:border-ui-border-strong hover:bg-ui-muted-deep hover:text-ui-strong ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full border border-ui-border bg-ui-card px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-ui-muted-text shadow-sm transition-colors hover:border-ui-border-strong hover:bg-ui-muted-deep hover:text-ui-strong ${className}`}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       <span className="text-ui-faint" aria-hidden>

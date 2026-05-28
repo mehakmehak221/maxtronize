@@ -55,7 +55,7 @@ export function HubCapTableTab({ search, onSearchChange }: HubCapTableTabProps) 
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="mb-1 text-lg font-bold text-foreground">Cap Table</h3>
-          <p className="text-xs text-text-muted">{subtitle}</p>
+          <p className="text-base text-text-muted">{subtitle}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative md:hidden">
@@ -78,14 +78,14 @@ export function HubCapTableTab({ search, onSearchChange }: HubCapTableTabProps) 
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search investor..."
-              className="w-64 rounded-full border border-card-border bg-card py-2 pl-9 pr-4 text-xs text-foreground outline-none focus:border-primary"
+              className="w-64 rounded-full border border-card-border bg-card py-2 pl-9 pr-4 text-base text-foreground outline-none focus:border-primary"
             />
           </div>
           <button
             type="button"
             disabled={exporting}
             onClick={() => exportCapTable(listParams)}
-            className="flex items-center gap-2 rounded-full border border-card-border bg-card px-4 py-2 text-xs font-bold text-foreground transition-colors hover:bg-surface disabled:opacity-60"
+            className="flex items-center gap-2 rounded-full border border-card-border bg-card px-4 py-2 text-base font-bold text-foreground transition-colors hover:bg-surface disabled:opacity-60"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -127,7 +127,7 @@ export function HubCapTableTab({ search, onSearchChange }: HubCapTableTabProps) 
           <tbody className="divide-y divide-border">
             {loading ? (
               <tr>
-                <td colSpan={9} className="px-6 py-12 text-center text-xs text-text-muted">
+                <td colSpan={9} className="px-6 py-12 text-center text-base text-text-muted">
                   Loading cap table…
                 </td>
               </tr>
@@ -137,23 +137,23 @@ export function HubCapTableTab({ search, onSearchChange }: HubCapTableTabProps) 
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold ${CAP_CHIP_CLASS[row.chipKey] ?? CAP_CHIP_CLASS.yt}`}
+                        className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${CAP_CHIP_CLASS[row.chipKey] ?? CAP_CHIP_CLASS.yt}`}
                       >
                         {row.initials}
                       </div>
                       <div>
-                        <p className="text-[13px] font-bold text-foreground">{row.name}</p>
-                        <p className="text-[10px] text-text-muted">{row.email}</p>
+                        <p className="text-base font-bold text-foreground">{row.name}</p>
+                        <p className="text-xs text-text-muted">{row.email}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="mb-1 text-[12px] font-medium text-foreground">{row.asset}</p>
+                    <p className="mb-1 text-sm font-medium text-foreground">{row.asset}</p>
                     <span className="rounded border border-card-border bg-surface px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-text-muted">
                       {row.token}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-[13px] font-bold text-foreground">{row.tokens}</td>
+                  <td className="px-6 py-4 text-base font-bold text-foreground">{row.tokens}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-surface">
@@ -162,22 +162,22 @@ export function HubCapTableTab({ search, onSearchChange }: HubCapTableTabProps) 
                           style={{ width: `${Math.min(row.ownershipPercent * 4, 100)}%` }}
                         />
                       </div>
-                      <span className="text-[12px] font-bold text-text-muted">
+                      <span className="text-sm font-bold text-text-muted">
                         {row.ownershipPercent.toFixed(2)}%
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-[13px] font-bold text-foreground">{row.invested}</td>
-                  <td className="px-6 py-4 text-[13px] font-bold text-ui-success-text">
+                  <td className="px-6 py-4 text-base font-bold text-foreground">{row.invested}</td>
+                  <td className="px-6 py-4 text-base font-bold text-ui-success-text">
                     {row.distributed}
                   </td>
-                  <td className="px-6 py-4 text-[12px] font-medium text-text-muted">
+                  <td className="px-6 py-4 text-sm font-medium text-text-muted">
                     {row.jurisdiction}
                   </td>
-                  <td className="px-6 py-4 text-[11px] text-text-muted">{row.joinDate}</td>
+                  <td className="px-6 py-4 text-xs text-text-muted">{row.joinDate}</td>
                   <td className="px-6 py-4">
                     <span
-                      className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+                      className={`rounded-full border px-2.5 py-1 text-xs font-bold ${
                         row.statusTone === 'funded'
                           ? 'border-status-funded-border bg-status-funded-bg text-status-funded-text'
                           : 'border-primary/25 bg-ui-accent-tint text-primary'
@@ -190,7 +190,7 @@ export function HubCapTableTab({ search, onSearchChange }: HubCapTableTabProps) 
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="px-6 py-12 text-center text-xs text-text-muted">
+                <td colSpan={9} className="px-6 py-12 text-center text-base text-text-muted">
                   No cap table entries found
                 </td>
               </tr>

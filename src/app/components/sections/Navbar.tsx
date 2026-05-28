@@ -326,7 +326,7 @@ const NavLink = ({
       href={href}
       target={target}
       rel={rel}
-      className="group relative text-xs font-medium uppercase tracking-wider transition-colors duration-300"
+      className="group relative text-base font-medium uppercase tracking-wider transition-colors duration-300"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}

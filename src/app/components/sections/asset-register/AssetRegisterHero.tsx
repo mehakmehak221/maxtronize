@@ -23,7 +23,7 @@ const AssetRegisterHero = ({ onStartIssuing }: { onStartIssuing?: () => void }) 
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--dashboard-border)] bg-[var(--card-surface)] mb-8"
         >
           <CheckCircle2 className="w-4 h-4 text-[var(--primary)]" />
-          <span className="text-xs md:text-sm font-medium text-[var(--color-text-secondary)]">
+          <span className="text-base md:text-base font-medium text-[var(--color-text-secondary)]">
             SEC-aligned · Reg D · Reg S · Reg A+
           </span>
         </motion.div>
@@ -84,7 +84,7 @@ const AssetRegisterHero = ({ onStartIssuing }: { onStartIssuing?: () => void }) 
           {stats.map((stat, index) => (
             <div key={index} className="flex flex-col gap-1">
               <span className="text-2xl md:text-3xl font-bold text-[var(--color-text-primary)]">{stat.value}</span>
-              <span className="text-[10px] md:text-xs font-bold text-[var(--color-text-muted)] tracking-wider uppercase">
+              <span className="text-xs md:text-sm font-bold text-[var(--color-text-muted)] tracking-wider uppercase">
                 {stat.label}
               </span>
             </div>

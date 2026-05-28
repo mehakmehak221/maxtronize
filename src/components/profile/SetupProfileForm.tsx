@@ -8,7 +8,7 @@ import { getSession } from "@/lib/auth";
 import { useSetupProfileMutation } from "@/store/api/authApi";
 
 const inputClass =
-  "w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20";
+  "w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20";
 
 export function SetupProfileForm() {
   const router = useRouter();
@@ -46,7 +46,7 @@ export function SetupProfileForm() {
     <form className="space-y-6" onSubmit={handleSubmit}>
       {formError ? (
         <p
-          className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700"
           role="alert"
         >
           {formError}
@@ -54,7 +54,7 @@ export function SetupProfileForm() {
       ) : null}
 
       <div className="space-y-2">
-        <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+        <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
           Full name
         </label>
         <input
@@ -68,7 +68,7 @@ export function SetupProfileForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+        <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
           Date of birth
         </label>
         <input
@@ -81,7 +81,7 @@ export function SetupProfileForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+        <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
           Nationality
         </label>
         <input
@@ -95,7 +95,7 @@ export function SetupProfileForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+        <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
           Residential address
         </label>
         <textarea
@@ -111,7 +111,7 @@ export function SetupProfileForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className="btn-gradient-primary w-full rounded-xl py-4 text-sm font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
+        className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
       >
         {isLoading ? "Submitting…" : "Submit profile for verification"}
       </button>

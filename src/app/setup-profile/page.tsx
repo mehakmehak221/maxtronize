@@ -34,7 +34,7 @@ export default function SetupProfilePage() {
           <h2 className="mb-2 text-xl font-bold text-[#111827] sm:text-2xl">
             Complete your profile
           </h2>
-          <p className="text-sm leading-relaxed text-[#6B7280]">
+          <p className="text-base leading-relaxed text-[#6B7280]">
             We need a few details to submit your investor verification profile.
             After submission, your details will be reviewed before protected
             investment actions are unlocked.

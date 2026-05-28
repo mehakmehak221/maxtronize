@@ -46,7 +46,7 @@ const TrustLayer = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-[var(--primary)] text-xs font-bold tracking-widest uppercase mb-4 block"
+            className="text-[var(--primary)] text-base font-bold tracking-widest uppercase mb-4 block"
           >
             TRUST LAYER
           </motion.span>
@@ -75,7 +75,7 @@ const TrustLayer = () => {
                 {control.icon}
               </div>
               <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-3">{control.title}</h3>
-              <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">
+              <p className="text-[var(--color-text-secondary)] text-base leading-relaxed">
                 {control.description}
               </p>
             </motion.div>

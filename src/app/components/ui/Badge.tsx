@@ -24,7 +24,7 @@ export default function Badge({ children, variant = "gray", dot = false, classNa
   };
   return (
     <span
-      className={["inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border", variants[variant] ?? variants.gray, className].filter(Boolean).join(" ")}
+      className={["inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-base font-semibold border", variants[variant] ?? variants.gray, className].filter(Boolean).join(" ")}
       {...props}
     >
       {dot && <span className={`w-1.5 h-1.5 rounded-full ${dotColors[variant] ?? dotColors.gray} animate-pulse`} />}

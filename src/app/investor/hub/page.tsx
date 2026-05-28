@@ -274,7 +274,7 @@ function InvestorHubContent() {
   const renderOverview = () => (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
       {overviewError ? (
-        <p className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+        <p className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-base text-rose-700" role="alert">
           {formatRequestError(overviewError)}
         </p>
       ) : null}
@@ -307,7 +307,7 @@ function InvestorHubContent() {
             </div>
             <p className="mb-1 text-xl font-bold tracking-tight text-ui-strong md:text-2xl lg:text-3xl">{stat.val}</p>
             <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{stat.label}</p>
-            <p className="text-[10px] font-medium text-ui-faint">{stat.sub}</p>
+            <p className="text-xs font-medium text-ui-faint">{stat.sub}</p>
           </div>
         ))}
       </div>
@@ -319,7 +319,7 @@ function InvestorHubContent() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
               <h3 className="text-base font-bold text-ui-strong">Monthly Earnings</h3>
-              <p className="text-xs text-ui-faint mt-0.5">
+              <p className="text-base text-ui-faint mt-0.5">
                 Earnings vs. passive income · {monthlyEarnings?.currency ?? 'USD'}
               </p>
             </div>
@@ -330,7 +330,7 @@ function InvestorHubContent() {
               ].map(([l, c]) => (
                 <div key={l} className="flex items-center gap-2">
                   <div className={`h-1 w-6 rounded-full ${c}`} />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">{l}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">{l}</span>
                 </div>
               ))}
             </div>
@@ -383,7 +383,7 @@ function InvestorHubContent() {
                 </>
               ) : (
                 <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-ui-border bg-ui-muted-deep/40">
-                  <p className="text-xs font-medium text-ui-muted-text">No earnings data for this period</p>
+                  <p className="text-base font-medium text-ui-muted-text">No earnings data for this period</p>
                 </div>
               )}
             </div>
@@ -398,7 +398,7 @@ function InvestorHubContent() {
         {/* Asset Allocation */}
         <div className="flex flex-col rounded-[24px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[32px] md:p-10">
           <h3 className="text-base font-bold text-ui-strong mb-1">Asset Allocation</h3>
-          <p className="text-xs text-ui-faint mb-6">By investment type</p>
+          <p className="text-base text-ui-faint mb-6">By investment type</p>
           <div className="flex flex-1 flex-col items-center justify-center gap-6">
             <div
               className="relative h-36 w-36 motion-chart rounded-full md:h-40 md:w-40"
@@ -423,15 +423,15 @@ function InvestorHubContent() {
                         className="h-2 w-2 rounded-full"
                         style={{ backgroundColor: item.color }}
                       />
-                      <span className="text-[11px] font-medium text-ui-muted-text">{item.label}</span>
+                      <span className="text-xs font-medium text-ui-muted-text">{item.label}</span>
                     </div>
-                    <span className="text-[11px] font-bold text-ui-strong">
+                    <span className="text-xs font-bold text-ui-strong">
                       {item.percent > 0 ? `${Math.round(item.percent)}%` : '—'}
                     </span>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-xs font-medium text-ui-muted-text">
+                <p className="text-center text-base font-medium text-ui-muted-text">
                   No allocation data yet
                 </p>
               )}
@@ -446,21 +446,21 @@ function InvestorHubContent() {
     <div className="space-y-4 animate-in fade-in duration-500">
       <div className="mb-2">
         <h3 className="text-base font-bold text-ui-strong">All Investments</h3>
-        <p className="text-xs text-ui-faint mt-0.5">
+        <p className="text-base text-ui-faint mt-0.5">
           {holdingsLoading ? 'Loading…' : `${holdingsTotal} active position${holdingsTotal === 1 ? '' : 's'}`}
         </p>
       </div>
       {holdingsError ? (
-        <p className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+        <p className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-base text-rose-700" role="alert">
           {formatRequestError(holdingsError)}
         </p>
       ) : null}
       {holdingsLoading ? (
-        <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint animate-pulse">
+        <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-base font-medium text-ui-faint animate-pulse">
           Loading investments…
         </p>
       ) : investments.length === 0 ? (
-        <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+        <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-base font-medium text-ui-faint">
           No holdings yet.
         </p>
       ) : null}
@@ -474,13 +474,13 @@ function InvestorHubContent() {
                   <inv.Icon className="h-5 w-5 md:h-6 md:w-6" />
                 </div>
                 <div>
-                  <h4 className="text-[13px] md:text-base font-bold text-ui-strong group-hover:text-primary transition-colors">{inv.name}</h4>
-                  <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{inv.ticker} · {inv.sector}</p>
+                  <h4 className="text-base md:text-base font-bold text-ui-strong group-hover:text-primary transition-colors">{inv.name}</h4>
+                  <p className="text-xs text-ui-faint font-medium uppercase tracking-widest">{inv.ticker} · {inv.sector}</p>
                 </div>
               </div>
               <div className="text-right shrink-0">
                 <p className="text-lg md:text-2xl font-bold text-ui-strong">{inv.currentVal}</p>
-                <p className={`text-[11px] md:text-sm font-bold flex items-center justify-end gap-1 ${inv.up ? 'text-green-500' : 'text-red-500'}`}>
+                <p className={`text-xs md:text-base font-bold flex items-center justify-end gap-1 ${inv.up ? 'text-green-500' : 'text-red-500'}`}>
                   <span>{inv.up ? '↗' : '↙'}</span> {inv.gainPct}
                 </p>
               </div>
@@ -490,15 +490,15 @@ function InvestorHubContent() {
             <div className="grid grid-cols-3 gap-3 md:gap-8 border-t border-ui-divider pt-5 md:pt-6">
               <div>
                 <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Invested</p>
-                <p className="text-sm md:text-base font-bold text-ui-strong">{inv.invested}</p>
+                <p className="text-base md:text-base font-bold text-ui-strong">{inv.invested}</p>
               </div>
               <div>
                 <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Gain / Loss</p>
-                <p className={`text-sm md:text-base font-bold ${inv.up ? 'text-green-500' : 'text-red-500'}`}>{inv.gain}</p>
+                <p className={`text-base md:text-base font-bold ${inv.up ? 'text-green-500' : 'text-red-500'}`}>{inv.gain}</p>
               </div>
               <div>
                 <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest mb-1">Status</p>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1 text-[10px] font-bold text-green-700 dark:border-emerald-800/60 dark:bg-emerald-950/45 dark:text-emerald-300">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-bold text-green-700 dark:border-emerald-800/60 dark:bg-emerald-950/45 dark:text-emerald-300">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                   {inv.status}
                 </span>
@@ -527,7 +527,7 @@ function InvestorHubContent() {
           <div className="p-5 md:p-8 border-b border-ui-divider flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-bold text-ui-strong">Transaction History</h3>
-              <p className="text-xs text-ui-faint mt-0.5">
+              <p className="text-base text-ui-faint mt-0.5">
                 {txLoading ? 'Loading…' : `${transactionCount} transaction${transactionCount === 1 ? '' : 's'}`}
               </p>
             </div>
@@ -537,14 +537,14 @@ function InvestorHubContent() {
                 value={txSearch}
                 onChange={e => { setTxSearch(e.target.value); setTxPage(1); }}
                 placeholder="Search…"
-                className="px-3 py-2 border border-ui-border rounded-xl text-[12px] font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10 w-36"
+                className="px-3 py-2 border border-ui-border rounded-xl text-sm font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10 w-36"
               />
               {/* Type filter */}
               {(txFilters?.displayTypes.length ?? 0) > 0 && (
                 <select
                   value={txType}
                   onChange={e => { setTxType(e.target.value); setTxPage(1); }}
-                  className="px-3 py-2 border border-ui-border rounded-xl text-[12px] font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10"
+                  className="px-3 py-2 border border-ui-border rounded-xl text-sm font-medium bg-ui-muted-deep outline-none focus:ring-2 focus:ring-primary/10"
                 >
                   <option value="">All Types</option>
                   {txFilters!.displayTypes.map(dt => (
@@ -556,7 +556,7 @@ function InvestorHubContent() {
               <button
                 onClick={() => exportTx({ search: txSearch || undefined, displayType: txType || undefined })}
                 disabled={exportLoading}
-                className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-[12px] font-bold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 border border-ui-border rounded-xl text-sm font-bold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 {exportLoading ? 'Exporting…' : 'Export'}
@@ -581,7 +581,7 @@ function InvestorHubContent() {
               ))}
             </div>
           ) : rows.length === 0 ? (
-            <p className="px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+            <p className="px-6 py-12 text-center text-base font-medium text-ui-faint">
               No transactions found.
             </p>
           ) : (
@@ -594,14 +594,14 @@ function InvestorHubContent() {
                       <Icon className="h-4 w-4 md:h-5 md:w-5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{tx.assetName}</p>
-                      <p className="text-[10px] text-ui-faint font-medium uppercase tracking-widest">{tx.subtitle}</p>
+                      <p className="text-base font-bold text-ui-strong group-hover:text-primary transition-colors truncate">{tx.assetName}</p>
+                      <p className="text-xs text-ui-faint font-medium uppercase tracking-widest">{tx.subtitle}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className={`text-[13px] md:text-base font-bold ${tx.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                      <p className={`text-base md:text-base font-bold ${tx.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
                         {tx.amountFormatted}
                       </p>
-                      <p className="text-[10px] text-ui-faint font-medium">{tx.date}</p>
+                      <p className="text-xs text-ui-faint font-medium">{tx.date}</p>
                     </div>
                   </div>
                 );
@@ -616,17 +616,17 @@ function InvestorHubContent() {
             <button
               disabled={!pagination?.hasPreviousPage}
               onClick={() => setTxPage(p => p - 1)}
-              className="px-4 py-2 rounded-xl border border-ui-border text-[12px] font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
+              className="px-4 py-2 rounded-xl border border-ui-border text-sm font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
             >
               ← Previous
             </button>
-            <span className="text-[12px] font-medium text-ui-faint">
+            <span className="text-sm font-medium text-ui-faint">
               Page {pagination?.page} of {pagination?.totalPages}
             </span>
             <button
               disabled={!pagination?.hasNextPage}
               onClick={() => setTxPage(p => p + 1)}
-              className="px-4 py-2 rounded-xl border border-ui-border text-[12px] font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
+              className="px-4 py-2 rounded-xl border border-ui-border text-sm font-bold text-ui-muted-text disabled:opacity-40 hover:bg-ui-muted-deep transition-colors"
             >
               Next →
             </button>
@@ -656,23 +656,23 @@ function InvestorHubContent() {
         </div>
         <div>
           <h3 className="text-lg md:text-xl font-bold">Lexa Legal Assistant</h3>
-          <p className="text-white/70 text-xs md:text-sm mt-1 leading-relaxed">Your AI-powered legal and compliance advisor. Ask questions about tax implications, regulatory requirements, investment structures, and legal documentation.</p>
+          <p className="text-white/70 text-base md:text-base mt-1 leading-relaxed">Your AI-powered legal and compliance advisor. Ask questions about tax implications, regulatory requirements, investment structures, and legal documentation.</p>
         </div>
       </div>
 
       {/* Chat Window */}
       <div className="bg-ui-card border border-ui-border rounded-[20px] md:rounded-[28px] shadow-sm overflow-hidden">
         <div className="p-5 md:p-6 border-b border-ui-divider">
-          <h4 className="text-[13px] font-bold text-ui-strong">Conversation</h4>
+          <h4 className="text-base font-bold text-ui-strong">Conversation</h4>
         </div>
         <div className="p-4 md:p-6 space-y-5 max-h-[420px] overflow-y-auto">
           {chatMessages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 ${msg.role === 'ai' ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-ui-muted-text'
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0 ${msg.role === 'ai' ? 'bg-primary/10 text-primary' : 'bg-ui-muted-deep text-ui-muted-text'
                 }`}>
-                {msg.role === 'ai' ? <LexaAiIcon className="h-4 w-4" /> : <span className="text-[11px] font-bold">You</span>}
+                {msg.role === 'ai' ? <LexaAiIcon className="h-4 w-4" /> : <span className="text-xs font-bold">You</span>}
               </div>
-              <div className={`max-w-[80%] md:max-w-[70%] px-4 py-3 rounded-2xl text-[13px] font-medium leading-relaxed ${msg.role === 'user'
+              <div className={`max-w-[80%] md:max-w-[70%] px-4 py-3 rounded-2xl text-base font-medium leading-relaxed ${msg.role === 'user'
                 ? 'bg-primary text-white rounded-tr-none'
                 : 'bg-ui-muted-deep text-ui-body rounded-tl-none'
                 }`}>
@@ -688,9 +688,9 @@ function InvestorHubContent() {
             value={lexaInput}
             onChange={e => setLexaInput(e.target.value)}
             placeholder="Ask Lexa about legal or compliance matters…"
-            className="flex-1 px-4 py-3 bg-ui-muted-deep border border-ui-border rounded-2xl text-[13px] font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all"
+            className="flex-1 px-4 py-3 bg-ui-muted-deep border border-ui-border rounded-2xl text-base font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all"
           />
-          <button className="px-5 py-3 bg-primary text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0">
+          <button className="px-5 py-3 bg-primary text-white rounded-2xl text-base font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
             Send
           </button>
@@ -708,7 +708,7 @@ function InvestorHubContent() {
         </div>
         <div>
           <h3 className="text-lg md:text-xl font-bold">AI Asset Intelligence</h3>
-          <p className="text-white/70 text-xs md:text-sm mt-1 leading-relaxed">Predictive analytics, market insights, and AI-powered recommendations for your investment portfolio.</p>
+          <p className="text-white/70 text-base md:text-base mt-1 leading-relaxed">Predictive analytics, market insights, and AI-powered recommendations for your investment portfolio.</p>
         </div>
       </div>
 
@@ -755,18 +755,18 @@ function InvestorHubContent() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-4 mb-2">
-                  <h4 className="text-[13px] md:text-base font-bold text-ui-strong">{insight.title}</h4>
-                  <span className={`text-[11px] font-bold shrink-0 flex items-center gap-1.5 ${insight.confidenceColor}`}>
+                  <h4 className="text-base md:text-base font-bold text-ui-strong">{insight.title}</h4>
+                  <span className={`text-xs font-bold shrink-0 flex items-center gap-1.5 ${insight.confidenceColor}`}>
                     <div className="w-1.5 h-1.5 rounded-full bg-current" />
                     {insight.confidence}% confidence
                   </span>
                 </div>
-                <p className="text-[12px] md:text-[13px] text-ui-muted-text font-medium leading-relaxed">{insight.desc}</p>
+                <p className="text-sm md:text-[13px] text-ui-muted-text font-medium leading-relaxed">{insight.desc}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 pl-14">
-              <span className={`px-3 py-1.5 rounded-full text-[11px] font-bold border ${insight.actionColor}`}>{insight.action}</span>
-              <button className="flex items-center gap-1.5 text-[11px] font-bold text-ui-faint hover:text-primary transition-colors">
+              <span className={`px-3 py-1.5 rounded-full text-xs font-bold border ${insight.actionColor}`}>{insight.action}</span>
+              <button className="flex items-center gap-1.5 text-xs font-bold text-ui-faint hover:text-primary transition-colors">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                 View Details
               </button>
@@ -795,10 +795,10 @@ function InvestorHubContent() {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Investor Hub</h1>
-          <p className="text-sm text-ui-faint mt-1 font-medium">Manage your portfolio, track performance, and access AI-powered insights</p>
+          <p className="text-base text-ui-faint mt-1 font-medium">Manage your portfolio, track performance, and access AI-powered insights</p>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest mb-1">Total Portfolio Value</p>
+          <p className="text-xs font-bold text-ui-faint uppercase tracking-widest mb-1">Total Portfolio Value</p>
           <p className="text-2xl md:text-4xl font-bold text-ui-strong">
             {overviewLoading
               ? '…'
@@ -809,7 +809,7 @@ function InvestorHubContent() {
               )}
           </p>
           <p
-            className={`text-sm font-bold flex items-center justify-end gap-1 mt-1 ${(overviewHeader?.annualReturnPercent ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'
+            className={`text-base font-bold flex items-center justify-end gap-1 mt-1 ${(overviewHeader?.annualReturnPercent ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'
               }`}
           >
             <ReturnIcon className="h-4 w-4 shrink-0" />
@@ -827,7 +827,7 @@ function InvestorHubContent() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 md:px-6 py-4 border-b-2 text-[13px] font-bold transition-all whitespace-nowrap ${activeTab === tab.id
+              className={`flex items-center gap-2 px-4 md:px-6 py-4 border-b-2 text-base font-bold transition-all whitespace-nowrap ${activeTab === tab.id
                 ? 'border-primary text-primary'
                 : 'border-transparent text-ui-faint hover:text-ui-body hover:border-ui-border-strong'
                 }`}

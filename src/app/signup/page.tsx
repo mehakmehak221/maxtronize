@@ -65,7 +65,7 @@ export default function SignUpPage() {
     <AuthLayout isSignUp={true}>
       <div className="space-y-8 animate-in fade-in duration-500">
         <div>
-          <p className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-4">
+          <p className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-4">
             I am a
           </p>
           <div className="grid grid-cols-2 gap-4">
@@ -88,7 +88,7 @@ export default function SignUpPage() {
                   <path d="M9 4v4h6V4" />
                 </svg>
               </div>
-              <span className="text-xs font-bold">Asset Issuer</span>
+              <span className="text-base font-bold">Asset Issuer</span>
             </button>
             <button
               type="button"
@@ -108,14 +108,14 @@ export default function SignUpPage() {
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </div>
-              <span className="text-xs font-bold">Investor</span>
+              <span className="text-base font-bold">Investor</span>
             </button>
           </div>
         </div>
 
         {formError && (
           <p
-            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700"
             role="alert"
           >
             {formError}
@@ -130,7 +130,7 @@ export default function SignUpPage() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                  <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                     First Name
                   </label>
                   <input
@@ -140,11 +140,11 @@ export default function SignUpPage() {
                     onChange={(e) => setFirstName(e.target.value)}
                     autoComplete="given-name"
                     placeholder="Alex"
-                    className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                    className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                  <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                     Last Name
                   </label>
                   <input
@@ -154,13 +154,13 @@ export default function SignUpPage() {
                     onChange={(e) => setLastName(e.target.value)}
                     autoComplete="family-name"
                     placeholder="Chen"
-                    className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                    className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                   Work Email
                 </label>
                 <input
@@ -170,12 +170,12 @@ export default function SignUpPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
                   placeholder="you@yourfirm.com"
-                  className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                  className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                   Password
                 </label>
                 <div className="relative">
@@ -187,7 +187,7 @@ export default function SignUpPage() {
                     autoComplete="new-password"
                     minLength={8}
                     placeholder="Create a strong password"
-                    className="w-full px-5 py-4 pr-12 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                    className="w-full px-5 py-4 pr-12 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
                   />
                   <button
                     type="button"
@@ -242,7 +242,7 @@ export default function SignUpPage() {
 
           {otpSent && (
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+              <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                 Enter OTP
               </label>
               <input
@@ -253,16 +253,16 @@ export default function SignUpPage() {
                 autoComplete="one-time-code"
                 placeholder="Enter 6-digit OTP"
                 maxLength={6}
-                className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-sm text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20 text-center tracking-widest"
+                className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20 text-center tracking-widest"
               />
-              <p className="text-xs text-[#9CA3AF]">OTP sent to {email}</p>
+              <p className="text-base text-[#9CA3AF]">OTP sent to {email}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={isSendingOtp || isVerifyingOtp}
-            className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-sm group disabled:opacity-60"
+            className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-base group disabled:opacity-60"
           >
             {isSendingOtp
               ? "Sending OTP…"
@@ -294,7 +294,7 @@ export default function SignUpPage() {
         </div>
 
         <div className="text-center pt-2">
-          <p className="text-sm font-medium text-[#9CA3AF]">
+          <p className="text-base font-medium text-[#9CA3AF]">
             Already have an account?{" "}
             <button
               type="button"

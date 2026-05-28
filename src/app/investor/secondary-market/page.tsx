@@ -68,7 +68,7 @@ function StatKpiCard({ stat }: { stat: StatCard }) {
           <TrendingUp className="h-5 w-5" strokeWidth={iconStroke} />
         </div>
         <span
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
             stat.up ? 'bg-ui-success-bg-soft text-ui-success-text' : 'bg-ui-danger-soft text-ui-danger-text'
           }`}
         >
@@ -76,7 +76,7 @@ function StatKpiCard({ stat }: { stat: StatCard }) {
           {stat.trend}
         </span>
       </div>
-      <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ui-faint">{stat.label}</p>
+      <p className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-ui-faint">{stat.label}</p>
       <p className="text-2xl font-bold tabular-nums tracking-tight text-ui-strong md:text-3xl">{stat.val}</p>
     </div>
   );
@@ -154,7 +154,7 @@ export default function SecondaryMarketPage() {
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Secondary Market</h1>
-            <p className="mt-1 text-sm font-medium text-ui-muted-text">
+            <p className="mt-1 text-base font-medium text-ui-muted-text">
               Trade tokenized assets peer-to-peer with instant settlement
             </p>
           </div>
@@ -171,7 +171,7 @@ export default function SecondaryMarketPage() {
                 marketIsOpen ? 'bg-emerald-500' : 'bg-zinc-400'
               }`} />
             </span>
-            <span className={`text-[12px] font-bold ${
+            <span className={`text-sm font-bold ${
               marketIsOpen ? 'text-emerald-700 dark:text-emerald-400' : 'text-zinc-500'
             }`}>
               {marketIsOpen ? 'Market Open' : 'Market Closed'}
@@ -198,13 +198,13 @@ export default function SecondaryMarketPage() {
               onChange={(e) => setSearch(e.target.value)}
               type="search"
               placeholder="Search by asset name or symbol..."
-              className="w-full rounded-2xl border border-ui-border bg-ui-card py-3.5 pl-11 pr-4 text-[13px] font-medium text-ui-strong shadow-sm outline-none transition-shadow placeholder:text-ui-placeholder focus:ring-4 focus:ring-primary/10"
+              className="w-full rounded-2xl border border-ui-border bg-ui-card py-3.5 pl-11 pr-4 text-base font-medium text-ui-strong shadow-sm outline-none transition-shadow placeholder:text-ui-placeholder focus:ring-4 focus:ring-primary/10"
             />
           </div>
           <select
             value={selectedLiquidity}
             onChange={(e) => setSelectedLiquidity(e.target.value)}
-            className="w-full sm:w-48 rounded-2xl border border-ui-border bg-ui-card px-4 py-3.5 text-[13px] font-bold text-ui-muted-text shadow-sm outline-none focus:ring-4 focus:ring-primary/10"
+            className="w-full sm:w-48 rounded-2xl border border-ui-border bg-ui-card px-4 py-3.5 text-base font-bold text-ui-muted-text shadow-sm outline-none focus:ring-4 focus:ring-primary/10"
             aria-label="Filter by liquidity level"
           >
             <option value="">All Liquidity Levels</option>
@@ -220,7 +220,7 @@ export default function SecondaryMarketPage() {
               setSearch('');
               setSelectedLiquidity('');
             }}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-ui-border bg-ui-card px-5 py-3.5 text-[13px] font-bold text-ui-muted-text shadow-sm transition-colors hover:bg-ui-muted-deep/80"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-ui-border bg-ui-card px-5 py-3.5 text-base font-bold text-ui-muted-text shadow-sm transition-colors hover:bg-ui-muted-deep/80"
           >
             <Filter className="h-4 w-4" strokeWidth={iconStroke} />
             Reset
@@ -233,8 +233,8 @@ export default function SecondaryMarketPage() {
             <Info className="h-5 w-5" strokeWidth={iconStroke} />
           </div>
           <div className="min-w-0">
-            <h4 className="mb-1 text-[13px] font-bold text-ui-strong md:text-sm">About Secondary Market</h4>
-            <p className="text-[12px] font-medium leading-relaxed text-ui-muted-text md:text-[13px]">
+            <h4 className="mb-1 text-base font-bold text-ui-strong md:text-base">About Secondary Market</h4>
+            <p className="text-sm font-medium leading-relaxed text-ui-muted-text md:text-[13px]">
               The secondary market allows investors to trade tokenized assets peer-to-peer before maturity. Prices are
               set by sellers and may differ from the original offering price. All trades are settled instantly on-chain
               with automated escrow protection.
@@ -245,7 +245,7 @@ export default function SecondaryMarketPage() {
         {/* Listings */}
         <div className="space-y-4 md:space-y-5">
           {listingsLoading ? (
-            <p className="py-12 text-center text-sm font-medium text-ui-muted-text">Loading listings...</p>
+            <p className="py-12 text-center text-base font-medium text-ui-muted-text">Loading listings...</p>
           ) : listings.map((listing) => {
             const ListingIcon = ICON_MAP[listing.iconType] ?? Building2;
             const iconWellStyle = getIconWellStyle(listing.iconType);
@@ -264,10 +264,10 @@ export default function SecondaryMarketPage() {
                     </div>
                     <div className="min-w-0">
                       <h3 className="truncate text-[15px] font-bold text-ui-strong md:text-base">{listing.name}</h3>
-                      <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                      <p className="mt-0.5 text-xs font-bold uppercase tracking-widest text-ui-faint">
                         {listing.ticker} · {listing.sector}
                       </p>
-                      <p className="mt-1 text-[11px] font-medium text-ui-muted-text">Seller: {listing.seller}</p>
+                      <p className="mt-1 text-xs font-medium text-ui-muted-text">Seller: {listing.seller}</p>
                       <span
                         className={`mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-[9px] font-bold ${LIQUIDITY_STYLES[listing.liquidity] ?? LIQUIDITY_STYLES['High Liquidity']}`}
                       >
@@ -282,7 +282,7 @@ export default function SecondaryMarketPage() {
                       <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Price per token</p>
                       <p className="text-2xl font-bold tabular-nums text-ui-strong lg:text-[1.65rem] xl:text-3xl">{listing.pricePerToken}</p>
                       <p
-                        className={`mt-1 flex items-center gap-1 text-sm font-bold ${
+                        className={`mt-1 flex items-center gap-1 text-base font-bold ${
                           listing.up ? 'text-ui-success-text' : 'text-ui-danger-text'
                         }`}
                       >
@@ -293,7 +293,7 @@ export default function SecondaryMarketPage() {
                         )}
                         {listing.change}
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] lg:mt-2.5">
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs lg:mt-2.5">
                         <div>
                           <span className="font-bold uppercase tracking-wider text-ui-faint">24h Volume </span>
                           <span className="font-bold text-ui-strong">{listing.vol24h}</span>
@@ -308,7 +308,7 @@ export default function SecondaryMarketPage() {
                     <div className="min-w-0 lg:max-w-[180px]">
                       <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">Available</p>
                       <p className="text-2xl font-bold tabular-nums text-ui-strong lg:text-[1.65rem] xl:text-3xl">{listing.available}</p>
-                      <p className="mt-2 text-[11px] lg:mt-2.5">
+                      <p className="mt-2 text-xs lg:mt-2.5">
                         <span className="font-bold uppercase tracking-wider text-ui-faint">Total </span>
                         <span className="font-bold text-ui-strong">{listing.totalVal}</span>
                       </p>
@@ -319,14 +319,14 @@ export default function SecondaryMarketPage() {
                   <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row lg:min-w-[148px] lg:flex-col lg:items-stretch">
                     <Link
                       href={`/investor/marketplace-detail?id=${listing.id}`}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5b21b6] to-[#4338ca] px-5 py-2.5 text-[12px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105 lg:px-4"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5b21b6] to-[#4338ca] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105 lg:px-4"
                     >
                       <Zap className="h-4 w-4" strokeWidth={iconStroke} />
                       Trade Now
                     </Link>
                     <Link
                       href={`/investor/marketplace-detail?id=${listing.id}`}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted-deep/80 lg:px-4"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted-deep/80 lg:px-4"
                     >
                       <BarChart3 className="h-4 w-4" strokeWidth={iconStroke} />
                       View Chart
@@ -338,7 +338,7 @@ export default function SecondaryMarketPage() {
           })}
 
           {!listingsLoading && listings.length === 0 && (
-            <p className="py-12 text-center text-sm font-medium text-ui-muted-text">No listings match your search.</p>
+            <p className="py-12 text-center text-base font-medium text-ui-muted-text">No listings match your search.</p>
           )}
         </div>
       </div>

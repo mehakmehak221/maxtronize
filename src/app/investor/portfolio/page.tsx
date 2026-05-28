@@ -173,7 +173,7 @@ export default function MyPortfolioPage() {
       <div className="max-w-full min-w-0 space-y-8 pb-10 animate-in fade-in duration-700 md:space-y-10">
         <header className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Portfolio</h1>
-          <p className="max-w-2xl text-sm font-medium text-ui-faint md:text-[15px]">
+          <p className="max-w-2xl text-base font-medium text-ui-faint md:text-[15px]">
             All tokenized assets under management, live on-chain.
           </p>
         </header>
@@ -184,14 +184,14 @@ export default function MyPortfolioPage() {
             <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/15 blur-3xl" />
             <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-violet-300/20 blur-2xl" />
             <div className="relative z-10">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/55">Total NAV</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-white/55">Total NAV</p>
                 <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">
                 {effectiveSummary?.totalNavFormatted ?? '$0'}
               </p>
-              <p className="mb-5 text-xs font-medium text-white/60">
+              <p className="mb-5 text-base font-medium text-white/60">
                 {effectiveSummary?.assetCount ?? assets.length} assets on-chain
               </p>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-[11px] font-bold text-emerald-200">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-xs font-bold text-emerald-200">
                 ↗{' '}
                 {effectiveSummary
                   ? `${effectiveSummary.ytdPercent >= 0 ? '+' : ''}${effectiveSummary.ytdPercent.toFixed(1)}%`
@@ -204,16 +204,16 @@ export default function MyPortfolioPage() {
           <div className="rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-3xl md:p-7 xl:col-span-5">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="text-sm font-bold text-ui-strong md:text-[15px]">NAV History</h2>
-                <p className="text-[11px] font-medium text-ui-faint">USD Millions · 7-month trend</p>
+                <h2 className="text-base font-bold text-ui-strong md:text-[15px]">NAV History</h2>
+                <p className="text-xs font-medium text-ui-faint">USD Millions · 7-month trend</p>
               </div>
-              <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
+              <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
                 {`${navHistoryYtd >= 0 ? '+' : ''}${navHistoryYtd.toFixed(1)}%`} YTD
               </span>
             </div>
             <div className="max-w-full min-w-0 overflow-hidden">
               {!hasNavHistoryData ? (
-                <p className="flex h-36 items-center justify-center text-sm font-medium text-ui-faint md:h-40">
+                <p className="flex h-36 items-center justify-center text-base font-medium text-ui-faint md:h-40">
                   No NAV history available yet.
                 </p>
               ) : (
@@ -247,7 +247,7 @@ export default function MyPortfolioPage() {
                         x="32"
                         y={y + 4}
                         textAnchor="end"
-                        className="fill-ui-placeholder text-[10px] font-bold"
+                        className="fill-ui-placeholder text-xs font-bold"
                       >
                         {tick === 0 ? '$0' : `$${tick}`}
                       </text>
@@ -291,7 +291,7 @@ export default function MyPortfolioPage() {
                       x={x}
                       y="162"
                       textAnchor="middle"
-                      className="fill-ui-placeholder text-[10px] font-bold"
+                      className="fill-ui-placeholder text-xs font-bold"
                     >
                       {m}
                     </text>
@@ -308,13 +308,13 @@ export default function MyPortfolioPage() {
                 <Users className="h-6 w-6" strokeWidth={1.75} aria-hidden />
               </div>
               <div className="min-w-0">
-                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <p className="mb-0.5 text-xs font-bold uppercase tracking-widest text-ui-faint">
                   Total Investors
                 </p>
                 <p className="text-2xl font-bold text-ui-strong md:text-3xl">
                   {totalInvestors != null ? totalInvestors.toLocaleString('en-US') : '—'}
                 </p>
-                <p className="text-[11px] font-medium text-ui-faint">Across all assets</p>
+                <p className="text-xs font-medium text-ui-faint">Across all assets</p>
               </div>
             </div>
             <div className="flex items-center gap-4 rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-3xl md:p-6">
@@ -322,13 +322,13 @@ export default function MyPortfolioPage() {
                 <TrendingUp className="h-6 w-6" strokeWidth={1.75} aria-hidden />
               </div>
               <div className="min-w-0">
-                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <p className="mb-0.5 text-xs font-bold uppercase tracking-widest text-ui-faint">
                   Average Token Yield
                 </p>
                 <p className="text-2xl font-bold text-primary md:text-3xl">
                   {avgApyPercent != null ? `${avgApyPercent.toFixed(1)}%` : '0%'}
                 </p>
-                <p className="text-[11px] font-medium text-ui-faint">Annualized APY</p>
+                <p className="text-xs font-medium text-ui-faint">Annualized APY</p>
               </div>
             </div>
           </div>
@@ -347,7 +347,7 @@ export default function MyPortfolioPage() {
               key={f}
               type="button"
               onClick={() => setActiveFilter(f)}
-              className={`rounded-full px-4 py-2.5 text-left text-[12px] font-bold transition-all md:px-5 md:py-3 md:text-[13px] ${
+              className={`rounded-full px-4 py-2.5 text-left text-sm font-bold transition-all md:px-5 md:py-3 md:text-[13px] ${
                 activeFilter === f
                   ? 'bg-zinc-900 text-white shadow-md dark:bg-zinc-100 dark:text-zinc-900'
                   : 'border border-ui-border bg-ui-card text-ui-muted-text shadow-sm hover:border-ui-border-strong hover:text-ui-strong'
@@ -361,7 +361,7 @@ export default function MyPortfolioPage() {
         {/* Asset cards */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
           {assetsLoading ? (
-            <p className="col-span-full text-sm text-ui-muted-text">Loading portfolio assets…</p>
+            <p className="col-span-full text-base text-ui-muted-text">Loading portfolio assets…</p>
           ) : assets.length === 0 ? (
             <div className="col-span-full overflow-hidden rounded-[28px] border border-ui-border bg-ui-card p-8 shadow-sm md:p-10">
               <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
@@ -373,7 +373,7 @@ export default function MyPortfolioPage() {
                     ? 'No portfolio assets yet'
                     : `No assets in ${activeFilter} yet`}
                 </h3>
-                <p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-ui-faint">
+                <p className="mt-2 max-w-xl text-base font-medium leading-relaxed text-ui-faint">
                   {activeFilter === 'All Assets'
                     ? 'Once you complete an investment, your portfolio positions will appear here with token value, yield, and lockup details.'
                     : 'Try another filter or browse available marketplace opportunities to build this part of your portfolio.'}
@@ -381,14 +381,14 @@ export default function MyPortfolioPage() {
                 <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                   <Link
                     href="/investor/marketplace"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90"
                   >
                     Explore Marketplace
                   </Link>
                   <button
                     type="button"
                     onClick={() => setActiveFilter('All Assets')}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ui-border px-5 py-3 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ui-border px-5 py-3 text-base font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
                   >
                     View All Assets
                   </button>
@@ -425,16 +425,16 @@ export default function MyPortfolioPage() {
                     className={`absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md ${st.ring}`}
                   >
                     <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${st.dot}`} />
-                    <span className="text-[10px] font-bold tracking-wide text-white">{asset.status}</span>
+                    <span className="text-xs font-bold tracking-wide text-white">{asset.status}</span>
                   </div>
                   <div className="absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 backdrop-blur-md">
-                    <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
+                    <span className="text-xs font-bold tracking-wider text-white">{asset.ticker}</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
                     <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
                       {asset.name}
                     </h3>
-                    <p className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-300">
+                    <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-300">
                       <Globe2 className="h-3.5 w-3.5 shrink-0 text-zinc-400" strokeWidth={2} aria-hidden />
                       <span className="line-clamp-2">
                         {asset.location} · {asset.compliance}
@@ -446,7 +446,7 @@ export default function MyPortfolioPage() {
                 <div className="flex flex-1 flex-col bg-slate-50 p-5 dark:bg-zinc-900 md:p-6">
                   <div className="mb-5 flex items-start justify-between gap-3">
                     <div>
-                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
+                      <p className="mb-1 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
                         Token price
                       </p>
                       <p className="text-xl font-bold text-slate-900 dark:text-white md:text-2xl">
@@ -454,7 +454,7 @@ export default function MyPortfolioPage() {
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 pt-1 text-sm font-bold ${
+                      className={`shrink-0 pt-1 text-base font-bold ${
                         asset.up ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
                       }`}
                     >
@@ -475,7 +475,7 @@ export default function MyPortfolioPage() {
                           {label}
                         </p>
                         <p
-                          className={`truncate text-sm font-bold md:text-[15px] ${
+                          className={`truncate text-base font-bold md:text-[15px] ${
                             label === 'APY'
                               ? 'text-emerald-600 dark:text-emerald-400'
                               : 'text-slate-900 dark:text-white'
@@ -496,11 +496,11 @@ export default function MyPortfolioPage() {
                       ) : (
                         <Unlock className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
                       )}
-                      <span className="truncate text-[11px] font-semibold">{asset.lockup}</span>
+                      <span className="truncate text-xs font-semibold">{asset.lockup}</span>
                     </div>
                     <Link
                       href={`/investor/portfolio/${asset.id}`}
-                      className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-violet-500/70 bg-transparent px-4 py-2 text-[12px] font-bold text-violet-600 transition-colors hover:bg-violet-500/10 dark:border-violet-400/60 dark:text-violet-300 dark:hover:bg-violet-500/15"
+                      className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-violet-500/70 bg-transparent px-4 py-2 text-sm font-bold text-violet-600 transition-colors hover:bg-violet-500/10 dark:border-violet-400/60 dark:text-violet-300 dark:hover:bg-violet-500/15"
                     >
                       View Details
                       <ExternalLink className="h-3.5 w-3.5 opacity-90" strokeWidth={2} aria-hidden />

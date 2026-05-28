@@ -20,10 +20,10 @@ import { useListIssuerHubAssetsQuery } from "@/store/api/issuerHubApi";
 const iconStroke = 1.75;
 
 const inputClass =
-  "w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3.5 text-sm text-[#1F2937] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20";
+  "w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3.5 text-base text-[#1F2937] outline-none transition-all placeholder:text-[#9CA3AF] focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20";
 
 const labelClass =
-  "text-[10px] font-bold uppercase tracking-[0.1em] text-[#4B5563]";
+  "text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]";
 
 type IssuerDocumentUploadModalProps = {
   open: boolean;
@@ -233,7 +233,7 @@ export function IssuerDocumentUploadModal({
               >
                 Upload document
               </h2>
-              <p className="mt-0.5 text-xs text-ui-muted-text sm:text-sm">
+              <p className="mt-0.5 text-base text-ui-muted-text sm:text-base">
                 Add a file to your secure document vault.
               </p>
             </div>
@@ -252,14 +252,14 @@ export function IssuerDocumentUploadModal({
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
           {formError ? (
             <p
-              className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+              className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700"
               role="alert"
             >
               {formError}
             </p>
           ) : null}
           {success ? (
-            <p className="mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <p className="mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-base text-emerald-700">
               {success}
             </p>
           ) : null}
@@ -314,20 +314,20 @@ export function IssuerDocumentUploadModal({
                   <div className="min-w-0 flex-1">
                     {file ? (
                       <>
-                        <p className="truncate text-[13px] font-bold text-ui-strong">
+                        <p className="truncate text-base font-bold text-ui-strong">
                           {file.name}
                         </p>
-                        <p className="mt-0.5 text-[11px] font-medium text-ui-faint">
+                        <p className="mt-0.5 text-xs font-medium text-ui-faint">
                           {formatFileSize(file.size)} · Tap to replace
                         </p>
                       </>
                     ) : (
                       <>
-                        <p className="text-[13px] font-bold text-ui-strong">
+                        <p className="text-base font-bold text-ui-strong">
                           <span className="text-[#7C3AED]">Choose a file</span> or
                           drag & drop
                         </p>
-                        <p className="mt-0.5 text-[11px] font-medium text-ui-faint">
+                        <p className="mt-0.5 text-xs font-medium text-ui-faint">
                           {ISSUER_DOCUMENT_ALLOWED_LABEL} · up to 50MB
                         </p>
                       </>
@@ -371,7 +371,7 @@ export function IssuerDocumentUploadModal({
             </div>
 
             <div className="rounded-2xl border border-ui-divider bg-ui-muted/40 p-4 sm:p-5">
-              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ui-faint">
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-ui-faint">
                 Optional details
               </p>
               <div className="space-y-4">
@@ -394,7 +394,7 @@ export function IssuerDocumentUploadModal({
                     ))}
                   </select>
                   {linkableAssets.length === 0 ? (
-                    <p className="text-[11px] font-medium text-ui-faint">
+                    <p className="text-xs font-medium text-ui-faint">
                       No tokenized assets yet. You can upload without linking an
                       asset.
                     </p>
@@ -446,7 +446,7 @@ export function IssuerDocumentUploadModal({
             type="button"
             onClick={handleClose}
             disabled={isLoading}
-            className="w-full rounded-xl border border-ui-border bg-white px-6 py-3 text-sm font-bold text-ui-body transition-colors hover:bg-ui-muted-deep disabled:opacity-60 sm:w-auto"
+            className="w-full rounded-xl border border-ui-border bg-white px-6 py-3 text-base font-bold text-ui-body transition-colors hover:bg-ui-muted-deep disabled:opacity-60 sm:w-auto"
           >
             Cancel
           </button>
@@ -454,7 +454,7 @@ export function IssuerDocumentUploadModal({
             type="submit"
             form="issuer-document-upload-form"
             disabled={isLoading}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#9810FA] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/25 transition-all hover:bg-[#7C3AED] disabled:opacity-60 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#9810FA] px-8 py-3 text-base font-bold text-white shadow-lg shadow-violet-500/25 transition-all hover:bg-[#7C3AED] disabled:opacity-60 sm:w-auto"
           >
             <Upload className="h-4 w-4" strokeWidth={iconStroke} />
             {isLoading ? "Uploading…" : "Upload document"}

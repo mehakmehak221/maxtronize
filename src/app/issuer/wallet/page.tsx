@@ -214,14 +214,14 @@ function WalletActionForm({
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-ui-strong">{title}</h2>
-          <p className="mt-1 text-sm text-ui-muted-text">
+          <p className="mt-1 text-base text-ui-muted-text">
             Submit this action through the live issuer wallet API.
           </p>
         </div>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl border border-ui-border px-3 py-2 text-xs font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+          className="rounded-xl border border-ui-border px-3 py-2 text-base font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
         >
           Close
         </button>
@@ -231,25 +231,25 @@ function WalletActionForm({
         {action === 'connect' ? (
           <>
             <label className="space-y-2 md:col-span-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Wallet Name</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Wallet Name</span>
               <input
                 type="text"
                 value={form.connectName}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, connectName: event.target.value }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                 placeholder="e.g., Platform Treasury Wallet"
               />
             </label>
             <label className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Network</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Network</span>
               <select
                 value={form.connectNetwork}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, connectNetwork: event.target.value }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 bg-white"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 bg-white"
               >
                 <option value="Ethereum">Ethereum</option>
                 <option value="Polygon">Polygon</option>
@@ -258,14 +258,14 @@ function WalletActionForm({
               </select>
             </label>
             <label className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Wallet Address</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Wallet Address</span>
               <input
                 type="text"
                 value={form.connectAddress}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, connectAddress: event.target.value }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                 placeholder="0x..."
               />
             </label>
@@ -277,13 +277,13 @@ function WalletActionForm({
                 {wallets.length > 0 ? (
                   <>
                     <label className="space-y-2">
-                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Source Wallet (From)</span>
+                      <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Source Wallet (From)</span>
                       <select
                         value={form.walletId}
                         onChange={(event) =>
                           setForm((prev) => ({ ...prev, walletId: event.target.value }))
                         }
-                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
+                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
                       >
                         <option value="">-- Choose Source Wallet --</option>
                         {wallets.map((w, index) => (
@@ -294,13 +294,13 @@ function WalletActionForm({
                       </select>
                     </label>
                     <label className="space-y-2">
-                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Destination Wallet (To)</span>
+                      <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Destination Wallet (To)</span>
                       <select
                         value={form.toWalletId}
                         onChange={(event) =>
                           setForm((prev) => ({ ...prev, toWalletId: event.target.value }))
                         }
-                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
+                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
                       >
                         <option value="">-- Choose Destination Wallet --</option>
                         {wallets.map((w, index) => (
@@ -314,30 +314,30 @@ function WalletActionForm({
                 ) : (
                   <>
                     <label className="space-y-2">
-                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Source Wallet ID (UUID)</span>
+                      <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Source Wallet ID (UUID)</span>
                       <input
                         type="text"
                         value={form.walletId}
                         onChange={(event) =>
                           setForm((prev) => ({ ...prev, walletId: event.target.value }))
                         }
-                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                         placeholder="e.g., 16221174-8ba5-43a2-b523-4cfee56633fc"
                       />
                     </label>
                     <label className="space-y-2">
-                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Destination Wallet ID (UUID)</span>
+                      <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Destination Wallet ID (UUID)</span>
                       <input
                         type="text"
                         value={form.toWalletId}
                         onChange={(event) =>
                           setForm((prev) => ({ ...prev, toWalletId: event.target.value }))
                         }
-                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                        className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                         placeholder="e.g., d5c5c1a8-8f81-42d8-bf96-b09e865f123a"
                       />
                     </label>
-                    <p className="text-[11px] font-medium text-amber-600/90 dark:text-amber-400/90 md:col-span-2">
+                    <p className="text-xs font-medium text-amber-600/90 dark:text-amber-400/90 md:col-span-2">
                       No active wallets are connected. Please enter valid UUIDs manually for both source and destination.
                     </p>
                   </>
@@ -347,13 +347,13 @@ function WalletActionForm({
               <>
                 {wallets.length > 0 ? (
                   <label className="space-y-2 md:col-span-2">
-                    <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Select Wallet</span>
+                    <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Select Wallet</span>
                     <select
                       value={form.walletId}
                       onChange={(event) =>
                         setForm((prev) => ({ ...prev, walletId: event.target.value }))
                       }
-                      className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
+                      className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10 opacity-100 bg-white"
                     >
                       <option value="">-- Choose a Wallet --</option>
                       {wallets.map((w, index) => (
@@ -365,17 +365,17 @@ function WalletActionForm({
                   </label>
                 ) : (
                   <label className="space-y-2 md:col-span-2">
-                    <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Wallet ID (UUID)</span>
+                    <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Wallet ID (UUID)</span>
                     <input
                       type="text"
                       value={form.walletId}
                       onChange={(event) =>
                         setForm((prev) => ({ ...prev, walletId: event.target.value }))
                       }
-                      className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                      className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                       placeholder="e.g., 16221174-8ba5-43a2-b523-4cfee56633fc"
                     />
-                    <p className="text-[11px] font-medium text-amber-600/90 dark:text-amber-400/90">
+                    <p className="text-xs font-medium text-amber-600/90 dark:text-amber-400/90">
                       No active wallets are connected. Please enter a valid UUID manually.
                     </p>
                   </label>
@@ -384,7 +384,7 @@ function WalletActionForm({
             )}
 
             <label className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Amount</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Amount</span>
               <input
                 type="number"
                 min="0"
@@ -393,32 +393,32 @@ function WalletActionForm({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, amount: event.target.value }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                 placeholder="1000"
               />
             </label>
             <label className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Currency</span>
+              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Currency</span>
               <input
                 type="text"
                 value={form.currency}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, currency: event.target.value.toUpperCase() }))
                 }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                 placeholder="USD"
               />
             </label>
             {action === 'deposit' ? (
               <label className="space-y-2 md:col-span-2">
-                <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Treasury Note</span>
+                <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Treasury Note</span>
                 <input
                   type="text"
                   value={form.note}
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, note: event.target.value }))
                   }
-                  className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-sm text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
+                  className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
                   placeholder="Platform treasury deposit"
                 />
               </label>
@@ -428,12 +428,12 @@ function WalletActionForm({
       </div>
 
       {error ? (
-        <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-base font-medium text-red-700">
           {error}
         </p>
       ) : null}
       {success ? (
-        <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+        <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-base font-medium text-emerald-700">
           {success}
         </p>
       ) : null}
@@ -443,14 +443,14 @@ function WalletActionForm({
           type="button"
           onClick={() => void onSubmit()}
           disabled={isSubmitting}
-          className="rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2xl bg-primary px-5 py-3 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? 'Submitting...' : submitLabel}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-2xl border border-ui-border px-5 py-3 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+          className="rounded-2xl border border-ui-border px-5 py-3 text-base font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
         >
           Cancel
         </button>
@@ -463,7 +463,7 @@ function SectionLinkButton({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="flex w-full items-center justify-center gap-1 rounded-xl border border-ui-border bg-ui-card py-3.5 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+      className="flex w-full items-center justify-center gap-1 rounded-xl border border-ui-border bg-ui-card py-3.5 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
     >
       {label}
       <ChevronRight className="h-4 w-4" strokeWidth={iconStroke} />
@@ -644,7 +644,7 @@ export default function WalletPage() {
       <div className="animate-page-enter mx-auto w-full max-w-7xl min-w-0 space-y-6 sm:space-y-8 xl:space-y-10">
         <div className="animate-slide-up space-y-1">
           <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">Wallet</h1>
-          <p className="text-sm font-medium text-ui-muted-text">
+          <p className="text-base font-medium text-ui-muted-text">
             Connected wallets, token holdings, and on-chain transaction history.
           </p>
         </div>
@@ -656,7 +656,7 @@ export default function WalletPage() {
           <div className="relative z-10 flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between xl:gap-10">
             <div className="min-w-0 flex-1 space-y-5 sm:space-y-6">
               <div>
-                <p className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/55">
+                <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-white/55">
                   <Wallet className="h-4 w-4 shrink-0 text-white/70" strokeWidth={iconStroke} />
                   Total Portfolio Value
                 </p>
@@ -667,10 +667,10 @@ export default function WalletPage() {
               </div>
 
               <div className="space-y-2 sm:space-y-3">
-                <p className="text-sm font-medium text-white/55">
+                <p className="text-base font-medium text-white/55">
                   {(summary?.walletCount ?? wallets.length)} connected {(summary?.walletCount ?? wallets.length) === 1 ? 'wallet' : 'wallets'} · {(summary?.holdingCount ?? holdings.length)} token {(summary?.holdingCount ?? holdings.length) === 1 ? 'position' : 'positions'}
                 </p>
-                <p className="flex flex-wrap items-center gap-1.5 text-sm font-bold text-[#34D399]">
+                <p className="flex flex-wrap items-center gap-1.5 text-base font-bold text-[#34D399]">
                   <ArrowUpRight className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
                   {monthlyChangeText}
                 </p>
@@ -681,7 +681,7 @@ export default function WalletPage() {
               <button
                 type="button"
                 onClick={() => openAction('deposit')}
-                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl bg-white py-3.5 text-[13px] font-bold text-[#111827] shadow-lg transition-transform hover:scale-[1.02] sm:min-w-[140px] xl:min-w-0 dark:bg-[#f8fafc] dark:text-[#0d0d12]"
+                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl bg-white py-3.5 text-base font-bold text-[#111827] shadow-lg transition-transform hover:scale-[1.02] sm:min-w-[140px] xl:min-w-0 dark:bg-[#f8fafc] dark:text-[#0d0d12]"
               >
                 <ArrowDownLeft className="h-4 w-4" strokeWidth={iconStroke} />
                 Deposit
@@ -689,7 +689,7 @@ export default function WalletPage() {
               <button
                 type="button"
                 onClick={() => openAction('withdraw')}
-                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/5 py-3.5 text-[13px] font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10 sm:min-w-[140px] xl:min-w-0"
+                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/5 py-3.5 text-base font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10 sm:min-w-[140px] xl:min-w-0"
               >
                 <ArrowUpRight className="h-4 w-4" strokeWidth={iconStroke} />
                 Withdraw
@@ -697,7 +697,7 @@ export default function WalletPage() {
               <button
                 type="button"
                 onClick={() => openAction('transfer')}
-                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/5 py-3.5 text-[13px] font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10 sm:min-w-[140px] xl:min-w-0"
+                className="flex w-full flex-1 items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/5 py-3.5 text-base font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10 sm:min-w-[140px] xl:min-w-0"
               >
                 <ArrowLeftRight className="h-4 w-4" strokeWidth={iconStroke} />
                 Transfer
@@ -725,7 +725,7 @@ export default function WalletPage() {
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-[15px] font-bold text-ui-strong">Connected Wallets</h2>
-                <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-[10px] font-bold text-[#7C3AED]">
+                <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-bold text-[#7C3AED]">
                   {wallets.length}
                 </span>
               </div>
@@ -733,7 +733,7 @@ export default function WalletPage() {
 
             <div className="space-y-3">
               {walletsLoading ? (
-                <p className="rounded-2xl border border-ui-border bg-ui-card px-4 py-8 text-center text-sm font-medium text-ui-muted-text">
+                <p className="rounded-2xl border border-ui-border bg-ui-card px-4 py-8 text-center text-base font-medium text-ui-muted-text">
                   Loading wallets...
                 </p>
               ) : wallets.length > 0 ? (
@@ -749,12 +749,12 @@ export default function WalletPage() {
                           <WalletNetworkIcon type={wallet.icon} />
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <h3 className="truncate text-[13px] font-bold text-ui-strong">{wallet.name}</h3>
+                              <h3 className="truncate text-base font-bold text-ui-strong">{wallet.name}</h3>
                               {wallet.secured ? (
                                 <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" strokeWidth={iconStroke} aria-label="Secured" />
                               ) : null}
                             </div>
-                            <p className="text-[11px] font-medium text-ui-faint">{wallet.network}</p>
+                            <p className="text-xs font-medium text-ui-faint">{wallet.network}</p>
                           </div>
                         </div>
                         {explorerUrl ? (
@@ -771,7 +771,7 @@ export default function WalletPage() {
                       </div>
                       <p className="mb-2 text-xl font-bold text-ui-strong">{wallet.balance}</p>
                       <div className="flex items-center gap-2">
-                        <code className="rounded-md bg-ui-muted-deep px-2 py-1 font-mono text-[10px] text-ui-muted-text">
+                        <code className="rounded-md bg-ui-muted-deep px-2 py-1 font-mono text-xs text-ui-muted-text">
                           {wallet.address}
                         </code>
                         <button
@@ -781,7 +781,7 @@ export default function WalletPage() {
                           aria-label="Copy address"
                         >
                           {copied === wallet.address ? (
-                            <span className="text-[10px] font-bold text-emerald-500">Copied!</span>
+                            <span className="text-xs font-bold text-emerald-500">Copied!</span>
                           ) : (
                             <Copy className="h-3.5 w-3.5" strokeWidth={iconStroke} />
                           )}
@@ -792,8 +792,8 @@ export default function WalletPage() {
                 })
               ) : (
                 <div className="rounded-2xl border border-dashed border-ui-border bg-ui-card px-4 py-8 text-center">
-                  <p className="text-sm font-bold text-ui-strong">No managed wallets yet</p>
-                  <p className="mt-1 text-xs font-medium text-ui-muted-text">
+                  <p className="text-base font-bold text-ui-strong">No managed wallets yet</p>
+                  <p className="mt-1 text-base font-medium text-ui-muted-text">
                     Wallets will appear here once they are provisioned on the backend.
                   </p>
                 </div>
@@ -803,8 +803,8 @@ export default function WalletPage() {
                 <div className="flex items-start gap-3 rounded-[16px] border border-emerald-200 bg-emerald-50/80 px-4 py-4">
                   <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" strokeWidth={iconStroke} />
                   <div>
-                    <p className="text-[12px] font-bold text-emerald-800">All wallets secured</p>
-                    <p className="text-[11px] font-medium text-emerald-700/80">
+                    <p className="text-sm font-bold text-emerald-800">All wallets secured</p>
+                    <p className="text-xs font-medium text-emerald-700/80">
                       Live wallet records show secure custody coverage.
                     </p>
                   </div>
@@ -816,22 +816,22 @@ export default function WalletPage() {
           <section id="issuer-wallet-holdings" className="animate-slide-up delay-300 min-w-0 space-y-4">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-[15px] font-bold text-ui-strong">Token Holdings</h2>
-              <span className="rounded-full bg-violet-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#7C3AED]">
+              <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#7C3AED]">
                 {holdings.length} {holdings.length === 1 ? 'position' : 'positions'}
               </span>
             </div>
 
             <div className="rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-7">
               {holdingsLoading ? (
-                <p className="py-10 text-center text-sm font-medium text-ui-muted-text">Loading holdings...</p>
+                <p className="py-10 text-center text-base font-medium text-ui-muted-text">Loading holdings...</p>
               ) : holdings.length > 0 ? (
                 <>
                   <div className="mb-8 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                      <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">
                         Portfolio Distribution
                       </span>
-                      <span className="text-[12px] font-bold text-ui-strong">{totalValueFormatted} total</span>
+                      <span className="text-sm font-bold text-ui-strong">{totalValueFormatted} total</span>
                     </div>
                     <div className="flex h-3 overflow-hidden rounded-full">
                       {holdings.map((holding) => (
@@ -850,18 +850,18 @@ export default function WalletPage() {
                       <div key={holding.ticker} className="flex items-center justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
                           <div
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${holding.iconBg}`}
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${holding.iconBg}`}
                           >
                             {holding.initials}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[13px] font-bold text-ui-strong">{holding.ticker}</p>
-                            <p className="truncate text-[11px] font-medium text-ui-faint">{holding.asset}</p>
+                            <p className="text-base font-bold text-ui-strong">{holding.ticker}</p>
+                            <p className="truncate text-xs font-medium text-ui-faint">{holding.asset}</p>
                           </div>
                         </div>
                         <div className="shrink-0 text-right">
-                          <p className="text-[13px] font-bold text-ui-strong">{holding.value}</p>
-                          <p className={`text-[11px] font-bold ${holding.change.startsWith('+') ? 'text-ui-success-text' : holding.change === '0%' ? 'text-ui-faint' : 'text-ui-body'}`}>
+                          <p className="text-base font-bold text-ui-strong">{holding.value}</p>
+                          <p className={`text-xs font-bold ${holding.change.startsWith('+') ? 'text-ui-success-text' : holding.change === '0%' ? 'text-ui-faint' : 'text-ui-body'}`}>
                             {holding.change}
                           </p>
                         </div>
@@ -871,8 +871,8 @@ export default function WalletPage() {
                 </>
               ) : (
                 <div className="rounded-2xl border border-dashed border-ui-border px-4 py-8 text-center">
-                  <p className="text-sm font-bold text-ui-strong">No holdings yet</p>
-                  <p className="mt-1 text-xs font-medium text-ui-muted-text">
+                  <p className="text-base font-bold text-ui-strong">No holdings yet</p>
+                  <p className="mt-1 text-base font-medium text-ui-muted-text">
                     Token positions will appear here after assets move through onboarding and issuance.
                   </p>
                 </div>
@@ -887,7 +887,7 @@ export default function WalletPage() {
           <section id="issuer-wallet-transactions" className="animate-slide-up delay-400 min-w-0 space-y-4 md:col-span-2 2xl:col-span-1">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-[15px] font-bold text-ui-strong">Transactions</h2>
-              <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-ui-faint">
+              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ui-faint">
                 <Activity className="h-3.5 w-3.5 text-ui-faint" strokeWidth={iconStroke} />
                 Live
               </span>
@@ -896,7 +896,7 @@ export default function WalletPage() {
             <div className="rounded-[24px] border border-ui-border bg-ui-card p-3 shadow-sm md:p-4">
               <div className="divide-y divide-ui-divider">
                 {transactionsLoading ? (
-                  <p className="px-4 py-10 text-center text-sm font-medium text-ui-muted-text">Loading transactions...</p>
+                  <p className="px-4 py-10 text-center text-base font-medium text-ui-muted-text">Loading transactions...</p>
                 ) : transactions.length > 0 ? (
                   transactions.map((transaction, index) => {
                     const isNegative = transaction.amount.startsWith('-');
@@ -908,12 +908,12 @@ export default function WalletPage() {
                         <div className="flex min-w-0 items-center gap-3">
                           <TxIcon kind={transaction.kind} />
                           <div className="min-w-0">
-                            <p className="truncate text-[13px] font-bold text-ui-strong">{transaction.title}</p>
-                            <p className="text-[11px] font-medium text-ui-faint">{transaction.date}</p>
+                            <p className="truncate text-base font-bold text-ui-strong">{transaction.title}</p>
+                            <p className="text-xs font-medium text-ui-faint">{transaction.date}</p>
                           </div>
                         </div>
                         <div className="shrink-0 text-right">
-                          <p className={`text-[13px] font-bold ${isNegative ? 'text-ui-body' : 'text-ui-success-text'}`}>
+                          <p className={`text-base font-bold ${isNegative ? 'text-ui-body' : 'text-ui-success-text'}`}>
                             {transaction.amount}
                           </p>
                           {transaction.pending ? (
@@ -926,7 +926,7 @@ export default function WalletPage() {
                     );
                   })
                 ) : (
-                  <p className="px-4 py-10 text-center text-sm font-medium text-ui-muted-text">
+                  <p className="px-4 py-10 text-center text-base font-medium text-ui-muted-text">
                     No issuer wallet transactions yet.
                   </p>
                 )}

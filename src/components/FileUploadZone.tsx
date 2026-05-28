@@ -79,17 +79,17 @@ export const FileUploadZone = forwardRef<FileUploadZoneHandle, FileUploadZonePro
             <Upload className="h-5 w-5" strokeWidth={iconStroke} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-bold text-ui-strong">
+            <p className="text-base font-bold text-ui-strong">
               <span className="text-[#7C3AED] underline decoration-violet-300 underline-offset-2">
                 {isLoading ? "Uploading…" : "Click to upload"}
               </span>{" "}
               or drag & drop files here
             </p>
-            <p className="mt-0.5 text-[11px] font-medium text-ui-faint">
+            <p className="mt-0.5 text-xs font-medium text-ui-faint">
               PDF, DOCX, XLSX up to 50MB · Encrypted at rest
             </p>
             {helperText ? (
-              <p className="mt-1 text-[10px] font-medium text-ui-placeholder">
+              <p className="mt-1 text-xs font-medium text-ui-placeholder">
                 {helperText}
               </p>
             ) : null}
@@ -102,10 +102,10 @@ export const FileUploadZone = forwardRef<FileUploadZoneHandle, FileUploadZonePro
         </div>
       </div>
       {message ? (
-        <p className="mt-2 text-[12px] font-medium text-emerald-600">{message}</p>
+        <p className="mt-2 text-sm font-medium text-emerald-600">{message}</p>
       ) : null}
       {error ? (
-        <p className="mt-2 text-[12px] font-medium text-red-600" role="alert">
+        <p className="mt-2 text-sm font-medium text-red-600" role="alert">
           {error}
         </p>
       ) : null}

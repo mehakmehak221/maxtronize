@@ -98,13 +98,13 @@ export default function Future() {
                         className="overflow-hidden"
                       >
                         <div className="pl-10 md:pl-10 pb-6 pr-4">
-                          <p className="text-[14px] sm:text-[15px] mb-6 leading-relaxed text-[#555555]">
+                          <p className="text-base sm:text-[15px] mb-6 leading-relaxed text-[#555555]">
                             {feature.description}
                           </p>
 
                           <Link
                             href="https://beta.maxtronize.com/signin"
-                            className="group relative inline-flex w-fit items-center gap-3 overflow-hidden rounded-md bg-[#1A1A1A] px-5 py-2.5 text-[14px] font-medium text-white shadow-md transition-shadow hover:shadow-lg"
+                            className="group relative inline-flex w-fit items-center gap-3 overflow-hidden rounded-md bg-[#1A1A1A] px-5 py-2.5 text-base font-medium text-white shadow-md transition-shadow hover:shadow-lg"
                           >
                             <motion.span
                               className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"

@@ -111,7 +111,7 @@ function YieldStatCardUI({ stat }: { stat: YieldStatCard }) {
       </div>
       <div>
         <p
-          className={`mb-2 text-[10px] font-bold uppercase tracking-[0.12em] ${
+          className={`mb-2 text-xs font-bold uppercase tracking-[0.12em] ${
             isPrimary ? "text-white/70" : "text-ui-faint"
           }`}
         >
@@ -123,7 +123,7 @@ function YieldStatCardUI({ stat }: { stat: YieldStatCard }) {
           {stat.value}
         </p>
         <p
-          className={`mt-2 text-[13px] font-medium ${isPrimary ? "text-white/65" : "text-ui-faint"}`}
+          className={`mt-2 text-base font-medium ${isPrimary ? "text-white/65" : "text-ui-faint"}`}
         >
           {stat.sub}
         </p>
@@ -219,7 +219,7 @@ function DistributionScheduleChart({
 
   if (loading) {
     return (
-      <div className="flex min-h-[200px] items-center justify-center text-sm font-medium text-ui-faint">
+      <div className="flex min-h-[200px] items-center justify-center text-base font-medium text-ui-faint">
         Loading distribution schedule…
       </div>
     );
@@ -227,7 +227,7 @@ function DistributionScheduleChart({
 
   if (n === 0) {
     return (
-      <div className="flex min-h-[200px] items-center justify-center text-sm font-medium text-ui-faint">
+      <div className="flex min-h-[200px] items-center justify-center text-base font-medium text-ui-faint">
         No distribution data for this period.
       </div>
     );
@@ -267,7 +267,7 @@ function DistributionScheduleChart({
                 y={y + 4}
                 textAnchor="end"
                 fill="#9CA3AF"
-                className="text-[10px] font-bold"
+                className="text-xs font-bold"
               >
                 {formatDistributionChartYTick(k, scaleSuffix)}
               </text>
@@ -385,7 +385,7 @@ function DistributionScheduleChart({
               y={chartBottom + 22}
               textAnchor="middle"
               fill="#9CA3AF"
-              className="text-[10px] font-bold uppercase"
+              className="text-xs font-bold uppercase"
             >
               {m.label}
             </text>
@@ -645,7 +645,7 @@ export default function YieldPage() {
           <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">
             Yield
           </h1>
-          <p className="text-sm font-medium text-ui-muted-text">
+          <p className="text-base font-medium text-ui-muted-text">
             Track distributions, APY performance, and upcoming payout schedules.
           </p>
         </div>
@@ -662,16 +662,16 @@ export default function YieldPage() {
               <h3 className="mb-1 text-[15px] font-bold text-ui-strong">
                 APY by Asset
               </h3>
-              <p className="text-xs font-medium text-ui-faint">
+              <p className="text-base font-medium text-ui-faint">
                 Annualized yield performance
               </p>
             </div>
             {assetsLoading ? (
-              <p className="text-sm font-medium text-ui-faint">
+              <p className="text-base font-medium text-ui-faint">
                 Loading assets…
               </p>
             ) : apyAssets.length === 0 ? (
-              <p className="text-sm font-medium text-ui-faint">
+              <p className="text-base font-medium text-ui-faint">
                 No assets with APY data.
               </p>
             ) : (
@@ -683,11 +683,11 @@ export default function YieldPage() {
                         <span
                           className={`h-2 w-2 shrink-0 rounded-full ${asset.palette.dot}`}
                         />
-                        <span className="text-[12px] font-bold text-ui-body">
+                        <span className="text-sm font-bold text-ui-body">
                           {asset.name}
                         </span>
                       </div>
-                      <span className="text-[12px] font-bold text-[#7C3AED]">
+                      <span className="text-sm font-bold text-[#7C3AED]">
                         {asset.pct}%
                       </span>
                     </div>
@@ -709,7 +709,7 @@ export default function YieldPage() {
                 <h3 className="mb-1 text-[15px] font-bold text-ui-strong">
                   Distribution Schedule
                 </h3>
-                <p className="text-xs font-medium text-ui-faint">
+                <p className="text-base font-medium text-ui-faint">
                   Monthly distributions vs. projected (
                   {schedule?.year ?? currentYear})
                 </p>
@@ -718,7 +718,7 @@ export default function YieldPage() {
                 <button
                   type="button"
                   onClick={() => setChartMode("bar")}
-                  className={`rounded-md px-3 py-1.5 text-[11px] font-bold transition-all ${
+                  className={`rounded-md px-3 py-1.5 text-xs font-bold transition-all ${
                     chartMode === "bar"
                       ? "bg-ui-card text-ui-strong shadow-sm"
                       : "text-ui-faint hover:text-ui-muted-text"
@@ -729,7 +729,7 @@ export default function YieldPage() {
                 <button
                   type="button"
                   onClick={() => setChartMode("area")}
-                  className={`rounded-md px-3 py-1.5 text-[11px] font-bold transition-all ${
+                  className={`rounded-md px-3 py-1.5 text-xs font-bold transition-all ${
                     chartMode === "area"
                       ? "bg-ui-card text-ui-strong shadow-sm"
                       : "text-ui-faint hover:text-ui-muted-text"
@@ -754,7 +754,7 @@ export default function YieldPage() {
 
             <div className="mt-6 grid grid-cols-1 gap-6 border-t border-ui-border pt-6 sm:grid-cols-3 sm:gap-8 sm:pt-8">
               <div>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-ui-faint">
                   Distributed YTD
                 </p>
                 <p className="text-xl font-bold text-ui-strong">
@@ -762,7 +762,7 @@ export default function YieldPage() {
                 </p>
               </div>
               <div>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-ui-faint">
                   EOY Projection
                 </p>
                 <p className="text-xl font-bold text-ui-strong">
@@ -770,7 +770,7 @@ export default function YieldPage() {
                 </p>
               </div>
               <div>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <p className="mb-1 text-xs font-bold uppercase tracking-widest text-ui-faint">
                   Achievement Rate
                 </p>
                 <p className="text-xl font-bold text-ui-success-text">
@@ -790,17 +790,17 @@ export default function YieldPage() {
               <h3 className="text-[15px] font-bold text-ui-strong">
                 Upcoming Payouts
               </h3>
-              <p className="text-xs font-medium text-ui-faint">
+              <p className="text-base font-medium text-ui-faint">
                 Scheduled distributions
               </p>
             </div>
           </div>
           {payoutsLoading ? (
-            <p className="text-sm font-medium text-ui-faint">
+            <p className="text-base font-medium text-ui-faint">
               Loading upcoming payouts…
             </p>
           ) : upcoming.length === 0 ? (
-            <p className="text-sm font-medium text-ui-faint">
+            <p className="text-base font-medium text-ui-faint">
               No upcoming payouts scheduled.
             </p>
           ) : (
@@ -819,13 +819,13 @@ export default function YieldPage() {
                       aria-hidden
                     />
                     <div className="space-y-1 pr-8">
-                      <span className="text-[11px] font-bold uppercase tracking-wide text-amber-600">
+                      <span className="text-xs font-bold uppercase tracking-wide text-amber-600">
                         {dateLabel}
                       </span>
-                      <h4 className="truncate text-sm font-bold text-ui-strong">
+                      <h4 className="truncate text-base font-bold text-ui-strong">
                         {p.assetTitle}
                       </h4>
-                      <p className="text-[11px] font-medium text-ui-muted-text">
+                      <p className="text-xs font-medium text-ui-muted-text">
                         {p.payoutType}
                       </p>
                     </div>
@@ -839,13 +839,13 @@ export default function YieldPage() {
                     className="flex min-h-[140px] flex-col justify-between rounded-2xl border border-ui-border bg-ui-card p-5 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] sm:rounded-[20px] sm:p-6"
                   >
                     <div className="space-y-1">
-                      <span className="text-[11px] font-bold uppercase tracking-wide text-[#7C3AED]">
+                      <span className="text-xs font-bold uppercase tracking-wide text-[#7C3AED]">
                         {dateLabel}
                       </span>
-                      <h4 className="truncate text-sm font-bold text-ui-strong">
+                      <h4 className="truncate text-base font-bold text-ui-strong">
                         {p.assetTitle}
                       </h4>
-                      <p className="text-[11px] font-medium text-ui-muted-text">
+                      <p className="text-xs font-medium text-ui-muted-text">
                         {p.payoutType}
                       </p>
                     </div>
@@ -865,7 +865,7 @@ export default function YieldPage() {
               <h3 className="mb-1 text-[15px] font-bold text-ui-strong">
                 Asset Yield Breakdown
               </h3>
-              <p className="text-xs font-medium text-ui-faint">
+              <p className="text-base font-medium text-ui-faint">
                 Individual APY performance and distribution schedules
               </p>
             </div>
@@ -875,7 +875,7 @@ export default function YieldPage() {
                 exporting || breakdownLoading || yieldBreakdown.length === 0
               }
               onClick={handleExportBreakdownCsv}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-[11px] font-bold text-ui-body shadow-sm transition-colors hover:bg-ui-muted disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-ui-border bg-ui-card px-5 py-2.5 text-xs font-bold text-ui-body shadow-sm transition-colors hover:bg-ui-muted disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Download className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
               {exporting ? "Exporting…" : "Export CSV"}
@@ -883,11 +883,11 @@ export default function YieldPage() {
           </div>
 
           {breakdownLoading && breakdownRows.length === 0 ? (
-            <p className="px-6 py-8 text-sm font-medium text-ui-faint">
+            <p className="px-6 py-8 text-base font-medium text-ui-faint">
               Loading breakdown…
             </p>
           ) : breakdownRows.length === 0 ? (
-            <p className="px-6 py-8 text-sm font-medium text-ui-faint">
+            <p className="px-6 py-8 text-base font-medium text-ui-faint">
               No asset yield data available yet.
             </p>
           ) : (
@@ -906,10 +906,10 @@ export default function YieldPage() {
                             className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`}
                           />
                           <div className="min-w-0">
-                            <p className="truncate text-[13px] font-bold text-ui-strong">
+                            <p className="truncate text-base font-bold text-ui-strong">
                               {row.name}
                             </p>
-                            <p className="text-[10px] font-medium uppercase tracking-widest text-ui-faint">
+                            <p className="text-xs font-medium uppercase tracking-widest text-ui-faint">
                               {row.tag}
                             </p>
                           </div>
@@ -924,7 +924,7 @@ export default function YieldPage() {
                           {row.status}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-3 border-t border-ui-divider pt-3 text-[11px]">
+                      <div className="grid grid-cols-2 gap-3 border-t border-ui-divider pt-3 text-xs">
                         <div>
                           <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
                             APY
@@ -973,7 +973,7 @@ export default function YieldPage() {
                       ].map((col) => (
                         <th
                           key={col}
-                          className={`px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
+                          className={`px-4 py-4 text-xs font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
                             col === "Asset"
                               ? "sticky left-0 z-10 bg-ui-muted pl-6 xl:pl-8"
                               : ""
@@ -998,43 +998,43 @@ export default function YieldPage() {
                                 className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`}
                               />
                               <div className="min-w-0">
-                                <p className="truncate text-[13px] font-bold text-ui-strong">
+                                <p className="truncate text-base font-bold text-ui-strong">
                                   {row.name}
                                 </p>
-                                <p className="text-[10px] font-medium uppercase tracking-widest text-ui-faint">
+                                <p className="text-xs font-medium uppercase tracking-widest text-ui-faint">
                                   {row.tag}
                                 </p>
                               </div>
                             </div>
                           </td>
                           <td className="whitespace-nowrap px-4 py-5 xl:px-8 xl:py-6">
-                            <span className="text-[13px] font-bold text-ui-success-text">
+                            <span className="text-base font-bold text-ui-success-text">
                               {row.apy}
                             </span>
                           </td>
                           <td className="whitespace-nowrap px-4 py-5 xl:px-8 xl:py-6">
-                            <span className="text-[13px] font-bold tabular-nums text-ui-strong">
+                            <span className="text-base font-bold tabular-nums text-ui-strong">
                               {row.total}
                             </span>
                           </td>
                           <td className="hidden px-4 py-5 lg:table-cell xl:px-8 xl:py-6">
-                            <span className="inline-flex rounded-lg border border-ui-border bg-ui-muted-deep px-3 py-1 text-[10px] font-bold text-ui-body">
+                            <span className="inline-flex rounded-lg border border-ui-border bg-ui-muted-deep px-3 py-1 text-xs font-bold text-ui-body">
                               {row.freq}
                             </span>
                           </td>
                           <td className="hidden px-4 py-5 2xl:table-cell xl:px-8 xl:py-6">
-                            <span className="text-[12px] font-medium text-ui-muted-text">
+                            <span className="text-sm font-medium text-ui-muted-text">
                               {row.last}
                             </span>
                           </td>
                           <td className="whitespace-nowrap px-4 py-5 xl:px-8 xl:py-6">
-                            <span className="text-[12px] font-bold text-ui-strong">
+                            <span className="text-sm font-bold text-ui-strong">
                               {row.next}
                             </span>
                           </td>
                           <td className="px-4 py-5 pr-6 xl:px-8 xl:py-6">
                             <span
-                              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold ${statusStyle.pill}`}
+                              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold ${statusStyle.pill}`}
                             >
                               <span
                                 className={`h-1.5 w-1.5 shrink-0 rounded-full ${statusStyle.dot}`}

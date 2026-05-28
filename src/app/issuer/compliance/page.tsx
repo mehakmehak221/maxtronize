@@ -105,7 +105,7 @@ function ComplianceScoreGauge({ score }: { score: number }) {
       </svg>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         <p className="text-[44px] font-bold leading-none tracking-tight text-ui-strong">{score}</p>
-        <p className="mt-1 text-sm font-medium text-ui-faint">/ 100</p>
+        <p className="mt-1 text-base font-medium text-ui-faint">/ 100</p>
       </div>
     </div>
   );
@@ -121,7 +121,7 @@ export default function CompliancePage() {
             const inner = (
               <>
                 <TabIcon Icon={tab.icon} active={active} />
-                <span className="whitespace-nowrap text-[13px]">{tab.name}</span>
+                <span className="whitespace-nowrap text-base">{tab.name}</span>
                 {tab.showDot && (
                   <span
                     className="ml-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary ring-2 ring-ui-sidebar"
@@ -159,7 +159,7 @@ export default function CompliancePage() {
                 <ComplianceScoreGauge score={SCORE} />
                 <div className="text-center">
                   <h3 className="text-lg font-bold text-ui-strong">Compliance Score</h3>
-                  <p className="mt-3 text-sm font-medium text-ui-success-text">
+                  <p className="mt-3 text-base font-medium text-ui-success-text">
                     Good standing — 1 review item pending
                   </p>
                 </div>
@@ -220,14 +220,14 @@ export default function CompliancePage() {
                       >
                         <CardIcon className="h-4 w-4" strokeWidth={2} />
                       </div>
-                      <p className="text-[11px] font-bold uppercase tracking-wide text-ui-body">
+                      <p className="text-xs font-bold uppercase tracking-wide text-ui-body">
                         {card.title}
                       </p>
                     </div>
                     <p className={`text-[32px] font-bold leading-none tracking-tight ${card.valueColor}`}>
                       {card.value}
                     </p>
-                    <p className="mt-3 text-[13px] font-medium text-ui-faint">{card.sub}</p>
+                    <p className="mt-3 text-base font-medium text-ui-faint">{card.sub}</p>
                   </div>
                 );
               })}
@@ -240,7 +240,7 @@ export default function CompliancePage() {
               <h3 className="text-lg font-bold text-ui-strong">Regulatory Status</h3>
               <button
                 type="button"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-ui-border bg-ui-card px-5 py-2.5 text-xs font-bold text-ui-strong shadow-sm transition-colors hover:bg-ui-muted"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-ui-border bg-ui-card px-5 py-2.5 text-base font-bold text-ui-strong shadow-sm transition-colors hover:bg-ui-muted"
               >
                 <Download className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
                 Export Report
@@ -306,21 +306,21 @@ export default function CompliancePage() {
                       </div>
                       <div className="min-w-0">
                         <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                          <h4 className="text-sm font-bold text-ui-strong">{row.title}</h4>
+                          <h4 className="text-base font-bold text-ui-strong">{row.title}</h4>
                           <span
-                            className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${row.statusClass}`}
+                            className={`rounded-full border px-2.5 py-0.5 text-xs font-bold ${row.statusClass}`}
                           >
                             {row.status}
                           </span>
-                          <span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 text-[10px] font-bold text-[#7C3AED]">
+                          <span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 text-xs font-bold text-[#7C3AED]">
                             {row.entity}
                           </span>
                         </div>
-                        <p className="text-xs font-medium leading-relaxed text-ui-muted-text">{row.desc}</p>
+                        <p className="text-base font-medium leading-relaxed text-ui-muted-text">{row.desc}</p>
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-end sm:gap-1">
-                      <span className="text-xs font-semibold text-ui-faint">{row.date}</span>
+                      <span className="text-base font-semibold text-ui-faint">{row.date}</span>
                       <ExternalLink
                         className="h-4 w-4 text-ui-faint transition-colors group-hover:text-[#9810FA]"
                         strokeWidth={iconStroke}

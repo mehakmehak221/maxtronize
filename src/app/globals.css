@@ -4,7 +4,6 @@
 
 
 :root {
-  /* Core app shell (also used by body when aligned) */
   --background: #f9fafb;
   --foreground: #111827;
   --primary: #7c3aed;
@@ -32,7 +31,6 @@
   --brand-purple: #9810fa;
   --brand-indigo: #6366f1;
 
-  /* UI semantic surfaces */
   --ui-page: #f9fafb;
   --ui-sidebar: #ffffff;
   --ui-card: #ffffff;
@@ -59,7 +57,6 @@
   --ui-highlight-box: #fbfbff;
   --ui-inset-shadow: rgba(15, 23, 42, 0.06);
 
-  /* Alerts & status */
   --alert-info-bg: rgba(239, 246, 255, 0.85);
   --alert-info-border: #bfdbfe;
   --alert-info-icon-wrap-bg: #ffffff;
@@ -92,7 +89,6 @@
   --ui-purple-banner-border: rgba(124, 58, 237, 0.14);
   --ui-purple-banner-icon-bg: #ffffff;
 
-  /* Controls */
   --btn-primary-from: #8b5cf6;
   --btn-primary-to: #6366f1;
   --btn-secondary-bg: #ffffff;
@@ -102,17 +98,14 @@
   --progress-track: #e5e7eb;
   --progress-fill: var(--primary);
 
-  /* Marketing / auth hero (left rail) */
   --auth-hero-accent: #a78bfa;
   --auth-hero-mesh-opacity: 0.6;
 
-  /* Success / celebration overlay */
   --celebrate-green: #22c55e;
   --celebrate-green-glow: rgba(34, 197, 94, 0.22);
   --celebrate-green-soft: #4ade80;
   --celebrate-shadow: rgba(34, 197, 94, 0.35);
 
-  /* Dashboard: filter rail & application table */
   --dash-filter-rail-bg: rgba(243, 244, 246, 0.75);
   --dash-filter-active-bg: #111827;
   --dash-filter-active-fg: #ffffff;
@@ -145,7 +138,6 @@
   --network-badge-fg: #4b5563;
   --network-badge-border: #e5e7eb;
 
-  /* Dashboard overview — KPI icon wells */
   --dash-kpi-violet-fg: #7f22fe;
   --dash-kpi-violet-soft: rgba(127, 34, 254, 0.1);
   --dash-kpi-violet-ring: rgba(127, 34, 254, 0.15);
@@ -159,7 +151,6 @@
   --dash-kpi-orange-soft: rgba(225, 113, 0, 0.1);
   --dash-kpi-orange-ring: rgba(225, 113, 0, 0.15);
 
-  /* Allocation / donut segments (mono purple scale) */
   --chart-donut-2: #8b5cf6;
   --chart-donut-3: #a78bfa;
   --chart-donut-4: #c4b5fd;
@@ -169,7 +160,6 @@
   --chart-alloc-legend-4: #a855f7;
   --chart-alloc-legend-5: #c4b5fd;
 
-  /* Issuer hub — overview & assets */
   --issuer-yield-card-bg: #10b981;
   --issuer-yield-card-fg: #ffffff;
   --issuer-hero-trend-fg: #6ee7b7;
@@ -183,7 +173,6 @@
   --issuer-primary-hover-bg: #6d28d9;
   --issuer-calendar-icon-bg: rgba(124, 58, 237, 0.1);
 
-  /* Quick-action card icon gradients */
   --qa-hub-from: #3b82f6;
   --qa-hub-to: #4338ca;
   --qa-ai-from: #7c3aed;
@@ -191,7 +180,6 @@
   --qa-yield-from: #f59e0b;
   --qa-yield-to: #ea580c;
 
-  /* Status pills (assets, tables) */
   --status-live-bg: rgba(16, 185, 129, 0.2);
   --status-live-text: #059669;
   --status-live-border: rgba(16, 185, 129, 0.28);
@@ -202,7 +190,6 @@
   --status-draft-text: var(--text-muted);
   --status-draft-border: var(--border);
 
-  /* Hub calendar row chips */
   --event-violet-fg: #7c3aed;
   --event-violet-bg: rgba(124, 58, 237, 0.1);
   --event-amber-fg: #d97706;
@@ -212,11 +199,9 @@
   --event-green-fg: #059669;
   --event-green-bg: rgba(16, 185, 129, 0.12);
 
-  /* Activity list icon wells */
   --activity-info-bg: rgba(59, 130, 246, 0.1);
   --activity-info-fg: #2563eb;
 
-  /* Investor registry avatar chips */
   --inv-chip-1-bg: #f3e8ff;
   --inv-chip-1-fg: #7c3aed;
   --inv-chip-2-bg: #dbeafe;
@@ -230,7 +215,6 @@
   --inv-chip-6-bg: #ffe4e6;
   --inv-chip-6-fg: #e11d48;
 
-  /* Cap table investor avatars (dark wells) */
   --cap-chip-yt-bg: #1e1b4b;
   --cap-chip-yt-fg: #a5b4fc;
   --cap-chip-sl-bg: #4c1d95;
@@ -246,7 +230,6 @@
   --cap-chip-eh-bg: #2e1065;
   --cap-chip-eh-fg: #ddd6fe;
 
-  /* Motion — easing & stagger (honoured by prefers-reduced-motion block) */
   --motion-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --motion-ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
@@ -255,7 +238,6 @@
 }
 
 [data-theme='dark'] {
-  /* Brand dark shell: #0D0D12 base, #A78BFA primary, #94A3B8 secondary, #FBBF24 warning */
   --background: #0d0d12;
   --foreground: #f8fafc;
   --primary: #a78bfa;

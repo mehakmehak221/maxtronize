@@ -63,10 +63,10 @@ function InvestmentDocumentRow({
         </svg>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-bold text-ui-strong transition-colors group-hover:text-primary">
+        <p className="truncate text-base font-bold text-ui-strong transition-colors group-hover:text-primary">
           {doc.name}
         </p>
-        <p className="text-[10px] font-medium text-ui-faint">
+        <p className="text-xs font-medium text-ui-faint">
           {doc.type} · {doc.size} · {doc.date}
         </p>
       </div>
@@ -146,13 +146,13 @@ export function InvestorHubInvestmentDocumentsTab() {
         <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-8">
           <div>
             <h3 className="text-base font-bold text-ui-strong">Investment Documents</h3>
-            <p className="mt-0.5 text-xs text-ui-faint">Statements, prospectuses, and legal documents</p>
+            <p className="mt-0.5 text-base text-ui-faint">Statements, prospectuses, and legal documents</p>
           </div>
           <button
             type="button"
             onClick={() => void handleDownloadAll()}
             disabled={downloadingAll || isLoading || items.length === 0}
-            className="flex items-center gap-2 text-[12px] font-bold text-primary transition-all hover:gap-3 disabled:opacity-60"
+            className="flex items-center gap-2 text-sm font-bold text-primary transition-all hover:gap-3 disabled:opacity-60"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -162,21 +162,21 @@ export function InvestorHubInvestmentDocumentsTab() {
         </div>
 
         {downloadError ? (
-          <p className="border-b border-ui-divider px-5 py-3 text-sm text-rose-600 md:px-8" role="alert">
+          <p className="border-b border-ui-divider px-5 py-3 text-base text-rose-600 md:px-8" role="alert">
             {downloadError}
           </p>
         ) : null}
 
         {error ? (
-          <p className="px-6 py-12 text-center text-sm text-rose-600" role="alert">
+          <p className="px-6 py-12 text-center text-base text-rose-600" role="alert">
             {formatRequestError(error)}
           </p>
         ) : isLoading ? (
-          <p className="px-6 py-12 text-center text-[13px] font-medium text-ui-faint animate-pulse">
+          <p className="px-6 py-12 text-center text-base font-medium text-ui-faint animate-pulse">
             Loading documents…
           </p>
         ) : items.length === 0 ? (
-          <p className="px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+          <p className="px-6 py-12 text-center text-base font-medium text-ui-faint">
             No investment documents available yet.
           </p>
         ) : (

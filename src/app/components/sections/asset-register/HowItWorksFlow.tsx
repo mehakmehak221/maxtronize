@@ -40,7 +40,7 @@ const HowItWorksFlow = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-[var(--primary)] text-xs font-bold tracking-widest uppercase mb-4 block"
+            className="text-[var(--primary)] text-base font-bold tracking-widest uppercase mb-4 block"
           >
             HOW IT WORKS
           </motion.span>

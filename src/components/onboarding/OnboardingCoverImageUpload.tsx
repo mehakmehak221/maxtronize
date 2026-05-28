@@ -151,10 +151,10 @@ export function OnboardingCoverImageUpload({
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint">
           Cover image
         </label>
-        <p className="mt-1 text-xs text-ui-faint">
+        <p className="mt-1 text-base text-ui-faint">
           Upload a JPG or PNG. The file is stored on the server and linked on your asset draft.
         </p>
       </div>
@@ -178,7 +178,7 @@ export function OnboardingCoverImageUpload({
           />
         </div>
       ) : coverImageKey || coverImageUrl ? (
-        <div className="flex h-40 items-center justify-center rounded-2xl border border-ui-border bg-ui-muted-surface text-xs text-ui-faint">
+        <div className="flex h-40 items-center justify-center rounded-2xl border border-ui-border bg-ui-muted-surface text-base text-ui-faint">
           Loading preview…
         </div>
       ) : (
@@ -191,14 +191,14 @@ export function OnboardingCoverImageUpload({
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Upload className="h-5 w-5" strokeWidth={2} aria-hidden />
           </div>
-          <p className="text-[11px] font-bold text-primary">
+          <p className="text-xs font-bold text-primary">
             {locked
               ? "Onboarding locked"
               : isSaving
                 ? "Uploading…"
                 : "Click to upload cover image"}
           </p>
-          <p className="text-[10px] text-ui-faint">JPG, PNG, or WebP</p>
+          <p className="text-xs text-ui-faint">JPG, PNG, or WebP</p>
         </button>
       )}
 
@@ -211,10 +211,10 @@ export function OnboardingCoverImageUpload({
               aria-hidden
             />
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
+              <p className="text-xs font-bold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
                 Storage key
               </p>
-              <p className="break-all font-mono text-[11px] text-emerald-900 dark:text-emerald-100">
+              <p className="break-all font-mono text-xs text-emerald-900 dark:text-emerald-100">
                 {coverImageKey}
               </p>
               {openHref ? (
@@ -222,7 +222,7 @@ export function OnboardingCoverImageUpload({
                   href={openHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1 inline-block text-[10px] font-bold text-primary hover:underline"
+                  className="mt-1 inline-block text-xs font-bold text-primary hover:underline"
                 >
                   Open image
                 </a>
@@ -231,7 +231,7 @@ export function OnboardingCoverImageUpload({
           </div>
         </div>
       ) : pendingFile ? (
-        <p className="text-[11px] font-medium text-ui-muted-text">
+        <p className="text-xs font-medium text-ui-muted-text">
           {uploadOnSelect
             ? `${pendingFile.name} selected`
             : `${pendingFile.name} will upload when you start onboarding`}
@@ -244,7 +244,7 @@ export function OnboardingCoverImageUpload({
             type="button"
             disabled={isSaving}
             onClick={() => inputRef.current?.click()}
-            className="text-[10px] font-bold text-primary hover:underline disabled:opacity-60"
+            className="text-xs font-bold text-primary hover:underline disabled:opacity-60"
           >
             Replace
           </button>
@@ -252,16 +252,16 @@ export function OnboardingCoverImageUpload({
             type="button"
             disabled={isSaving}
             onClick={clearSelection}
-            className="text-[10px] font-bold text-rose-600 hover:underline disabled:opacity-60"
+            className="text-xs font-bold text-rose-600 hover:underline disabled:opacity-60"
           >
             Remove
           </button>
         </div>
       ) : null}
 
-      {status ? <p className="text-[10px] font-medium text-emerald-600">{status}</p> : null}
+      {status ? <p className="text-xs font-medium text-emerald-600">{status}</p> : null}
       {localError ? (
-        <p className="text-[10px] font-medium text-rose-600">{localError}</p>
+        <p className="text-xs font-medium text-rose-600">{localError}</p>
       ) : null}
     </div>
   );

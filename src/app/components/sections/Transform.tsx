@@ -56,7 +56,7 @@ const Transform = () => {
                   animate={{ x: "0%" }}
                   transition={{ duration: 0.3 }}
                 />
-                <span className="relative z-10 text-[#57339D] font-inter font-semibold text-sm md:text-base">
+                <span className="relative z-10 text-[#57339D] font-inter font-semibold text-base md:text-base">
                   Get Started
                 </span>
                 <motion.svg

@@ -88,15 +88,15 @@ export default function AIIntelligencePage(): ReactElement {
             <div className="flex-1 space-y-8 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-background/10 bg-ui-card/5 px-4 py-2">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">AI Asset Intelligence | Coming Soon</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-white/80">AI Asset Intelligence | Coming Soon</span>
               </div>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
                 Institutional AI for <br className="hidden sm:block" />
                 <span className="bg-linear-to-r from-primary via-purple-400 to-primary/80 bg-clip-text text-transparent">Real-World Assets</span>
               </h1>
               <div className="inline-flex items-center gap-2">
-                <span className="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Powered by</span>
-                <span className="text-[13px] font-extrabold tracking-tight bg-linear-to-r from-[#a78bfa] via-[#818cf8] to-[#6366f1] bg-clip-text text-transparent">Cortex</span>
+                <span className="text-xs font-semibold text-white/35 uppercase tracking-widest">Powered by</span>
+                <span className="text-base font-extrabold tracking-tight bg-linear-to-r from-[#a78bfa] via-[#818cf8] to-[#6366f1] bg-clip-text text-transparent">Cortex</span>
 
               </div>
               <p className="text-lg text-white/60 font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
@@ -104,7 +104,7 @@ export default function AIIntelligencePage(): ReactElement {
               </p>
               <div className="flex flex-wrap justify-center lg:justify-start gap-3">
                 {['8 AI Modules', 'Real-Time Processing', 'Issuer & Investor Tools', 'Fraud Detection', 'Smart Compliance'].map((tag, i) => (
-                  <span key={i} className="px-5 py-2.5 bg-ui-card/5 border border-background/10 rounded-xl text-[12px] font-bold text-white/90 hover:bg-ui-card/10 transition-colors">
+                  <span key={i} className="px-5 py-2.5 bg-ui-card/5 border border-background/10 rounded-xl text-sm font-bold text-white/90 hover:bg-ui-card/10 transition-colors">
                     {tag}
                   </span>
                 ))}
@@ -116,7 +116,7 @@ export default function AIIntelligencePage(): ReactElement {
                 <div key={i} className="p-5 md:p-8 bg-ui-card/5 border border-background/10 rounded-[24px] md:rounded-[32px] backdrop-blur-xl hover:bg-ui-card/10 transition-all group">
                   <div className="text-2xl mb-4 opacity-50 group-hover:opacity-100 transition-opacity">{stat.icon}</div>
                   <p className="text-3xl font-bold text-white mb-1">{stat.value}</p>
-                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{stat.label}</p>
+                  <p className="text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -129,7 +129,7 @@ export default function AIIntelligencePage(): ReactElement {
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-xl">✨</div>
             <div>
               <h2 className="text-xl font-bold text-ui-strong">8 Core AI Capabilities</h2>
-              <p className="text-sm text-ui-faint font-medium">Powering the next generation of digital finance.</p>
+              <p className="text-base text-ui-faint font-medium">Powering the next generation of digital finance.</p>
             </div>
           </div>
 
@@ -157,14 +157,14 @@ export default function AIIntelligencePage(): ReactElement {
                     <h3 className="text-lg font-bold text-ui-strong">{cap.title}</h3>
                     <div className={`w-1.5 h-1.5 rounded-full ${cap.color}`}></div>
                   </div>
-                  <p className="text-[13px] text-ui-muted-text font-medium leading-relaxed">
+                  <p className="text-base text-ui-muted-text font-medium leading-relaxed">
                     {cap.desc}
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-8 pt-8 border-t border-ui-divider">
                   {cap.tags.map((tag, j) => (
-                    <span key={j} className="px-4 py-1.5 bg-ui-muted-deep rounded-lg text-[10px] font-bold text-ui-faint group-hover:bg-ui-muted-deep group-hover:text-ui-body transition-colors">
+                    <span key={j} className="px-4 py-1.5 bg-ui-muted-deep rounded-lg text-xs font-bold text-ui-faint group-hover:bg-ui-muted-deep group-hover:text-ui-body transition-colors">
                       {tag}
                     </span>
                   ))}

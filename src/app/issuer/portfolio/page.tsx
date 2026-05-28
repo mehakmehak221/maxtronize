@@ -181,7 +181,7 @@ export default function IssuerPortfolioPage() {
           <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">
             Portfolio
           </h1>
-          <p className="max-w-2xl text-sm font-medium text-ui-faint md:text-[15px]">
+          <p className="max-w-2xl text-base font-medium text-ui-faint md:text-[15px]">
             All tokenized assets under management, live on-chain.
           </p>
         </header>
@@ -191,16 +191,16 @@ export default function IssuerPortfolioPage() {
             <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/15 blur-3xl" />
             <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-violet-300/20 blur-2xl" />
             <div className="relative z-10">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/55">
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-white/55">
                 Total NAV
               </p>
               <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">
                 {summary?.totalNavFormatted ?? "—"}
               </p>
-              <p className="mb-5 text-xs font-medium text-white/60">
+              <p className="mb-5 text-base font-medium text-white/60">
                 {summary?.assetCount ?? assets.length} assets on-chain
               </p>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-[11px] font-bold text-emerald-200">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-xs font-bold text-emerald-200">
                 ↗{" "}
                 {summary
                   ? `${summary.ytdPercent >= 0 ? "+" : ""}${summary.ytdPercent.toFixed(1)}%`
@@ -213,14 +213,14 @@ export default function IssuerPortfolioPage() {
           <div className="rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-3xl md:p-7 xl:col-span-5">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="text-sm font-bold text-ui-strong md:text-[15px]">
+                <h2 className="text-base font-bold text-ui-strong md:text-[15px]">
                   NAV History
                 </h2>
-                <p className="text-[11px] font-medium text-ui-faint">
+                <p className="text-xs font-medium text-ui-faint">
                   USD Millions · 7-month trend
                 </p>
               </div>
-              <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
+              <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
                 {summary
                   ? `${summary.ytdPercent >= 0 ? "+" : ""}${summary.ytdPercent.toFixed(1)}%`
                   : "—"}{" "}
@@ -229,7 +229,7 @@ export default function IssuerPortfolioPage() {
             </div>
             <div className="max-w-full min-w-0 overflow-hidden">
               {navHistory.length === 0 ? (
-                <p className="flex h-36 items-center justify-center text-sm font-medium text-ui-faint md:h-40">
+                <p className="flex h-36 items-center justify-center text-base font-medium text-ui-faint md:h-40">
                   No NAV history available yet.
                 </p>
               ) : (
@@ -277,7 +277,7 @@ export default function IssuerPortfolioPage() {
                           x="32"
                           y={y + 4}
                           textAnchor="end"
-                          className="fill-ui-placeholder text-[10px] font-bold"
+                          className="fill-ui-placeholder text-xs font-bold"
                         >
                           {tick === 0 ? "$0" : `$${tick}`}
                         </text>
@@ -304,7 +304,7 @@ export default function IssuerPortfolioPage() {
                         x={x}
                         y="162"
                         textAnchor="middle"
-                        className="fill-ui-placeholder text-[10px] font-bold"
+                        className="fill-ui-placeholder text-xs font-bold"
                       >
                         {m}
                       </text>
@@ -321,7 +321,7 @@ export default function IssuerPortfolioPage() {
                 <Users className="h-6 w-6" strokeWidth={1.75} aria-hidden />
               </div>
               <div className="min-w-0">
-                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <p className="mb-0.5 text-xs font-bold uppercase tracking-widest text-ui-faint">
                   Total Investors
                 </p>
                 <p className="text-2xl font-bold text-ui-strong md:text-3xl">
@@ -329,7 +329,7 @@ export default function IssuerPortfolioPage() {
                     ? totalInvestors.toLocaleString("en-US")
                     : "—"}
                 </p>
-                <p className="text-[11px] font-medium text-ui-faint">
+                <p className="text-xs font-medium text-ui-faint">
                   Across all assets
                 </p>
               </div>
@@ -343,13 +343,13 @@ export default function IssuerPortfolioPage() {
                 />
               </div>
               <div className="min-w-0">
-                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <p className="mb-0.5 text-xs font-bold uppercase tracking-widest text-ui-faint">
                   Average Token Yield
                 </p>
                 <p className="text-2xl font-bold text-primary md:text-3xl">
                   {avgApyPercent != null ? `${avgApyPercent.toFixed(1)}%` : "—"}
                 </p>
-                <p className="text-[11px] font-medium text-ui-faint">
+                <p className="text-xs font-medium text-ui-faint">
                   Annualized APY
                 </p>
               </div>
@@ -369,7 +369,7 @@ export default function IssuerPortfolioPage() {
               key={f}
               type="button"
               onClick={() => setActiveFilter(f)}
-              className={`rounded-full px-4 py-2.5 text-left text-[12px] font-bold transition-all md:px-5 md:py-3 md:text-[13px] ${
+              className={`rounded-full px-4 py-2.5 text-left text-sm font-bold transition-all md:px-5 md:py-3 md:text-[13px] ${
                 activeFilter === f
                   ? "bg-zinc-900 text-white shadow-md dark:bg-zinc-100 dark:text-zinc-900"
                   : "border border-ui-border bg-ui-card text-ui-muted-text shadow-sm hover:border-ui-border-strong hover:text-ui-strong"
@@ -382,7 +382,7 @@ export default function IssuerPortfolioPage() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
           {assetsLoading ? (
-            <p className="col-span-full text-sm text-ui-muted-text">
+            <p className="col-span-full text-base text-ui-muted-text">
               Loading portfolio assets…
             </p>
           ) : assets.length === 0 ? (
@@ -396,7 +396,7 @@ export default function IssuerPortfolioPage() {
                     ? "No portfolio assets yet"
                     : `No assets in ${activeFilter} yet`}
                 </h3>
-                <p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-ui-faint">
+                <p className="mt-2 max-w-xl text-base font-medium leading-relaxed text-ui-faint">
                   {activeFilter === "All Assets"
                     ? "Once you complete an investment, your portfolio positions will appear here with token value, yield, and lockup details."
                     : "Try another filter or browse available marketplace opportunities to build this part of your portfolio."}
@@ -404,14 +404,14 @@ export default function IssuerPortfolioPage() {
                 <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                   <Link
                     href="/issuer/hub"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90"
                   >
                     Explore Marketplace
                   </Link>
                   <button
                     type="button"
                     onClick={() => setActiveFilter("All Assets")}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ui-border px-5 py-3 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ui-border px-5 py-3 text-base font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
                   >
                     View All Assets
                   </button>
@@ -441,13 +441,13 @@ export default function IssuerPortfolioPage() {
                     <span
                       className={`h-1.5 w-1.5 shrink-0 rounded-full ${st.dot}`}
                     />
-                    <span className="text-[10px] font-bold tracking-wide text-white">
+                    <span className="text-xs font-bold tracking-wide text-white">
                       {asset.status}
                     </span>
                   </div>
                   {asset.ticker !== "—" ? (
                     <div className="absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 backdrop-blur-md">
-                      <span className="text-[10px] font-bold tracking-wider text-white">
+                      <span className="text-xs font-bold tracking-wider text-white">
                         {asset.ticker}
                       </span>
                     </div>
@@ -456,7 +456,7 @@ export default function IssuerPortfolioPage() {
                     <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
                       {asset.name}
                     </h3>
-                    <p className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-300">
+                    <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-300">
                       <Globe2
                         className="h-3.5 w-3.5 shrink-0 text-zinc-400"
                         strokeWidth={2}
@@ -472,7 +472,7 @@ export default function IssuerPortfolioPage() {
                 <div className="flex flex-1 flex-col bg-slate-50 p-5 dark:bg-zinc-900 md:p-6">
                   <div className="mb-5 flex items-start justify-between gap-3">
                     <div>
-                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
+                      <p className="mb-1 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
                         Token price
                       </p>
                       <p className="text-xl font-bold text-slate-900 dark:text-white md:text-2xl">
@@ -480,7 +480,7 @@ export default function IssuerPortfolioPage() {
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 pt-1 text-sm font-bold ${
+                      className={`shrink-0 pt-1 text-base font-bold ${
                         asset.up
                           ? "text-emerald-600 dark:text-emerald-400"
                           : "text-red-600 dark:text-red-400"
@@ -503,7 +503,7 @@ export default function IssuerPortfolioPage() {
                           {label}
                         </p>
                         <p
-                          className={`truncate text-sm font-bold md:text-[15px] ${
+                          className={`truncate text-base font-bold md:text-[15px] ${
                             label === "APY"
                               ? "text-emerald-600 dark:text-emerald-400"
                               : "text-slate-900 dark:text-white"
@@ -536,13 +536,13 @@ export default function IssuerPortfolioPage() {
                           aria-hidden
                         />
                       )}
-                      <span className="truncate text-[11px] font-semibold">
+                      <span className="truncate text-xs font-semibold">
                         {asset.lockup}
                       </span>
                     </div>
                     <Link
                       href={`/issuer/portfolio/${asset.id}`}
-                      className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-violet-500/70 bg-transparent px-4 py-2 text-[12px] font-bold text-violet-600 transition-colors hover:bg-violet-500/10 dark:border-violet-400/60 dark:text-violet-300 dark:hover:bg-violet-500/15"
+                      className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-violet-500/70 bg-transparent px-4 py-2 text-sm font-bold text-violet-600 transition-colors hover:bg-violet-500/10 dark:border-violet-400/60 dark:text-violet-300 dark:hover:bg-violet-500/15"
                     >
                       View Details
                       <ExternalLink

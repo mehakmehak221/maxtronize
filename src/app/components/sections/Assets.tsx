@@ -49,7 +49,7 @@ const AssetCard = ({ title, description, buttonText, icon, imagePath, href = "/s
           <h3 className="text-[20px] font-bold text-center text-[#111111]">
             {title}
           </h3>
-          <p className="text-[14px] leading-relaxed text-[#555555] max-w-[420px]">
+          <p className="text-base leading-relaxed text-[#555555] max-w-[420px]">
             {description}
           </p>
         </div>
@@ -57,7 +57,7 @@ const AssetCard = ({ title, description, buttonText, icon, imagePath, href = "/s
        
         <Link 
           href={href}
-          className="group relative mt-2 w-fit inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-6 py-2.5 rounded-md text-sm font-semibold transition-all hover:bg-black hover:shadow-lg overflow-hidden"
+          className="group relative mt-2 w-fit inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-6 py-2.5 rounded-md text-base font-semibold transition-all hover:bg-black hover:shadow-lg overflow-hidden"
         >
           <motion.span
             className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"

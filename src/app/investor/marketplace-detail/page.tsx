@@ -270,8 +270,8 @@ function MarketplaceDetailContent() {
   if (!listingId) {
     return (
       <div className="rounded-[24px] border border-ui-border bg-ui-card p-10 text-center">
-        <p className="text-sm font-medium text-ui-muted-text">Select a secondary listing to trade.</p>
-        <Link href="/investor/secondary-market" className="mt-4 inline-flex text-sm font-bold text-primary hover:underline">
+        <p className="text-base font-medium text-ui-muted-text">Select a secondary listing to trade.</p>
+        <Link href="/investor/secondary-market" className="mt-4 inline-flex text-base font-bold text-primary hover:underline">
           Browse Secondary Market
         </Link>
       </div>
@@ -285,8 +285,8 @@ function MarketplaceDetailContent() {
   if (isListingError || !listing) {
     return (
       <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-10 text-center dark:border-rose-500/30 dark:bg-rose-500/10">
-        <p className="text-sm font-bold text-rose-700 dark:text-rose-300">Listing not found or unavailable.</p>
-        <Link href="/investor/secondary-market" className="mt-4 inline-flex text-sm font-bold text-primary hover:underline">
+        <p className="text-base font-bold text-rose-700 dark:text-rose-300">Listing not found or unavailable.</p>
+        <Link href="/investor/secondary-market" className="mt-4 inline-flex text-base font-bold text-primary hover:underline">
           Back to Secondary Market
         </Link>
       </div>
@@ -297,7 +297,7 @@ function MarketplaceDetailContent() {
     <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
       <Link
         href="/investor/secondary-market"
-        className="inline-flex w-fit items-center gap-2 text-[13px] font-bold text-ui-muted-text transition-colors hover:text-ui-strong"
+        className="inline-flex w-fit items-center gap-2 text-base font-bold text-ui-muted-text transition-colors hover:text-ui-strong"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={iconStroke} />
         Back to Market
@@ -314,11 +314,11 @@ function MarketplaceDetailContent() {
               <h1 className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl">
                 {listing.name}
               </h1>
-              <span className="rounded-lg bg-ui-muted-deep px-2.5 py-1 text-[11px] font-bold text-ui-body">
+              <span className="rounded-lg bg-ui-muted-deep px-2.5 py-1 text-xs font-bold text-ui-body">
                 {listing.ticker}
               </span>
             </div>
-            <p className="mt-1 flex flex-wrap items-center gap-2 text-[12px] font-medium text-ui-muted-text">
+            <p className="mt-1 flex flex-wrap items-center gap-2 text-sm font-medium text-ui-muted-text">
               <span className="inline-flex items-center gap-1.5">
                 <Activity className="h-3.5 w-3.5 text-ui-faint" strokeWidth={iconStroke} />
                 Sector: {listing.sector}
@@ -355,7 +355,7 @@ function MarketplaceDetailContent() {
           </button>
           <Link
             href={`/investor/asset-detail?id=${listing.assetId}`}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2 text-[12px] font-bold text-primary transition-colors hover:bg-primary/15"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/15"
           >
             <Eye className="h-4 w-4" strokeWidth={iconStroke} />
             Asset Details
@@ -374,7 +374,7 @@ function MarketplaceDetailContent() {
             <p className="text-base font-bold tabular-nums text-ui-strong md:text-xl">{s.val}</p>
             {s.sub && (
               <p
-                className={`mt-0.5 flex items-center gap-1 text-[10px] font-bold ${s.up ? 'text-ui-success-text' : 'text-ui-danger-text'
+                className={`mt-0.5 flex items-center gap-1 text-xs font-bold ${s.up ? 'text-ui-success-text' : 'text-ui-danger-text'
                   }`}
               >
                 {s.up ? (
@@ -397,7 +397,7 @@ function MarketplaceDetailContent() {
             <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div>
                 <h3 className="text-base font-bold text-ui-strong md:text-lg">Price Chart ({chartPeriod})</h3>
-                <p className="mt-1 text-[11px] font-medium text-ui-faint">
+                <p className="mt-1 text-xs font-medium text-ui-faint">
                   {isChartLoading ? 'Refreshing chart…' : 'Live market price history'}
                 </p>
               </div>
@@ -407,7 +407,7 @@ function MarketplaceDetailContent() {
                     key={p}
                     type="button"
                     onClick={() => setChartPeriod(p)}
-                    className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all ${chartPeriod === p
+                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${chartPeriod === p
                       ? 'bg-primary text-white shadow-sm'
                       : 'bg-ui-muted-deep text-ui-muted-text hover:bg-ui-muted-deep/80'
                       }`}
@@ -474,7 +474,7 @@ function MarketplaceDetailContent() {
           {/* Details & Info Banner */}
           <div className="rounded-[24px] border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-[28px] md:p-8 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <h3 className="mb-3 text-base font-bold text-ui-strong md:text-lg">Escrow Protocol Details</h3>
-            <p className="text-[13px] font-medium leading-relaxed text-ui-muted-text">
+            <p className="text-base font-medium leading-relaxed text-ui-muted-text">
               Trading this token is managed directly by smart contract automation on {listing.liquidity}. Your funds will be locked in escrow until the seller transfers token rights, instantly clearing within 1-2 minutes of confirmation. Always verify Limit Order price bounds before final placement.
             </p>
           </div>
@@ -488,7 +488,7 @@ function MarketplaceDetailContent() {
               <button
                 type="button"
                 onClick={() => setActiveOrder('buy')}
-                className={`py-4 text-[13px] font-bold transition-all ${activeOrder === 'buy'
+                className={`py-4 text-base font-bold transition-all ${activeOrder === 'buy'
                   ? 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400'
                   : 'text-ui-faint hover:bg-ui-muted-deep/50 hover:text-ui-muted-text'
                   }`}
@@ -498,7 +498,7 @@ function MarketplaceDetailContent() {
               <button
                 type="button"
                 onClick={() => setActiveOrder('sell')}
-                className={`py-4 text-[13px] font-bold transition-all ${activeOrder === 'sell'
+                className={`py-4 text-base font-bold transition-all ${activeOrder === 'sell'
                   ? 'border-b-2 border-rose-500 text-rose-600 dark:text-rose-400'
                   : 'text-ui-faint hover:bg-ui-muted-deep/50 hover:text-ui-muted-text'
                   }`}
@@ -511,7 +511,7 @@ function MarketplaceDetailContent() {
               {/* Status feedback */}
               {statusMsg && (
                 <div
-                  className={`rounded-xl p-3.5 text-xs font-semibold leading-relaxed border ${statusMsg.type === 'success'
+                  className={`rounded-xl p-3.5 text-base font-semibold leading-relaxed border ${statusMsg.type === 'success'
                     ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                     : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'
                     }`}
@@ -527,7 +527,7 @@ function MarketplaceDetailContent() {
                     key={t}
                     type="button"
                     onClick={() => setOrderType(t)}
-                    className={`rounded-lg py-2.5 text-[12px] font-bold transition-all ${orderType === t
+                    className={`rounded-lg py-2.5 text-sm font-bold transition-all ${orderType === t
                       ? 'border border-ui-border bg-ui-card text-ui-strong shadow-sm'
                       : 'text-ui-muted-text hover:text-ui-body'
                       }`}
@@ -538,7 +538,7 @@ function MarketplaceDetailContent() {
               </div>
 
               <div>
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-ui-faint">
                   Price (USD)
                 </label>
                 <div className="flex items-center overflow-hidden rounded-xl border border-ui-border bg-ui-muted-deep focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/40 transition-colors">
@@ -547,14 +547,14 @@ function MarketplaceDetailContent() {
                     onChange={(e) => setPriceInput(e.target.value)}
                     disabled={orderType === 'market'}
                     type="number"
-                    className="flex-1 bg-transparent px-4 py-3 text-[14px] font-bold text-ui-strong outline-none disabled:opacity-75"
+                    className="flex-1 bg-transparent px-4 py-3 text-base font-bold text-ui-strong outline-none disabled:opacity-75"
                   />
-                  <span className="px-4 text-[11px] font-bold text-ui-faint">USD</span>
+                  <span className="px-4 text-xs font-bold text-ui-faint">USD</span>
                 </div>
               </div>
 
               <div>
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+                <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-ui-faint">
                   Amount (Tokens)
                 </label>
                 <div className="flex items-center overflow-hidden rounded-xl border border-ui-border bg-ui-muted-deep focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/40 transition-colors">
@@ -564,9 +564,9 @@ function MarketplaceDetailContent() {
                     placeholder="0"
                     type="number"
                     min="1"
-                    className="flex-1 bg-transparent px-4 py-3 text-[14px] font-bold text-ui-strong outline-none placeholder:text-ui-placeholder"
+                    className="flex-1 bg-transparent px-4 py-3 text-base font-bold text-ui-strong outline-none placeholder:text-ui-placeholder"
                   />
-                  <span className="px-4 text-[11px] font-bold text-ui-faint">{listing.ticker}</span>
+                  <span className="px-4 text-xs font-bold text-ui-faint">{listing.ticker}</span>
                 </div>
                 <div className="mt-2 grid grid-cols-4 gap-2">
                   {['25', '50', '100', '250'].map((val) => (
@@ -574,7 +574,7 @@ function MarketplaceDetailContent() {
                       key={val}
                       type="button"
                       onClick={() => setAmount(val)}
-                      className="rounded-lg bg-ui-muted-deep py-1.5 text-[11px] font-bold text-ui-muted-text transition-all hover:bg-primary/10 hover:text-primary"
+                      className="rounded-lg bg-ui-muted-deep py-1.5 text-xs font-bold text-ui-muted-text transition-all hover:bg-primary/10 hover:text-primary"
                     >
                       +{val}
                     </button>
@@ -583,7 +583,7 @@ function MarketplaceDetailContent() {
               </div>
 
               <div className="flex items-center justify-between border-t border-ui-divider py-3">
-                <span className="text-[13px] font-bold text-ui-muted-text">Total</span>
+                <span className="text-base font-bold text-ui-muted-text">Total</span>
                 <span className="text-xl font-bold tabular-nums text-ui-strong">${parseFloat(displayTotal).toLocaleString()}</span>
               </div>
 
@@ -591,7 +591,7 @@ function MarketplaceDetailContent() {
                 type="button"
                 onClick={handlePlaceOrder}
                 disabled={!amount || isPlacingOrder}
-                className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[14px] font-bold shadow-lg transition-all hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${activeOrder === 'buy'
+                className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${activeOrder === 'buy'
                   ? 'bg-emerald-500 text-white shadow-emerald-500/25 hover:bg-emerald-600'
                   : 'bg-rose-500 text-white shadow-rose-500/25 hover:bg-rose-600'
                   }`}
@@ -602,25 +602,25 @@ function MarketplaceDetailContent() {
 
               <div className="space-y-1 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-ui-faint">Wallet Balance</span>
+                  <span className="text-xs font-bold text-ui-faint">Wallet Balance</span>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary transition-colors hover:text-primary/80"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-primary transition-colors hover:text-primary/80"
                   >
                     <Wallet className="h-3.5 w-3.5" strokeWidth={iconStroke} />
                     Connected
                   </button>
                 </div>
-                <p className="text-[10px] font-medium text-ui-placeholder">
+                <p className="text-xs font-medium text-ui-placeholder">
                   Linked to standard platform custody wallet
                 </p>
               </div>
 
               {placedOrders.length > 0 && (
                 <div className="mt-4 space-y-3 border-t border-ui-border pt-4">
-                  <h4 className="text-[11px] font-bold uppercase tracking-widest text-ui-faint">Your Session Orders</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-ui-faint">Your Session Orders</h4>
                   {placedOrders.map((order, i) => (
-                    <div key={order.id || i} className="rounded-xl border border-ui-border bg-ui-card p-3 text-[11px] shadow-sm">
+                    <div key={order.id || i} className="rounded-xl border border-ui-border bg-ui-card p-3 text-xs shadow-sm">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className={`font-bold ${order.side === 'BUY' ? 'text-emerald-500' : 'text-rose-500'}`}>{order.side} {order.orderType}</span>
                         <span className="font-bold text-ui-strong">${order.totalUsd}</span>
@@ -629,7 +629,7 @@ function MarketplaceDetailContent() {
                         <span>{order.tokenAmount} tokens @ ${order.pricePerToken}</span>
                         <span className="text-ui-faint">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                       </div>
-                      <div className="mt-1.5 flex justify-between items-center text-[10px]">
+                      <div className="mt-1.5 flex justify-between items-center text-xs">
                         <span className="text-ui-faint">ID: {order.id?.slice(0, 8)}...</span>
                         <span className="font-bold text-emerald-500">{order.status}</span>
                       </div>

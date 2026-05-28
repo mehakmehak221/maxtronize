@@ -8,7 +8,7 @@ import {
 } from "@/store/api/authApi";
 
 const inputClass =
-  "w-full rounded-xl border border-ui-border bg-ui-card px-5 py-3.5 text-sm text-ui-strong outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-500/10";
+  "w-full rounded-xl border border-ui-border bg-ui-card px-5 py-3.5 text-base text-ui-strong outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-500/10";
 
 export function AccountProfileForm() {
   const { data: profile, isLoading: loadingProfile } =
@@ -16,7 +16,7 @@ export function AccountProfileForm() {
 
   if (loadingProfile) {
     return (
-      <p className="text-sm text-ui-muted-text">Loading profile…</p>
+      <p className="text-base text-ui-muted-text">Loading profile…</p>
     );
   }
 
@@ -52,20 +52,20 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
     <form className="max-w-xl space-y-6" onSubmit={handleSubmit}>
       {formError ? (
         <p
-          className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700"
           role="alert"
         >
           {formError}
         </p>
       ) : null}
       {success ? (
-        <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-base text-emerald-700">
           {success}
         </p>
       ) : null}
 
       <div className="space-y-2">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint">
           Email
         </label>
         <input
@@ -74,13 +74,13 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
           disabled
           className={`${inputClass} cursor-not-allowed opacity-70`}
         />
-        <p className="text-[11px] text-ui-faint">
+        <p className="text-xs text-ui-faint">
           Email cannot be changed here. Contact support if you need to update it.
         </p>
       </div>
 
       <div className="space-y-2">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint">
           Full name
         </label>
         <input
@@ -92,7 +92,7 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint">
           Country
         </label>
         <input
@@ -107,7 +107,7 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
       <button
         type="submit"
         disabled={isLoading}
-        className="btn-gradient-primary rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 disabled:opacity-60"
+        className="btn-gradient-primary rounded-xl px-6 py-3 text-base font-bold text-white shadow-lg shadow-violet-500/20 disabled:opacity-60"
       >
         {isLoading ? "Saving…" : "Save changes"}
       </button>

@@ -36,7 +36,7 @@ const ComplianceFramework = () => {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-[var(--primary)] text-xs font-bold tracking-widest uppercase mb-4 block"
+              className="text-[var(--primary)] text-base font-bold tracking-widest uppercase mb-4 block"
             >
               COMPLIANCE FRAMEWORK
             </motion.span>
@@ -77,11 +77,11 @@ const ComplianceFramework = () => {
                   {item.icon}
                 </div>
                 <div>
-                  <span className="text-[var(--primary)] text-[10px] font-bold tracking-wider uppercase mb-2 block">
+                  <span className="text-[var(--primary)] text-xs font-bold tracking-wider uppercase mb-2 block">
                     {item.tag}
                   </span>
                   <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-3">{item.title}</h3>
-                  <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">
+                  <p className="text-[var(--color-text-secondary)] text-base leading-relaxed">
                     {item.description}
                   </p>
                 </div>

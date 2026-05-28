@@ -26,7 +26,7 @@ export default function Input({
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       {label && (
-        <label htmlFor={inputId} className="text-sm font-medium text-[var(--color-gray-100)]">
+        <label htmlFor={inputId} className="text-base font-medium text-[var(--color-gray-100)]">
           {label}
         </label>
       )}
@@ -39,7 +39,7 @@ export default function Input({
         <input
           id={inputId}
           className={[
-            "w-full rounded-md px-4 py-3 text-sm text-white placeholder-[var(--color-text-muted)]/50",
+            "w-full rounded-md px-4 py-3 text-base text-white placeholder-[var(--color-text-muted)]/50",
             "bg-[var(--color-bg-dark-alt)] border transition-all duration-200",
             "focus:outline-none focus:ring-2",
             error
@@ -56,8 +56,8 @@ export default function Input({
           </span>
         )}
       </div>
-      {error && <p className="text-xs text-[var(--color-status-error)]">{error}</p>}
-      {helper && !error && <p className="text-xs text-[var(--color-text-muted)]">{helper}</p>}
+      {error && <p className="text-base text-[var(--color-status-error)]">{error}</p>}
+      {helper && !error && <p className="text-base text-[var(--color-text-muted)]">{helper}</p>}
     </div>
   );
 }

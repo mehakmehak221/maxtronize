@@ -245,7 +245,7 @@ export default function WhyTokenize() {
               </motion.h3>
               
               <motion.p 
-                className="max-w-xl text-[14px] sm:text-[15px] md:text-[16px] lg:text-[17px] leading-[1.6] md:leading-[1.7] text-[#2A2A2A] font-light font-open-sans"
+                className="max-w-xl text-base sm:text-[15px] md:text-[16px] lg:text-[17px] leading-[1.6] md:leading-[1.7] text-[#2A2A2A] font-light font-open-sans"
               >
                 {feature.description}
               </motion.p>
@@ -289,7 +289,7 @@ export default function WhyTokenize() {
             style={{ x: buttonSpringX, y: buttonSpringY }}
             whileHover="hover"
             whileTap={{ scale: 0.95 }}
-            className="group relative inline-flex items-center gap-3 sm:gap-4 rounded-full bg-[#1A1A1A] px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 text-[13px] sm:text-[14px] md:text-[16px] font-medium text-white shadow-xl hover:bg-black hover:shadow-2xl font-inter overflow-hidden transform-gpu"
+            className="group relative inline-flex items-center gap-3 sm:gap-4 rounded-full bg-[#1A1A1A] px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 text-base sm:text-[14px] md:text-[16px] font-medium text-white shadow-xl hover:bg-black hover:shadow-2xl font-inter overflow-hidden transform-gpu"
           >
             <motion.span
               className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"

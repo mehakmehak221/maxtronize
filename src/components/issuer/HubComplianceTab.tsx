@@ -171,7 +171,7 @@ export function HubComplianceTab({ search, onSearchChange }: HubComplianceTabPro
                   <span className="block text-3xl font-bold leading-none text-foreground">
                     {summaryLoading ? '—' : score}
                   </span>
-                  <span className="text-sm font-semibold text-text-muted">
+                  <span className="text-base font-semibold text-text-muted">
                     / {maxScore}
                   </span>
                 </p>
@@ -179,7 +179,7 @@ export function HubComplianceTab({ search, onSearchChange }: HubComplianceTabPro
             </div>
             <div className="max-w-xs text-center md:text-left">
               <h3 className="text-lg font-bold text-foreground">Compliance Score</h3>
-              <p className="mt-2 text-sm font-medium text-ui-success-text">
+              <p className="mt-2 text-base font-medium text-ui-success-text">
                 {summary?.complianceScore.summary ?? 'Loading…'}
               </p>
             </div>
@@ -206,11 +206,11 @@ export function HubComplianceTab({ search, onSearchChange }: HubComplianceTabPro
                     >
                       <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
                     </div>
-                    <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                    <p className="mb-1 text-xs font-bold uppercase tracking-widest text-text-muted">
                       {card.title}
                     </p>
                     <p className="text-3xl font-bold text-foreground">{card.value}</p>
-                    <p className="mt-2 text-xs text-text-muted">{card.sub}</p>
+                    <p className="mt-2 text-base text-text-muted">{card.sub}</p>
                   </div>
                 );
               })}
@@ -221,7 +221,7 @@ export function HubComplianceTab({ search, onSearchChange }: HubComplianceTabPro
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-bold text-foreground">Regulatory Status</h3>
-            <p className="text-xs text-text-muted">Filings, exemptions, and program reviews.</p>
+            <p className="text-base text-text-muted">Filings, exemptions, and program reviews.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative md:hidden">
@@ -244,14 +244,14 @@ export function HubComplianceTab({ search, onSearchChange }: HubComplianceTabPro
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Search filings..."
-                className="h-9 w-full min-w-[12rem] rounded-full border border-card-border bg-card py-1.5 pl-9 pr-4 text-xs text-foreground outline-none focus:border-primary"
+                className="h-9 w-full min-w-[12rem] rounded-full border border-card-border bg-card py-1.5 pl-9 pr-4 text-base text-foreground outline-none focus:border-primary"
               />
             </div>
             <button
               type="button"
               disabled={exporting}
               onClick={() => exportReport(listParams)}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-card-border bg-card px-5 py-2.5 text-xs font-bold text-foreground shadow-sm transition-colors hover:bg-surface disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-card-border bg-card px-5 py-2.5 text-base font-bold text-foreground shadow-sm transition-colors hover:bg-surface disabled:opacity-60"
             >
               <Download className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
               {exporting ? 'Exporting…' : 'Export Report'}
@@ -261,7 +261,7 @@ export function HubComplianceTab({ search, onSearchChange }: HubComplianceTabPro
 
         <div className="divide-y divide-border">
           {listLoading ? (
-            <p className="py-10 text-center text-xs text-text-muted">Loading regulatory status…</p>
+            <p className="py-10 text-center text-base text-text-muted">Loading regulatory status…</p>
           ) : rows.length > 0 ? (
             rows.map((row) => {
               const RowIcon = statusRowIcon(row.statusTone);
@@ -278,23 +278,23 @@ export function HubComplianceTab({ search, onSearchChange }: HubComplianceTabPro
                     </div>
                     <div className="min-w-0">
                       <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <h4 className="text-sm font-bold text-foreground">{row.title}</h4>
+                        <h4 className="text-base font-bold text-foreground">{row.title}</h4>
                         <span
-                          className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${statusPillClass(row.statusTone)}`}
+                          className={`rounded-full border px-2 py-0.5 text-xs font-bold ${statusPillClass(row.statusTone)}`}
                         >
                           {row.status}
                         </span>
-                        <span className="rounded-full border border-primary/25 bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-primary dark:bg-violet-950/40">
+                        <span className="rounded-full border border-primary/25 bg-violet-50 px-2 py-0.5 text-xs font-bold text-primary dark:bg-violet-950/40">
                           {row.entity}
                         </span>
                       </div>
                       {row.description ? (
-                        <p className="text-xs text-text-muted">{row.description}</p>
+                        <p className="text-base text-text-muted">{row.description}</p>
                       ) : null}
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end">
-                    <span className="text-xs font-semibold text-text-muted">{row.date}</span>
+                    <span className="text-base font-semibold text-text-muted">{row.date}</span>
                     <ExternalLink
                       className="h-4 w-4 text-text-muted"
                       strokeWidth={iconStroke}
@@ -305,7 +305,7 @@ export function HubComplianceTab({ search, onSearchChange }: HubComplianceTabPro
               );
             })
           ) : (
-            <p className="py-10 text-center text-xs text-text-muted">
+            <p className="py-10 text-center text-base text-text-muted">
               No regulatory filings found
             </p>
           )}

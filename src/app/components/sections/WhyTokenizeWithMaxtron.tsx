@@ -122,7 +122,7 @@ const WhyTokenizeWithMaxtron = () => {
           <motion.div whileHover="hover" initial="rest" animate="rest">
             <a
               href="https://beta.maxtronize.com/signin"
-              className="relative inline-flex items-center gap-2 bg-[#2A2A2A] text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-[#1a1a1a] transition-colors overflow-hidden"
+              className="relative inline-flex items-center gap-2 bg-[#2A2A2A] text-white px-6 py-3 rounded-full text-base font-medium hover:bg-[#1a1a1a] transition-colors overflow-hidden"
             >
               <motion.span
                 className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"

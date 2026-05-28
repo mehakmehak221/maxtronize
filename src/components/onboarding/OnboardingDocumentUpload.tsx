@@ -69,15 +69,15 @@ export function OnboardingDocumentUpload({
 
   return (
     <div className="space-y-3">
-      <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
+      <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">
         {label}
       </label>
 
       {existing ? (
         <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-4 space-y-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-bold text-emerald-800 truncate">{existing.name}</p>
-            <p className="text-[10px] text-emerald-700/80">{existing.date}</p>
+            <p className="text-xs font-bold text-emerald-800 truncate">{existing.name}</p>
+            <p className="text-xs text-emerald-700/80">{existing.date}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {existing.url ? (
@@ -85,7 +85,7 @@ export function OnboardingDocumentUpload({
                 href={existing.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] font-bold text-primary hover:underline"
+                className="text-xs font-bold text-primary hover:underline"
               >
                 View
               </a>
@@ -96,7 +96,7 @@ export function OnboardingDocumentUpload({
                   type="button"
                   disabled={busy}
                   onClick={() => void handleDelete()}
-                  className="text-[10px] font-bold text-rose-600 hover:underline disabled:opacity-60"
+                  className="text-xs font-bold text-rose-600 hover:underline disabled:opacity-60"
                 >
                   {isDeleting ? "Removing…" : "Remove"}
                 </button>
@@ -104,7 +104,7 @@ export function OnboardingDocumentUpload({
                   type="button"
                   disabled={busy}
                   onClick={() => inputRef.current?.click()}
-                  className="text-[10px] font-bold text-ui-muted-text hover:underline disabled:opacity-60"
+                  className="text-xs font-bold text-ui-muted-text hover:underline disabled:opacity-60"
                 >
                   Replace
                 </button>
@@ -130,8 +130,8 @@ export function OnboardingDocumentUpload({
           onClick={() => inputRef.current?.click()}
           className="w-full p-6 border-2 border-dashed border-ui-border rounded-3xl bg-ui-muted-surface flex flex-col items-center justify-center gap-2 hover:bg-ui-muted-deep hover:border-ui-border-strong transition-all disabled:opacity-60"
         >
-          <p className="text-[10px] font-bold text-ui-faint uppercase tracking-wide">{sub}</p>
-          <p className="text-[11px] font-bold text-primary">
+          <p className="text-xs font-bold text-ui-faint uppercase tracking-wide">{sub}</p>
+          <p className="text-xs font-bold text-primary">
             {isApprovedOrLocked
               ? "Onboarding Locked"
               : isUploading
@@ -141,9 +141,9 @@ export function OnboardingDocumentUpload({
         </button>
       ) : null}
 
-      {status ? <p className="text-[10px] font-medium text-emerald-600">{status}</p> : null}
+      {status ? <p className="text-xs font-medium text-emerald-600">{status}</p> : null}
       {localError ? (
-        <p className="text-[10px] font-medium text-rose-600">{localError}</p>
+        <p className="text-xs font-medium text-rose-600">{localError}</p>
       ) : null}
     </div>
   );

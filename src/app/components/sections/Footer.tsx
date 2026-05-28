@@ -27,15 +27,15 @@ const Footer = () => {
 
          <div className="flex flex-wrap items-center gap-6 sm:gap-10 md:gap-14 lg:gap-20 mb-12 relative top-5">
           
-          <Link href="/" className="text-[#4A4A6A] text-sm hover:text-black transition">
+          <Link href="/" className="text-[#4A4A6A] text-base hover:text-black transition">
             Home
           </Link>
 
-          <Link href="#whyus" className="text-[#4A4A6A] text-sm hover:text-black transition">
+          <Link href="#whyus" className="text-[#4A4A6A] text-base hover:text-black transition">
             Why Us
           </Link>
 
-          <Link href="#assets" className="text-[#4A4A6A] text-sm hover:text-black transition">
+          <Link href="#assets" className="text-[#4A4A6A] text-base hover:text-black transition">
             Assets
           </Link>
 
@@ -43,7 +43,7 @@ const Footer = () => {
             href="https://maxtronize.gitbook.io/docs"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#4A4A6A] text-sm hover:text-black transition"
+            className="text-[#4A4A6A] text-base hover:text-black transition"
           >
             Whitepaper
           </Link>
@@ -52,7 +52,7 @@ const Footer = () => {
             href="https://calendly.com/maxtronize/30min"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#4A4A6A] text-sm hover:text-black transition"
+            className="text-[#4A4A6A] text-base hover:text-black transition"
           >
             Contact Us
           </Link>
@@ -65,7 +65,7 @@ const Footer = () => {
         <div className="border-t border-[#D6CCF5] mb-4"></div>
 
        
-        <div className="flex flex-row justify-between items-start sm:items-center gap-3 text-xs text-[#8A8A8A]">
+        <div className="flex flex-row justify-between items-start sm:items-center gap-3 text-base text-[#8A8A8A]">
           <p>© {new Date().getFullYear()} Maxtronize</p>
           <Link href="/privacy-policy" className="hover:text-black transition">
             Privacy Policy

@@ -38,8 +38,8 @@ export default function Button({
   };
 
   const sizes = {
-    sm: "px-4 py-1.5 text-sm",
-    md: "px-6 py-2.5 text-sm",
+    sm: "px-4 py-1.5 text-base",
+    md: "px-6 py-2.5 text-base",
     lg: "px-8 py-3.5 text-base",
   };
 

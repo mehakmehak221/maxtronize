@@ -98,7 +98,7 @@ export default function InvestorLayout({
           <nav className="motion-sidebar-nav scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-5">
             <div className="space-y-1">
               <div className="mb-3 flex items-center justify-between px-1">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ui-faint">Investor</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-ui-faint">Investor</p>
               </div>
               {investorItems.map((item) => {
                 const isActive = pathname === item.href;
@@ -117,7 +117,7 @@ export default function InvestorLayout({
                       id={item.icon}
                       className={isActive ? "text-primary" : "text-ui-muted-text"}
                     />
-                    <span className={`flex-1 truncate text-[13px] ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>
+                    <span className={`flex-1 truncate text-base ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>
                       {item.name}
                     </span>
                     {item.tag ? (
@@ -133,7 +133,7 @@ export default function InvestorLayout({
             </div>
 
             <div className="space-y-1">
-              <p className="mb-3 px-1 text-[10px] font-bold uppercase tracking-[0.14em] text-ui-faint">Support</p>
+              <p className="mb-3 px-1 text-xs font-bold uppercase tracking-[0.14em] text-ui-faint">Support</p>
               {supportItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -151,7 +151,7 @@ export default function InvestorLayout({
                       id={item.icon}
                       className={isActive ? "text-primary" : "text-ui-muted-text"}
                     />
-                    <span className={`flex-1 truncate text-[13px] ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>
+                    <span className={`flex-1 truncate text-base ${isActive ? "font-bold text-primary" : "font-medium text-ui-body"}`}>
                       {item.name}
                     </span>
                     {isActive ? (
@@ -168,7 +168,7 @@ export default function InvestorLayout({
             <div className="hidden rounded-xl border border-ui-success-border/70 bg-ui-success-bg-soft p-4 lg:block">
               <div className="mb-1.5 flex items-center gap-2">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-ui-success-icon shadow-[0_0_8px_rgba(16,185,129,0.45)]" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-ui-success-text">All systems operational</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-ui-success-text">All systems operational</p>
               </div>
               {/* <p className="text-[9px] font-medium leading-relaxed text-ui-success-text/90">99.98% uptime · Blockchain synced</p> */}
             </div>
@@ -186,11 +186,11 @@ export default function InvestorLayout({
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                   />
                 </svg>
-                <span className="text-[13px] font-semibold text-ui-body">Notifications</span>
+                <span className="text-base font-semibold text-ui-body">Notifications</span>
                 <span className="ml-auto h-2 w-2 rounded-full bg-[#7c3aed]" aria-hidden />
               </button> */}
               <div className="flex items-center justify-between gap-3 px-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-ui-faint">Appearance</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-ui-faint">Appearance</span>
                 <ThemeToggle />
               </div>
               <UserProfileMenu variant="mobile" />
@@ -217,7 +217,7 @@ export default function InvestorLayout({
                 </svg>
               </button>
               <nav
-                className="flex min-w-0 items-center gap-2 text-[13px] sm:text-sm"
+                className="flex min-w-0 items-center gap-2 text-base sm:text-base"
                 aria-label="Breadcrumb"
               >
                 <span className="shrink-0 font-medium text-ui-placeholder">Platform</span>

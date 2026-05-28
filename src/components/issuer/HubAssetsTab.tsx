@@ -53,20 +53,20 @@ function HubAssetStatusBadge({ status }: { status: HubAsset['displayStatus'] }) 
     typeof status === 'string' ? status.trim().toLowerCase() : '';
   if (normalized === 'live') {
     return (
-      <span className="rounded-md border border-status-live-border bg-status-live-bg px-2 py-0.5 text-[10px] font-bold text-status-live-text">
+      <span className="rounded-md border border-status-live-border bg-status-live-bg px-2 py-0.5 text-xs font-bold text-status-live-text">
         Live
       </span>
     );
   }
   if (normalized === 'funded') {
     return (
-      <span className="rounded-md border border-status-funded-border bg-status-funded-bg px-2 py-0.5 text-[10px] font-bold text-status-funded-text">
+      <span className="rounded-md border border-status-funded-border bg-status-funded-bg px-2 py-0.5 text-xs font-bold text-status-funded-text">
         Funded
       </span>
     );
   }
   return (
-    <span className="rounded-md border border-status-draft-border bg-status-draft-bg px-2 py-0.5 text-[10px] font-bold text-status-draft-text">
+    <span className="rounded-md border border-status-draft-border bg-status-draft-bg px-2 py-0.5 text-xs font-bold text-status-draft-text">
       {status}
     </span>
   );
@@ -108,14 +108,14 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-bold text-foreground">Asset Portfolio</h3>
-          <p className="text-xs text-text-muted">
+          <p className="text-base text-text-muted">
             {totalAssets} asset{totalAssets === 1 ? '' : 's'} · {activeOfferingCount}{' '}
             active offering{activeOfferingCount === 1 ? '' : 's'}
           </p>
         </div>
         <Link
           href="/issuer/onboarding?start=1"
-          className="inline-flex justify-center rounded-full bg-primary px-6 py-2 text-[13px] font-bold text-white transition-colors hover:bg-issuer-primary-hover"
+          className="inline-flex justify-center rounded-full bg-primary px-6 py-2 text-base font-bold text-white transition-colors hover:bg-issuer-primary-hover"
         >
           + New Asset
         </Link>
@@ -129,7 +129,7 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
               key={filter.label}
               type="button"
               onClick={() => setDisplayStatus(filter.value)}
-              className={`rounded-full border px-3 py-1.5 text-[11px] font-bold transition-colors ${
+              className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
                 active
                   ? 'border-primary bg-primary/10 text-primary'
                   : 'border-card-border bg-card text-text-muted hover:border-primary/30 hover:text-foreground'
@@ -161,7 +161,7 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search assets..."
-          className="h-9 w-full rounded-full border border-card-border bg-card py-1.5 pl-9 pr-4 text-xs text-foreground outline-none focus:border-primary"
+          className="h-9 w-full rounded-full border border-card-border bg-card py-1.5 pl-9 pr-4 text-base text-foreground outline-none focus:border-primary"
         />
       </div>
 
@@ -186,7 +186,7 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
                   </MetricIconCircle>
                   <div>
                     <div className="mb-1 flex flex-wrap items-center gap-2">
-                      <h4 className="text-sm font-bold text-foreground transition-colors group-hover:text-primary">
+                      <h4 className="text-base font-bold text-foreground transition-colors group-hover:text-primary">
                         {asset.name}
                       </h4>
                       <HubAssetStatusBadge status={asset.displayStatus} />
@@ -194,7 +194,7 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
                         {asset.tag}
                       </span>
                     </div>
-                    <p className="text-[11px] font-medium text-text-muted">
+                    <p className="text-xs font-medium text-text-muted">
                       Valuation: {asset.valuation} · Yield:{' '}
                       <span className="font-bold text-foreground">{asset.yield}</span> · Investors:{' '}
                       {asset.investors} · {asset.regulation}
@@ -220,7 +220,7 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="w-24 text-[10px] font-medium text-text-muted">
+                <span className="w-24 text-xs font-medium text-text-muted">
                   {asset.raised} raised of {asset.target}
                 </span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface">
@@ -234,8 +234,8 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
           ))
         ) : (
           <div className="rounded-3xl border border-dashed border-card-border bg-card px-6 py-14 text-center">
-            <p className="text-sm font-bold text-foreground">No assets found</p>
-            <p className="mt-1 text-xs text-text-muted">
+            <p className="text-base font-bold text-foreground">No assets found</p>
+            <p className="mt-1 text-base text-text-muted">
               {debouncedSearch || displayStatus
                 ? 'Try adjusting your search or filters.'
                 : 'Create your first tokenized asset to get started.'}

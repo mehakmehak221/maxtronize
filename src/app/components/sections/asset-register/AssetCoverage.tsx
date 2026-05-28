@@ -40,7 +40,7 @@ const AssetCoverage = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-[var(--primary)] text-xs font-bold tracking-widest uppercase mb-4 block"
+            className="text-[var(--primary)] text-base font-bold tracking-widest uppercase mb-4 block"
           >
             ASSET COVERAGE
           </motion.span>
@@ -69,11 +69,11 @@ const AssetCoverage = () => {
                 {asset.icon}
               </div>
               <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-4">{asset.title}</h3>
-              <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed mb-10 min-h-[60px]">
+              <p className="text-[var(--color-text-secondary)] text-base leading-relaxed mb-10 min-h-[60px]">
                 {asset.description}
               </p>
               <div className="pt-6 border-t border-[var(--dashboard-border)]">
-                <span className="text-[10px] font-bold text-[var(--color-text-muted)] tracking-wider uppercase">
+                <span className="text-xs font-bold text-[var(--color-text-muted)] tracking-wider uppercase">
                   {asset.footer}
                 </span>
               </div>

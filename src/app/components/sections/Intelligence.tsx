@@ -52,7 +52,7 @@ function CTAButton({ href, label }: CTAButtonProps) {
   return (
     <Link
       href={href}
-      className="group relative flex w-fit items-center gap-3 overflow-hidden rounded-md bg-[#1A1A1A] px-5 py-2.5 text-[14px] font-medium text-white shadow-md transition-all hover:shadow-lg"
+      className="group relative flex w-fit items-center gap-3 overflow-hidden rounded-md bg-[#1A1A1A] px-5 py-2.5 text-base font-medium text-white shadow-md transition-all hover:shadow-lg"
     >
       <motion.span
         className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"
@@ -94,7 +94,7 @@ function Feature({ title, description }: FeatureProps) {
     <li className="flex gap-3">
       <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#6653AF]" />
 
-      <p className="text-[14px] leading-relaxed text-[#333333]">
+      <p className="text-base leading-relaxed text-[#333333]">
         <span className="font-semibold text-[#111111]">{title}: </span>
         {description}
       </p>
@@ -153,7 +153,7 @@ export default function Intelligence() {
           <motion.p
             custom={0.15}
             variants={fadeUp}
-            className="mt-5 max-w-2xl text-[12px] leading-relaxed text-[#2e2b2b] sm:text-[15px]"
+            className="mt-5 max-w-2xl text-sm leading-relaxed text-[#2e2b2b] sm:text-[15px]"
           >
             A dual-purpose engine designed to reduce uncertainty for investors
             and streamline execution for brokers. By synthesizing millions of

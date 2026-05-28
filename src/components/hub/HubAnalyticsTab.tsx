@@ -143,14 +143,14 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
     ? 'text-lg font-bold text-foreground'
     : 'text-base font-bold text-ui-strong';
   const subClass = isIssuer
-    ? 'text-xs text-text-muted'
-    : 'mt-0.5 text-xs text-ui-faint';
+    ? 'text-base text-text-muted'
+    : 'mt-0.5 text-base text-ui-faint';
 
   return (
     <div className="max-w-full min-w-0 space-y-6 animate-in fade-in duration-500 md:space-y-8">
       {analyticsError ? (
         <p
-          className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
+          className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-base text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
           role="alert"
         >
           {formatRequestError(analyticsError)}
@@ -174,7 +174,7 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
               <p
                 className={
                   isIssuer
-                    ? 'mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted'
+                    ? 'mb-1 text-xs font-bold uppercase tracking-widest text-text-muted'
                     : 'mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint'
                 }
               >
@@ -192,8 +192,8 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
               <p
                 className={
                   isIssuer
-                    ? 'mt-2 text-xs text-text-muted'
-                    : 'mt-1 text-[10px] font-medium text-ui-faint'
+                    ? 'mt-2 text-base text-text-muted'
+                    : 'mt-1 text-xs font-medium text-ui-faint'
                 }
               >
                 {m.sub}
@@ -209,7 +209,7 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
           Your portfolio vs. benchmark ({performance?.benchmarkLabel ?? 'S&P 500'})
         </p>
         {analyticsLoading ? (
-          <div className="mt-6 flex h-56 items-center justify-center rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70 text-sm text-text-muted dark:border-slate-700/80 dark:bg-slate-900/20 md:h-72">
+          <div className="mt-6 flex h-56 items-center justify-center rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70 text-base text-text-muted dark:border-slate-700/80 dark:bg-slate-900/20 md:h-72">
             Loading performance…
           </div>
         ) : !performanceChart ? (
@@ -217,8 +217,8 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <BarChart3 className="h-6 w-6" strokeWidth={1.75} />
             </div>
-            <h4 className="text-sm font-bold text-foreground md:text-base">Performance data is not available yet</h4>
-            <p className="mt-2 text-xs font-medium leading-relaxed text-text-muted md:text-sm">
+            <h4 className="text-base font-bold text-foreground md:text-base">Performance data is not available yet</h4>
+            <p className="mt-2 text-base font-medium leading-relaxed text-text-muted md:text-base">
               This comparison will appear once the platform has enough portfolio and benchmark history for the selected period.
             </p>
           </div>
@@ -227,13 +227,13 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
             <div className="mb-4 mt-6 flex flex-wrap items-center justify-center gap-6">
               <div className="flex items-center gap-2">
                 <span className="h-0.5 w-6 rounded-full bg-primary" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
                   Portfolio
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-0.5 w-6 rounded-full border-t-2 border-dashed border-slate-400" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
                   {performance?.benchmarkLabel ?? 'Benchmark'}
                 </span>
               </div>
@@ -242,7 +242,7 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
             <div className="relative mt-4 h-52 md:h-72">
               <div
                 className={`absolute bottom-0 left-0 top-0 flex w-11 flex-col justify-between pb-0 pt-0 md:w-12 ${
-                  isIssuer ? 'text-[10px] font-medium text-text-muted' : 'text-[9px] font-medium text-ui-placeholder'
+                  isIssuer ? 'text-xs font-medium text-text-muted' : 'text-[9px] font-medium text-ui-placeholder'
                 }`}
               >
                 {performanceChart.yLabels.map((l, i) => (
@@ -301,7 +301,7 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
                   key={mo}
                   className={
                     isIssuer
-                      ? 'text-[10px] font-bold text-text-muted'
+                      ? 'text-xs font-bold text-text-muted'
                       : 'text-[9px] font-bold uppercase tracking-widest text-ui-placeholder'
                   }
                 >

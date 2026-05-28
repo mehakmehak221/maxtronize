@@ -128,7 +128,7 @@ export default function ApplicationsPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">Applications</h1>
-            <p className="text-sm text-ui-faint font-medium">
+            <p className="text-base text-ui-faint font-medium">
               Track tokenization applications across all jurisdictions and asset classes.
             </p>
           </div>
@@ -140,19 +140,19 @@ export default function ApplicationsPage() {
               key={i}
               className="bg-ui-card border border-ui-border rounded-[32px] p-8 shadow-sm hover:shadow-md transition-all group"
             >
-              <p className="text-[10px] font-bold text-ui-faint uppercase tracking-widest mb-4 group-hover:text-primary transition-colors">
+              <p className="text-xs font-bold text-ui-faint uppercase tracking-widest mb-4 group-hover:text-primary transition-colors">
                 {stat.label}
               </p>
               <div className="flex items-baseline gap-2 mb-2">
                 <span className="text-3xl font-bold text-ui-strong tracking-tight">{stat.value}</span>
-                <span className="text-[11px] font-bold text-ui-success-icon flex items-center gap-0.5">
+                <span className="text-xs font-bold text-ui-success-icon flex items-center gap-0.5">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7 7" />
                   </svg>
                   {stat.trend}
                 </span>
               </div>
-              <p className="text-[11px] text-ui-faint font-medium">{stat.sub}</p>
+              <p className="text-xs text-ui-faint font-medium">{stat.sub}</p>
             </div>
           ))}
         </div>
@@ -169,7 +169,7 @@ export default function ApplicationsPage() {
               <button
                 key={filter.name}
                 type="button"
-                className={`px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all flex items-center gap-2 shrink-0 ${
+                className={`px-6 py-2.5 rounded-xl text-base font-bold transition-all flex items-center gap-2 shrink-0 ${
                   i === 0
                     ? 'bg-dash-filter-active-bg text-dash-filter-active-fg shadow-lg'
                     : 'text-dash-filter-inactive-fg hover:text-dash-filter-inactive-hover-fg'
@@ -177,7 +177,7 @@ export default function ApplicationsPage() {
               >
                 {filter.name}
                 <span
-                  className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] ${
+                  className={`w-5 h-5 rounded-md flex items-center justify-center text-xs ${
                     i === 0 ? 'bg-dash-filter-active-badge-bg' : 'bg-dash-filter-count-bg'
                   }`}
                 >
@@ -199,7 +199,7 @@ export default function ApplicationsPage() {
             <input
               type="text"
               placeholder="Search applications..."
-              className="pl-11 pr-6 py-3.5 bg-ui-card border border-ui-border rounded-2xl text-[13px] font-medium text-foreground outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 w-full md:w-80 transition-all shadow-sm placeholder:text-ui-placeholder"
+              className="pl-11 pr-6 py-3.5 bg-ui-card border border-ui-border rounded-2xl text-base font-medium text-foreground outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 w-full md:w-80 transition-all shadow-sm placeholder:text-ui-placeholder"
             />
           </div>
         </div>
@@ -209,12 +209,12 @@ export default function ApplicationsPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-ui-muted-surface border-b border-ui-border">
-                  <th className="px-8 py-5 text-[10px] font-bold text-ui-faint uppercase tracking-widest">Asset</th>
-                  <th className="px-8 py-5 text-[10px] font-bold text-ui-faint uppercase tracking-widest">Valuation</th>
-                  <th className="px-8 py-5 text-[10px] font-bold text-ui-faint uppercase tracking-widest">Capital Raised</th>
-                  <th className="px-8 py-5 text-[10px] font-bold text-ui-faint uppercase tracking-widest">Network</th>
-                  <th className="px-8 py-5 text-[10px] font-bold text-ui-faint uppercase tracking-widest">Status</th>
-                  <th className="px-8 py-5 text-[10px] font-bold text-ui-faint uppercase tracking-widest text-right">Filed</th>
+                  <th className="px-8 py-5 text-xs font-bold text-ui-faint uppercase tracking-widest">Asset</th>
+                  <th className="px-8 py-5 text-xs font-bold text-ui-faint uppercase tracking-widest">Valuation</th>
+                  <th className="px-8 py-5 text-xs font-bold text-ui-faint uppercase tracking-widest">Capital Raised</th>
+                  <th className="px-8 py-5 text-xs font-bold text-ui-faint uppercase tracking-widest">Network</th>
+                  <th className="px-8 py-5 text-xs font-bold text-ui-faint uppercase tracking-widest">Status</th>
+                  <th className="px-8 py-5 text-xs font-bold text-ui-faint uppercase tracking-widest text-right">Filed</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ui-divider">
@@ -228,8 +228,8 @@ export default function ApplicationsPage() {
                             {app.icon}
                           </div>
                           <div>
-                            <p className="text-[13px] font-bold text-ui-strong mb-0.5">{app.name}</p>
-                            <p className="text-[10px] font-medium text-ui-faint tracking-wide uppercase">
+                            <p className="text-base font-bold text-ui-strong mb-0.5">{app.name}</p>
+                            <p className="text-xs font-medium text-ui-faint tracking-wide uppercase">
                               <span className="text-primary font-bold">{app.id}</span> · {app.type}
                             </p>
                           </div>
@@ -237,15 +237,15 @@ export default function ApplicationsPage() {
                       </td>
                       <td className="px-8 py-6">
                         <div>
-                          <p className="text-[13px] font-bold text-ui-strong">{app.valuation}</p>
-                          <p className="text-[10px] font-medium text-ui-faint">{app.tokens}</p>
+                          <p className="text-base font-bold text-ui-strong">{app.valuation}</p>
+                          <p className="text-xs font-medium text-ui-faint">{app.tokens}</p>
                         </div>
                       </td>
                       <td className="px-8 py-6">
                         <div className="max-w-[140px] space-y-2">
                           <div className="flex items-center justify-between">
-                            <p className="text-[13px] font-bold text-ui-strong">{app.raised}</p>
-                            <p className="text-[11px] font-bold text-ui-faint">{app.progress}%</p>
+                            <p className="text-base font-bold text-ui-strong">{app.raised}</p>
+                            <p className="text-xs font-bold text-ui-faint">{app.progress}%</p>
                           </div>
                           <div className="w-full h-1.5 bg-progress-track rounded-full overflow-hidden">
                             <div
@@ -256,20 +256,20 @@ export default function ApplicationsPage() {
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="px-4 py-1.5 bg-network-badge-bg text-network-badge-fg rounded-lg text-[11px] font-bold border border-network-badge-border">
+                        <span className="px-4 py-1.5 bg-network-badge-bg text-network-badge-fg rounded-lg text-xs font-bold border border-network-badge-border">
                           {app.network}
                         </span>
                       </td>
                       <td className="px-8 py-6">
                         <span
-                          className={`px-4 py-1.5 rounded-full text-[11px] font-bold border flex items-center gap-2 w-fit ${tone.pill}`}
+                          className={`px-4 py-1.5 rounded-full text-xs font-bold border flex items-center gap-2 w-fit ${tone.pill}`}
                         >
                           <div className={`w-1.5 h-1.5 rounded-full ${tone.dot}`} />
                           {app.status}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <p className="text-[12px] font-bold text-ui-faint">{app.filed}</p>
+                        <p className="text-sm font-bold text-ui-faint">{app.filed}</p>
                       </td>
                     </tr>
                   );

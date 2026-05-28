@@ -209,7 +209,7 @@ export default function Rwa() {
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true }}
-                        className="text-[#999999] text-[12px] sm:text-[14px] md:text-[18px] lg:text-[22px] xl:text-[24px] font-medium max-w-2xl font-kode-mono leading-relaxed mt-4 sm:mt-5 md:mt-6 tracking-wide"
+                        className="text-[#999999] text-sm sm:text-[14px] md:text-[18px] lg:text-[22px] xl:text-[24px] font-medium max-w-2xl font-kode-mono leading-relaxed mt-4 sm:mt-5 md:mt-6 tracking-wide"
                     >
                         <motion.span
                             initial={{ opacity: 0, x: -20 }}

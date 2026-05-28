@@ -210,7 +210,7 @@ export default function HelpCenterPage() {
       <div className="animate-page-enter mx-auto w-full max-w-7xl min-w-0 space-y-6 sm:space-y-8 xl:space-y-12">
         <div className="animate-slide-up space-y-1">
           <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">Help Center</h1>
-          <p className="text-sm font-medium text-ui-muted-text">
+          <p className="text-base font-medium text-ui-muted-text">
             Guides, FAQs, and dedicated support for your tokenization journey.
           </p>
         </div>
@@ -224,7 +224,7 @@ export default function HelpCenterPage() {
           />
 
           <div className="relative z-10 mx-auto max-w-2xl space-y-6">
-            <p className="flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-violet-300">
+            <p className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-violet-300">
               <Sparkles className="h-4 w-4" strokeWidth={iconStroke} />
               Maxtronize Support
             </p>
@@ -247,7 +247,7 @@ export default function HelpCenterPage() {
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-[11px] font-bold uppercase tracking-widest text-white/50">
+            <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs font-bold uppercase tracking-widest text-white/50">
               <span className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-white/70" strokeWidth={iconStroke} />
                 61 articles
@@ -262,7 +262,7 @@ export default function HelpCenterPage() {
 
         {/* Browse by topic */}
         <div className="space-y-5">
-          <h3 className="px-1 text-[13px] font-bold uppercase tracking-widest text-ui-muted-text">Browse by Topic</h3>
+          <h3 className="px-1 text-base font-bold uppercase tracking-widest text-ui-muted-text">Browse by Topic</h3>
           <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-5">
             {TOPICS.map((topic) => {
               const Icon = topic.Icon;
@@ -279,8 +279,8 @@ export default function HelpCenterPage() {
                       <Icon className="h-5 w-5" strokeWidth={iconStroke} />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-[14px] font-bold text-ui-strong">{topic.title}</h4>
-                      <p className="mt-0.5 line-clamp-2 text-[12px] font-medium text-ui-faint">{topic.desc}</p>
+                      <h4 className="text-base font-bold text-ui-strong">{topic.title}</h4>
+                      <p className="mt-0.5 line-clamp-2 text-sm font-medium text-ui-faint">{topic.desc}</p>
                     </div>
                   </div>
                   <ChevronRight
@@ -295,12 +295,12 @@ export default function HelpCenterPage() {
 
         {/* FAQs */}
         <div className="space-y-5">
-          <h3 className="px-1 text-[13px] font-bold uppercase tracking-widest text-ui-muted-text">
+          <h3 className="px-1 text-base font-bold uppercase tracking-widest text-ui-muted-text">
             Frequently Asked Questions
           </h3>
           <div className="overflow-hidden rounded-2xl border border-ui-border bg-ui-card shadow-sm sm:rounded-3xl xl:rounded-[24px]">
             {filteredFaqs.length === 0 ? (
-              <p className="px-8 py-12 text-center text-[13px] font-medium text-ui-faint">No FAQs match your search.</p>
+              <p className="px-8 py-12 text-center text-base font-medium text-ui-faint">No FAQs match your search.</p>
             ) : (
               filteredFaqs.map((faq, i) => {
                 const globalIndex = FAQS.indexOf(faq);
@@ -318,7 +318,7 @@ export default function HelpCenterPage() {
                         >
                           {faq.cat}
                         </span>
-                        <span className="text-[13px] font-bold leading-snug text-ui-strong md:text-[14px]">{faq.q}</span>
+                        <span className="text-base font-bold leading-snug text-ui-strong md:text-[14px]">{faq.q}</span>
                       </div>
                       <ChevronDown
                         className={`mt-1 h-5 w-5 shrink-0 text-ui-faint transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
@@ -327,7 +327,7 @@ export default function HelpCenterPage() {
                     </button>
                     {isOpen && (
                       <div className="animate-in fade-in px-5 pb-6 duration-200 md:px-8 md:pb-8">
-                        <p className="max-w-3xl border-l-2 border-violet-200 pl-4 text-[13px] font-medium leading-relaxed text-ui-body md:ml-[calc(5rem+0.75rem)] md:pl-6">
+                        <p className="max-w-3xl border-l-2 border-violet-200 pl-4 text-base font-medium leading-relaxed text-ui-body md:ml-[calc(5rem+0.75rem)] md:pl-6">
                           {faq.a}
                         </p>
                       </div>
@@ -343,7 +343,7 @@ export default function HelpCenterPage() {
         <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-10">
           {/* Contact Support */}
           <div className="space-y-5">
-            <h3 className="px-1 text-[13px] font-bold uppercase tracking-widest text-ui-muted-text">Contact Support</h3>
+            <h3 className="px-1 text-base font-bold uppercase tracking-widest text-ui-muted-text">Contact Support</h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {CONTACT_OPTIONS.map((opt) => {
                 const Icon = opt.Icon;
@@ -372,8 +372,8 @@ export default function HelpCenterPage() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-[13px] font-bold text-ui-strong">{opt.label}</h4>
-                      <p className="mt-0.5 text-[11px] font-medium text-ui-faint">{opt.sub}</p>
+                      <h4 className="text-base font-bold text-ui-strong">{opt.label}</h4>
+                      <p className="mt-0.5 text-xs font-medium text-ui-faint">{opt.sub}</p>
                     </div>
                   </button>
                 );
@@ -384,10 +384,10 @@ export default function HelpCenterPage() {
           {/* My Support Tickets */}
           <div className="space-y-5">
             <div className="flex items-center justify-between px-1">
-              <h3 className="text-[13px] font-bold uppercase tracking-widest text-ui-muted-text">My Support Tickets</h3>
+              <h3 className="text-base font-bold uppercase tracking-widest text-ui-muted-text">My Support Tickets</h3>
               <button
                 type="button"
-                className="flex items-center gap-0.5 text-[12px] font-bold text-[#7C3AED] hover:text-[#6D28D9]"
+                className="flex items-center gap-0.5 text-sm font-bold text-[#7C3AED] hover:text-[#6D28D9]"
               >
                 New Ticket
                 <ChevronRight className="h-4 w-4" strokeWidth={iconStroke} />
@@ -416,8 +416,8 @@ export default function HelpCenterPage() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-[13px] font-bold leading-snug text-ui-strong">{ticket.title}</h4>
-                        <p className="mt-2 text-[11px] font-medium text-ui-faint">
+                        <h4 className="text-base font-bold leading-snug text-ui-strong">{ticket.title}</h4>
+                        <p className="mt-2 text-xs font-medium text-ui-faint">
                           {ticket.id} · {ticket.time}
                         </p>
                       </div>
@@ -445,12 +445,12 @@ export default function HelpCenterPage() {
                       Dedicated Account Manager
                     </span>
                   </div>
-                  <p className="mt-1 text-[12px] font-medium text-white/70">
+                  <p className="mt-1 text-sm font-medium text-white/70">
                     Available Mon–Fri 9 AM–6 PM CET · Priority response
                   </p>
                   <button
                     type="button"
-                    className="mt-4 rounded-xl bg-ui-card px-5 py-2.5 text-[11px] font-bold text-[#7C3AED] shadow-lg transition-transform hover:scale-[1.02]"
+                    className="mt-4 rounded-xl bg-ui-card px-5 py-2.5 text-xs font-bold text-[#7C3AED] shadow-lg transition-transform hover:scale-[1.02]"
                   >
                     Schedule Call
                   </button>

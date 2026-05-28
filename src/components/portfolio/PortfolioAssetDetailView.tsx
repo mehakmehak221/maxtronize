@@ -139,10 +139,10 @@ export function PortfolioAssetDetailView({
   if (!assetId) {
     return (
       <div className="rounded-[24px] border border-ui-border bg-ui-card p-10 text-center">
-        <p className="text-sm font-medium text-ui-muted-text">
+        <p className="text-base font-medium text-ui-muted-text">
           Select an asset from your portfolio to view details.
         </p>
-        <Link href={backHref} className="mt-4 inline-flex text-sm font-bold text-primary hover:underline">
+        <Link href={backHref} className="mt-4 inline-flex text-base font-bold text-primary hover:underline">
           Back to portfolio
         </Link>
       </div>
@@ -162,10 +162,10 @@ export function PortfolioAssetDetailView({
   if (isError || !asset) {
     return (
       <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-10 text-center dark:border-rose-500/30 dark:bg-rose-500/10">
-        <p className="text-sm font-bold text-rose-700 dark:text-rose-300">
+        <p className="text-base font-bold text-rose-700 dark:text-rose-300">
           Asset not found or unavailable.
         </p>
-        <Link href={backHref} className="mt-4 inline-flex text-sm font-bold text-primary hover:underline">
+        <Link href={backHref} className="mt-4 inline-flex text-base font-bold text-primary hover:underline">
           {backLabel}
         </Link>
       </div>
@@ -192,7 +192,7 @@ export function PortfolioAssetDetailView({
     <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
       <Link
         href={backHref}
-        className="inline-flex w-fit items-center gap-2 text-[13px] font-bold text-ui-muted-text transition-colors hover:text-ui-strong"
+        className="inline-flex w-fit items-center gap-2 text-base font-bold text-ui-muted-text transition-colors hover:text-ui-strong"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={iconStroke} />
         {backLabel}
@@ -212,18 +212,18 @@ export function PortfolioAssetDetailView({
               </h1>
               {isVerified ? (
                 <span
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ${ring} bg-emerald-50 dark:bg-emerald-500/10`}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 ${ring} bg-emerald-50 dark:bg-emerald-500/10`}
                 >
                   <BadgeCheck className="h-3.5 w-3.5" strokeWidth={iconStroke} />
                   {asset.status}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-ui-border bg-ui-muted-deep px-2.5 py-1 text-[10px] font-bold text-ui-muted-text">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-ui-border bg-ui-muted-deep px-2.5 py-1 text-xs font-bold text-ui-muted-text">
                   {asset.status}
                 </span>
               )}
             </div>
-            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] font-medium text-ui-muted-text">
+            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm font-medium text-ui-muted-text">
               <span className="inline-flex items-center gap-1">
                 <MapPin className="h-3.5 w-3.5 shrink-0 text-ui-faint" strokeWidth={iconStroke} />
                 {subtitleParts.join(' · ') || asset.location}
@@ -255,7 +255,7 @@ export function PortfolioAssetDetailView({
           </button>
           <Link
             href={manageHref}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-base font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105"
           >
             <DollarSign className="h-4 w-4" strokeWidth={iconStroke} />
             {manageLabel}
@@ -268,11 +268,11 @@ export function PortfolioAssetDetailView({
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-black/10" />
           <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md md:left-6 md:top-6">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <span className="text-[10px] font-bold text-white">{asset.status}</span>
+            <span className="text-xs font-bold text-white">{asset.status}</span>
           </div>
           {asset.ticker !== '—' ? (
             <div className="absolute right-4 top-4 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 backdrop-blur-md md:right-6 md:top-6">
-              <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
+              <span className="text-xs font-bold tracking-wider text-white">{asset.ticker}</span>
             </div>
           ) : null}
           <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
@@ -308,11 +308,11 @@ export function PortfolioAssetDetailView({
           ) : null}
           <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md md:left-6 md:top-6">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <span className="text-[10px] font-bold text-white">{asset.status}</span>
+            <span className="text-xs font-bold text-white">{asset.status}</span>
           </div>
           {asset.ticker !== '—' ? (
             <div className="absolute right-4 top-4 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 backdrop-blur-md md:right-6 md:top-6">
-              <span className="text-[10px] font-bold tracking-wider text-white">{asset.ticker}</span>
+              <span className="text-xs font-bold tracking-wider text-white">{asset.ticker}</span>
             </div>
           ) : null}
           <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
@@ -351,7 +351,7 @@ export function PortfolioAssetDetailView({
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all ${
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-base font-bold transition-all ${
                     active
                       ? 'bg-primary/10 text-primary ring-1 ring-primary/15'
                       : 'text-ui-muted-text hover:bg-ui-muted-deep/80 hover:text-ui-body'
@@ -372,7 +372,7 @@ export function PortfolioAssetDetailView({
                 <h3 className="mb-3 text-base font-bold text-ui-strong md:text-lg">
                   About This Asset
                 </h3>
-                <p className="text-[13px] font-medium leading-relaxed text-ui-muted-text md:text-sm">
+                <p className="text-base font-medium leading-relaxed text-ui-muted-text md:text-base">
                   {buildAboutText(asset)}
                 </p>
               </div>
@@ -390,7 +390,7 @@ export function PortfolioAssetDetailView({
                     style={{ width: asset.apyPercent > 0 ? `${Math.min(asset.apyPercent, 100)}%` : '0%' }}
                   />
                 </div>
-                <div className="mt-2 flex justify-between text-[11px] font-medium text-ui-faint">
+                <div className="mt-2 flex justify-between text-xs font-medium text-ui-faint">
                   <span>{asset.investors} investors</span>
                   <span>{asset.lockup !== '—' ? asset.lockup : 'No lock period'}</span>
                 </div>
@@ -417,7 +417,7 @@ export function PortfolioAssetDetailView({
                     >
                       {s.val}
                     </p>
-                    <p className="text-[10px] font-medium text-ui-faint">{s.sub}</p>
+                    <p className="text-xs font-medium text-ui-faint">{s.sub}</p>
                   </div>
                 ))}
               </div>
@@ -432,8 +432,8 @@ export function PortfolioAssetDetailView({
                       className="mx-auto mb-2 h-8 w-8 text-ui-faint"
                       strokeWidth={iconStroke}
                     />
-                    <p className="text-[13px] font-bold text-ui-strong">{asset.location}</p>
-                    <p className="text-[11px] font-medium text-ui-faint">
+                    <p className="text-base font-bold text-ui-strong">{asset.location}</p>
+                    <p className="text-xs font-medium text-ui-faint">
                       {asset.compliance !== '—' ? asset.compliance : asset.categoryLabel}
                     </p>
                   </div>
@@ -485,11 +485,11 @@ export function PortfolioAssetDetailView({
                     <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
                       {row.label}
                     </p>
-                    <p className="break-all text-sm font-bold text-ui-strong">{row.val}</p>
+                    <p className="break-all text-base font-bold text-ui-strong">{row.val}</p>
                   </div>
                 ))}
               </div>
-              <div className="flex items-center gap-2 rounded-2xl border border-ui-border bg-ui-muted-deep/30 px-4 py-3 text-[12px] font-medium text-ui-muted-text">
+              <div className="flex items-center gap-2 rounded-2xl border border-ui-border bg-ui-muted-deep/30 px-4 py-3 text-sm font-medium text-ui-muted-text">
                 <Briefcase className="h-4 w-4 shrink-0 text-ui-faint" strokeWidth={iconStroke} />
                 Manage distributions, investors, and compliance from the Issuer Hub.
               </div>

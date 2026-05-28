@@ -107,7 +107,7 @@ function AssetCard({ asset }: { asset: (typeof assets)[0] }) {
           {asset.title}
         </motion.h3>
         <motion.p
-          className="text-[12px] leading-relaxed text-white/85"
+          className="text-sm leading-relaxed text-white/85"
           animate={{ y: hovered ? -4 : 0 }}
           transition={{ duration: 0.3, delay: 0.04 }}
         >
@@ -296,7 +296,7 @@ export default function Asset() {
             style={{ x: bSpX, y: bSpY }}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
-            className="w-fit group relative inline-flex items-center gap-3 overflow-hidden rounded-md bg-[#1A1A1A] pl-5 pr-4 py-2.5 text-[14px] font-medium text-white shadow-md hover:shadow-lg"
+            className="w-fit group relative inline-flex items-center gap-3 overflow-hidden rounded-md bg-[#1A1A1A] pl-5 pr-4 py-2.5 text-base font-medium text-white shadow-md hover:shadow-lg"
           >
             <motion.span
               className="absolute inset-0 bg-gradient-to-r from-[#4E449A] to-[#6B5DD3]"

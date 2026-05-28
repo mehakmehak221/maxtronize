@@ -35,7 +35,7 @@ const YieldAndLiquidity = ({ onStartIssuing }: { onStartIssuing?: () => void }) 
                 "USD or USDC settlement",
                 "Pro-rata distributions with cap table awareness"
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm font-medium text-[var(--color-text-secondary)]">
+                <li key={i} className="flex items-center gap-3 text-base font-medium text-[var(--color-text-secondary)]">
                   <span className="w-5 h-5 bg-[var(--sidebar-active-bg)] rounded-full flex items-center justify-center">
                     <Check className="w-3 h-3 text-[var(--primary)]" />
                   </span>
@@ -68,7 +68,7 @@ const YieldAndLiquidity = ({ onStartIssuing }: { onStartIssuing?: () => void }) 
             <div className="mt-auto">
               <button 
                 onClick={onStartIssuing}
-                className="px-6 py-3 bg-[var(--card-surface)] text-[var(--color-text-primary)] border border-[var(--dashboard-border)] rounded-lg text-sm font-semibold hover:bg-[var(--field-surface)] transition-all shadow-sm"
+                className="px-6 py-3 bg-[var(--card-surface)] text-[var(--color-text-primary)] border border-[var(--dashboard-border)] rounded-lg text-base font-semibold hover:bg-[var(--field-surface)] transition-all shadow-sm"
               >
                 View liquidity partners
               </button>

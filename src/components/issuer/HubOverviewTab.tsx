@@ -140,7 +140,7 @@ export function HubOverviewTab() {
               />
             </MetricIconCircle>
             <div>
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/60">
+              <p className="mb-1 text-xs font-bold uppercase tracking-widest text-white/60">
                 Total Capital Raised
               </p>
               <h3 className="text-3xl font-bold tracking-tight tabular-nums sm:text-4xl">
@@ -152,7 +152,7 @@ export function HubOverviewTab() {
                       { decimals: 0 },
                     )}
               </h3>
-              <p className="mt-2 text-xs font-medium text-white/60">
+              <p className="mt-2 text-base font-medium text-white/60">
                 across {summary?.totalCapitalRaised.activeOfferingsCount ?? 0}{" "}
                 active offering
                 {(summary?.totalCapitalRaised.activeOfferingsCount ?? 0) === 1
@@ -161,7 +161,7 @@ export function HubOverviewTab() {
               </p>
             </div>
             <div className="border-t border-white/10 pt-4">
-              <span className="flex items-center gap-2 text-[11px] font-bold text-issuer-hero-trend-fg">
+              <span className="flex items-center gap-2 text-xs font-bold text-issuer-hero-trend-fg">
                 {summaryLoading
                   ? "—"
                   : formatSignedChange(
@@ -178,7 +178,7 @@ export function HubOverviewTab() {
             <MetricIconCircle className="bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
               <Building2 className="h-5 w-5" strokeWidth={iconStroke} />
             </MetricIconCircle>
-            <span className="rounded-full bg-ui-success-bg-soft px-2 py-1 text-[10px] font-bold text-ui-success-text">
+            <span className="rounded-full bg-ui-success-bg-soft px-2 py-1 text-xs font-bold text-ui-success-text">
               {summaryLoading
                 ? "—"
                 : formatSignedChange(
@@ -190,13 +190,13 @@ export function HubOverviewTab() {
             </span>
           </div>
           <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-text-muted">
               Active Assets
             </p>
             <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">
               {summary?.activeAssets.total ?? (summaryLoading ? "—" : 0)}
             </h3>
-            <p className="mt-2 text-xs font-medium text-text-muted">
+            <p className="mt-2 text-base font-medium text-text-muted">
               {summary?.activeAssets.inFunding ?? 0} in funding ·{" "}
               {summary?.activeAssets.fullyFunded ?? 0} fully funded
             </p>
@@ -208,7 +208,7 @@ export function HubOverviewTab() {
             <MetricIconCircle className="bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
               <Users className="h-5 w-5" strokeWidth={iconStroke} />
             </MetricIconCircle>
-            <span className="rounded-full bg-ui-success-bg-soft px-2 py-1 text-[10px] font-bold text-ui-success-text">
+            <span className="rounded-full bg-ui-success-bg-soft px-2 py-1 text-xs font-bold text-ui-success-text">
               {summaryLoading
                 ? "—"
                 : formatSignedChange(
@@ -220,13 +220,13 @@ export function HubOverviewTab() {
             </span>
           </div>
           <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-text-muted">
               Total Investors
             </p>
             <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">
               {summary?.totalInvestors.total ?? (summaryLoading ? "—" : 0)}
             </h3>
-            <p className="mt-2 text-xs font-medium text-text-muted">
+            <p className="mt-2 text-base font-medium text-text-muted">
               {summary?.totalInvestors.funded ?? 0} funded ·{" "}
               {summary?.totalInvestors.committed ?? 0} committed
             </p>
@@ -243,7 +243,7 @@ export function HubOverviewTab() {
             </MetricIconCircle>
           </div>
           <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-issuer-yield-card-fg/80">
+            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-issuer-yield-card-fg/80">
               Blended Yield
             </p>
             <h3 className="text-3xl font-bold tracking-tight tabular-nums sm:text-4xl">
@@ -251,12 +251,12 @@ export function HubOverviewTab() {
                 ? "—"
                 : `${(summary?.blendedYield.percent ?? 0).toFixed(1)}%`}
             </h3>
-            <p className="mt-2 text-xs font-medium text-issuer-yield-card-fg/80">
+            <p className="mt-2 text-base font-medium text-issuer-yield-card-fg/80">
               weighted avg across portfolio
             </p>
           </div>
           <div className="border-t border-white/20 pt-4">
-            <span className="flex items-center gap-2 text-[11px] font-bold text-issuer-yield-card-fg">
+            <span className="flex items-center gap-2 text-xs font-bold text-issuer-yield-card-fg">
               {summaryLoading
                 ? "—"
                 : formatSignedChange(
@@ -272,18 +272,18 @@ export function HubOverviewTab() {
             <MetricIconCircle className="bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
               <Clock className="h-5 w-5" strokeWidth={iconStroke} />
             </MetricIconCircle>
-            <span className="rounded-full bg-warning/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-warning">
+            <span className="rounded-full bg-warning/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-warning">
               Action
             </span>
           </div>
           <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-warning/90">
+            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-warning/90">
               Pending KYC
             </p>
             <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">
               {summary?.pendingKyc.total ?? (summaryLoading ? "—" : 0)}
             </h3>
-            <p className="mt-2 text-xs font-medium text-warning">
+            <p className="mt-2 text-base font-medium text-warning">
               {summary?.pendingKyc.awaitingDocuments ?? 0} awaiting docs ·{" "}
               {summary?.pendingKyc.inReview ?? 0} in review
               {(summary?.pendingKyc.overdueCount ?? 0) > 0 ? (
@@ -305,7 +305,7 @@ export function HubOverviewTab() {
             </MetricIconCircle>
           </div>
           <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-text-muted">
               Next Distribution
             </p>
             <h3 className="text-3xl font-bold tracking-tight text-foreground tabular-nums sm:text-4xl">
@@ -319,7 +319,7 @@ export function HubOverviewTab() {
                   ? "—"
                   : "—"}
             </h3>
-            <p className="mt-2 text-xs font-medium text-text-muted">
+            <p className="mt-2 text-base font-medium text-text-muted">
               {summary?.nextDistribution?.label ?? "No distribution scheduled"}
             </p>
           </div>
@@ -333,7 +333,7 @@ export function HubOverviewTab() {
               <h3 className="mb-1 text-lg font-bold text-foreground">
                 Capital Velocity
               </h3>
-              <p className="text-xs text-text-muted">
+              <p className="text-base text-text-muted">
                 Raised vs. committed capital — last {velocity?.weeks ?? 12}{" "}
                 weeks
               </p>
@@ -341,13 +341,13 @@ export function HubOverviewTab() {
             <div className="flex flex-wrap gap-6">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 shrink-0 rounded-full bg-issuer-chart-line-primary" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
                   Raised
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 shrink-0 rounded-full bg-palette-success" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
                   Committed
                 </span>
               </div>
@@ -404,7 +404,7 @@ export function HubOverviewTab() {
                       y={y + 4}
                       textAnchor="end"
                       fill="var(--text-muted)"
-                      className="text-[10px] font-bold"
+                      className="text-xs font-bold"
                     >
                       {m === 0 ? "$0" : `$${m}M`}
                     </text>
@@ -497,7 +497,7 @@ export function HubOverviewTab() {
                     y="208"
                     textAnchor="middle"
                     fill="var(--text-muted)"
-                    className="text-[10px] font-bold"
+                    className="text-xs font-bold"
                   >
                     {label}
                   </text>
@@ -511,12 +511,12 @@ export function HubOverviewTab() {
           <h3 className="mb-1 text-lg font-bold text-foreground">
             Recent Activity
           </h3>
-          <p className="mb-5 text-xs text-text-muted sm:mb-6 md:mb-8">
+          <p className="mb-5 text-base text-text-muted sm:mb-6 md:mb-8">
             Investor actions & compliance events
           </p>
           <div className="flex-1 space-y-4 sm:space-y-5 md:space-y-6">
             {activityLoading ? (
-              <p className="text-xs text-text-muted">Loading activity…</p>
+              <p className="text-base text-text-muted">Loading activity…</p>
             ) : activities.length > 0 ? (
               activities.map((activity) => {
                 const RowIcon = ACTIVITY_ICON[activity.tone];
@@ -531,13 +531,13 @@ export function HubOverviewTab() {
                       <RowIcon className="h-4 w-4" strokeWidth={iconStroke} />
                     </MetricIconCircle>
                     <div className="min-w-0 flex-1">
-                      <p className="mb-0.5 line-clamp-3 text-[11px] font-bold leading-snug text-foreground transition-colors group-hover:text-primary xl:line-clamp-2">
+                      <p className="mb-0.5 line-clamp-3 text-xs font-bold leading-snug text-foreground transition-colors group-hover:text-primary xl:line-clamp-2">
                         {activity.title}
                       </p>
-                      <p className="mb-0.5 line-clamp-2 text-[10px] text-text-muted xl:line-clamp-1">
+                      <p className="mb-0.5 line-clamp-2 text-xs text-text-muted xl:line-clamp-1">
                         {activity.description}
                       </p>
-                      <p className="text-[10px] text-text-muted">
+                      <p className="text-xs text-text-muted">
                         {activity.time}
                       </p>
                     </div>
@@ -545,7 +545,7 @@ export function HubOverviewTab() {
                 );
               })
             ) : (
-              <p className="text-xs text-text-muted">No recent activity</p>
+              <p className="text-base text-text-muted">No recent activity</p>
             )}
           </div>
         </div>

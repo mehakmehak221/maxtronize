@@ -129,8 +129,8 @@ export function UserProfileMenu({
       <div className="flex items-center gap-3 rounded-xl p-1.5">
         <ProfileAvatar gradientId={gradientId} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-bold text-ui-strong">{name}</p>
-          <p className="truncate text-[11px] text-ui-muted-text">{email}</p>
+          <p className="truncate text-base font-bold text-ui-strong">{name}</p>
+          <p className="truncate text-xs text-ui-muted-text">{email}</p>
         </div>
       </div>
     );
@@ -142,7 +142,7 @@ export function UserProfileMenu({
         href={settingsHref}
         role="menuitem"
         onClick={() => setOpen(false)}
-        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
+        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-base font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong"
       >
         <Settings
           className="h-4 w-4 shrink-0 text-ui-muted-text"
@@ -156,7 +156,7 @@ export function UserProfileMenu({
         role="menuitem"
         onClick={() => void handleSignOut()}
         disabled={loggingOut}
-        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong disabled:opacity-60"
+        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-base font-medium text-ui-body transition-colors hover:bg-ui-muted-deep hover:text-ui-strong disabled:opacity-60"
       >
         <LogOut
           className="h-4 w-4 shrink-0 text-ui-muted-text"
@@ -181,8 +181,8 @@ export function UserProfileMenu({
         >
           <ProfileAvatar gradientId={gradientId} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-bold text-ui-strong">{name}</p>
-            <p className="truncate text-[11px] text-ui-muted-text">{email}</p>
+            <p className="truncate text-base font-bold text-ui-strong">{name}</p>
+            <p className="truncate text-xs text-ui-muted-text">{email}</p>
           </div>
           <ChevronDown
             className={`h-4 w-4 shrink-0 text-ui-faint transition-transform group-hover:text-ui-muted-text ${
@@ -216,7 +216,7 @@ export function UserProfileMenu({
         aria-label="Account menu"
       >
         <ProfileAvatar gradientId={gradientId} size="sm" />
-        <span className="hidden max-w-[120px] truncate text-[13px] font-semibold text-ui-strong sm:inline md:max-w-[160px]">
+        <span className="hidden max-w-[120px] truncate text-base font-semibold text-ui-strong sm:inline md:max-w-[160px]">
           {name}
         </span>
         <ChevronDown
@@ -234,7 +234,7 @@ export function UserProfileMenu({
           className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-ui-border bg-ui-card py-1 shadow-lg"
         >
           <div className="border-b border-ui-divider px-3 py-2.5">
-            <p className="truncate text-[11px] text-ui-muted-text">{email}</p>
+            <p className="truncate text-xs text-ui-muted-text">{email}</p>
           </div>
           {menuItems}
         </div>

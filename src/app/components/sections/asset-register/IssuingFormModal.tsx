@@ -196,7 +196,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                       transition={{ duration: 0.3 }}
                     >
                       <div className="mb-8">
-                        <span className="text-[var(--primary)] text-[10px] font-bold tracking-wider uppercase mb-2 block">
+                        <span className="text-[var(--primary)] text-xs font-bold tracking-wider uppercase mb-2 block">
                           Step 01 / 02
                         </span>
                         <h2 className="text-3xl font-bold text-[var(--color-text-primary)]">Contact Information</h2>
@@ -206,7 +206,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                       <form onSubmit={handleNext} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
+                            <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
                               Full Name <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -219,7 +219,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
+                            <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
                               Email Address <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -236,7 +236,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Phone Number</label>
+                            <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Phone Number</label>
                             <input
                               type="tel"
                               name="phone"
@@ -247,7 +247,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Role / Title</label>
+                            <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Role / Title</label>
                             <input
                               name="role"
                               value={formData.role}
@@ -259,7 +259,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Company Website</label>
+                          <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Company Website</label>
                           <input
                             type="url"
                             name="website"
@@ -318,7 +318,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                           <div className="mb-8">
                             <button 
                               onClick={() => setStep(1)}
-                              className="text-[var(--primary)] text-[10px] font-bold tracking-wider uppercase mb-2 flex items-center gap-1 hover:underline"
+                              className="text-[var(--primary)] text-xs font-bold tracking-wider uppercase mb-2 flex items-center gap-1 hover:underline"
                             >
                               <ChevronRight className="w-3 h-3 rotate-180" />
                               Back to Step 01
@@ -329,7 +329,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
 
                           <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Asset Type</label>
+                              <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Asset Type</label>
                               <select
                                 name="assetType"
                                 value={formData.assetType}
@@ -345,7 +345,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Country</label>
+                                <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Country</label>
                                 <input
                                   name="country"
                                   value={formData.country}
@@ -355,7 +355,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                                 />
                               </div>
                               <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">City</label>
+                                <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">City</label>
                                 <input
                                   name="city"
                                   value={formData.city}
@@ -367,7 +367,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                             </div>
 
                             <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Target Raise Amount (USD)</label>
+                              <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Target Raise Amount (USD)</label>
                               <input
                                 type="text"
                                 name="targetRaise"
@@ -379,7 +379,7 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                             </div>
 
                             <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Additional Details</label>
+                              <label className="text-base font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Additional Details</label>
                               <textarea
                                 name="details"
                                 value={formData.details}

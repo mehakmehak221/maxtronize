@@ -25,7 +25,7 @@ const AppDownloadSection = () => {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-center lg:items-start text-center lg:text-left"
           >
-            <span className="inline-block px-3 py-1 rounded-full bg-[#4E449A]/10 text-[#4E449A] text-[10px] font-bold uppercase tracking-[0.2em] mb-6 font-inter">
+            <span className="inline-block px-3 py-1 rounded-full bg-[#4E449A]/10 text-[#4E449A] text-xs font-bold uppercase tracking-[0.2em] mb-6 font-inter">
               Mobile App
             </span>
             
@@ -50,7 +50,7 @@ const AppDownloadSection = () => {
                   </svg>
                   <div className="text-left">
                     <p className="text-[9px] text-gray-400 uppercase font-bold leading-none mb-0.5 font-inter">Available on</p>
-                    <p className="text-sm text-[#1a1a1a] font-semibold leading-none font-inter">App Store</p>
+                    <p className="text-base text-[#1a1a1a] font-semibold leading-none font-inter">App Store</p>
                   </div>
                 </div>
               </div>
@@ -66,7 +66,7 @@ const AppDownloadSection = () => {
                   </svg>
                   <div className="text-left">
                     <p className="text-[9px] text-gray-400 uppercase font-bold leading-none mb-0.5 font-inter">Available on</p>
-                    <p className="text-sm text-[#1a1a1a] font-semibold leading-none font-inter">Google Play</p>
+                    <p className="text-base text-[#1a1a1a] font-semibold leading-none font-inter">Google Play</p>
                   </div>
                 </div>
               </div>
@@ -93,7 +93,7 @@ const AppDownloadSection = () => {
                 <div className="px-4 mb-6">
                   <div className="bg-white rounded-full border border-gray-100 py-2 px-4 flex items-center gap-3 shadow-sm">
                     <svg className="w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <span className="text-[10px] text-gray-400">Search...</span>
+                    <span className="text-xs text-gray-400">Search...</span>
                   </div>
                 </div>
 
@@ -123,7 +123,7 @@ const AppDownloadSection = () => {
                       <div className="absolute top-2 right-2 bg-yellow-400 px-2 py-0.5 rounded text-[7px] font-bold uppercase text-white shadow-sm">Medium</div>
                     </div>
                     <div className="p-4">
-                      <h4 className="text-xs font-bold text-gray-900 mb-0.5">Burj Vista Tower</h4>
+                      <h4 className="text-base font-bold text-gray-900 mb-0.5">Burj Vista Tower</h4>
                       <p className="text-[8px] text-gray-500 mb-4 flex items-center gap-1">
                         <svg className="w-2 h-2" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
                         Downtown Dubai, UAE
@@ -132,11 +132,11 @@ const AppDownloadSection = () => {
                       <div className="grid grid-cols-2 gap-y-3 mb-4">
                         <div>
                           <p className="text-[7px] text-gray-400 font-bold uppercase mb-0.5">Valuation</p>
-                          <p className="text-[10px] font-bold text-gray-900">$250.0M</p>
+                          <p className="text-xs font-bold text-gray-900">$250.0M</p>
                         </div>
                         <div>
                           <p className="text-[7px] text-gray-400 font-bold uppercase mb-0.5">Per Fraction</p>
-                          <p className="text-[10px] font-bold text-gray-900">$25K</p>
+                          <p className="text-xs font-bold text-gray-900">$25K</p>
                         </div>
                       </div>
 

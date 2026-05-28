@@ -174,7 +174,7 @@ function SignDocumentButton({
         onSign(docId);
       }}
       disabled={isSigning}
-      className="inline-flex items-center justify-center rounded-xl bg-primary px-3 py-1.5 text-[10px] font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex items-center justify-center rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
     >
       {busy ? "Signing…" : "Sign"}
     </button>
@@ -413,7 +413,7 @@ export default function InvestorDocumentsPage() {
             <h1 className="text-2xl md:text-4xl font-bold text-ui-strong tracking-tight">
               Documents
             </h1>
-            <p className="text-sm text-ui-faint mt-1 font-medium">
+            <p className="text-base text-ui-faint mt-1 font-medium">
               Legal agreements, compliance filings, and asset documentation —
               all in one secure vault.
             </p>
@@ -421,7 +421,7 @@ export default function InvestorDocumentsPage() {
           <button
             type="button"
             onClick={() => uploadZoneRef.current?.openPicker()}
-            className="self-start sm:self-auto px-5 md:px-7 py-3 bg-primary text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0"
+            className="self-start sm:self-auto px-5 md:px-7 py-3 bg-primary text-white rounded-2xl text-base font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all flex items-center gap-2 shrink-0"
           >
             <svg
               className="w-4 h-4"
@@ -468,7 +468,7 @@ export default function InvestorDocumentsPage() {
                     {s.val}
                   </p>
                   <p
-                    className={`hidden text-[10px] font-medium sm:block ${s.highlight ? "text-amber-600/90" : "text-ui-faint"}`}
+                    className={`hidden text-xs font-medium sm:block ${s.highlight ? "text-amber-600/90" : "text-ui-faint"}`}
                   >
                     {s.sub}
                   </p>
@@ -485,7 +485,7 @@ export default function InvestorDocumentsPage() {
                 key={cat.key}
                 type="button"
                 onClick={() => setActiveTabKey(cat.key)}
-                className={`flex items-center gap-1.5 px-3 md:px-5 py-2 rounded-full text-[12px] font-bold transition-all whitespace-nowrap shrink-0 ${
+                className={`flex items-center gap-1.5 px-3 md:px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
                   activeTabKey === cat.key
                     ? "bg-slate-900 text-white shadow-md dark:bg-slate-900 dark:text-white"
                     : "text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -524,14 +524,14 @@ export default function InvestorDocumentsPage() {
               onChange={(e) => setSearch(e.target.value)}
               type="search"
               placeholder="Search documents..."
-              className="w-full pl-10 pr-4 py-2.5 bg-ui-card border border-ui-border rounded-2xl text-[13px] font-medium outline-none focus:ring-4 focus:ring-primary/5 shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-ui-card border border-ui-border rounded-2xl text-base font-medium outline-none focus:ring-4 focus:ring-primary/5 shadow-sm"
             />
           </div>
         </div>
 
         {pageError ? (
           <div className="rounded-2xl border border-ui-border bg-ui-card px-6 py-8 text-center">
-            <p className="text-sm font-medium text-ui-muted-text">
+            <p className="text-base font-medium text-ui-muted-text">
               Could not load documents.
             </p>
             <button
@@ -541,7 +541,7 @@ export default function InvestorDocumentsPage() {
                 void refetchSummary();
                 void refetchCategories();
               }}
-              className="mt-3 text-[11px] font-bold uppercase tracking-widest text-primary"
+              className="mt-3 text-xs font-bold uppercase tracking-widest text-primary"
             >
               Retry
             </button>
@@ -551,7 +551,7 @@ export default function InvestorDocumentsPage() {
         {signError ? (
           <div
             role="alert"
-            className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300"
+            className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-base font-medium text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300"
           >
             {signError}
           </div>
@@ -569,10 +569,10 @@ export default function InvestorDocumentsPage() {
         {uploadedFiles.length > 0 ? (
           <section className="overflow-hidden rounded-[20px] border border-ui-border bg-ui-card/95 shadow-sm md:rounded-[32px] dark:border-zinc-800 dark:bg-zinc-900/70">
             <div className="flex flex-col gap-2 border-b border-ui-divider px-5 py-4 md:px-8 md:py-5">
-              <h2 className="text-[14px] font-bold text-ui-strong">
+              <h2 className="text-base font-bold text-ui-strong">
                 Recent Storage Uploads
               </h2>
-              <p className="text-[12px] font-medium text-ui-faint">
+              <p className="text-sm font-medium text-ui-faint">
                 Uploaded files remain visible here on this device after they are
                 sent to secure storage.
               </p>
@@ -584,10 +584,10 @@ export default function InvestorDocumentsPage() {
                   className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-8"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-bold text-ui-strong">
+                    <p className="truncate text-base font-bold text-ui-strong">
                       {file.name}
                     </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] font-medium text-ui-faint">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs font-medium text-ui-faint">
                       <span>{file.size}</span>
                       <span className="text-ui-placeholder">•</span>
                       <span>{file.uploadedAt}</span>
@@ -599,7 +599,7 @@ export default function InvestorDocumentsPage() {
                     href={resolveAbsoluteUrl(file.url)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-ui-border px-4 py-2.5 text-[12px] font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-ui-border px-4 py-2.5 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
                   >
                     Open File
                   </a>
@@ -611,11 +611,11 @@ export default function InvestorDocumentsPage() {
 
         <div className="space-y-3 xl:hidden">
           {isLoading ? (
-            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint animate-pulse">
+            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-base font-medium text-ui-faint animate-pulse">
               Loading documents…
             </p>
           ) : filteredDocs.length === 0 ? (
-            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-[13px] font-medium text-ui-faint">
+            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-12 text-center text-base font-medium text-ui-faint">
               No documents found matching your search.
             </p>
           ) : (
@@ -629,7 +629,7 @@ export default function InvestorDocumentsPage() {
                     <Document className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-bold leading-snug text-ui-strong">
+                    <p className="text-base font-bold leading-snug text-ui-strong">
                       {doc.name}
                     </p>
                     <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
@@ -652,13 +652,13 @@ export default function InvestorDocumentsPage() {
                     {doc.catLabel}
                   </span>
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold ${statusStyle[doc.statusType]}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold ${statusStyle[doc.statusType]}`}
                   >
                     <StatusGlyph statusType={doc.statusType} />
                     {doc.status}
                   </span>
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-4 text-[11px]">
+                <div className="mt-3 grid grid-cols-3 gap-4 text-xs">
                   <div className="min-w-0">
                     <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
                       Asset
@@ -712,7 +712,7 @@ export default function InvestorDocumentsPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={7} className="px-8 py-12 text-center">
-                      <p className="text-[13px] font-medium text-ui-faint animate-pulse">
+                      <p className="text-base font-medium text-ui-faint animate-pulse">
                         Loading documents…
                       </p>
                     </td>
@@ -720,7 +720,7 @@ export default function InvestorDocumentsPage() {
                 ) : filteredDocs.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-8 py-12 text-center">
-                      <p className="text-[13px] font-medium text-ui-faint">
+                      <p className="text-base font-medium text-ui-faint">
                         No documents found matching your search.
                       </p>
                     </td>
@@ -750,7 +750,7 @@ export default function InvestorDocumentsPage() {
                             </svg>
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[12px] md:text-[13px] font-bold text-ui-strong truncate max-w-[140px] md:max-w-[220px] group-hover:text-primary transition-colors">
+                            <p className="text-sm md:text-[13px] font-bold text-ui-strong truncate max-w-[140px] md:max-w-[220px] group-hover:text-primary transition-colors">
                               {doc.name}
                             </p>
                             <p className="text-[9px] font-bold text-ui-faint uppercase tracking-widest">
@@ -773,26 +773,26 @@ export default function InvestorDocumentsPage() {
                             className="h-3.5 w-3 shrink-0 text-violet-500 dark:text-violet-400"
                             aria-hidden
                           />
-                          <p className="text-[12px] font-medium text-ui-muted-text">
+                          <p className="text-sm font-medium text-ui-muted-text">
                             {doc.asset}
                           </p>
                         </div>
                       </td>
                       <td className="px-4 md:px-8 py-4 md:py-5">
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold whitespace-nowrap ${statusStyle[doc.statusType]}`}
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold whitespace-nowrap ${statusStyle[doc.statusType]}`}
                         >
                           <StatusGlyph statusType={doc.statusType} />
                           {doc.status}
                         </span>
                       </td>
                       <td className="px-4 md:px-8 py-4 md:py-5">
-                        <span className="text-[11px] font-medium text-ui-faint whitespace-nowrap">
+                        <span className="text-xs font-medium text-ui-faint whitespace-nowrap">
                           {doc.date}
                         </span>
                       </td>
                       <td className="px-4 md:px-8 py-4 md:py-5">
-                        <span className="text-[11px] font-medium text-ui-faint">
+                        <span className="text-xs font-medium text-ui-faint">
                           {doc.size}
                         </span>
                       </td>

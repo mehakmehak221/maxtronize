@@ -175,7 +175,7 @@ function OnboardingStartFallback() {
   return (
     <OnboardingLayout currentStep={1}>
       <div className="flex min-h-[40vh] items-center justify-center">
-        <p className="text-sm text-ui-muted-text">Loading tokenization wizard…</p>
+        <p className="text-base text-ui-muted-text">Loading tokenization wizard…</p>
       </div>
     </OnboardingLayout>
   );
@@ -186,7 +186,7 @@ function StepValidationBanner({ message }: { message: string | null }) {
   return (
     <div
       role="alert"
-      className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-900"
+      className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-base text-rose-900"
     >
       <p className="font-bold">Please complete all required fields</p>
       <p className="mt-1 text-rose-800">{message}</p>
@@ -225,19 +225,19 @@ function FormField({
   return (
     <div className={`space-y-3 ${fullWidth ? 'md:col-span-2' : ''}`}>
       {label ? (
-        <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest flex items-center gap-1">
+        <label className="text-xs font-bold text-ui-faint uppercase tracking-widest flex items-center gap-1">
           {label}
           {required && <span className="text-ui-danger-text font-bold">*</span>}
         </label>
       ) : null}
-      {hint ? <p className={`text-[10px] text-ui-faint leading-relaxed ${label ? '' : '-mt-1'}`}>{hint}</p> : null}
+      {hint ? <p className={`text-xs text-ui-faint leading-relaxed ${label ? '' : '-mt-1'}`}>{hint}</p> : null}
       <div className="relative">
         {options ? (
           <select
             value={value ?? ''}
             onChange={onChange ? (e) => onChange(e.target.value) : undefined}
             disabled={isApprovedOrLocked}
-            className={`w-full min-w-0 px-4 py-3.5 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 appearance-none disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
+            className={`w-full min-w-0 px-4 py-3.5 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-base text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 appearance-none disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
           >
             <option value="" disabled>{placeholder}</option>
             {options.map(opt => (
@@ -251,7 +251,7 @@ function FormField({
             value={value ?? ''}
             onChange={onChange ? (e) => onChange(e.target.value) : undefined}
             disabled={isApprovedOrLocked}
-            className={`w-full min-w-0 px-4 py-3.5 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
+            className={`w-full min-w-0 px-4 py-3.5 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-base text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
           />
         )}
         {(isSelect || options) && (
@@ -262,7 +262,7 @@ function FormField({
           </div>
         )}
       </div>
-      {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
+      {error ? <p className="text-base font-medium text-rose-600">{error}</p> : null}
     </div>
   );
 }
@@ -270,10 +270,10 @@ function FormField({
 function FileUploadField({ label, sub }: { label: string; sub: string }) {
   return (
     <div className="space-y-3">
-      <label className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">{label}</label>
+      <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">{label}</label>
       <div className="p-6 border-2 border-dashed border-ui-border rounded-3xl bg-ui-muted-surface flex flex-col items-center justify-center gap-2 hover:bg-ui-muted-deep hover:border-ui-border-strong transition-all cursor-pointer group">
-        <p className="text-[10px] font-bold text-ui-faint uppercase tracking-wide group-hover:text-ui-muted-text transition-colors">{sub}</p>
-        <p className="text-[11px] font-bold text-primary group-hover:underline">Click to upload PDF / JPG</p>
+        <p className="text-xs font-bold text-ui-faint uppercase tracking-wide group-hover:text-ui-muted-text transition-colors">{sub}</p>
+        <p className="text-xs font-bold text-primary group-hover:underline">Click to upload PDF / JPG</p>
       </div>
     </div>
   );
@@ -357,20 +357,20 @@ function IssuerOnboardingStartPage({
     <OnboardingLayout currentStep={0}>
       <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <header>
-          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">
             New tokenization
           </p>
           <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">
             Tokenize a new asset
           </h1>
-          <p className="text-ui-muted-text text-sm">
+          <p className="text-ui-muted-text text-base">
             Each asset gets its own onboarding draft. Submit one application, then come back here
             anytime to tokenize another asset.
           </p>
         </header>
 
         {onboardingSessionMissing ? (
-          <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+          <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
             Your previous onboarding draft could not be found. Start a new application below.
           </p>
         ) : null}
@@ -379,7 +379,7 @@ function IssuerOnboardingStartPage({
 
         <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
           <h3 className="text-base font-bold text-ui-strong mb-1">Asset type</h3>
-          <p className="text-xs text-ui-faint mb-8">Select the category of asset you are tokenizing.</p>
+          <p className="text-base text-ui-faint mb-8">Select the category of asset you are tokenizing.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {ONBOARDING_ASSET_TYPES.map((type) => (
               <button
@@ -399,12 +399,12 @@ function IssuerOnboardingStartPage({
                 </div>
                 <div className="min-w-0">
                   <p
-                    className={`text-sm font-bold mb-1 ${selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'
+                    className={`text-base font-bold mb-1 ${selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'
                       }`}
                   >
                     {type.name}
                   </p>
-                  <p className="text-[10px] text-ui-faint leading-relaxed">{type.sub}</p>
+                  <p className="text-xs text-ui-faint leading-relaxed">{type.sub}</p>
                 </div>
               </button>
             ))}
@@ -441,7 +441,7 @@ function IssuerOnboardingStartPage({
         </section>
 
         {saveError ? (
-          <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-base text-rose-800">
             {saveError}
           </p>
         ) : null}
@@ -451,7 +451,7 @@ function IssuerOnboardingStartPage({
             type="button"
             onClick={() => void handleStartOnboarding()}
             disabled={isStartingSession || !startAssetName.trim()}
-            className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+            className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
           >
             {isStartingSession ? 'Starting draft…' : 'Start onboarding →'}
           </button>
@@ -531,7 +531,7 @@ function IssuerOnboardingWizard() {
     return (
       <OnboardingLayout currentStep={0}>
         <div className="flex min-h-[40vh] items-center justify-center">
-          <p className="text-sm text-ui-muted-text">Loading…</p>
+          <p className="text-base text-ui-muted-text">Loading…</p>
         </div>
       </OnboardingLayout>
     );
@@ -574,7 +574,7 @@ function IssuerOnboardingWizard() {
     return (
       <OnboardingLayout currentStep={0}>
         <div className="flex min-h-[40vh] items-center justify-center">
-          <p className="text-sm text-ui-muted-text">Loading onboarding draft…</p>
+          <p className="text-base text-ui-muted-text">Loading onboarding draft…</p>
         </div>
       </OnboardingLayout>
     );
@@ -584,7 +584,7 @@ function IssuerOnboardingWizard() {
     return (
       <OnboardingLayout currentStep={0}>
         <div className="flex min-h-[40vh] items-center justify-center">
-          <p className="text-sm text-ui-muted-text">Loading…</p>
+          <p className="text-base text-ui-muted-text">Loading…</p>
         </div>
       </OnboardingLayout>
     );
@@ -1010,11 +1010,11 @@ function IssuerOnboardingWizardForm({
   const renderStep1 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">
           Step 1 of 8 - Entity Setup
         </p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Entity Setup</h1>
-        <p className="text-ui-muted-text text-sm">Provide your entity details for Know Your Business (KYB) verification.</p>
+        <p className="text-ui-muted-text text-base">Provide your entity details for Know Your Business (KYB) verification.</p>
       </header>
 
       <StepValidationBanner message={stepValidationMessage} />
@@ -1026,8 +1026,8 @@ function IssuerOnboardingWizardForm({
           </svg>
         </div>
         <div className="space-y-1">
-          <h4 className="text-sm font-bold text-alert-info-title">Know Your Business (KYB)</h4>
-          <p className="text-xs text-alert-info-body leading-relaxed">
+          <h4 className="text-base font-bold text-alert-info-title">Know Your Business (KYB)</h4>
+          <p className="text-base text-alert-info-body leading-relaxed">
             We verify your entity against FinCEN, EDGAR, and state corporate registries. This typically takes 1–2 business days. All data is encrypted at rest.
           </p>
         </div>
@@ -1090,7 +1090,7 @@ function IssuerOnboardingWizardForm({
           <h3 className="text-base font-bold text-ui-strong">Directors & UBOs</h3>
           <div className="space-y-6">
             <label className="block space-y-3">
-              <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
+              <span className="text-xs font-bold text-ui-faint uppercase tracking-widest">
                 Directors <span className="text-ui-danger-text font-bold">*</span>
               </span>
               <textarea
@@ -1101,16 +1101,16 @@ function IssuerOnboardingWizardForm({
                 }}
                 rows={6}
                 disabled={isApprovedOrLocked}
-                className={`w-full min-h-[160px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${fieldError('directorsNotes') ? 'border-rose-400' : 'border-ui-border'
+                className={`w-full min-h-[160px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-base text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${fieldError('directorsNotes') ? 'border-rose-400' : 'border-ui-border'
                   }`}
                 placeholder="Full legal name, title, and identification details for each director or officer."
               />
               {fieldError('directorsNotes') ? (
-                <p className="text-xs font-medium text-rose-600">{fieldError('directorsNotes')}</p>
+                <p className="text-base font-medium text-rose-600">{fieldError('directorsNotes')}</p>
               ) : null}
             </label>
             <label className="block space-y-3">
-              <span className="text-[10px] font-bold text-ui-faint uppercase tracking-widest">
+              <span className="text-xs font-bold text-ui-faint uppercase tracking-widest">
                 Ultimate Beneficial Owners (UBOs) <span className="text-ui-danger-text font-bold">*</span>
               </span>
               <textarea
@@ -1121,12 +1121,12 @@ function IssuerOnboardingWizardForm({
                 }}
                 rows={5}
                 disabled={isApprovedOrLocked}
-                className={`w-full min-h-[120px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-sm text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${fieldError('ubosNotes') ? 'border-rose-400' : 'border-ui-border'
+                className={`w-full min-h-[120px] px-6 py-4 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-base text-foreground placeholder:text-ui-placeholder font-medium resize-y disabled:opacity-75 disabled:cursor-not-allowed ${fieldError('ubosNotes') ? 'border-rose-400' : 'border-ui-border'
                   }`}
                 placeholder="List each beneficial owner and ownership percentage (must total 100%)."
               />
               {fieldError('ubosNotes') ? (
-                <p className="text-xs font-medium text-rose-600">{fieldError('ubosNotes')}</p>
+                <p className="text-base font-medium text-rose-600">{fieldError('ubosNotes')}</p>
               ) : null}
             </label>
           </div>
@@ -1136,7 +1136,7 @@ function IssuerOnboardingWizardForm({
       <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <h3 className="text-base font-bold text-ui-strong">Supporting Documents</h3>
         {fieldError('entityDocuments') ? (
-          <p className="text-sm font-medium text-rose-600">{fieldError('entityDocuments')}</p>
+          <p className="text-base font-medium text-rose-600">{fieldError('entityDocuments')}</p>
         ) : null}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <OnboardingDocumentUpload
@@ -1163,7 +1163,7 @@ function IssuerOnboardingWizardForm({
           type="button"
           onClick={() => void advanceFromEntity()}
           disabled={isSaving}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isSaving ? 'Saving…' : 'Continue →'}
         </button>
@@ -1174,11 +1174,11 @@ function IssuerOnboardingWizardForm({
   const renderStep2 = () => (
     <div className="space-y-6 sm:space-y-8 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">
           Step 2 of 8 - Accreditation
         </p>
         <h1 className="text-2xl font-bold text-ui-strong mb-3 tracking-tight sm:text-3xl md:mb-4 md:text-4xl">Accreditation</h1>
-        <p className="text-ui-muted-text text-sm leading-relaxed">Configure your offering type and investor accreditation requirements.</p>
+        <p className="text-ui-muted-text text-base leading-relaxed">Configure your offering type and investor accreditation requirements.</p>
       </header>
 
       <StepValidationBanner message={stepValidationMessage} />
@@ -1190,8 +1190,8 @@ function IssuerOnboardingWizardForm({
           </svg>
         </div>
         <div className="min-w-0 flex-1 space-y-1">
-          <h4 className="text-sm font-bold text-alert-warn-title">Important: Regulation Selection</h4>
-          <p className="text-xs text-alert-warn-body leading-relaxed">
+          <h4 className="text-base font-bold text-alert-warn-title">Important: Regulation Selection</h4>
+          <p className="text-base text-alert-warn-body leading-relaxed">
             This selection determines your <span className="font-bold">investor eligibility</span>,{' '}
             <span className="font-bold">marketing restrictions</span>, and ongoing compliance obligations. Consult with legal counsel before proceeding.{' '}
             <button type="button" className="font-bold text-[#7C3AED] hover:underline">
@@ -1204,8 +1204,8 @@ function IssuerOnboardingWizardForm({
 
       <section className="bg-ui-card border border-ui-border rounded-2xl p-5 shadow-sm space-y-6 sm:p-6 sm:space-y-8 md:p-8 lg:p-10">
         <div>
-          <h3 className="text-sm font-bold text-ui-strong mb-1">Select Offering Regulation</h3>
-          <p className="text-xs text-ui-faint">Choose the exemption under which you will conduct this offering.</p>
+          <h3 className="text-base font-bold text-ui-strong mb-1">Select Offering Regulation</h3>
+          <p className="text-base text-ui-faint">Choose the exemption under which you will conduct this offering.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1232,7 +1232,7 @@ function IssuerOnboardingWizardForm({
                   }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
-                  <h4 className={`min-w-0 flex-1 text-sm font-bold leading-snug ${is506cBlue ? 'text-sky-800' : isSel ? 'text-primary' : 'text-ui-strong'}`}>{reg.name}</h4>
+                  <h4 className={`min-w-0 flex-1 text-base font-bold leading-snug ${is506cBlue ? 'text-sky-800' : isSel ? 'text-primary' : 'text-ui-strong'}`}>{reg.name}</h4>
                   <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${is506cBlue
                     ? 'bg-sky-100 text-sky-800 border-sky-200'
                     : isSel
@@ -1240,18 +1240,18 @@ function IssuerOnboardingWizardForm({
                       : 'bg-ui-muted-deep text-ui-faint border-ui-border'
                     }`}>{reg.tag}</span>
                 </div>
-                <p className="text-[11px] text-ui-muted-text leading-relaxed">{reg.sub}</p>
+                <p className="text-xs text-ui-muted-text leading-relaxed">{reg.sub}</p>
                 <div className="space-y-2 pt-2 border-t border-ui-divider">
                   {reg.checks.map((c, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <svg className="w-3 h-3 text-ui-success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                      <span className="text-[10px] font-medium text-ui-body">{c}</span>
+                      <span className="text-xs font-medium text-ui-body">{c}</span>
                     </div>
                   ))}
                   {reg.crosses.map((c, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <svg className="w-3 h-3 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
-                      <span className="text-[10px] font-medium text-ui-muted-text">{c}</span>
+                      <span className="text-xs font-medium text-ui-muted-text">{c}</span>
                     </div>
                   ))}
                 </div>
@@ -1265,8 +1265,8 @@ function IssuerOnboardingWizardForm({
         <h3 className="text-base font-bold text-ui-strong">Investor Eligibility</h3>
         <div className="flex flex-col gap-4 rounded-2xl border border-ui-border bg-ui-muted-surface p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:p-6">
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-bold text-ui-strong mb-1">Accredited Investors Only</p>
-            <p className="text-[10px] leading-relaxed text-ui-faint sm:text-[11px]">
+            <p className="text-base font-bold text-ui-strong mb-1">Accredited Investors Only</p>
+            <p className="text-xs leading-relaxed text-ui-faint sm:text-[11px]">
               Restrict this offering to SEC-accredited investors (net worth $1M+ or income $200K+/year).
             </p>
           </div>
@@ -1288,7 +1288,7 @@ function IssuerOnboardingWizardForm({
         </div>
 
         <div className="space-y-3 sm:space-y-4">
-          <label className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-bold uppercase tracking-widest text-ui-faint">
+          <label className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-bold uppercase tracking-widest text-ui-faint">
             <svg className="shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <g clipPath="url(#clip0_accred_shield)">
                 <path d="M11.6556 7.57612C11.6556 10.49 9.61586 11.947 7.19149 12.792C7.06454 12.835 6.92664 12.833 6.80103 12.7862C4.37084 11.947 2.33112 10.49 2.33112 7.57612V3.49666C2.33112 3.3421 2.39252 3.19387 2.50181 3.08457C2.6111 2.97528 2.75933 2.91388 2.91389 2.91388C4.07945 2.91388 5.5364 2.21455 6.55044 1.32872C6.6739 1.22324 6.83096 1.16528 6.99335 1.16528C7.15574 1.16528 7.3128 1.22324 7.43626 1.32872C8.45612 2.22038 9.90724 2.91388 11.0728 2.91388C11.2274 2.91388 11.3756 2.97528 11.4849 3.08457C11.5942 3.19387 11.6556 3.3421 11.6556 3.49666V7.57612Z" stroke="#00BC7D" strokeWidth="1.16556" strokeLinecap="round" strokeLinejoin="round" />
@@ -1325,7 +1325,7 @@ function IssuerOnboardingWizardForm({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
             </svg>
           </div>
-          <p className="min-w-0 text-[11px] font-medium leading-relaxed text-primary/80 sm:text-xs">
+          <p className="min-w-0 text-xs font-medium leading-relaxed text-primary/80 sm:text-sm">
             Maxtronize integrates with <span className="font-bold">Parallel Markets</span> for automated accreditation checks. Investors will complete verification before committing capital.
           </p>
         </div>
@@ -1335,7 +1335,7 @@ function IssuerOnboardingWizardForm({
         <button
           type="button"
           onClick={() => setCurrentStep(1)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-base font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
@@ -1343,7 +1343,7 @@ function IssuerOnboardingWizardForm({
           type="button"
           onClick={() => void advanceFromAccreditation()}
           disabled={isSaving}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isSaving ? 'Saving…' : 'Continue →'}
         </button>
@@ -1391,11 +1391,11 @@ function IssuerOnboardingWizardForm({
   const renderStep3 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">
           Step 3 of 8 - Asset Details
         </p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Asset Details</h1>
-        <p className="text-ui-muted-text text-sm">Submit asset details. Fields adjust dynamically based on your asset type.</p>
+        <p className="text-ui-muted-text text-base">Submit asset details. Fields adjust dynamically based on your asset type.</p>
       </header>
 
       <StepValidationBanner message={stepValidationMessage} />
@@ -1403,7 +1403,7 @@ function IssuerOnboardingWizardForm({
       {/* Asset Type Selection */}
       <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
         <h3 className="text-base font-bold text-ui-strong mb-1">Asset Type</h3>
-        <p className="text-xs text-ui-faint mb-8">
+        <p className="text-base text-ui-faint mb-8">
           Select the category of asset you are tokenizing. Form fields will adjust accordingly.
         </p>
 
@@ -1429,8 +1429,8 @@ function IssuerOnboardingWizardForm({
                 {type.icon}
               </div>
               <div className="min-w-0">
-                <p className={`text-sm font-bold mb-1 ${selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'}`}>{type.name}</p>
-                <p className="text-[10px] text-ui-faint leading-relaxed">{type.sub}</p>
+                <p className={`text-base font-bold mb-1 ${selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'}`}>{type.name}</p>
+                <p className="text-xs text-ui-faint leading-relaxed">{type.sub}</p>
               </div>
             </button>
           ))}
@@ -1491,7 +1491,7 @@ function IssuerOnboardingWizardForm({
           {selectedAssetType === 'real-estate' && (
             <>
               {fieldError('assetName') ? (
-                <p className="md:col-span-2 text-xs font-medium text-rose-600">{fieldError('assetName')}</p>
+                <p className="md:col-span-2 text-base font-medium text-rose-600">{fieldError('assetName')}</p>
               ) : null}
               <FormField
                 label="Property Address"
@@ -1533,7 +1533,7 @@ function IssuerOnboardingWizardForm({
       </section>
 
       <section className="space-y-4">
-        <p className="text-[10px] font-semibold text-ui-faint uppercase tracking-[0.22em]">Required Documents</p>
+        <p className="text-xs font-semibold text-ui-faint uppercase tracking-[0.22em]">Required Documents</p>
         <div className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{renderAssetDocumentUploads()}</div>
         </div>
@@ -1544,7 +1544,7 @@ function IssuerOnboardingWizardForm({
         <button
           type="button"
           onClick={() => setCurrentStep(2)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-base font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
@@ -1552,7 +1552,7 @@ function IssuerOnboardingWizardForm({
           type="button"
           onClick={() => void advanceFromAsset()}
           disabled={isSaving}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isSaving ? 'Saving…' : 'Continue →'}
         </button>
@@ -1563,11 +1563,11 @@ function IssuerOnboardingWizardForm({
   const renderStep4 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">
+        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">
           Step 4 of 8 - Legal Structure
         </p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Legal Structure</h1>
-        <p className="text-ui-muted-text text-sm">Set up the Special Purpose Vehicle (SPV) structure for this asset.</p>
+        <p className="text-ui-muted-text text-base">Set up the Special Purpose Vehicle (SPV) structure for this asset.</p>
       </header>
 
       <StepValidationBanner message={stepValidationMessage} />
@@ -1580,8 +1580,8 @@ function IssuerOnboardingWizardForm({
           </svg>
         </div>
         <div className="space-y-1">
-          <h4 className="text-sm font-bold text-alert-info-title">Special Purpose Vehicle (SPV) Structure</h4>
-          <p className="text-xs text-alert-info-body leading-relaxed">
+          <h4 className="text-base font-bold text-alert-info-title">Special Purpose Vehicle (SPV) Structure</h4>
+          <p className="text-base text-alert-info-body leading-relaxed">
             Each asset is held in a dedicated Delaware LLC SPV to isolate liability and enable clean tokenized ownership transfer. Maxtronize provides registered agent services.
           </p>
         </div>
@@ -1633,7 +1633,7 @@ function IssuerOnboardingWizardForm({
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <div>
             <h3 className="text-base font-bold text-ui-strong mb-2">Token-Holder Rights Mapping</h3>
-            <p className="text-xs text-ui-faint">
+            <p className="text-base text-ui-faint">
               Define what rights token holders receive. These are encoded in the subscription agreement and operating agreement.
             </p>
           </div>
@@ -1667,10 +1667,10 @@ function IssuerOnboardingWizardForm({
                     {checked ? <div className="w-2 h-2 rounded-full bg-ui-card" /> : null}
                   </div>
                   <div>
-                    <p className={`text-[13px] font-bold mb-1 ${checked ? 'text-primary' : 'text-ui-strong'}`}>
+                    <p className={`text-base font-bold mb-1 ${checked ? 'text-primary' : 'text-ui-strong'}`}>
                       {right.title}
                     </p>
-                    <p className="text-[10px] text-ui-faint leading-relaxed">{right.sub}</p>
+                    <p className="text-xs text-ui-faint leading-relaxed">{right.sub}</p>
                   </div>
                 </button>
               );
@@ -1683,7 +1683,7 @@ function IssuerOnboardingWizardForm({
           <svg className="w-5 h-5 text-alert-warn-icon shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <p className="text-[11px] text-alert-warn-body leading-relaxed">
+          <p className="text-xs text-alert-warn-body leading-relaxed">
             Maxtronize legal templates are reviewed by <span className="font-bold">Cooley LLP</span> and <span className="font-bold">K&L Gates</span>. Custom rights structures require additional legal review ($2,500 flat fee).
           </p>
         </div>
@@ -1691,7 +1691,7 @@ function IssuerOnboardingWizardForm({
 
       <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <h3 className="text-base font-bold text-ui-strong">Required Legal Documents</h3>
-        <p className="text-xs text-ui-faint">
+        <p className="text-base text-ui-faint">
           Upload finalized documents, or use Maxtronize templates where noted.
         </p>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -1718,7 +1718,7 @@ function IssuerOnboardingWizardForm({
         <button
           type="button"
           onClick={() => setCurrentStep(3)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-base font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
@@ -1726,7 +1726,7 @@ function IssuerOnboardingWizardForm({
           type="button"
           onClick={() => void advanceFromLegal()}
           disabled={isSaving}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isSaving ? 'Saving…' : 'Continue →'}
         </button>
@@ -1737,17 +1737,17 @@ function IssuerOnboardingWizardForm({
   const renderStep5 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 5 of 8 — Offering Setup</p>
+        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 5 of 8 — Offering Setup</p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Offering Setup</h1>
-        <p className="text-ui-muted-text text-sm">Configure capital raise parameters, timeline, and transfer restrictions.</p>
+        <p className="text-ui-muted-text text-base">Configure capital raise parameters, timeline, and transfer restrictions.</p>
       </header>
 
       <StepValidationBanner message={stepValidationMessage} />
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
-          <h3 className="text-sm font-bold text-ui-strong">Offering Configuration</h3>
-          <p className="text-xs text-ui-faint -mt-6">Define the capital raise parameters for this offering.</p>
+          <h3 className="text-base font-bold text-ui-strong">Offering Configuration</h3>
+          <p className="text-base text-ui-faint -mt-6">Define the capital raise parameters for this offering.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
             <FormField label="Target Raise Amount (USD)" placeholder="5,000,000" required value={targetRaiseAmount} error={fieldError('targetRaiseAmount')} onChange={(v) => { setTargetRaiseAmount(v); clearFieldError('targetRaiseAmount'); }} />
             <FormField label="Minimum Investment (USD)" placeholder="25,000" required value={minimumInvestment} error={fieldError('minimumInvestment')} onChange={(v) => { setMinimumInvestment(v); clearFieldError('minimumInvestment'); }} />
@@ -1757,7 +1757,7 @@ function IssuerOnboardingWizardForm({
         </div>
 
         <div className="space-y-8 pt-10 border-t border-ui-divider">
-          <h3 className="text-sm font-bold text-ui-strong">Timeline</h3>
+          <h3 className="text-base font-bold text-ui-strong">Timeline</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
             <FormField label="Offering Open Date" placeholder="2026-06-01" inputType="date" required value={offeringOpenDate} error={fieldError('offeringOpenDate')} onChange={(v) => { setOfferingOpenDate(v); clearFieldError('offeringOpenDate'); }} />
             <FormField label="Offering Close Date" placeholder="2026-09-30" inputType="date" required value={offeringCloseDate} error={fieldError('offeringCloseDate')} onChange={(v) => { setOfferingCloseDate(v); clearFieldError('offeringCloseDate'); }} />
@@ -1767,14 +1767,14 @@ function IssuerOnboardingWizardForm({
         </div>
 
         <div className="space-y-8 pt-10 border-t border-ui-divider">
-          <h3 className="text-sm font-bold text-ui-strong">Transfer Restrictions</h3>
+          <h3 className="text-base font-bold text-ui-strong">Transfer Restrictions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
             <FormField label="Lock-up Period" placeholder="12 months" value={lockupPeriod} onChange={setLockupPeriod} />
             <FormField label="Secondary Market" placeholder="RESTRICTED" value={secondaryMarket} onChange={setSecondaryMarket} />
           </div>
           <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-6 flex gap-4 items-start">
             <svg className="w-4 h-4 text-alert-info-icon shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <p className="text-[10px] text-alert-info-body leading-relaxed">
+            <p className="text-xs text-alert-info-body leading-relaxed">
               Rule 144 requires a 6–month holding period before resale for most private placements. Maxtronize enforces transfer restrictions at the smart contract level.
             </p>
           </div>
@@ -1785,7 +1785,7 @@ function IssuerOnboardingWizardForm({
         <button
           type="button"
           onClick={() => setCurrentStep(4)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-base font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
@@ -1793,7 +1793,7 @@ function IssuerOnboardingWizardForm({
           type="button"
           onClick={() => void advanceFromOffering()}
           disabled={isSaving}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isSaving ? 'Saving…' : 'Continue →'}
         </button>
@@ -1804,17 +1804,17 @@ function IssuerOnboardingWizardForm({
   const renderStep6 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 6 of 8 — Tokenization</p>
+        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 6 of 8 — Tokenization</p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Tokenization</h1>
-        <p className="text-ui-muted-text text-sm">Configure the on-chain token parameters and blockchain network.</p>
+        <p className="text-ui-muted-text text-base">Configure the on-chain token parameters and blockchain network.</p>
       </header>
 
       <StepValidationBanner message={stepValidationMessage} />
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
-          <h3 className="text-sm font-bold text-ui-strong">Token Configuration</h3>
-          <p className="text-xs text-ui-faint -mt-6">Define the on-chain token parameters for this asset.</p>
+          <h3 className="text-base font-bold text-ui-strong">Token Configuration</h3>
+          <p className="text-base text-ui-faint -mt-6">Define the on-chain token parameters for this asset.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
             <FormField label="Token Name" placeholder="Crescent Peachtree Tower Token" required value={tokenName} error={fieldError('tokenName')} onChange={(v) => { setTokenName(v); clearFieldError('tokenName'); }} />
             <FormField label="Token Symbol" placeholder="CPTT" required value={tokenSymbol} error={fieldError('tokenSymbol')} onChange={(v) => { setTokenSymbol(v); clearFieldError('tokenSymbol'); }} />
@@ -1825,8 +1825,8 @@ function IssuerOnboardingWizardForm({
 
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <div>
-            <h3 className="text-sm font-bold text-ui-strong mb-1">Token Standard</h3>
-            <p className="text-xs text-ui-faint">Choose the smart contract standard that governs your token.</p>
+            <h3 className="text-base font-bold text-ui-strong mb-1">Token Standard</h3>
+            <p className="text-base text-ui-faint">Choose the smart contract standard that governs your token.</p>
           </div>
           <div className="space-y-4">
             {[
@@ -1844,10 +1844,10 @@ function IssuerOnboardingWizardForm({
                 </div>
                 <div>
                   <div className="flex items-center gap-3 mb-1">
-                    <p className={`text-[13px] font-bold ${selectedTokenStandard === std.id ? 'text-primary' : 'text-ui-strong'}`}>{std.name}</p>
+                    <p className={`text-base font-bold ${selectedTokenStandard === std.id ? 'text-primary' : 'text-ui-strong'}`}>{std.name}</p>
                     {std.tag && <span className="text-[8px] font-bold px-1.5 py-0.5 bg-primary/10 text-primary rounded-full uppercase border border-primary/10">{std.tag}</span>}
                   </div>
-                  <p className="text-[10px] text-ui-faint leading-relaxed">{std.sub}</p>
+                  <p className="text-xs text-ui-faint leading-relaxed">{std.sub}</p>
                 </div>
               </div>
             ))}
@@ -1855,7 +1855,7 @@ function IssuerOnboardingWizardForm({
         </div>
 
         <div className="space-y-8 pt-10 border-t border-ui-divider">
-          <h3 className="text-sm font-bold text-ui-strong">Blockchain Network</h3>
+          <h3 className="text-base font-bold text-ui-strong">Blockchain Network</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {(
               [
@@ -1899,7 +1899,7 @@ function IssuerOnboardingWizardForm({
                     />
                   )}
                   <div>
-                    <p className="text-[11px] font-bold text-ui-strong mb-1">{net.name}</p>
+                    <p className="text-xs font-bold text-ui-strong mb-1">{net.name}</p>
                     <p className="text-[9px] text-ui-faint leading-tight">{net.sub}</p>
                   </div>
                 </button>
@@ -1913,7 +1913,7 @@ function IssuerOnboardingWizardForm({
         <button
           type="button"
           onClick={() => setCurrentStep(5)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-base font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
@@ -1921,7 +1921,7 @@ function IssuerOnboardingWizardForm({
           type="button"
           onClick={() => void advanceFromTokenization()}
           disabled={isSaving}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isSaving ? 'Saving…' : 'Continue →'}
         </button>
@@ -1932,9 +1932,9 @@ function IssuerOnboardingWizardForm({
   const renderStep7 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 7 of 8 — Custody</p>
+        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 7 of 8 — Custody</p>
         <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Custody</h1>
-        <p className="text-ui-muted-text text-sm">Select a qualified custodian for your tokenized asset.</p>
+        <p className="text-ui-muted-text text-base">Select a qualified custodian for your tokenized asset.</p>
       </header>
 
       <StepValidationBanner message={stepValidationMessage} />
@@ -1946,8 +1946,8 @@ function IssuerOnboardingWizardForm({
           </svg>
         </div>
         <div className="space-y-1">
-          <h4 className="text-sm font-bold text-alert-info-title">Qualified Digital Asset Custodian</h4>
-          <p className="text-xs text-alert-info-body leading-relaxed">
+          <h4 className="text-base font-bold text-alert-info-title">Qualified Digital Asset Custodian</h4>
+          <p className="text-base text-alert-info-body leading-relaxed">
             All tokenized assets must be held by a qualified custodian under applicable regulations. Maxtronize has pre-negotiated institutional rates with our partner custodians.
           </p>
         </div>
@@ -1955,8 +1955,8 @@ function IssuerOnboardingWizardForm({
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
         <div>
-          <h3 className="text-sm font-bold text-ui-strong mb-1">Select Custodian</h3>
-          <p className="text-xs text-ui-faint">Your tokenized asset private keys will be managed by the selected custodian.</p>
+          <h3 className="text-base font-bold text-ui-strong mb-1">Select Custodian</h3>
+          <p className="text-base text-ui-faint">Your tokenized asset private keys will be managed by the selected custodian.</p>
         </div>
         <div className="space-y-4">
           {[
@@ -1977,7 +1977,7 @@ function IssuerOnboardingWizardForm({
                   <p className={`text-[15px] font-bold ${selectedCustodian === c.id ? 'text-primary' : 'text-ui-strong'}`}>{c.name}</p>
                   <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${selectedCustodian === c.id ? 'bg-ui-success-badge-bg text-ui-success-badge-text' : 'bg-ui-muted-deep text-ui-faint'}`}>{c.tag}</span>
                 </div>
-                <p className="text-[11px] text-ui-muted-text leading-relaxed mb-4">{c.sub}</p>
+                <p className="text-xs text-ui-muted-text leading-relaxed mb-4">{c.sub}</p>
                 <div className="flex flex-wrap gap-2">
                   {c.badges.map((b, i) => (
                     <span key={i} className="text-[9px] font-bold px-2 py-0.5 bg-ui-muted-deep text-ui-faint rounded-md border border-ui-border">{b}</span>
@@ -1989,7 +1989,7 @@ function IssuerOnboardingWizardForm({
         </div>
 
         <div className="pt-10 border-t border-ui-divider space-y-8">
-          <h3 className="text-sm font-bold text-ui-strong">Wallet Configuration</h3>
+          <h3 className="text-base font-bold text-ui-strong">Wallet Configuration</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <FormField
               label="Cold Storage Ratio (%)"
@@ -2021,7 +2021,7 @@ function IssuerOnboardingWizardForm({
         <button
           type="button"
           onClick={() => setCurrentStep(6)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-base font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
         >
           ← Back
         </button>
@@ -2029,7 +2029,7 @@ function IssuerOnboardingWizardForm({
           type="button"
           onClick={() => void advanceFromCustody()}
           disabled={isSaving}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isSaving ? 'Saving…' : 'Continue →'}
         </button>
@@ -2081,16 +2081,16 @@ function IssuerOnboardingWizardForm({
   const renderStep8 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header>
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 8 of 8 — Review & Submit</p>
+        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">Step 8 of 8 — Review & Submit</p>
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <h1 className="text-4xl font-bold text-ui-strong tracking-tight">Review & Submit</h1>
           <Badge variant={applicationStatus.badgeVariant} dot={applicationStatus.key === 'under_review'}>
             {applicationStatus.label}
           </Badge>
         </div>
-        <p className="text-ui-muted-text text-sm">{applicationStatus.description}</p>
+        <p className="text-ui-muted-text text-base">{applicationStatus.description}</p>
         {applicationStatus.rawStatus ? (
-          <p className="text-[10px] font-medium text-ui-faint mt-2 uppercase tracking-widest">
+          <p className="text-xs font-medium text-ui-faint mt-2 uppercase tracking-widest">
             Status: {applicationStatus.rawStatus.replace(/_/g, ' ')}
           </p>
         ) : null}
@@ -2101,8 +2101,8 @@ function IssuerOnboardingWizardForm({
       <section className="bg-ui-card border border-ui-border rounded-3xl p-8 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-1 min-w-0">
-            <h3 className="text-sm font-bold text-ui-strong">Application Status</h3>
-            <p className="text-xs text-ui-muted-text leading-relaxed max-w-xl">
+            <h3 className="text-base font-bold text-ui-strong">Application Status</h3>
+            <p className="text-base text-ui-muted-text leading-relaxed max-w-xl">
               {applicationStatus.description}
             </p>
           </div>
@@ -2111,7 +2111,7 @@ function IssuerOnboardingWizardForm({
           </Badge>
         </div>
         {applicationStatus.key === 'under_review' ? (
-          <ul className="mt-6 space-y-2 border-t border-ui-border pt-6 text-[11px] text-ui-muted-text">
+          <ul className="mt-6 space-y-2 border-t border-ui-border pt-6 text-xs text-ui-muted-text">
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
               KYB verification — in progress
@@ -2127,7 +2127,7 @@ function IssuerOnboardingWizardForm({
           </ul>
         ) : null}
         {applicationStatus.key === 'approved' || applicationStatus.key === 'locked' ? (
-          <ul className="mt-6 space-y-2 border-t border-ui-border pt-6 text-[11px] text-ui-muted-text">
+          <ul className="mt-6 space-y-2 border-t border-ui-border pt-6 text-xs text-ui-muted-text">
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Compliance review — complete
@@ -2143,13 +2143,13 @@ function IssuerOnboardingWizardForm({
             <button
               type="button"
               onClick={beginAnotherAsset}
-              className="btn-gradient-primary rounded-2xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20"
+              className="btn-gradient-primary rounded-2xl px-5 py-2.5 text-base font-bold text-white shadow-lg shadow-primary/20"
             >
               + Tokenize another asset
             </button>
             <Link
               href="/issuer/dashboard"
-              className="rounded-2xl border border-ui-border px-5 py-2.5 text-sm font-bold text-ui-muted-text hover:bg-ui-muted-deep"
+              className="rounded-2xl border border-ui-border px-5 py-2.5 text-base font-bold text-ui-muted-text hover:bg-ui-muted-deep"
             >
               Go to dashboard
             </Link>
@@ -2169,13 +2169,13 @@ function IssuerOnboardingWizardForm({
           </svg>
         </div>
         <div className="space-y-1 min-w-0">
-          <h4 className="text-sm font-bold">{step8Banner.title}</h4>
-          <p className="text-xs opacity-80 leading-relaxed">{step8Banner.body}</p>
+          <h4 className="text-base font-bold">{step8Banner.title}</h4>
+          <p className="text-base opacity-80 leading-relaxed">{step8Banner.body}</p>
         </div>
       </div>
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
-        <h3 className="text-sm font-bold text-ui-strong">Application Summary</h3>
+        <h3 className="text-base font-bold text-ui-strong">Application Summary</h3>
         <div className="space-y-3">
           {reviewSummaryItems.map((item) => (
             <div
@@ -2186,14 +2186,14 @@ function IssuerOnboardingWizardForm({
                 <IconBuilding className="w-5 h-5" />
               </ApplicationSummaryIconBadge>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-bold text-ui-strong mb-0.5">{item.name}</p>
-                <p className="text-[10px] text-ui-faint font-medium leading-relaxed">{item.sub}</p>
+                <p className="text-base font-bold text-ui-strong mb-0.5">{item.name}</p>
+                <p className="text-xs text-ui-faint font-medium leading-relaxed">{item.sub}</p>
               </div>
               {applicationStatus.key === 'draft' && (
                 <button
                   type="button"
                   onClick={() => setCurrentStep(item.step)}
-                  className="text-[10px] font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="text-xs font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   Edit
                 </button>
@@ -2205,9 +2205,9 @@ function IssuerOnboardingWizardForm({
 
       {applicationStatus.key === 'draft' && (
         <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
-          <h3 className="text-sm font-bold text-ui-strong">Terms & Certification</h3>
+          <h3 className="text-base font-bold text-ui-strong">Terms & Certification</h3>
           {fieldError('acceptedTerms') ? (
-            <p className="text-sm font-medium text-rose-600">{fieldError('acceptedTerms')}</p>
+            <p className="text-base font-medium text-rose-600">{fieldError('acceptedTerms')}</p>
           ) : null}
           <div className="space-y-4">
             {[
@@ -2238,7 +2238,7 @@ function IssuerOnboardingWizardForm({
                     </svg>
                   )}
                 </div>
-                <p className="text-[11px] font-medium text-ui-body group-hover:text-ui-strong transition-colors">{term}</p>
+                <p className="text-xs font-medium text-ui-body group-hover:text-ui-strong transition-colors">{term}</p>
               </div>
             ))}
           </div>
@@ -2250,7 +2250,7 @@ function IssuerOnboardingWizardForm({
           <button
             type="button"
             onClick={() => setCurrentStep(7)}
-            className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
+            className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-base font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
           >
             ← Back
           </button>
@@ -2259,7 +2259,7 @@ function IssuerOnboardingWizardForm({
           type="button"
           onClick={() => void handleSubmitApplication()}
           disabled={isSaving || (!applicationStatus.canSubmit && !isApprovedOrLocked)}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
+          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
         >
           {isApprovedOrLocked ? (
             <span>Go to Dashboard →</span>
@@ -2332,13 +2332,13 @@ function IssuerOnboardingWizardForm({
                     }`}
                 />
                 <span
-                  className={`truncate text-sm font-semibold ${item.status === 'active' ? 'text-white' : 'text-zinc-400'
+                  className={`truncate text-base font-semibold ${item.status === 'active' ? 'text-white' : 'text-zinc-400'
                     }`}
                 >
                   {item.label}
                 </span>
               </div>
-              <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              <span className="shrink-0 text-xs font-bold uppercase tracking-widest text-zinc-500">
                 {item.time}
               </span>
             </div>
@@ -2347,7 +2347,7 @@ function IssuerOnboardingWizardForm({
 
         {/* Animated redirect progress bar */}
         <div className="w-full max-w-md space-y-3 text-center">
-          <p className="text-sm font-medium text-zinc-400">Redirecting to your dashboard...</p>
+          <p className="text-base font-medium text-zinc-400">Redirecting to your dashboard...</p>
           <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-white/10">
             <div
               className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[var(--brand-cyan)] to-[#7C3AED] transition-all"
@@ -2361,14 +2361,14 @@ function IssuerOnboardingWizardForm({
           <button
             type="button"
             onClick={beginAnotherAsset}
-            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-xs font-bold text-zinc-300 transition-colors hover:bg-white/10"
+            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-base font-bold text-zinc-300 transition-colors hover:bg-white/10"
           >
             + Tokenize another asset
           </button>
           <button
             type="button"
             onClick={() => router.push('/issuer/dashboard')}
-            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-xs font-bold text-zinc-300 transition-colors hover:bg-white/10"
+            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-base font-bold text-zinc-300 transition-colors hover:bg-white/10"
           >
             Go to dashboard →
           </button>
@@ -2384,7 +2384,7 @@ function IssuerOnboardingWizardForm({
   return (
     <OnboardingLayout currentStep={effectiveStep} showSaved={effectiveStep === 2}>
       {saveError ? (
-        <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+        <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-base text-rose-800">
           {saveError}
         </p>
       ) : null}

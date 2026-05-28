@@ -33,7 +33,7 @@ export function OverviewKpiGrid({ cards }: OverviewKpiGridProps) {
               <stat.Icon className="h-5 w-5 md:h-[22px] md:w-[22px]" />
             </div>
             <span
-              className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold leading-none ${
+              className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold leading-none ${
                 stat.up ? 'bg-ui-success-bg-soft text-ui-success-text' : 'bg-ui-danger-soft text-ui-danger-text'
               }`}
             >
@@ -42,7 +42,7 @@ export function OverviewKpiGrid({ cards }: OverviewKpiGridProps) {
           </div>
 
           <div className="flex flex-1 flex-col">
-            <p className="min-h-[2.125rem] text-[11px] font-bold uppercase leading-[1.35] tracking-[0.13em] text-ui-faint md:min-h-[2.375rem] md:text-xs md:tracking-[0.14em]">
+            <p className="min-h-[2.125rem] text-xs font-bold uppercase leading-[1.35] tracking-[0.13em] text-ui-faint md:min-h-[2.375rem] md:text-sm md:tracking-[0.14em]">
               {stat.label}
             </p>
 
@@ -50,7 +50,7 @@ export function OverviewKpiGrid({ cards }: OverviewKpiGridProps) {
               {stat.val}
             </p>
 
-            <p className="mt-2 min-h-[2.375rem] text-[13px] font-medium leading-[1.45] text-ui-muted-text md:mt-2.5 md:min-h-[2.5rem]">
+            <p className="mt-2 min-h-[2.375rem] text-base font-medium leading-[1.45] text-ui-muted-text md:mt-2.5 md:min-h-[2.5rem]">
               {stat.sub}
             </p>
           </div>

@@ -133,7 +133,7 @@ function DocStatCard({
       </div>
       <div className="min-w-0">
         <p
-          className={`mb-1 text-[10px] font-bold uppercase tracking-widest ${
+          className={`mb-1 text-xs font-bold uppercase tracking-widest ${
             highlight ? "text-amber-700/80" : "text-ui-faint"
           }`}
         >
@@ -145,7 +145,7 @@ function DocStatCard({
           {value}
         </p>
         <p
-          className={`mt-0.5 text-[11px] font-medium ${highlight ? "text-amber-600/90" : "text-ui-faint"}`}
+          className={`mt-0.5 text-xs font-medium ${highlight ? "text-amber-600/90" : "text-ui-faint"}`}
         >
           {sub}
         </p>
@@ -181,7 +181,7 @@ function StatusBadge({ status }: { status: string }) {
   const { pill, Icon } = STATUS_STYLES[statusType];
   return (
     <span
-      className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold ${pill}`}
+      className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold ${pill}`}
     >
       <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={iconStroke} />
       <span className="line-clamp-2 sm:whitespace-nowrap">{status}</span>
@@ -214,10 +214,10 @@ function DocRowCard({
           <FileText className="h-5 w-5" strokeWidth={iconStroke} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="line-clamp-2 text-[13px] font-bold leading-snug text-ui-strong">
+          <p className="line-clamp-2 text-base font-bold leading-snug text-ui-strong">
             {doc.title}
           </p>
-          <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-ui-faint">
+          <p className="mt-1 text-xs font-medium uppercase tracking-widest text-ui-faint">
             {doc.documentCode ? `DOC · ${doc.documentCode}` : "—"}
           </p>
         </div>
@@ -227,7 +227,7 @@ function DocRowCard({
           <CategoryBadge catLabel={doc.categoryLabel} />
           <StatusBadge status={doc.statusLabel} />
         </div>
-        <div className="grid grid-cols-3 gap-4 text-[11px]">
+        <div className="grid grid-cols-3 gap-4 text-xs">
           <div className="min-w-0">
             <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
               Asset
@@ -338,7 +338,7 @@ export default function DocumentsPage() {
             <h1 className="text-2xl font-bold tracking-tight text-ui-strong sm:text-3xl xl:text-4xl">
               Documents
             </h1>
-            <p className="text-sm font-medium text-ui-muted-text">
+            <p className="text-base font-medium text-ui-muted-text">
               Legal agreements, compliance filings, and asset documentation —
               all in one secure vault.
             </p>
@@ -346,7 +346,7 @@ export default function DocumentsPage() {
           <button
             type="button"
             onClick={() => setUploadOpen(true)}
-            className="inline-flex w-full shrink-0 items-center justify-center gap-2.5 rounded-2xl bg-[#9810FA] px-6 py-3.5 text-[13px] font-bold text-white shadow-[0_8px_24px_-6px_rgba(152,16,250,0.45)] transition-all hover:bg-[#7C3AED] sm:w-auto sm:self-auto md:px-8 md:py-4"
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2.5 rounded-2xl bg-[#9810FA] px-6 py-3.5 text-base font-bold text-white shadow-[0_8px_24px_-6px_rgba(152,16,250,0.45)] transition-all hover:bg-[#7C3AED] sm:w-auto sm:self-auto md:px-8 md:py-4"
           >
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
               <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -357,7 +357,7 @@ export default function DocumentsPage() {
 
         {pageError ? (
           <p
-            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700"
             role="alert"
           >
             {formatRequestError(pageError)}
@@ -379,7 +379,7 @@ export default function DocumentsPage() {
         </div>
 
         {(isLoading || isFetching) && (
-          <p className="text-sm font-medium text-ui-muted-text">
+          <p className="text-base font-medium text-ui-muted-text">
             Loading documents…
           </p>
         )}
@@ -388,7 +388,7 @@ export default function DocumentsPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
           <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-1">
             {categoriesLoading ? (
-              <p className="text-sm text-ui-muted-text">Loading categories…</p>
+              <p className="text-base text-ui-muted-text">Loading categories…</p>
             ) : (
               categoryTabs.map((tab) => {
                 const active = activeTabKey === tab.key;
@@ -397,7 +397,7 @@ export default function DocumentsPage() {
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveTabKey(tab.key)}
-                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-bold transition-all md:px-5 md:py-2.5 md:text-[13px] ${
+                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-all md:px-5 md:py-2.5 md:text-[13px] ${
                       active
                         ? "bg-dash-filter-active-bg text-dash-filter-active-fg shadow-md"
                         : "bg-ui-muted-deep text-ui-body hover:bg-ui-border hover:text-ui-strong"
@@ -419,7 +419,7 @@ export default function DocumentsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search documents..."
-              className="w-full rounded-2xl border border-ui-border bg-ui-card py-3 pl-11 pr-4 text-[13px] font-medium text-ui-strong shadow-sm outline-none transition-shadow placeholder:text-ui-faint focus:ring-4 focus:ring-violet-500/10"
+              className="w-full rounded-2xl border border-ui-border bg-ui-card py-3 pl-11 pr-4 text-base font-medium text-ui-strong shadow-sm outline-none transition-shadow placeholder:text-ui-faint focus:ring-4 focus:ring-violet-500/10"
             />
           </div>
         </div>
@@ -427,7 +427,7 @@ export default function DocumentsPage() {
         {/* Mobile / tablet: card list */}
         <div className="space-y-3 xl:hidden">
           {!isLoading && documents.length === 0 ? (
-            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-14 text-center text-[13px] font-medium text-ui-faint">
+            <p className="rounded-2xl border border-ui-border bg-ui-card px-6 py-14 text-center text-base font-medium text-ui-faint">
               No documents match your filters.
             </p>
           ) : (
@@ -457,7 +457,7 @@ export default function DocumentsPage() {
                   ].map((col) => (
                     <th
                       key={col}
-                      className={`px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
+                      className={`px-4 py-4 text-xs font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
                         col === "Document"
                           ? "sticky left-0 z-10 bg-ui-muted pl-6 xl:pl-8"
                           : ""
@@ -472,7 +472,7 @@ export default function DocumentsPage() {
                 {!isLoading && documents.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-8 py-14 text-center">
-                      <p className="text-[13px] font-medium text-ui-faint">
+                      <p className="text-base font-medium text-ui-faint">
                         No documents match your filters.
                       </p>
                     </td>
@@ -493,10 +493,10 @@ export default function DocumentsPage() {
                             />
                           </div>
                           <div className="min-w-0">
-                            <p className="line-clamp-2 text-[13px] font-bold text-ui-strong">
+                            <p className="line-clamp-2 text-base font-bold text-ui-strong">
                               {doc.title}
                             </p>
-                            <p className="text-[10px] font-medium uppercase tracking-widest text-ui-faint">
+                            <p className="text-xs font-medium uppercase tracking-widest text-ui-faint">
                               {doc.documentCode
                                 ? `DOC · ${doc.documentCode}`
                                 : "—"}
@@ -508,7 +508,7 @@ export default function DocumentsPage() {
                         <CategoryBadge catLabel={doc.categoryLabel} />
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
-                        <p className="max-w-[180px] line-clamp-2 text-[12px] font-medium text-ui-body">
+                        <p className="max-w-[180px] line-clamp-2 text-sm font-medium text-ui-body">
                           {doc.assetTitle}
                         </p>
                       </td>
@@ -516,12 +516,12 @@ export default function DocumentsPage() {
                         <StatusBadge status={doc.statusLabel} />
                       </td>
                       <td className="px-4 py-5 xl:px-8 xl:py-6">
-                        <span className="whitespace-nowrap text-[12px] font-medium text-ui-muted-text">
+                        <span className="whitespace-nowrap text-sm font-medium text-ui-muted-text">
                           {doc.fileName}
                         </span>
                       </td>
                       <td className="px-4 py-5 last:pr-6 xl:px-8 xl:py-6 xl:pr-8">
-                        <span className="text-[12px] font-medium text-ui-muted-text">
+                        <span className="text-sm font-medium text-ui-muted-text">
                           {doc.sizeLabel}
                         </span>
                       </td>

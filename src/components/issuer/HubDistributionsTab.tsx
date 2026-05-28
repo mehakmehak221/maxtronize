@@ -164,14 +164,14 @@ export function HubDistributionsTab() {
               <MetricIconCircle className="mb-4 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
                 <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
               </MetricIconCircle>
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+              <p className="mb-1 text-xs font-bold uppercase tracking-widest text-text-muted">
                 {card.label}
               </p>
               <p className="text-2xl font-bold tracking-tight text-foreground">
                 {card.value}
               </p>
               {"sub" in card && card.sub ? (
-                <p className="mt-1 text-xs font-medium text-text-muted">
+                <p className="mt-1 text-base font-medium text-text-muted">
                   {card.sub}
                 </p>
               ) : null}
@@ -186,7 +186,7 @@ export function HubDistributionsTab() {
             <h3 className="text-lg font-bold text-foreground">
               Distribution Schedule {schedule?.year ?? year}
             </h3>
-            <p className="text-xs text-text-muted">
+            <p className="text-base text-text-muted">
               {scheduleLoading
                 ? "Loading monthly actual vs projected…"
                 : `YTD ${formatCompactCurrency(schedule?.ytdActual ?? 0, schedule?.currency ?? "USD", { decimals: 0 })} · EOY projection ${formatCompactCurrency(schedule?.eoyProjection ?? 0, schedule?.currency ?? "USD", { decimals: 0 })} · ${(schedule?.achievementRate ?? 0).toFixed(0)}% of target`}
@@ -196,7 +196,7 @@ export function HubDistributionsTab() {
             <select
               value={year}
               onChange={(e) => setYear(Number(e.target.value))}
-              className="rounded-full border border-card-border bg-surface px-4 py-2 text-xs font-bold text-foreground"
+              className="rounded-full border border-card-border bg-surface px-4 py-2 text-base font-bold text-foreground"
               aria-label="Distribution schedule year"
             >
               {[currentYear - 1, currentYear, currentYear + 1].map((y) => (
@@ -208,7 +208,7 @@ export function HubDistributionsTab() {
             <button
               type="button"
               onClick={() => setShowScheduleModal(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90"
             >
               <Plus className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
               Schedule Payout
@@ -219,13 +219,13 @@ export function HubDistributionsTab() {
         <div className="mb-4 flex flex-wrap items-center justify-center gap-6">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
+            <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
               Actual
             </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
+            <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
               Projected
             </span>
           </div>
@@ -259,7 +259,7 @@ export function HubDistributionsTab() {
                     y={y + 4}
                     textAnchor="end"
                     fill="var(--text-muted)"
-                    className="text-[10px] font-bold"
+                    className="text-xs font-bold"
                   >
                     {pct === 0
                       ? "$0"
@@ -300,7 +300,7 @@ export function HubDistributionsTab() {
                     y={chartTop + chartH + 22}
                     textAnchor="middle"
                     fill="var(--text-muted)"
-                    className="text-[10px] font-bold"
+                    className="text-xs font-bold"
                   >
                     {month.label}
                   </text>
@@ -313,7 +313,7 @@ export function HubDistributionsTab() {
         {summary && !summaryLoading ? (
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
+              <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
                 YTD Distributions
               </p>
               <p className="mt-1 text-lg font-bold text-foreground">
@@ -323,14 +323,14 @@ export function HubDistributionsTab() {
                   { decimals: 0 },
                 )}
               </p>
-              <p className="text-xs text-text-muted">
+              <p className="text-base text-text-muted">
                 {summary.ytdDistributions.changePercent >= 0 ? "+" : ""}
                 {summary.ytdDistributions.changePercent.toFixed(1)}% vs prior
                 year
               </p>
             </div>
             <div className="rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted flex items-center gap-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-1">
                 <Target className="h-3 w-3" strokeWidth={iconStroke} />
                 Achievement
               </p>
@@ -339,7 +339,7 @@ export function HubDistributionsTab() {
               </p>
             </div>
             <div className="rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
+              <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
                 {summary.totalDistributed.summary || "All-time total"}
               </p>
               <p className="mt-1 text-lg font-bold text-foreground">
@@ -355,7 +355,7 @@ export function HubDistributionsTab() {
           <h3 className="text-lg font-bold text-foreground">
             Upcoming Payouts
           </h3>
-          <p className="text-xs text-text-muted">
+          <p className="text-base text-text-muted">
             Scheduled distributions across assets
           </p>
         </div>
@@ -385,7 +385,7 @@ export function HubDistributionsTab() {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-6 py-8 text-center text-sm text-text-muted"
+                  className="px-6 py-8 text-center text-base text-text-muted"
                 >
                   Loading upcoming payouts…
                 </td>
@@ -394,7 +394,7 @@ export function HubDistributionsTab() {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-6 py-8 text-center text-sm text-text-muted"
+                  className="px-6 py-8 text-center text-base text-text-muted"
                 >
                   No upcoming payouts scheduled.
                 </td>
@@ -424,34 +424,34 @@ export function HubDistributionsTab() {
                     key={row.id}
                     className="transition-colors hover:bg-surface"
                   >
-                    <td className="min-w-0 break-words px-3 py-3 text-sm font-semibold text-foreground sm:px-6 sm:py-4">
+                    <td className="min-w-0 break-words px-3 py-3 text-base font-semibold text-foreground sm:px-6 sm:py-4">
                       {row.frequencyLabel}
                     </td>
                     <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-primary">
+                        <span className="text-base font-bold text-primary">
                           {row.assetTitle}
                         </span>
-                        <span className="text-xs text-text-muted">
+                        <span className="text-base text-text-muted">
                           {row.ticker}
                         </span>
                       </div>
                     </td>
-                    <td className="min-w-0 break-words px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
+                    <td className="min-w-0 break-words px-3 py-3 text-base text-text-muted sm:px-6 sm:py-4">
                       {row.payoutType}
                     </td>
-                    <td className="min-w-0 px-3 py-3 text-sm font-bold text-foreground sm:px-6 sm:py-4">
+                    <td className="min-w-0 px-3 py-3 text-base font-bold text-foreground sm:px-6 sm:py-4">
                       {amountFormatted}
                     </td>
-                    <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
+                    <td className="min-w-0 px-3 py-3 text-base text-text-muted sm:px-6 sm:py-4">
                       {row.investorCount}
                     </td>
-                    <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
+                    <td className="min-w-0 px-3 py-3 text-base text-text-muted sm:px-6 sm:py-4">
                       {formattedDate}
                     </td>
                     <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
                       <span
-                        className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${
                           row.status === "COMPLETED"
                             ? "border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg"
                             : "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300"
@@ -485,7 +485,7 @@ export function HubDistributionsTab() {
             </div>
             <form onSubmit={handleSchedulePayout} className="space-y-4">
               <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
                   Asset ID
                 </label>
                 <input
@@ -496,11 +496,11 @@ export function HubDistributionsTab() {
                     setFormData({ ...formData, assetId: e.target.value })
                   }
                   placeholder="Enter asset UUID"
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
                   Title
                 </label>
                 <input
@@ -511,11 +511,11 @@ export function HubDistributionsTab() {
                     setFormData({ ...formData, title: e.target.value })
                   }
                   placeholder="e.g., Q2 2026 Yield Distribution"
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
                   Payout Type
                 </label>
                 <input
@@ -526,11 +526,11 @@ export function HubDistributionsTab() {
                     setFormData({ ...formData, payoutType: e.target.value })
                   }
                   placeholder="e.g., Quarterly Yield"
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
                   Scheduled Date
                 </label>
                 <input
@@ -540,11 +540,11 @@ export function HubDistributionsTab() {
                   onChange={(e) =>
                     setFormData({ ...formData, scheduledDate: e.target.value })
                   }
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-text-muted">
+                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
                   Total Amount
                 </label>
                 <input
@@ -557,21 +557,21 @@ export function HubDistributionsTab() {
                     setFormData({ ...formData, totalAmount: e.target.value })
                   }
                   placeholder="Enter amount"
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-sm text-foreground"
+                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
                 />
               </div>
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowScheduleModal(false)}
-                  className="flex-1 rounded-lg border border-card-border bg-surface px-4 py-2 text-sm font-bold text-foreground hover:bg-surface/80"
+                  className="flex-1 rounded-lg border border-card-border bg-surface px-4 py-2 text-base font-bold text-foreground hover:bg-surface/80"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isScheduling}
-                  className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+                  className="flex-1 rounded-lg bg-primary px-4 py-2 text-base font-bold text-white hover:opacity-90 disabled:opacity-60"
                 >
                   {isScheduling ? "Scheduling..." : "Schedule"}
                 </button>

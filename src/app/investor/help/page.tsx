@@ -210,7 +210,7 @@ export default function InvestorHelpPage() {
       <div className="mx-auto w-full max-w-7xl space-y-8 md:space-y-10">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Help Center</h1>
-          <p className="mt-1 text-sm font-medium text-ui-muted-text">
+          <p className="mt-1 text-base font-medium text-ui-muted-text">
             Guides, FAQs, and dedicated support for your tokenization journey.
           </p>
         </div>
@@ -220,12 +220,12 @@ export default function InvestorHelpPage() {
           <div className="pointer-events-none absolute -left-20 top-0 h-72 w-72 rounded-full bg-violet-400/20 blur-[100px]" aria-hidden />
           <div className="pointer-events-none absolute -right-10 bottom-0 h-64 w-64 rounded-full bg-sky-400/20 blur-[90px]" aria-hidden />
           <div className="relative z-10 mx-auto max-w-3xl space-y-5">
-            <p className="flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-violet-200">
+            <p className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-violet-200">
               <Sparkles className="h-4 w-4" strokeWidth={iconStroke} />
               Maxtronize Support
             </p>
             <h2 className="text-2xl font-bold text-white md:text-4xl">How can we help you?</h2>
-            <p className="text-[13px] font-medium text-white/70 md:text-base">
+            <p className="text-base font-medium text-white/70 md:text-base">
               Search our knowledge base or browse categories below.
             </p>
 
@@ -239,11 +239,11 @@ export default function InvestorHelpPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 type="search"
                 placeholder="Search FAQs, guides, and documentation..."
-                className="w-full rounded-2xl border border-white/15 bg-black/25 py-4 pl-11 pr-5 text-[13px] font-medium text-white outline-none backdrop-blur-md transition-all placeholder:text-white/40 focus:border-white/30 focus:ring-4 focus:ring-white/10"
+                className="w-full rounded-2xl border border-white/15 bg-black/25 py-4 pl-11 pr-5 text-base font-medium text-white outline-none backdrop-blur-md transition-all placeholder:text-white/40 focus:border-white/30 focus:ring-4 focus:ring-white/10"
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 pt-3 text-[11px] font-bold uppercase tracking-widest text-white/55">
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 pt-3 text-xs font-bold uppercase tracking-widest text-white/55">
               <span className="inline-flex items-center gap-2">
                 <FileText className="h-4 w-4 text-white/70" strokeWidth={iconStroke} />
                 61 articles
@@ -274,10 +274,10 @@ export default function InvestorHelpPage() {
                   <topic.Icon className="h-5 w-5" strokeWidth={iconStroke} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-bold text-ui-strong transition-colors group-hover:text-primary">
+                  <p className="text-base font-bold text-ui-strong transition-colors group-hover:text-primary">
                     {topic.title}
                   </p>
-                  <p className="mt-0.5 text-[10px] font-medium text-ui-faint">{topic.desc}</p>
+                  <p className="mt-0.5 text-xs font-medium text-ui-faint">{topic.desc}</p>
                 </div>
                 <ChevronRight
                   className="h-4 w-4 shrink-0 text-ui-placeholder transition-colors group-hover:text-primary"
@@ -293,7 +293,7 @@ export default function InvestorHelpPage() {
           <h2 className="mb-5 text-lg font-bold text-ui-strong">Frequently Asked Questions</h2>
           <div className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:rounded-[28px] dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             {filteredFaqs.length === 0 ? (
-              <p className="px-8 py-12 text-center text-[13px] font-medium text-ui-faint">
+              <p className="px-8 py-12 text-center text-base font-medium text-ui-faint">
                 No FAQs match your search. Try different keywords.
               </p>
             ) : (
@@ -312,7 +312,7 @@ export default function InvestorHelpPage() {
                       >
                         {faq.cat}
                       </span>
-                      <p className="min-w-0 flex-1 text-[13px] font-bold leading-snug text-ui-strong">{faq.q}</p>
+                      <p className="min-w-0 flex-1 text-base font-bold leading-snug text-ui-strong">{faq.q}</p>
                       <ChevronDown
                         className={`mt-1 h-4 w-4 shrink-0 text-ui-faint transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
                         strokeWidth={iconStroke}
@@ -320,7 +320,7 @@ export default function InvestorHelpPage() {
                     </button>
                     {isOpen && (
                       <div className="border-t border-ui-divider/80 px-5 pb-5 md:px-8 md:pb-6">
-                        <p className="border-l-2 border-primary/30 pl-4 pt-4 text-[13px] font-medium leading-relaxed text-ui-muted-text md:pl-6">
+                        <p className="border-l-2 border-primary/30 pl-4 pt-4 text-base font-medium leading-relaxed text-ui-muted-text md:pl-6">
                           {faq.a}
                         </p>
                       </div>
@@ -347,10 +347,10 @@ export default function InvestorHelpPage() {
                     <opt.Icon className="h-5 w-5" strokeWidth={iconStroke} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-bold text-ui-strong transition-colors group-hover:text-primary">
+                    <p className="text-base font-bold text-ui-strong transition-colors group-hover:text-primary">
                       {opt.label}
                     </p>
-                    <p className="truncate text-[11px] font-medium text-ui-faint">{opt.sub}</p>
+                    <p className="truncate text-xs font-medium text-ui-faint">{opt.sub}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {opt.badge ? (
@@ -372,11 +372,11 @@ export default function InvestorHelpPage() {
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-lg font-bold text-ui-strong">My Support Tickets</h2>
-                <p className="mt-0.5 text-[12px] font-medium text-ui-faint">Recent support requests</p>
+                <p className="mt-0.5 text-sm font-medium text-ui-faint">Recent support requests</p>
               </div>
               <button
                 type="button"
-                className="inline-flex shrink-0 items-center gap-1 self-start text-[12px] font-bold text-primary transition-colors hover:text-primary/80"
+                className="inline-flex shrink-0 items-center gap-1 self-start text-sm font-bold text-primary transition-colors hover:text-primary/80"
               >
                 New Ticket
                 <ChevronRight className="h-3.5 w-3.5" strokeWidth={iconStroke} />
@@ -397,10 +397,10 @@ export default function InvestorHelpPage() {
                       <CheckCircle2 className="h-4 w-4" strokeWidth={iconStroke} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[12px] font-bold text-ui-strong transition-colors group-hover:text-primary">
+                      <p className="truncate text-sm font-bold text-ui-strong transition-colors group-hover:text-primary">
                         {ticket.title}
                       </p>
-                      <p className="text-[10px] font-medium text-ui-faint">
+                      <p className="text-xs font-medium text-ui-faint">
                         {ticket.id} · {ticket.time}
                       </p>
                     </div>
@@ -418,19 +418,19 @@ export default function InvestorHelpPage() {
 
               <div className="flex flex-col gap-4 border-t border-violet-100 bg-violet-50/80 p-4 dark:border-violet-900/40 dark:bg-violet-950/30 md:flex-row md:items-center md:justify-between md:p-5">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-white">
                     SC
                   </div>
                   <div>
-                    <p className="text-[12px] font-bold text-ui-strong">Sarah Chen · Dedicated Account Manager</p>
-                    <p className="text-[10px] font-medium text-ui-faint">
+                    <p className="text-sm font-bold text-ui-strong">Sarah Chen · Dedicated Account Manager</p>
+                    <p className="text-xs font-medium text-ui-faint">
                       Available Mon–Fri, 9AM–6PM CET · Priority response
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
-                  className="self-start rounded-xl border-2 border-primary bg-ui-card px-4 py-2.5 text-[11px] font-bold text-primary shadow-sm transition-colors hover:bg-primary/5 md:self-center"
+                  className="self-start rounded-xl border-2 border-primary bg-ui-card px-4 py-2.5 text-xs font-bold text-primary shadow-sm transition-colors hover:bg-primary/5 md:self-center"
                 >
                   Schedule Call
                 </button>

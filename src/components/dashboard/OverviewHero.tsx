@@ -82,7 +82,7 @@ export function OverviewHero({
             <h1 className="text-[2rem] font-bold leading-[1.05] tracking-tight tabular-nums sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-[3.5rem]">
               {value}
             </h1>
-            <p className="max-w-lg text-[13px] font-medium leading-relaxed text-white/55 sm:text-sm md:text-[15px]">
+            <p className="max-w-lg text-base font-medium leading-relaxed text-white/55 sm:text-base md:text-[15px]">
               {subtitle}
             </p>
           </div>
@@ -95,14 +95,14 @@ export function OverviewHero({
                   className="inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-emerald-400/35 bg-[#3b1a6e]/60 px-3 py-1.5 backdrop-blur-md sm:px-3.5 sm:py-2 md:px-4"
                 >
                   <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-emerald-300 sm:h-4 sm:w-4" strokeWidth={iconStroke} />
-                  <span className="text-[10px] font-bold text-emerald-200 sm:text-[11px] md:text-sm">{badge.text}</span>
+                  <span className="text-xs font-bold text-emerald-200 sm:text-[11px] md:text-base">{badge.text}</span>
                 </div>
               ) : (
                 <div
                   key={badge.text}
                   className="inline-flex w-fit max-w-full items-center rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 backdrop-blur-md sm:px-3.5 sm:py-2 md:px-4"
                 >
-                  <span className="text-[10px] font-medium text-white/50 sm:text-[11px] md:text-sm">{badge.text}</span>
+                  <span className="text-xs font-medium text-white/50 sm:text-[11px] md:text-base">{badge.text}</span>
                 </div>
               ),
             )}
@@ -145,14 +145,14 @@ export function OverviewHero({
                 ) : t.Icon ? (
                   <t.Icon className="h-3.5 w-3.5 shrink-0 text-white/75" strokeWidth={iconStroke} />
                 ) : null}
-                <span className="whitespace-nowrap text-[10px] font-bold tracking-wide text-white/95 md:text-[11px]">
+                <span className="whitespace-nowrap text-xs font-bold tracking-wide text-white/95 md:text-[11px]">
                   {t.sym}{' '}
                   <span className="font-semibold text-emerald-200/95">{t.ch}</span>
                 </span>
               </div>
             ))
           ) : (
-            <span className="inline-flex items-center rounded-xl border border-white/10 bg-black/25 px-3 py-1.5 text-[10px] font-medium text-white/55 md:px-3.5 md:py-2 md:text-[11px]">
+            <span className="inline-flex items-center rounded-xl border border-white/10 bg-black/25 px-3 py-1.5 text-xs font-medium text-white/55 md:px-3.5 md:py-2 md:text-[11px]">
               No active tokens yet
             </span>
           )}

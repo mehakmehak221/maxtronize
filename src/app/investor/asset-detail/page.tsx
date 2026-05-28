@@ -261,12 +261,12 @@ function AssetDetailContent() {
   if (!assetId) {
     return (
       <div className="rounded-[24px] border border-ui-border bg-ui-card p-10 text-center">
-        <p className="text-sm font-medium text-ui-muted-text">
+        <p className="text-base font-medium text-ui-muted-text">
           Select an asset from the marketplace to view details.
         </p>
         <Link
           href="/investor/marketplace"
-          className="mt-4 inline-flex text-sm font-bold text-primary hover:underline"
+          className="mt-4 inline-flex text-base font-bold text-primary hover:underline"
         >
           Browse marketplace
         </Link>
@@ -287,12 +287,12 @@ function AssetDetailContent() {
   if (assetError || !asset) {
     return (
       <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-10 text-center dark:border-rose-500/30 dark:bg-rose-500/10">
-        <p className="text-sm font-bold text-rose-700 dark:text-rose-300">
+        <p className="text-base font-bold text-rose-700 dark:text-rose-300">
           Asset not found or unavailable.
         </p>
         <Link
           href="/investor/marketplace"
-          className="mt-4 inline-flex text-sm font-bold text-primary hover:underline"
+          className="mt-4 inline-flex text-base font-bold text-primary hover:underline"
         >
           Back to marketplace
         </Link>
@@ -308,7 +308,7 @@ function AssetDetailContent() {
       <div className="mx-auto w-full max-w-7xl space-y-6 md:space-y-8">
         <Link
           href="/investor/marketplace"
-          className="inline-flex w-fit items-center gap-2 text-[13px] font-bold text-ui-muted-text transition-colors hover:text-ui-strong"
+          className="inline-flex w-fit items-center gap-2 text-base font-bold text-ui-muted-text transition-colors hover:text-ui-strong"
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={iconStroke} />
           Back
@@ -328,7 +328,7 @@ function AssetDetailContent() {
                   {asset.name}
                 </h1>
                 {asset.verified ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
                     <BadgeCheck
                       className="h-3.5 w-3.5"
                       strokeWidth={iconStroke}
@@ -337,7 +337,7 @@ function AssetDetailContent() {
                   </span>
                 ) : null}
               </div>
-              <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] font-medium text-ui-muted-text">
+              <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm font-medium text-ui-muted-text">
                 <span className="inline-flex items-center gap-1">
                   <MapPin
                     className="h-3.5 w-3.5 shrink-0 text-ui-faint"
@@ -383,7 +383,7 @@ function AssetDetailContent() {
             <button
               type="button"
               onClick={() => setIsInvestModalOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-base font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:brightness-105"
             >
               <DollarSign className="h-4 w-4" strokeWidth={iconStroke} />
               Invest Now
@@ -440,7 +440,7 @@ function AssetDetailContent() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all ${
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-base font-bold transition-all ${
                       active
                         ? "bg-primary/10 text-primary ring-1 ring-primary/15"
                         : "text-ui-muted-text hover:bg-ui-muted-deep/80 hover:text-ui-body"
@@ -466,7 +466,7 @@ function AssetDetailContent() {
                   <h3 className="mb-3 text-base font-bold text-ui-strong md:text-lg">
                     About This Asset
                   </h3>
-                  <p className="text-[13px] font-medium leading-relaxed text-ui-muted-text md:text-sm">
+                  <p className="text-base font-medium leading-relaxed text-ui-muted-text md:text-base">
                     {description ??
                       "Details for this asset will appear here once provided by the issuer."}
                   </p>
@@ -487,7 +487,7 @@ function AssetDetailContent() {
                       style={{ width: `${progress.pct}%` }}
                     />
                   </div>
-                  <div className="mt-2 flex justify-between text-[11px] font-medium text-ui-faint">
+                  <div className="mt-2 flex justify-between text-xs font-medium text-ui-faint">
                     <span>{raisedLabel}</span>
                     <span>{targetLabel}</span>
                   </div>
@@ -526,7 +526,7 @@ function AssetDetailContent() {
                       <p className="text-lg font-bold text-ui-strong">
                         {s.val}
                       </p>
-                      <p className="text-[10px] font-medium text-ui-faint">
+                      <p className="text-xs font-medium text-ui-faint">
                         {s.sub}
                       </p>
                     </div>
@@ -544,7 +544,7 @@ function AssetDetailContent() {
                           <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/12 text-emerald-600 dark:text-emerald-400">
                             <Check className="h-3 w-3" strokeWidth={3} />
                           </span>
-                          <p className="text-[13px] font-medium text-ui-body">
+                          <p className="text-base font-medium text-ui-body">
                             {h}
                           </p>
                         </li>
@@ -563,10 +563,10 @@ function AssetDetailContent() {
                         className="mx-auto mb-2 h-8 w-8 text-ui-faint"
                         strokeWidth={iconStroke}
                       />
-                      <p className="text-[13px] font-bold text-ui-strong">
+                      <p className="text-base font-bold text-ui-strong">
                         {asset.location}
                       </p>
-                      <p className="text-[11px] font-medium text-ui-faint">
+                      <p className="text-xs font-medium text-ui-faint">
                         {asset.type}
                       </p>
                     </div>
@@ -597,7 +597,7 @@ function AssetDetailContent() {
                     <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
                       Tokenization
                     </p>
-                    <p className="text-sm font-medium text-ui-body">
+                    <p className="text-base font-medium text-ui-body">
                       {tokenization.network}
                       {tokenization.standard
                         ? ` · ${tokenization.standard}`
@@ -617,12 +617,12 @@ function AssetDetailContent() {
                     </div>
                     <div>
                       <h3 className="text-base font-bold">AI Asset Analysis</h3>
-                      <p className="text-[11px] text-white/70">
+                      <p className="text-xs text-white/70">
                         Powered by Maxtronize Intelligence Engine
                       </p>
                     </div>
                   </div>
-                  <p className="text-[13px] leading-relaxed text-white/85">
+                  <p className="text-base leading-relaxed text-white/85">
                     AI insights for {asset.name} are generated from market data
                     and offering fundamentals.
                   </p>
@@ -633,21 +633,21 @@ function AssetDetailContent() {
                     className="rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm md:p-6"
                   >
                     <div className="mb-3 flex items-start justify-between gap-4">
-                      <h4 className="text-[13px] font-bold text-ui-strong">
+                      <h4 className="text-base font-bold text-ui-strong">
                         {insight.title}
                       </h4>
                       <span
-                        className={`flex shrink-0 items-center gap-1.5 text-[11px] font-bold ${insight.color}`}
+                        className={`flex shrink-0 items-center gap-1.5 text-xs font-bold ${insight.color}`}
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-current" />
                         {insight.confidence}% confidence
                       </span>
                     </div>
-                    <p className="mb-3 text-[12px] font-medium leading-relaxed text-ui-muted-text">
+                    <p className="mb-3 text-sm font-medium leading-relaxed text-ui-muted-text">
                       {insight.desc}
                     </p>
                     <span
-                      className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-bold ${insight.tagClass}`}
+                      className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-bold ${insight.tagClass}`}
                     >
                       {insight.tag}
                     </span>
@@ -695,7 +695,7 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold border transition-all ${
+      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold border transition-all ${
         copied
           ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
           : "border-ui-border text-ui-muted-text hover:bg-ui-muted-deep/50 hover:text-ui-strong"
@@ -1105,7 +1105,7 @@ function InvestModal({
                 <h2 className="text-[15px] font-bold text-zinc-800 dark:text-zinc-100">
                   {successData ? "Investment Confirmed" : "Invest Now"}
                 </h2>
-                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   {assetName}
                 </p>
               </div>
@@ -1132,21 +1132,21 @@ function InvestModal({
                 <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">
                   Investment Successful!
                 </h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed px-4">
+                <p className="text-base text-zinc-500 dark:text-zinc-400 leading-relaxed px-4">
                   Your order has been executed on the blockchain network and
                   credited to your investor portfolio.
                 </p>
               </div>
 
               {/* Status Badge */}
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-base font-bold text-emerald-600 dark:text-emerald-400">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Active / Settled
               </div>
 
               {/* Transaction Receipt Table */}
               <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 p-4 text-left space-y-3.5">
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex justify-between items-center text-base">
                   <span className="text-zinc-400 dark:text-zinc-500 font-medium">
                     Asset Name
                   </span>
@@ -1157,7 +1157,7 @@ function InvestModal({
                     {assetName}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex justify-between items-center text-base">
                   <span className="text-zinc-400 dark:text-zinc-500 font-medium">
                     Market Mode
                   </span>
@@ -1167,11 +1167,11 @@ function InvestModal({
                       : "Secondary Trading"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex justify-between items-center text-base">
                   <span className="text-zinc-400 dark:text-zinc-500 font-medium">
                     Invested Amount
                   </span>
-                  <span className="text-zinc-800 dark:text-zinc-100 font-extrabold text-sm tabular-nums">
+                  <span className="text-zinc-800 dark:text-zinc-100 font-extrabold text-base tabular-nums">
                     $
                     {successData.amount.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -1179,7 +1179,7 @@ function InvestModal({
                     })}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex justify-between items-center text-base">
                   <span className="text-zinc-400 dark:text-zinc-500 font-medium">
                     Tokens Received
                   </span>
@@ -1190,7 +1190,7 @@ function InvestModal({
                     {displayTicker}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex justify-between items-center text-base">
                   <span className="text-zinc-400 dark:text-zinc-500 font-medium">
                     Price / Token
                   </span>
@@ -1201,11 +1201,11 @@ function InvestModal({
 
                 {successData.transactionId && (
                   <div className="pt-2.5 border-t border-zinc-150 dark:border-zinc-800/80 space-y-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 block">
+                    <span className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 block">
                       Transaction ID
                     </span>
                     <div className="flex items-center justify-between gap-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-2">
-                      <span className="font-mono text-[10px] text-zinc-600 dark:text-zinc-400 truncate select-all">
+                      <span className="font-mono text-xs text-zinc-600 dark:text-zinc-400 truncate select-all">
                         {successData.transactionId}
                       </span>
                       <div className="pointer-events-auto">
@@ -1220,7 +1220,7 @@ function InvestModal({
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <Link
                   href="/investor/portfolio"
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-3.5 text-xs font-bold text-white shadow-md shadow-primary/20 transition-all hover:brightness-110"
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-3.5 text-base font-bold text-white shadow-md shadow-primary/20 transition-all hover:brightness-110"
                 >
                   <TrendingUp className="h-4 w-4" strokeWidth={iconStroke} />
                   Go to Portfolio
@@ -1228,7 +1228,7 @@ function InvestModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 py-3.5 text-xs font-bold text-zinc-800 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 py-3.5 text-base font-bold text-zinc-800 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   Dismiss
                 </button>
@@ -1241,7 +1241,7 @@ function InvestModal({
                 <button
                   type="button"
                   onClick={() => setMarketMode("primary")}
-                  className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${
+                  className={`rounded-xl px-3 py-2 text-sm font-bold transition-all ${
                     marketMode === "primary"
                       ? "bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]"
                       : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/85 hover:text-zinc-900 dark:hover:text-white"
@@ -1252,7 +1252,7 @@ function InvestModal({
                 <button
                   type="button"
                   onClick={() => setMarketMode("secondary")}
-                  className={`rounded-xl px-3 py-2 text-[12px] font-bold transition-all ${
+                  className={`rounded-xl px-3 py-2 text-sm font-bold transition-all ${
                     marketMode === "secondary"
                       ? "bg-primary text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.7)]"
                       : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/85 hover:text-zinc-900 dark:hover:text-white"
@@ -1266,7 +1266,7 @@ function InvestModal({
               {statusMsg && (
                 <div
                   key={`${selectedListingId}-${quantity}-${investmentAmount}-${marketMode}`}
-                  className={`rounded-xl border px-4 py-3.5 text-[12px] font-semibold leading-relaxed ${
+                  className={`rounded-xl border px-4 py-3.5 text-sm font-semibold leading-relaxed ${
                     statusMsg.type === "success"
                       ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                       : "border-rose-500/25 bg-rose-500/10 text-rose-600 dark:text-rose-400"
@@ -1277,14 +1277,14 @@ function InvestModal({
               )}
 
               {profileIncomplete ? (
-                <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
+                <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-sm font-semibold text-amber-700 dark:text-amber-300">
                   <p>
                     Complete your investor profile before using protected
                     investment flows.
                   </p>
                   <Link
                     href="/setup-profile"
-                    className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-200 transition-colors hover:text-ui-strong"
+                    className="inline-flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-200 transition-colors hover:text-ui-strong"
                   >
                     Complete setup profile
                     <ArrowLeft
@@ -1296,18 +1296,18 @@ function InvestModal({
               ) : null}
 
               {profilePendingReview ? (
-                <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
+                <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-sm font-semibold text-amber-700 dark:text-amber-300">
                   <p>
                     Your investor profile has been submitted and is awaiting
                     admin review.
                   </p>
-                  <p className="text-[11px] font-medium text-amber-600/90 dark:text-amber-200/90">
+                  <p className="text-xs font-medium text-amber-600/90 dark:text-amber-200/90">
                     Investment actions will unlock after your KYC verification
                     is approved.
                   </p>
                   <Link
                     href="/investor/account"
-                    className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-200 transition-colors hover:text-ui-strong"
+                    className="inline-flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-200 transition-colors hover:text-ui-strong"
                   >
                     View verification status
                     <ArrowLeft
@@ -1319,14 +1319,14 @@ function InvestModal({
               ) : null}
 
               {profileRejected ? (
-                <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-600 dark:text-rose-300">
+                <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-sm font-semibold text-rose-600 dark:text-rose-300">
                   <p>
                     Your investor verification needs attention before investing
                     is enabled.
                   </p>
                   <Link
                     href="/investor/account"
-                    className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-600 dark:text-rose-200 transition-colors hover:text-ui-strong"
+                    className="inline-flex items-center gap-2 text-xs font-bold text-rose-600 dark:text-rose-200 transition-colors hover:text-ui-strong"
                   >
                     Review account details
                     <ArrowLeft
@@ -1365,7 +1365,7 @@ function InvestModal({
                         <p className="mb-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                           {s.label}
                         </p>
-                        <p className="text-[13px] font-bold text-zinc-850 dark:text-zinc-100">
+                        <p className="text-base font-bold text-zinc-850 dark:text-zinc-100">
                           {s.val}
                         </p>
                       </div>
@@ -1375,7 +1375,7 @@ function InvestModal({
                   {previewErrorText &&
                   !profilePendingReview &&
                   !profileIncomplete ? (
-                    <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-[12px] font-semibold text-rose-600 dark:text-rose-300">
+                    <div className="space-y-3 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3.5 text-sm font-semibold text-rose-600 dark:text-rose-300">
                       <p>{previewErrorText}</p>
                       {requiresKycVerification ? (
                         <Link
@@ -1384,7 +1384,7 @@ function InvestModal({
                               ? "/setup-profile"
                               : "/investor/account"
                           }
-                          className="inline-flex items-center gap-2 text-[11px] font-bold text-rose-600 dark:text-rose-200 transition-colors hover:text-ui-strong"
+                          className="inline-flex items-center gap-2 text-xs font-bold text-rose-600 dark:text-rose-200 transition-colors hover:text-ui-strong"
                         >
                           {profileIncomplete
                             ? "Complete setup profile"
@@ -1399,18 +1399,18 @@ function InvestModal({
                   ) : null}
 
                   {requiresFunding ? (
-                    <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
+                    <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-sm font-semibold text-amber-700 dark:text-amber-300">
                       {investPreview?.note ||
                         "Wallet funding is required before this investment can be completed."}
                     </div>
                   ) : null}
 
                   <div>
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                       Investment Amount (USD)
                     </label>
                     <div className="flex items-center overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20">
-                      <span className="px-4 text-[14px] font-bold text-zinc-400 dark:text-zinc-500">
+                      <span className="px-4 text-base font-bold text-zinc-400 dark:text-zinc-500">
                         $
                       </span>
                       <input
@@ -1420,7 +1420,7 @@ function InvestModal({
                         value={investmentAmount}
                         onChange={(e) => setInvestmentAmount(e.target.value)}
                         placeholder="Enter investment amount"
-                        className="flex-1 bg-transparent px-1 py-3.5 pr-4 text-[14px] font-bold text-zinc-800 dark:text-zinc-100 outline-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                        className="flex-1 bg-transparent px-1 py-3.5 pr-4 text-base font-bold text-zinc-800 dark:text-zinc-100 outline-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
                       />
                     </div>
                     <div className="mt-2 grid grid-cols-4 gap-2">
@@ -1429,7 +1429,7 @@ function InvestModal({
                           key={value}
                           type="button"
                           onClick={() => setInvestmentAmount(String(value))}
-                          className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 py-1.5 text-[11px] font-bold text-zinc-500 dark:text-zinc-400 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                          className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 py-1.5 text-xs font-bold text-zinc-500 dark:text-zinc-400 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
                         >
                           ${Math.round(value).toLocaleString()}
                         </button>
@@ -1439,10 +1439,10 @@ function InvestModal({
 
                   <div className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 px-5 py-4">
                     <div>
-                      <span className="block text-[12px] font-bold text-zinc-550 dark:text-zinc-400">
+                      <span className="block text-sm font-bold text-zinc-550 dark:text-zinc-400">
                         Primary Investment Total
                       </span>
-                      <span className="mt-1 block text-[10px] font-medium text-zinc-400 dark:text-zinc-550">
+                      <span className="mt-1 block text-xs font-medium text-zinc-400 dark:text-zinc-550">
                         {estimatedPrimaryTokens != null
                           ? `${estimatedPrimaryTokens.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${displayTicker}`
                           : "Live token allocation appears after you enter an amount"}
@@ -1469,7 +1469,7 @@ function InvestModal({
                       (minimumInvestmentValue > 0 &&
                         amountValue < minimumInvestmentValue)
                     }
-                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-base font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
                     {isInvesting
@@ -1479,7 +1479,7 @@ function InvestModal({
                         : `Invest in ${displayTicker}`}
                   </button>
 
-                  <p className="text-center text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 leading-relaxed">
+                  <p className="text-center text-xs font-medium text-zinc-400 dark:text-zinc-500 px-2 leading-relaxed">
                     Investments are submitted through the primary marketplace
                     flow. Final allocation and wallet checks are validated by
                     the backend before confirmation.
@@ -1488,20 +1488,20 @@ function InvestModal({
               ) : (
                 <>
                   <div>
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                       Select Seller Listing
                     </label>
                     {listingsLoading ? (
                       <div className="h-12 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900/50" />
                     ) : assetListings.length === 0 ? (
-                      <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-[12px] font-semibold text-amber-700 dark:text-amber-400">
+                      <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3.5 text-sm font-semibold text-amber-700 dark:text-amber-400">
                         <p>
                           No active secondary listings found for this asset
                           right now.
                         </p>
                         <Link
                           href="/investor/secondary-market"
-                          className="inline-flex items-center gap-2 text-[11px] font-bold text-amber-600 dark:text-amber-300 transition-colors hover:text-ui-strong"
+                          className="inline-flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-300 transition-colors hover:text-ui-strong"
                         >
                           Browse all live listings
                           <ArrowLeft
@@ -1514,7 +1514,7 @@ function InvestModal({
                       <select
                         value={selectedListingId}
                         onChange={(e) => setSelectedListingId(e.target.value)}
-                        className="w-full appearance-none rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3 text-[13px] font-bold text-zinc-800 dark:text-zinc-100 outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                        className="w-full appearance-none rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3 text-base font-bold text-zinc-800 dark:text-zinc-100 outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
                       >
                         {assetListings.map((l) => (
                           <option
@@ -1552,7 +1552,7 @@ function InvestModal({
                             {s.label}
                           </p>
                           <p
-                            className={`text-[13px] font-bold ${"up" in s ? (s.up ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400") : "text-zinc-800 dark:text-zinc-100"}`}
+                            className={`text-base font-bold ${"up" in s ? (s.up ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400") : "text-zinc-800 dark:text-zinc-100"}`}
                           >
                             {s.val}
                           </p>
@@ -1562,7 +1562,7 @@ function InvestModal({
                   ) : null}
 
                   <div>
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                       Quantity (Tokens)
                     </label>
                     <div className="flex items-center overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20">
@@ -1572,9 +1572,9 @@ function InvestModal({
                         value={quantity}
                         onChange={(e) => setQuantity(e.target.value)}
                         placeholder="Enter number of tokens"
-                        className="flex-1 bg-transparent px-4 py-3.5 text-[14px] font-bold text-zinc-800 dark:text-zinc-100 outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                        className="flex-1 bg-transparent px-4 py-3.5 text-base font-bold text-zinc-800 dark:text-zinc-100 outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                       />
-                      <span className="px-4 text-[11px] font-bold text-zinc-400 dark:text-zinc-500">
+                      <span className="px-4 text-xs font-bold text-zinc-400 dark:text-zinc-500">
                         {displayTicker}
                       </span>
                     </div>
@@ -1584,7 +1584,7 @@ function InvestModal({
                           key={val}
                           type="button"
                           onClick={() => setQuantity(val)}
-                          className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 py-1.5 text-[11px] font-bold text-zinc-555 dark:text-zinc-400 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                          className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 py-1.5 text-xs font-bold text-zinc-555 dark:text-zinc-400 transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
                         >
                           +{val}
                         </button>
@@ -1593,7 +1593,7 @@ function InvestModal({
                   </div>
 
                   <div className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 px-5 py-4">
-                    <span className="text-[12px] font-bold text-zinc-550 dark:text-zinc-400">
+                    <span className="text-sm font-bold text-zinc-550 dark:text-zinc-400">
                       Total Cost
                     </span>
                     <span className="text-2xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100">
@@ -1617,7 +1617,7 @@ function InvestModal({
                       profilePendingReview ||
                       profileRejected
                     }
-                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-violet-600 py-4 text-base font-bold text-white shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <ShoppingBag className="h-4 w-4" strokeWidth={iconStroke} />
                     {isPlacing
@@ -1625,7 +1625,7 @@ function InvestModal({
                       : `Buy ${displayTicker} Tokens`}
                   </button>
 
-                  <p className="text-center text-[10px] font-medium text-zinc-400 dark:text-zinc-500 px-2 leading-relaxed">
+                  <p className="text-center text-xs font-medium text-zinc-400 dark:text-zinc-500 px-2 leading-relaxed">
                     Orders are executed via the secondary market at the listed
                     price. Market conditions may affect final execution price.
                   </p>
@@ -1654,17 +1654,17 @@ function DocumentsTab({
           <h3 className="text-base font-bold text-ui-strong">
             Asset Documents
           </h3>
-          <p className="mt-0.5 text-xs text-ui-faint">
+          <p className="mt-0.5 text-base text-ui-faint">
             Offering memoranda, legal, and financial files
           </p>
         </div>
       </div>
       {loading ? (
-        <div className="p-8 text-center text-sm text-ui-faint">
+        <div className="p-8 text-center text-base text-ui-faint">
           Loading documents…
         </div>
       ) : documents.length === 0 ? (
-        <div className="p-8 text-center text-sm text-ui-faint">
+        <div className="p-8 text-center text-base text-ui-faint">
           No documents published for this asset yet.
         </div>
       ) : (
@@ -1726,10 +1726,10 @@ function DocumentRow({ doc }: { doc: AssetDocument }) {
         <FileText className="h-4 w-4" strokeWidth={iconStroke} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-bold text-ui-strong transition-colors group-hover:text-primary">
+        <p className="truncate text-base font-bold text-ui-strong transition-colors group-hover:text-primary">
           {doc.name}
         </p>
-        <p className="text-[10px] font-medium text-ui-faint">
+        <p className="text-xs font-medium text-ui-faint">
           {doc.type} · {doc.size} · {doc.date}
         </p>
       </div>

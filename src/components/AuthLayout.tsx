@@ -69,7 +69,7 @@ export default function AuthLayout({
                 </span>
                 . Raise Capital Globally.
               </h1>
-              <p className="mb-5 max-w-lg text-sm leading-relaxed text-white md:mb-6 md:text-[15px] lg:mb-7">
+              <p className="mb-5 max-w-lg text-base leading-relaxed text-white md:mb-6 md:text-[15px] lg:mb-7">
                 The institutional platform for compliant real-world asset
                 tokenization. SEC Reg D to MiCA — all in one secure workspace.
               </p>
@@ -83,7 +83,7 @@ export default function AuthLayout({
                 ].map((tag) => (
                   <span
                     key={tag}
-                    className="px-3.5 py-1.5 rounded-full text-white/90 text-xs font-medium bg-white/[0.08] border border-white/15 backdrop-blur-sm"
+                    className="px-3.5 py-1.5 rounded-full text-white/90 text-base font-medium bg-white/[0.08] border border-white/15 backdrop-blur-sm"
                   >
                     {tag}
                   </span>
@@ -154,7 +154,7 @@ export default function AuthLayout({
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 transition-colors group-hover:bg-white/10 md:h-9 md:w-9">
                       {item.icon}
                     </div>
-                    <p className="pt-0.5 text-[11px] leading-relaxed text-white/80 md:pt-1 md:text-[13px]">
+                    <p className="pt-0.5 text-xs leading-relaxed text-white/80 md:pt-1 md:text-[13px]">
                       {item.text}
                     </p>
                   </div>
@@ -163,7 +163,7 @@ export default function AuthLayout({
             </div>
 
             <div>
-              <h3 className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white md:mb-4">
+              <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-white md:mb-4">
                 Trusted by leading institutions
               </h3>
               <div className="flex flex-wrap items-center gap-2 md:gap-x-3 md:gap-y-2 lg:gap-x-6 lg:gap-y-3">
@@ -175,7 +175,7 @@ export default function AuthLayout({
                 ].map((inst) => (
                   <span
                     key={inst}
-                    className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm md:px-3 md:py-1.5 md:text-[11px]"
+                    className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm md:px-3 md:py-1.5 md:text-[11px]"
                   >
                     {inst}
                   </span>
@@ -213,7 +213,7 @@ export default function AuthLayout({
                   alt="Maxtronize Logo"
                 />
               </div>
-              <p className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest">
+              <p className="text-xs font-bold text-[#7C3AED] uppercase tracking-widest">
                 Asset Protocol
               </p>
             </div>
@@ -222,13 +222,13 @@ export default function AuthLayout({
               <div className="flex rounded-full border border-[#E5E7EB] bg-[#F3F4F6] p-1 shadow-inner">
                 <a
                   href="https://beta.maxtronize.com/signin"
-                  className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all md:px-6 md:py-3 md:text-[15px] text-center ${!isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
+                  className={`flex-1 rounded-full px-4 py-2.5 text-base font-bold transition-all md:px-6 md:py-3 md:text-[15px] text-center ${!isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
                 >
                   Sign In
                 </a>
                 <a
                   href="https://beta.maxtronize.com/signin"
-                  className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all md:px-6 md:py-3 md:text-[15px] text-center ${isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
+                  className={`flex-1 rounded-full px-4 py-2.5 text-base font-bold transition-all md:px-6 md:py-3 md:text-[15px] text-center ${isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
                 >
                   Sign Up
                 </a>
@@ -297,13 +297,13 @@ export default function AuthLayout({
                 ].map((item) => (
                   <div key={item.label} className="flex items-center gap-2">
                     {item.icon}
-                    <span className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-wider">
+                    <span className="text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">
                       {item.label}
                     </span>
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] text-center text-[#9CA3AF] font-medium">
+              <p className="text-xs text-center text-[#9CA3AF] font-medium">
                 © 2026 Maxtronize, Inc. All rights reserved.
               </p>
             </div>

@@ -306,7 +306,7 @@ export default function AuthLayout({
                 ))}
               </div>
               <p className="text-[10px] text-center text-[#9CA3AF] font-medium">
-                © 2049 Maxtronize, Inc. All rights reserved.
+                © 2026 Maxtronize, Inc. All rights reserved.
               </p>
             </div>
           </div>

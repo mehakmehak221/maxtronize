@@ -185,7 +185,7 @@ export default function MyPortfolioPage() {
             <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-violet-300/20 blur-2xl" />
             <div className="relative z-10">
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-white/55">Total NAV</p>
-                <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">
+              <p className="mb-1 text-3xl font-bold tracking-tight md:text-[2.75rem]">
                 {effectiveSummary?.totalNavFormatted ?? '$0'}
               </p>
               <p className="mb-5 text-base font-medium text-white/60">
@@ -217,87 +217,87 @@ export default function MyPortfolioPage() {
                   No NAV history available yet.
                 </p>
               ) : (
-              <svg
-                className="h-36 w-full max-w-full md:h-40"
-                viewBox="0 0 600 168"
-                preserveAspectRatio="xMidYMid meet"
-                role="img"
-                aria-label="NAV history seven month trend"
-              >
-                <defs>
-                  <linearGradient id="invPortNavFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" className="[stop-color:var(--primary)]" stopOpacity="0.22" />
-                    <stop offset="100%" className="[stop-color:var(--primary)]" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                {[0, Math.round(yMax / 2), Math.round(yMax)].map((tick) => {
-                  const y = chartBottom - (tick / yMax) * chartH;
-                  return (
-                    <g key={tick}>
-                      <line
-                        x1={chartLeft}
-                        y1={y}
-                        x2={chartLeft + chartW}
-                        y2={y}
-                        className="stroke-ui-border"
-                        strokeWidth="1"
-                        strokeDasharray="4 5"
+                <svg
+                  className="h-36 w-full max-w-full md:h-40"
+                  viewBox="0 0 600 168"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  aria-label="NAV history seven month trend"
+                >
+                  <defs>
+                    <linearGradient id="invPortNavFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" className="[stop-color:var(--primary)]" stopOpacity="0.22" />
+                      <stop offset="100%" className="[stop-color:var(--primary)]" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {[0, Math.round(yMax / 2), Math.round(yMax)].map((tick) => {
+                    const y = chartBottom - (tick / yMax) * chartH;
+                    return (
+                      <g key={tick}>
+                        <line
+                          x1={chartLeft}
+                          y1={y}
+                          x2={chartLeft + chartW}
+                          y2={y}
+                          className="stroke-ui-border"
+                          strokeWidth="1"
+                          strokeDasharray="4 5"
+                        />
+                        <text
+                          x="32"
+                          y={y + 4}
+                          textAnchor="end"
+                          className="fill-ui-placeholder text-xs font-bold"
+                        >
+                          {tick === 0 ? '$0' : `$${tick}`}
+                        </text>
+                      </g>
+                    );
+                  })}
+                  <path d={areaPath} fill="url(#invPortNavFill)" />
+                  <path
+                    d={linePath}
+                    fill="none"
+                    className="stroke-primary"
+                    strokeWidth="2.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  {navValues.map((v, i) => {
+                    const x =
+                      navValues.length > 1
+                        ? chartLeft + (i / (navValues.length - 1)) * chartW
+                        : chartLeft + chartW / 2;
+                    const y = chartTop + chartH - (v / yMax) * chartH;
+                    return (
+                      <circle
+                        key={`nav-dot-${i}`}
+                        cx={x}
+                        cy={y}
+                        r={3.5}
+                        className="fill-primary stroke-ui-card"
+                        strokeWidth={2}
                       />
+                    );
+                  })}
+                  {months.map((m, i) => {
+                    const x =
+                      months.length > 1
+                        ? chartLeft + (i / (months.length - 1)) * chartW
+                        : chartLeft + chartW / 2;
+                    return (
                       <text
-                        x="32"
-                        y={y + 4}
-                        textAnchor="end"
+                        key={`${m}-${i}`}
+                        x={x}
+                        y="162"
+                        textAnchor="middle"
                         className="fill-ui-placeholder text-xs font-bold"
                       >
-                        {tick === 0 ? '$0' : `$${tick}`}
+                        {m}
                       </text>
-                    </g>
-                  );
-                })}
-                <path d={areaPath} fill="url(#invPortNavFill)" />
-                <path
-                  d={linePath}
-                  fill="none"
-                  className="stroke-primary"
-                  strokeWidth="2.75"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                {navValues.map((v, i) => {
-                  const x =
-                    navValues.length > 1
-                      ? chartLeft + (i / (navValues.length - 1)) * chartW
-                      : chartLeft + chartW / 2;
-                  const y = chartTop + chartH - (v / yMax) * chartH;
-                  return (
-                    <circle
-                      key={`nav-dot-${i}`}
-                      cx={x}
-                      cy={y}
-                      r={3.5}
-                      className="fill-primary stroke-ui-card"
-                      strokeWidth={2}
-                    />
-                  );
-                })}
-                {months.map((m, i) => {
-                  const x =
-                    months.length > 1
-                      ? chartLeft + (i / (months.length - 1)) * chartW
-                      : chartLeft + chartW / 2;
-                  return (
-                    <text
-                      key={`${m}-${i}`}
-                      x={x}
-                      y="162"
-                      textAnchor="middle"
-                      className="fill-ui-placeholder text-xs font-bold"
-                    >
-                      {m}
-                    </text>
-                  );
-                })}
-              </svg>
+                    );
+                  })}
+                </svg>
               )}
             </div>
           </div>
@@ -347,11 +347,10 @@ export default function MyPortfolioPage() {
               key={f}
               type="button"
               onClick={() => setActiveFilter(f)}
-              className={`rounded-full px-4 py-2.5 text-left text-sm font-bold transition-all md:px-5 md:py-3 md:text-[13px] ${
-                activeFilter === f
-                  ? 'bg-zinc-900 text-white shadow-md dark:bg-zinc-100 dark:text-zinc-900'
-                  : 'border border-ui-border bg-ui-card text-ui-muted-text shadow-sm hover:border-ui-border-strong hover:text-ui-strong'
-              }`}
+              className={`rounded-full px-4 py-2.5 text-left text-sm font-bold transition-all md:px-5 md:py-3 md:text-[13px] ${activeFilter === f
+                ? 'bg-zinc-900 text-white shadow-md dark:bg-zinc-100 dark:text-zinc-900'
+                : 'border border-ui-border bg-ui-card text-ui-muted-text shadow-sm hover:border-ui-border-strong hover:text-ui-strong'
+                }`}
             >
               {f}
             </button>
@@ -427,15 +426,46 @@ export default function MyPortfolioPage() {
                     <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${st.dot}`} />
                     <span className="text-xs font-bold tracking-wide text-white">{asset.status}</span>
                   </div>
-                  <div className="absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 backdrop-blur-md">
-                    <span className="text-xs font-bold tracking-wider text-white">{asset.ticker}</span>
-                  </div>
+                  {asset.ticker !== "—" ? (
+                    <div
+                      className={`absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border px-2.5 backdrop-blur-md ${asset.image
+                        ? "border-white/25 bg-white/10"
+                        : "border-ui-border bg-ui-card/80"
+                        }`}
+                    >
+                      <span
+                        className={`text-xs font-bold tracking-wider ${asset.image
+                          ? "text-white"
+                          : "text-ui-strong"
+                          }`}
+                      >
+                        {asset.ticker}
+                      </span>
+                    </div>
+                  ) : null}
                   <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-                    <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
+                    <h3
+                      className={`mb-1 text-lg font-bold leading-tight md:text-xl ${asset.image
+                        ? "text-white drop-shadow-md"
+                        : "text-ui-strong"
+                        }`}
+                    >
                       {asset.name}
                     </h3>
-                    <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-300">
-                      <Globe2 className="h-3.5 w-3.5 shrink-0 text-zinc-400" strokeWidth={2} aria-hidden />
+                    <p
+                      className={`flex items-center gap-1.5 text-xs font-medium ${asset.image
+                        ? "text-zinc-300"
+                        : "text-ui-faint"
+                        }`}
+                    >
+                      <Globe2
+                        className={`h-3.5 w-3.5 shrink-0 ${asset.image
+                          ? "text-zinc-400"
+                          : "text-ui-placeholder"
+                          }`}
+                        strokeWidth={2}
+                        aria-hidden
+                      />
                       <span className="line-clamp-2">
                         {asset.location} · {asset.compliance}
                       </span>
@@ -454,9 +484,8 @@ export default function MyPortfolioPage() {
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 pt-1 text-base font-bold ${
-                        asset.up ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
-                      }`}
+                      className={`shrink-0 pt-1 text-base font-bold ${asset.up ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                        }`}
                     >
                       {asset.up ? '↗' : '↘'} {asset.priceChange}
                     </span>
@@ -475,11 +504,10 @@ export default function MyPortfolioPage() {
                           {label}
                         </p>
                         <p
-                          className={`truncate text-base font-bold md:text-[15px] ${
-                            label === 'APY'
-                              ? 'text-emerald-600 dark:text-emerald-400'
-                              : 'text-slate-900 dark:text-white'
-                          }`}
+                          className={`truncate text-base font-bold md:text-[15px] ${label === 'APY'
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-slate-900 dark:text-white'
+                            }`}
                         >
                           {val}
                         </p>

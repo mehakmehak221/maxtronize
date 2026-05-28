@@ -14,6 +14,7 @@ import Link from "next/link";
 
 import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { MarketplaceAssetCover } from "@/components/investor/MarketplaceAssetCover";
 import {
   aggregatePortfolioAssetStats,
   filterLabelToCategoryKey,
@@ -433,8 +434,17 @@ export default function IssuerPortfolioPage() {
                 key={asset.id}
                 className="group flex max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-ui-card shadow-sm transition-shadow hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-950 md:rounded-3xl"
               >
-                <div className="relative h-44 w-full min-h-44 overflow-hidden bg-linear-to-br from-zinc-800 via-primary to-violet-950 md:h-48">
-                  <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-black/10" />
+                <MarketplaceAssetCover
+                  image={asset.image}
+                  alt={asset.name}
+                  assetType={asset.categoryLabel}
+                  className="relative h-44 w-full min-h-44 md:h-48"
+                  imageClassName="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                >
+                  {asset.image ? (
+                    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/80 via-black/35 to-black/10" />
+                  ) : null}
                   <div
                     className={`absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 backdrop-blur-md ${st.ring}`}
                   >
@@ -446,19 +456,47 @@ export default function IssuerPortfolioPage() {
                     </span>
                   </div>
                   {asset.ticker !== "—" ? (
-                    <div className="absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 backdrop-blur-md">
-                      <span className="text-xs font-bold tracking-wider text-white">
+                    <div
+                      className={`absolute right-3 top-3 flex h-9 min-w-9 items-center justify-center rounded-full border px-2.5 backdrop-blur-md ${
+                        asset.image
+                          ? "border-white/25 bg-white/10"
+                          : "border-ui-border bg-ui-card/80"
+                      }`}
+                    >
+                      <span
+                        className={`text-xs font-bold tracking-wider ${
+                          asset.image
+                            ? "text-white"
+                            : "text-ui-strong"
+                        }`}
+                      >
                         {asset.ticker}
                       </span>
                     </div>
                   ) : null}
                   <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-                    <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
+                    <h3
+                      className={`mb-1 text-lg font-bold leading-tight md:text-xl ${
+                        asset.image
+                          ? "text-white drop-shadow-md"
+                          : "text-ui-strong"
+                      }`}
+                    >
                       {asset.name}
                     </h3>
-                    <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-300">
+                    <p
+                      className={`flex items-center gap-1.5 text-xs font-medium ${
+                        asset.image
+                          ? "text-zinc-300"
+                          : "text-ui-faint"
+                      }`}
+                    >
                       <Globe2
-                        className="h-3.5 w-3.5 shrink-0 text-zinc-400"
+                        className={`h-3.5 w-3.5 shrink-0 ${
+                          asset.image
+                            ? "text-zinc-400"
+                            : "text-ui-placeholder"
+                        }`}
                         strokeWidth={2}
                         aria-hidden
                       />
@@ -467,7 +505,7 @@ export default function IssuerPortfolioPage() {
                       </span>
                     </p>
                   </div>
-                </div>
+                </MarketplaceAssetCover>
 
                 <div className="flex flex-1 flex-col bg-slate-50 p-5 dark:bg-zinc-900 md:p-6">
                   <div className="mb-5 flex items-start justify-between gap-3">

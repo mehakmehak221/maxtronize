@@ -16,7 +16,6 @@ export default function IssuerPortfolioAssetDetailPage() {
         backLabel="Back to Portfolio"
         manageHref="/issuer/hub"
         manageLabel="Manage in Hub"
-        hideCoverMedia
       />
     </DashboardLayout>
   );

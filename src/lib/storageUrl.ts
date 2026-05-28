@@ -4,7 +4,6 @@ export function getApiBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
 }
 
-/** Build a browser-loadable API URL from a path or absolute URL. */
 export function resolveStoragePublicUrl(
   keyOrPath: string | null | undefined,
   explicitUrl?: string | null,

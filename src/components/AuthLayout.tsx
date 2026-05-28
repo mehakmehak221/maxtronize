@@ -227,7 +227,7 @@ export default function AuthLayout({
                   Sign In
                 </a>
                 <a
-                  href="https://beta.maxtronize.com/signin"
+                  href="https://beta.maxtronize.com/signup"
                   className={`flex-1 rounded-full px-4 py-2.5 text-base font-bold transition-all md:px-6 md:py-3 md:text-[15px] text-center ${isSignUp ? "bg-white text-[#111827] shadow-sm shadow-black/5" : "text-[#9CA3AF] hover:text-[#4B5563]"}`}
                 >
                   Sign Up

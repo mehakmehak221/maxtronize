@@ -78,7 +78,7 @@ export default function Hero() {
             </motion.a>
 
             <motion.a
-              href="https://calendly.com/maxtron-realasset"
+              href="https://calendly.com/maxtronize/30min"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05, y: -2 }}

@@ -49,7 +49,7 @@ const Footer = () => {
           </Link>
 
           <Link
-            href="https://calendly.com/maxtron-realasset"
+            href="https://calendly.com/maxtronize/30min"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#4A4A6A] text-sm hover:text-black transition"

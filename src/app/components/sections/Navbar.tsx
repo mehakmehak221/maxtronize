@@ -81,16 +81,15 @@ export default function Navbar() {
 
   return (
     <>
-    <motion.nav
-  initial="hidden"
-  animate="visible"
-  variants={navVariants}
-  className={`fixed top-4 left-1/2 -translate-x-1/2 w-[92%] md:w-[85%] lg:w-[80%] xl:w-[75%] max-w-[96rem] mx-auto z-50 flex items-center justify-between px-3 lg:px-6 py-2 lg:py-4 rounded-xl border backdrop-blur-xl transition-all duration-500 ease-in-out md:px-10 md:pt-5 md:pb-4 ${
-    isScrolled
-      ? "bg-white/90 border-[#000000]/20 shadow-xl"
-      : "bg-white border-[#000000]/10 shadow-md"
-  }`}
->
+      <motion.nav
+        initial="hidden"
+        animate="visible"
+        variants={navVariants}
+        className={`fixed top-4 left-1/2 -translate-x-1/2 w-[92%] md:w-[85%] lg:w-[80%] xl:w-[75%] max-w-[96rem] mx-auto z-50 flex items-center justify-between px-3 lg:px-6 py-2 lg:py-4 rounded-xl border backdrop-blur-xl transition-all duration-500 ease-in-out md:px-10 md:pt-5 md:pb-4 ${isScrolled
+          ? "bg-white/90 border-[#000000]/20 shadow-xl"
+          : "bg-white border-[#000000]/10 shadow-md"
+          }`}
+      >
         <Link href="/">
           <motion.div
             variants={itemVariants}
@@ -103,7 +102,7 @@ export default function Navbar() {
               whileHover="hover"
               className="relative h-10 w-36 lg:w-48"
             >
-              <motion.div  className="relative h-full w-full">
+              <motion.div className="relative h-full w-full">
                 <Image
                   src="/images/new-main-logo.png"
                   alt="Maxtronize"
@@ -122,6 +121,9 @@ export default function Navbar() {
         <motion.div variants={itemVariants} className="hidden md:block">
           <NavLink href="https://maxtronize.gitbook.io/docs" label="Whitepaper" delay={0.4} />
         </motion.div>
+        <motion.div variants={itemVariants} className="hidden md:block">
+          <NavLink href="https://presale.maxtronize.com/" label="Presale" delay={0.5} target="_blank" />
+        </motion.div>
         {/* <motion.div variants={itemVariants} className="hidden md:block">
           <NavLink href="/asset_register" label="Asset Register" delay={0.45} active={pathname === "/asset_register"} />
         </motion.div> */}
@@ -129,10 +131,10 @@ export default function Navbar() {
           <NavLink href="/#leadership" label="About Us" delay={0.4} />
         </motion.div>
         <motion.div variants={itemVariants} className="hidden md:block">
-          <NavLink 
-            href="https://calendly.com/maxtron-realasset" 
-            label="Contact" 
-            delay={0.5} 
+          <NavLink
+            href="https://calendly.com/maxtronize/30min"
+            label="Contact"
+            delay={0.5}
             target="_blank"
             rel="noopener noreferrer"
           />
@@ -172,7 +174,7 @@ export default function Navbar() {
         </motion.button>
       </motion.nav>
 
-    
+
       <motion.div
         initial={false}
         animate={{
@@ -211,6 +213,11 @@ export default function Navbar() {
             onClick={() => setIsMobileMenuOpen(false)}
           /> */}
           <MobileNavLink
+            href="https://presale.maxtronize.com/"
+            label="Presale"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <MobileNavLink
             href="/#tokenize"
             label="Why Tokenize"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -220,13 +227,13 @@ export default function Navbar() {
             label="About Us"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-            <MobileNavLink
+          <MobileNavLink
             href="https://maxtronize.gitbook.io/docs"
             label="Whitepaper"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <MobileNavLink
-            href="https://calendly.com/maxtron-realasset"
+            href="https://calendly.com/maxtronize/30min"
             label="Contact"
             onClick={() => setIsMobileMenuOpen(false)}
             target="_blank"
@@ -234,7 +241,7 @@ export default function Navbar() {
           />
         </motion.div>
 
-       
+
         <motion.div
           className="absolute left-10 top-20 h-32 w-32 rounded-full bg-gradient-to-br from-purple-200/30 to-pink-200/30 blur-3xl"
           animate={{
@@ -262,10 +269,10 @@ export default function Navbar() {
         />
       </motion.div>
 
-      
-      <ContactModal 
-        isOpen={isContactModalOpen} 
-        onClose={() => setIsContactModalOpen(false)} 
+
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
       />
     </>
   );
@@ -323,8 +330,8 @@ const NavLink = ({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      style={{ 
-        x: springX, 
+      style={{
+        x: springX,
         y: springY,
         color: isHovered || active ? "#000000" : "#222222"
       }}
@@ -406,4 +413,4 @@ const MobileNavLink = ({
   );
 };
 
- 
+

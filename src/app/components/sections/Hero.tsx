@@ -61,7 +61,7 @@ export default function Hero() {
 
           <div className="mt-8 flex items-center gap-4">
             <motion.a
-              href="/signin"
+              href="https://beta.maxtronize.com/signin"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}

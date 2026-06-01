@@ -50,7 +50,7 @@ export function MarketplaceAssetCover({
           {/* Subtle decorative circles for depth */}
           <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-purple-400/20 blur-xl" />
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 backdrop-blur-sm shadow-lg md:h-20 md:w-20 transition-all duration-300 group-hover:scale-105 group-hover:bg-white/20">
+          <div className="relative mb-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 backdrop-blur-sm shadow-lg md:h-20 md:w-20 transition-all duration-300 group-hover:scale-105 group-hover:bg-white/20">
             {showInfraIcon ? (
               <Building className="h-8 w-8 md:h-10 md:w-10 stroke-[1.5]" />
             ) : (

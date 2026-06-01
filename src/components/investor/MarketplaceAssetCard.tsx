@@ -1,10 +1,9 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Heart, Building2, Building, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { MarketplaceAsset } from "@/lib/assets";
-import { BuildingIcon, InvestorHub } from "@/app/VectorImages";
 import { MarketplaceAssetCover } from "@/components/investor/MarketplaceAssetCover";
 import {
   useAddOpportunityToWatchlistMutation,
@@ -80,7 +79,7 @@ export function MarketplaceAssetCard({
 
         {showFeatured ? (
           <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-lg bg-[#FE9A00] px-2.5 py-1 text-[9px] font-bold text-white shadow-sm">
-            <InvestorHub className="h-3.5 w-3.5 shrink-0 text-white" />
+            <Sparkles className="h-3.5 w-3.5 shrink-0 text-white fill-white/20" />
             Featured
           </div>
         ) : null}
@@ -112,9 +111,9 @@ export function MarketplaceAssetCard({
         <div className="mb-3 flex items-start gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300">
             {asset.type.toLowerCase().includes("infra") ? (
-              <BuildingIcon className="h-4 w-4" />
+              <Building className="h-4.5 w-4.5 stroke-[1.5]" />
             ) : (
-              <InvestorHub className="h-4 w-4" />
+              <Building2 className="h-4.5 w-4.5 stroke-[1.5]" />
             )}
           </div>
           <div className="min-w-0">

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import type { ReactNode } from 'react';
-import { BuildingIcon, InvestorHub } from '@/app/VectorImages';
+import { Building2, Building } from 'lucide-react';
 
 type MarketplaceAssetCoverProps = {
   image: string | null;
@@ -44,14 +44,14 @@ export function MarketplaceAssetCover({
         />
       ) : (
         <div
-          className="absolute inset-0 flex items-center justify-center bg-ui-muted-deep"
+          className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-zinc-900/60"
           aria-hidden={!alt}
         >
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300 md:h-20 md:w-20">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 border border-violet-100/80 shadow-[0_8px_20px_-6px_rgba(109,40,217,0.15)] dark:bg-violet-950/20 dark:text-violet-400 dark:border-violet-900/30 md:h-20 md:w-20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_12px_24px_-8px_rgba(109,40,217,0.25)]">
             {showInfraIcon ? (
-              <BuildingIcon className="h-8 w-8 md:h-10 md:w-10" />
+              <Building className="h-8 w-8 md:h-10 md:w-10 stroke-[1.5]" />
             ) : (
-              <InvestorHub className="h-8 w-8 md:h-10 md:w-10" />
+              <Building2 className="h-8 w-8 md:h-10 md:w-10 stroke-[1.5]" />
             )}
           </div>
         </div>
@@ -60,3 +60,4 @@ export function MarketplaceAssetCover({
     </div>
   );
 }
+

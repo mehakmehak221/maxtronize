@@ -332,7 +332,7 @@ export default function InvestorHelpPage() {
           </div>
         </section>
 
-        {/* Contact + Tickets */}
+        {/* Contact + Tickets (Temporarily Hidden)
         <div className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-2">
           <section>
             <h2 className="mb-5 text-lg font-bold text-ui-strong">Contact Support</h2>
@@ -438,6 +438,7 @@ export default function InvestorHelpPage() {
             </div>
           </section>
         </div>
+        */}
       </div>
     </InvestorLayout>
   );

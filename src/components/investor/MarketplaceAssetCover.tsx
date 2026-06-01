@@ -44,7 +44,7 @@ export function MarketplaceAssetCover({
         />
       ) : (
         <div
-          className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700"
+          className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-[#5b21b6] via-primary to-[#4c1d95]"
           aria-hidden={!alt}
         >
           {/* Subtle decorative circles for depth */}

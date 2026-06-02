@@ -19,6 +19,7 @@ import {
   formatCompactCurrency,
 } from '@/lib/issuerDashboard';
 import { HubAnalyticsTab } from '@/components/hub/HubAnalyticsTab';
+import { ComingSoonModal } from '@/components/issuer/ComingSoonModal';
 import { InvestorHubDistributionsTab } from '@/components/investor/InvestorHubDistributionsTab';
 import { InvestorHubInvestmentDocumentsTab } from '@/components/investor/InvestorHubInvestmentDocumentsTab';
 import {
@@ -73,6 +74,8 @@ function InvestorHubContent() {
   const searchParams = useSearchParams();
   const requestedTab = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [comingSoonTab, setComingSoonTab] = useState<TabType | null>(null);
 
   useEffect(() => {
     if (!requestedTab) return;
@@ -88,8 +91,34 @@ function InvestorHubContent() {
       validTab === 'asset-intelligence'
     ) {
       setActiveTab(validTab);
+      if (validTab === 'lexa' || validTab === 'asset-intelligence') {
+        setComingSoonTab(validTab);
+        setShowComingSoon(true);
+      }
     }
   }, [requestedTab]);
+
+  const comingSoonDetails = useMemo(() => {
+    if (comingSoonTab === 'lexa') {
+      return {
+        title: 'Lexa AI Legal Assistant',
+        description: 'Lexa is launching soon. Your AI-powered legal and compliance advisor will be available here to answer questions about tax implications, regulatory requirements, and investment structures.',
+        dismissNote: 'You can still explore the preview below — full access will unlock at launch.',
+      };
+    }
+    if (comingSoonTab === 'asset-intelligence') {
+      return {
+        title: 'AI Asset Intelligence',
+        description: 'AI Asset Intelligence is launching soon. Predictive analytics, market insights, and AI-powered recommendations will be available here to optimize your investment portfolio.',
+        dismissNote: 'You can still explore the preview below — full access will unlock at launch.',
+      };
+    }
+    return {
+      title: 'Coming Soon',
+      description: 'This feature is launching soon.',
+      dismissNote: 'You can still explore the preview below.',
+    };
+  }, [comingSoonTab]);
 
 
   const { data: hubTabsData } = useGetInvestorHubTabsQuery();
@@ -765,8 +794,24 @@ function InvestorHubContent() {
               </div>
             </div>
             <div className="flex items-center gap-3 pl-14">
-              <span className={`px-3 py-1.5 rounded-full text-xs font-bold border ${insight.actionColor}`}>{insight.action}</span>
-              <button className="flex items-center gap-1.5 text-xs font-bold text-ui-faint hover:text-primary transition-colors">
+              <button
+                type="button"
+                onClick={() => {
+                  setComingSoonTab('asset-intelligence');
+                  setShowComingSoon(true);
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold border hover:opacity-80 active:scale-95 transition-all ${insight.actionColor}`}
+              >
+                {insight.action}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setComingSoonTab('asset-intelligence');
+                  setShowComingSoon(true);
+                }}
+                className="flex items-center gap-1.5 text-xs font-bold text-ui-faint hover:text-primary transition-colors"
+              >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                 View Details
               </button>
@@ -790,6 +835,13 @@ function InvestorHubContent() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
+      <ComingSoonModal
+        open={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        title={comingSoonDetails.title}
+        description={comingSoonDetails.description}
+        dismissNote={comingSoonDetails.dismissNote}
+      />
 
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -826,7 +878,13 @@ function InvestorHubContent() {
           {tabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                if (tab.id === 'lexa' || tab.id === 'asset-intelligence') {
+                  setComingSoonTab(tab.id);
+                  setShowComingSoon(true);
+                }
+              }}
               className={`flex items-center gap-2 px-4 md:px-6 py-4 border-b-2 text-base font-bold transition-all whitespace-nowrap ${activeTab === tab.id
                 ? 'border-primary text-primary'
                 : 'border-transparent text-ui-faint hover:text-ui-body hover:border-ui-border-strong'

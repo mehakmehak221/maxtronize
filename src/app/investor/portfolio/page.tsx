@@ -432,19 +432,21 @@ export default function MyPortfolioPage() {
                     </div>
                   ) : null}
                   <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-                    <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
-                      {asset.name}
-                    </h3>
-                    <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-300">
-                      <Globe2
-                        className="h-3.5 w-3.5 shrink-0 text-zinc-400"
-                        strokeWidth={2}
-                        aria-hidden
-                      />
-                      <span className="line-clamp-2">
-                        {asset.location} · {asset.compliance}
-                      </span>
-                    </p>
+                    <div className="bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm p-3 rounded-b-lg">
+                      <h3 className="mb-1 text-lg font-bold leading-tight text-gray-900 dark:text-gray-100 md:text-xl">
+                        {asset.name}
+                      </h3>
+                      <p className="flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
+                        <Globe2
+                          className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400"
+                          strokeWidth={2}
+                          aria-hidden
+                        />
+                        <span className="line-clamp-2">
+                          {asset.location} · {asset.compliance}
+                        </span>
+                      </p>
+                    </div>
                   </div>
                 </MarketplaceAssetCover>
 

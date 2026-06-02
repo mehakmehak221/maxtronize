@@ -460,22 +460,12 @@ export default function IssuerPortfolioPage() {
                       </span>
                     </div>
                   ) : null}
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
-                      <h3 className="mb-1 text-lg font-bold leading-tight text-white md:text-xl">
-                        {asset.name}
-                      </h3>
-                      <p className="flex items-center gap-1.5 text-sm font-medium text-white/90">
-                        <Globe2
-                          className="h-3.5 w-3.5 shrink-0"
-                          strokeWidth={2}
-                          aria-hidden
-                        />
-                        <span className="line-clamp-2">
-                          {asset.location} · {asset.compliance}
-                        </span>
-                      </p>
-                    </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-4 rounded-b-lg">
+                    <h3 className="mb-1 text-base font-bold leading-tight md:text-lg">{asset.name}</h3>
+                    <p className="flex items-center gap-1.5 text-sm">
+                      <Globe2 className="h-4 w-4" strokeWidth={2} aria-hidden />
+                      <span className="line-clamp-2">{asset.location} · {asset.compliance}</span>
+                    </p>
                   </div>
                 </MarketplaceAssetCover>
 

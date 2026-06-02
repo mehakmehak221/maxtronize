@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ComingSoonModal } from '@/components/issuer/ComingSoonModal';
 import { HubAssetsTab } from '@/components/issuer/HubAssetsTab';
 import { HubCapTableTab } from '@/components/issuer/HubCapTableTab';
 import { HubComplianceTab } from '@/components/issuer/HubComplianceTab';
@@ -92,6 +93,7 @@ const HUB_TABS: { id: TabType; name: string; icon: LucideIcon; showDot?: boolean
 
 export default function IssuerHubPage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const [aiDraft, setAiDraft] = useState('');
   const [assetSearch, setAssetSearch] = useState('');
   const [investorSearch, setInvestorSearch] = useState('');
@@ -444,6 +446,13 @@ export default function IssuerHubPage() {
 
   return (
     <DashboardLayout>
+      <ComingSoonModal
+        open={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        title="Maxtronize AI Assistant"
+        description="The AI compliance and strategy assistant is launching soon. Modules for automated Reg D/S offering structures, investor pitch copy generation, cap table concentration risk checks, and pricing optimization will be available here."
+        dismissNote="You can still explore the preview below — full access will unlock at launch."
+      />
       <div className="max-w-full min-w-0 space-y-6 animate-in fade-in duration-700 sm:space-y-8 xl:space-y-10">
         <header className="-mx-5 mb-6 flex flex-col gap-3 px-5 py-4 sm:-mx-6 sm:px-6 md:-mx-8 md:mb-8 md:flex md:h-16 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-0 lg:mb-10">
           <div className="flex min-w-0 flex-col gap-0.5 md:flex-row md:items-baseline md:gap-2.5">
@@ -491,7 +500,12 @@ export default function IssuerHubPage() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  if (tab.id === 'ai-assistant') {
+                    setShowComingSoon(true);
+                  }
+                }}
                 className={`flex shrink-0 items-center gap-2 border-b-2 px-5 py-3.5 transition-colors sm:px-6 ${
                   active
                     ? 'border-primary font-semibold text-primary'

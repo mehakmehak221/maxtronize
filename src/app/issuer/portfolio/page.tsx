@@ -461,10 +461,10 @@ export default function IssuerPortfolioPage() {
                     </div>
                   ) : null}
                   <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-                    <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
+                    <h3 className="mb-1 text-sm font-bold leading-tight text-white drop-shadow-md md:text-base">
                       {asset.name}
                     </h3>
-                    <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-300">
+                    <p className="flex items-center gap-1.5 text-[0.65rem] font-medium text-zinc-300">
                       <Globe2
                         className="h-3.5 w-3.5 shrink-0 text-zinc-400"
                         strokeWidth={2}

@@ -1310,11 +1310,6 @@ html.auth-page-active .motion-app-mount {
   animation-delay: 205ms;
 }
 
-/* ==========================================================================
-   CHART / GRAPH MOTION
-   Wrap SVG chart roots with .motion-chart; HTML bar columns with .motion-chart-bars;
-   nested bars with .motion-bar-grow + inline animation-delay.
-   ========================================================================== */
 
 @keyframes motion-chart-line-draw {
   to {
@@ -1334,7 +1329,6 @@ html.auth-page-active .motion-app-mount {
   }
 }
 
-/* Stroke-only data lines (long dasharray works for typical 0–1000 viewBox paths) */
 .motion-chart svg path[fill="none"][stroke] {
   stroke-dasharray: 3000;
   stroke-dashoffset: 3000;
@@ -1478,13 +1472,11 @@ html.auth-page-active .motion-app-mount {
   animation-delay: 0.48s;
 }
 
-/* Nested bar columns: stagger with inline style={{ animationDelay: `${i * 45}ms` }} */
 .motion-bar-grow {
   transform-origin: bottom center;
   animation: motion-chart-bar-grow 0.7s var(--motion-ease-out-expo) backwards;
 }
 
-/* ── Delay helpers ──────────────────────────────────────────────────────── */
 .delay-50 {
   animation-delay: 50ms;
 }
@@ -1576,7 +1568,7 @@ html.auth-page-active .motion-app-mount {
   animation-delay: 580ms;
 }
 
-/* Auto-stagger direct children (opt-in on a container) */
+
 .motion-stagger-children>* {
   animation: slideUp 0.52s var(--motion-ease-spring) both;
 }
@@ -1629,7 +1621,6 @@ html.auth-page-active .motion-app-mount {
   animation-delay: calc(var(--motion-stagger-step) * 11);
 }
 
-/* ── Global smooth interactive transitions ──────────────────────────────── */
 a,
 button,
 [role="button"],
@@ -1641,7 +1632,7 @@ textarea {
   transition-timing-function: var(--motion-ease-soft);
 }
 
-/* Tables — row hover feels smoother */
+
 tbody tr {
   transition:
     background-color 0.22s var(--motion-ease-soft),
@@ -1652,7 +1643,7 @@ tbody tr:hover {
   transform: translateX(2px);
 }
 
-/* Cards — opt-in lift on hover */
+
 .card-lift {
   transition:
     box-shadow 0.38s var(--motion-ease-spring),
@@ -1670,7 +1661,7 @@ tbody tr:hover {
   box-shadow: 0 22px 50px -14px rgba(0, 0, 0, 0.55);
 }
 
-/* Shimmer loading skeleton */
+
 .skeleton {
   background: linear-gradient(90deg,
       var(--ui-muted-deep) 25%,
@@ -1681,14 +1672,24 @@ tbody tr:hover {
   border-radius: 8px;
 }
 
-/* Focus rings — consistent across the platform */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+[data-theme='dark'] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.9) brightness(0.95);
+}
+
+[data-theme='dark'] input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(1) brightness(1);
+}
+
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
   border-radius: 6px;
 }
 
-/* Scrollbar — thin and theme-aware */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -1716,9 +1717,7 @@ tbody tr:hover {
   background: var(--ui-border-strong);
 }
 
-/* ── Reduced-motion override ─────────────────────────────────────────────
-   All animations and transitions collapse to instant when user requests it.
-   ────────────────────────────────────────────────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
 
   *,

@@ -48,43 +48,43 @@ const TOPICS: {
   Icon: LucideIcon;
   iconClass: string;
 }[] = [
-  {
-    title: 'Getting Started',
-    desc: '12 articles · Setup & onboarding guides',
-    Icon: Zap,
-    iconClass: 'bg-violet-100 text-[#7C3AED]',
-  },
-  {
-    title: 'Compliance & KYC',
-    desc: '8 articles · Regulatory requirements',
-    Icon: ShieldCheck,
-    iconClass: 'bg-sky-100 text-sky-600',
-  },
-  {
-    title: 'Jurisdictions',
-    desc: '15 articles · Global legal frameworks',
-    Icon: Globe,
-    iconClass: 'bg-sky-100 text-sky-600',
-  },
-  {
-    title: 'Tokenization Setup',
-    desc: '10 articles · Technical configuration',
-    Icon: Hexagon,
-    iconClass: 'bg-violet-100 text-[#7C3AED]',
-  },
-  {
-    title: 'Investor Management',
-    desc: '7 articles · Cap table and KYC workflows',
-    Icon: TrendingUp,
-    iconClass: 'bg-emerald-100 text-emerald-600',
-  },
-  {
-    title: 'Documents & Legal',
-    desc: '9 articles · Legal document templates',
-    Icon: FileText,
-    iconClass: 'bg-amber-100 text-amber-600',
-  },
-];
+    {
+      title: 'Getting Started',
+      desc: '12 articles · Setup & onboarding guides',
+      Icon: Zap,
+      iconClass: 'bg-violet-100 text-[#7C3AED]',
+    },
+    {
+      title: 'Compliance & KYC',
+      desc: '8 articles · Regulatory requirements',
+      Icon: ShieldCheck,
+      iconClass: 'bg-sky-100 text-sky-600',
+    },
+    {
+      title: 'Jurisdictions',
+      desc: '15 articles · Global legal frameworks',
+      Icon: Globe,
+      iconClass: 'bg-sky-100 text-sky-600',
+    },
+    {
+      title: 'Tokenization Setup',
+      desc: '10 articles · Technical configuration',
+      Icon: Hexagon,
+      iconClass: 'bg-violet-100 text-[#7C3AED]',
+    },
+    {
+      title: 'Investor Management',
+      desc: '7 articles · Cap table and KYC workflows',
+      Icon: TrendingUp,
+      iconClass: 'bg-emerald-100 text-emerald-600',
+    },
+    {
+      title: 'Documents & Legal',
+      desc: '9 articles · Legal document templates',
+      Icon: FileText,
+      iconClass: 'bg-amber-100 text-amber-600',
+    },
+  ];
 
 const FAQS: { cat: FaqCategory; q: string; a: string }[] = [
   {
@@ -131,33 +131,33 @@ const CONTACT_OPTIONS: {
   iconClass: string;
   badge?: { text: string; className: string };
 }[] = [
-  {
-    label: 'Live Chat',
-    sub: 'Response within 5 minutes',
-    Icon: MessageSquare,
-    iconClass: 'bg-violet-100 text-[#7C3AED]',
-    badge: { text: 'Online', className: 'border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg' },
-  },
-  {
-    label: 'Email Support',
-    sub: 'support@maxtronize.com',
-    Icon: Mail,
-    iconClass: 'bg-sky-100 text-sky-600',
-    badge: { text: '24-48 Hours', className: 'border-ui-border bg-ui-muted-deep text-ui-muted-text' },
-  },
-  {
-    label: 'Schedule a Call',
-    sub: 'Book with your account manager',
-    Icon: Phone,
-    iconClass: 'bg-emerald-100 text-emerald-600',
-  },
-  {
-    label: 'Documentation',
-    sub: 'Full developer and legal documentation',
-    Icon: BookOpen,
-    iconClass: 'bg-amber-100 text-amber-600',
-  },
-];
+    {
+      label: 'Live Chat',
+      sub: 'Response within 5 minutes',
+      Icon: MessageSquare,
+      iconClass: 'bg-violet-100 text-[#7C3AED]',
+      badge: { text: 'Online', className: 'border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg' },
+    },
+    {
+      label: 'Email Support',
+      sub: 'support@maxtronize.com',
+      Icon: Mail,
+      iconClass: 'bg-sky-100 text-sky-600',
+      badge: { text: '24-48 Hours', className: 'border-ui-border bg-ui-muted-deep text-ui-muted-text' },
+    },
+    {
+      label: 'Schedule a Call',
+      sub: 'Book with your account manager',
+      Icon: Phone,
+      iconClass: 'bg-emerald-100 text-emerald-600',
+    },
+    {
+      label: 'Documentation',
+      sub: 'Full developer and legal documentation',
+      Icon: BookOpen,
+      iconClass: 'bg-amber-100 text-amber-600',
+    },
+  ];
 
 const TICKETS: {
   id: string;
@@ -166,28 +166,28 @@ const TICKETS: {
   time: string;
   status: 'open' | 'resolved';
 }[] = [
-  {
-    id: 'TKT-2041',
-    title: 'Investor onboarding delay — KYC verification',
-    priority: 'HIGH',
-    time: 'Updated 2 hours ago',
-    status: 'open',
-  },
-  {
-    id: 'TKT-2038',
-    title: 'Token distribution schedule query',
-    priority: 'MEDIUM',
-    time: 'Updated 1 day ago',
-    status: 'resolved',
-  },
-  {
-    id: 'TKT-2035',
-    title: 'SEC Regulation D filing documentation required',
-    priority: 'LOW',
-    time: 'Updated 3 days ago',
-    status: 'resolved',
-  },
-];
+    {
+      id: 'TKT-2041',
+      title: 'Investor onboarding delay — KYC verification',
+      priority: 'HIGH',
+      time: 'Updated 2 hours ago',
+      status: 'open',
+    },
+    {
+      id: 'TKT-2038',
+      title: 'Token distribution schedule query',
+      priority: 'MEDIUM',
+      time: 'Updated 1 day ago',
+      status: 'resolved',
+    },
+    {
+      id: 'TKT-2035',
+      title: 'SEC Regulation D filing documentation required',
+      priority: 'LOW',
+      time: 'Updated 3 days ago',
+      status: 'resolved',
+    },
+  ];
 
 const PRIORITY_STYLES: Record<string, string> = {
   HIGH: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300',
@@ -217,7 +217,7 @@ export default function HelpCenterPage() {
 
         {/* Hero search */}
         <div className="animate-slide-up delay-100 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E0A3C] via-[#2D1260] to-[#0F172A] p-5 text-center sm:rounded-3xl sm:p-8 md:px-10 md:py-12 xl:rounded-[32px] xl:px-12 xl:py-14">
-         
+
           <div
             className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#9810FA]/30 blur-[100px]"
             aria-hidden
@@ -339,7 +339,7 @@ export default function HelpCenterPage() {
           </div>
         </div>
 
-        {/* Contact + Tickets */}
+        {false && (
         <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-10">
           {/* Contact Support */}
           <div className="space-y-5">
@@ -403,11 +403,10 @@ export default function HelpCenterPage() {
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
                       <div
-                        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                          ticket.status === 'open'
-                            ? 'bg-amber-100 text-amber-600'
-                            : 'bg-emerald-100 text-emerald-600'
-                        }`}
+                        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${ticket.status === 'open'
+                          ? 'bg-amber-100 text-amber-600'
+                          : 'bg-emerald-100 text-emerald-600'
+                          }`}
                       >
                         {ticket.status === 'open' ? (
                           <Clock className="h-4 w-4" strokeWidth={iconStroke} />
@@ -459,7 +458,10 @@ export default function HelpCenterPage() {
             </div>
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+        )}
+
+
+    </div>
+    </DashboardLayout >
   );
 }

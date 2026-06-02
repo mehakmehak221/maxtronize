@@ -460,12 +460,11 @@ export default function IssuerPortfolioPage() {
                       </span>
                     </div>
                   ) : null}
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white flex items-center justify-between px-3 py-2 rounded-b-lg">
-                    <h3 className="text-sm font-medium leading-tight">{asset.name}</h3>
-                    <p className="flex items-center gap-1.5 text-xs">
-                      <Globe2 className="h-3 w-3" strokeWidth={2} aria-hidden />
-                      <span className="line-clamp-2">{asset.location} · {asset.compliance}</span>
-                    </p>
+                  <div className="absolute bottom-3 left-3">
+                    <div className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-md">
+                      <Globe2 className="h-3.5 w-3.5 shrink-0 text-gray-500" strokeWidth={2} aria-hidden />
+                      <span className="text-xs font-semibold text-gray-800 max-w-[160px] truncate">{asset.location}</span>
+                    </div>
                   </div>
                 </MarketplaceAssetCover>
 

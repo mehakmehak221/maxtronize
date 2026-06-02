@@ -424,29 +424,29 @@ export function HubDistributionsTab() {
                     key={row.id}
                     className="transition-colors hover:bg-surface"
                   >
-                    <td className="min-w-0 break-words px-3 py-3 text-base font-semibold text-foreground sm:px-6 sm:py-4">
+                    <td className="min-w-0 break-words px-3 py-3 text-sm font-semibold text-foreground sm:px-6 sm:py-4">
                       {row.frequencyLabel}
                     </td>
                     <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
                       <div className="flex flex-col">
-                        <span className="text-base font-bold text-primary">
+                        <span className="text-sm font-bold text-primary">
                           {row.assetTitle}
                         </span>
-                        <span className="text-base text-text-muted">
+                        <span className="text-xs text-text-muted">
                           {row.ticker}
                         </span>
                       </div>
                     </td>
-                    <td className="min-w-0 break-words px-3 py-3 text-base text-text-muted sm:px-6 sm:py-4">
+                    <td className="min-w-0 break-words px-3 py-3 text-xs text-text-muted sm:px-6 sm:py-4">
                       {row.payoutType}
                     </td>
-                    <td className="min-w-0 px-3 py-3 text-base font-bold text-foreground sm:px-6 sm:py-4">
+                    <td className="min-w-0 px-3 py-3 text-sm font-bold text-foreground sm:px-6 sm:py-4">
                       {amountFormatted}
                     </td>
-                    <td className="min-w-0 px-3 py-3 text-base text-text-muted sm:px-6 sm:py-4">
+                    <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
                       {row.investorCount}
                     </td>
-                    <td className="min-w-0 px-3 py-3 text-base text-text-muted sm:px-6 sm:py-4">
+                    <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
                       {formattedDate}
                     </td>
                     <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">

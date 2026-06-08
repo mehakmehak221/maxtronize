@@ -349,7 +349,12 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                                 <input
                                   name="country"
                                   value={formData.country}
-                                  onChange={handleInputChange}
+                                  onChange={(e) =>
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      country: e.target.value.replace(/[^a-zA-ZÀ-ÿ\s'\-\.]/g, ""),
+                                    }))
+                                  }
                                   placeholder="United States"
                                   className="w-full px-4 py-3 bg-[var(--field-surface)] border border-[var(--dashboard-border)] rounded-xl focus:border-[var(--primary)] focus:outline-none text-[var(--color-text-primary)]"
                                 />
@@ -359,7 +364,12 @@ const IssuingFormModal = ({ isOpen, onClose }: IssuingFormModalProps) => {
                                 <input
                                   name="city"
                                   value={formData.city}
-                                  onChange={handleInputChange}
+                                  onChange={(e) =>
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      city: e.target.value.replace(/[^a-zA-ZÀ-ÿ\s'\-\.]/g, ""),
+                                    }))
+                                  }
                                   placeholder="New York"
                                   className="w-full px-4 py-3 bg-[var(--field-surface)] border border-[var(--dashboard-border)] rounded-xl focus:border-[var(--primary)] focus:outline-none text-[var(--color-text-primary)]"
                                 />

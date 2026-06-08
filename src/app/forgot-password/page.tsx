@@ -53,10 +53,23 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setFormError(null);
     setSuccessMessage(null);
+    const trimmedOtp = otp.trim();
+    if (!trimmedOtp) {
+      setFormError("Please enter the OTP sent to your email.");
+      return;
+    }
+    if (trimmedOtp.length !== 6) {
+      setFormError("OTP must be exactly 6 digits.");
+      return;
+    }
+    if (/\s/.test(trimmedOtp)) {
+      setFormError("OTP cannot contain spaces.");
+      return;
+    }
     try {
       const result = await verifyOtp({
         email: email.trim(),
-        otp: otp.trim(),
+        otp: trimmedOtp,
       }).unwrap();
       const message =
         result &&
@@ -238,7 +251,7 @@ export default function ForgotPasswordPage() {
                 required
                 type="password"
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={(e) => setNewPassword(e.target.value.replace(/\s/g, ""))}
                 autoComplete="new-password"
                 minLength={8}
                 placeholder="Create a new password"

@@ -33,14 +33,21 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const countryRegex = /^[a-zA-ZÀ-ÿ\s'\-\.]+$/;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
     setSuccess(null);
+    const trimmedCountry = country.trim();
+    if (trimmedCountry && !countryRegex.test(trimmedCountry)) {
+      setFormError("Country name can only contain letters, spaces, hyphens, apostrophes, and periods.");
+      return;
+    }
     try {
       await updateProfile({
         fullName: fullName.trim() || undefined,
-        country: country.trim() || undefined,
+        country: trimmedCountry || undefined,
       }).unwrap();
       setSuccess("Profile updated successfully.");
     } catch (err) {
@@ -98,7 +105,9 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
         <input
           type="text"
           value={country}
-          onChange={(e) => setCountry(e.target.value)}
+          onChange={(e) =>
+            setCountry(e.target.value.replace(/[^a-zA-ZÀ-ÿ\s'\-\.]/g, ""))
+          }
           className={inputClass}
           placeholder="United States"
         />

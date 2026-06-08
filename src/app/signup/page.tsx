@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthLayout from "@/components/AuthLayout";
 import { formatRequestError } from "@/lib/formatRequestError";
 import { uiPersonaToApiRole } from "@/lib/authUi";
@@ -18,16 +18,45 @@ export default function SignUpPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
   const [sendOtp, { isLoading: isSendingOtp }] = useSendOtpMutation();
   const [verifyOtp, { isLoading: isVerifyingOtp }] = useVerifyOtpMutation();
 
-  async function handleSendOtp(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSendOtp(e?: React.FormEvent) {
+    if (e) e.preventDefault();
     setFormError(null);
-    const fullName = `${firstName} ${lastName}`.trim();
-    if (!fullName) {
-      setFormError("Please enter your name.");
+
+    const cleanFirstName = firstName.trim();
+    const cleanLastName = lastName.trim();
+
+    if (!cleanFirstName || !cleanLastName) {
+      setFormError("Please enter both your first and last name.");
+      return;
+    }
+
+    const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
+    if (!nameRegex.test(cleanFirstName)) {
+      setFormError("First name can only contain letters, spaces, hyphens, and apostrophes.");
+      return;
+    }
+    if (!nameRegex.test(cleanLastName)) {
+      setFormError("Last name can only contain letters, spaces, hyphens, and apostrophes.");
+      return;
+    }
+
+    const fullName = `${cleanFirstName} ${cleanLastName}`;
+    // Validate password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setFormError("Password must be at least 8 characters, include uppercase, lowercase, number, and special character.");
       return;
     }
     try {
@@ -38,6 +67,7 @@ export default function SignUpPage() {
         role: uiPersonaToApiRole(role),
       }).unwrap();
       setOtpSent(true);
+      setResendCooldown(60);
     } catch (err) {
       setFormError(formatRequestError(err));
     }
@@ -46,14 +76,23 @@ export default function SignUpPage() {
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
-    if (!otp.trim()) {
+    const trimmedOtp = otp.trim();
+    if (!trimmedOtp) {
       setFormError("Please enter the OTP sent to your email.");
+      return;
+    }
+    if (trimmedOtp.length !== 6) {
+      setFormError("OTP must be exactly 6 digits.");
+      return;
+    }
+    if (/\s/.test(trimmedOtp)) {
+      setFormError("OTP cannot contain spaces.");
       return;
     }
     try {
       await verifyOtp({
         email: email.trim(),
-        otp: otp.trim(),
+        otp: trimmedOtp,
       }).unwrap();
       router.push("/setup-profile");
     } catch (err) {
@@ -71,8 +110,9 @@ export default function SignUpPage() {
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
+              disabled={otpSent}
               onClick={() => setRole("issuer")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${otpSent ? "opacity-60 cursor-not-allowed" : ""} ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -92,8 +132,9 @@ export default function SignUpPage() {
             </button>
             <button
               type="button"
+              disabled={otpSent}
               onClick={() => setRole("investor")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${otpSent ? "opacity-60 cursor-not-allowed" : ""} ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -183,7 +224,7 @@ export default function SignUpPage() {
                     required
                     type={passwordVisible ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
                     autoComplete="new-password"
                     minLength={8}
                     placeholder="Create a strong password"
@@ -241,21 +282,69 @@ export default function SignUpPage() {
           )}
 
           {otpSent && (
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
-                Enter OTP
-              </label>
-              <input
-                required
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                autoComplete="one-time-code"
-                placeholder="Enter 6-digit OTP"
-                maxLength={6}
-                className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20 text-center tracking-widest"
-              />
-              <p className="text-base text-[#9CA3AF]">OTP sent to {email}</p>
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setOtpSent(false);
+                  setOtp("");
+                  setFormError(null);
+                  setResendCooldown(0);
+                }}
+                className="flex items-center gap-1.5 text-base font-bold text-[#6B7280] transition-colors hover:text-[#7C3AED]"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Back
+              </button>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                  Enter OTP
+                </label>
+                <input
+                  required
+                  type="text"
+                  inputMode="numeric"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                  autoComplete="one-time-code"
+                  placeholder="Enter 6-digit OTP"
+                  maxLength={6}
+                  className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20 text-center tracking-widest"
+                />
+                <p className="text-base text-[#9CA3AF]">OTP sent to {email}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 text-base">
+                  <span className="text-[#9CA3AF]">
+                    OTP is valid for 30 minutes.
+                  </span>
+                  <button
+                    type="button"
+                    disabled={resendCooldown > 0 || isSendingOtp}
+                    onClick={() => handleSendOtp()}
+                    className={`font-bold transition-all text-left ${
+                      resendCooldown > 0 || isSendingOtp
+                        ? "text-[#9CA3AF] cursor-not-allowed"
+                        : "text-[#7C3AED] hover:underline"
+                    }`}
+                  >
+                    {resendCooldown > 0
+                      ? `Resend OTP in ${resendCooldown}s`
+                      : "Resend OTP"}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 

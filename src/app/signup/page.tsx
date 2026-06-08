@@ -170,7 +170,7 @@ export default function SignUpPage() {
           {!otpSent && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                     First Name
                   </label>
@@ -184,7 +184,7 @@ export default function SignUpPage() {
                     className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                     Last Name
                   </label>
@@ -200,7 +200,7 @@ export default function SignUpPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                   Work Email
                 </label>
@@ -215,7 +215,7 @@ export default function SignUpPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                   Password
                 </label>

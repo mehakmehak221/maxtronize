@@ -6,6 +6,8 @@ import AuthLayout from "@/components/AuthLayout";
 import { formatRequestError } from "@/lib/formatRequestError";
 import { uiPersonaToApiRole } from "@/lib/authUi";
 import { useSendOtpMutation, useVerifyOtpMutation } from "@/store/api/authApi";
+import { LoadingSpinner } from "@/app/components/VectorImages";
+import toast from "react-hot-toast";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -69,7 +71,20 @@ export default function SignUpPage() {
       setOtpSent(true);
       setResendCooldown(60);
     } catch (err) {
-      setFormError(formatRequestError(err));
+      const apiErr = err as { status?: number; data?: Record<string, unknown> };
+      const message = formatRequestError(err);
+
+      if (
+        apiErr?.status === 409 ||
+        message.toLowerCase().includes("already") ||
+        message.toLowerCase().includes("please wait before requesting another otp")
+      ) {
+        setFormError(
+          "This email is already registered. Please sign in instead."
+        );
+      } else {
+        setFormError(message);
+      }
     }
   }
 
@@ -94,6 +109,7 @@ export default function SignUpPage() {
         email: email.trim(),
         otp: trimmedOtp,
       }).unwrap();
+      toast.success("Account created successfully!");
       router.push("/setup-profile");
     } catch (err) {
       setFormError(formatRequestError(err));
@@ -112,7 +128,7 @@ export default function SignUpPage() {
               type="button"
               disabled={otpSent}
               onClick={() => setRole("issuer")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${otpSent ? "opacity-60 cursor-not-allowed" : ""} ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 ${otpSent ? "opacity-60 cursor-not-allowed" : "hover:-translate-y-0.5"} ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -134,7 +150,7 @@ export default function SignUpPage() {
               type="button"
               disabled={otpSent}
               onClick={() => setRole("investor")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${otpSent ? "opacity-60 cursor-not-allowed" : ""} ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 ${otpSent ? "opacity-60 cursor-not-allowed" : "hover:-translate-y-0.5"} ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -236,7 +252,7 @@ export default function SignUpPage() {
                     aria-label={
                       passwordVisible ? "Hide password" : "Show password"
                     }
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-gray-200/60 transition-all duration-200"
                   >
                     {passwordVisible ? (
                       <svg
@@ -353,6 +369,9 @@ export default function SignUpPage() {
             disabled={isSendingOtp || isVerifyingOtp}
             className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-base group disabled:opacity-60"
           >
+            {(isSendingOtp || isVerifyingOtp) && (
+              <LoadingSpinner className="h-5 w-5" color="white" />
+            )}
             {isSendingOtp
               ? "Sending OTP…"
               : isVerifyingOtp
@@ -360,19 +379,21 @@ export default function SignUpPage() {
                 : otpSent
                   ? "Verify & Create Account"
                   : "Send OTP"}
-            <svg
-              className="w-4 h-4 transition-transform group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
+            {!isSendingOtp && !isVerifyingOtp && (
+              <svg
+                className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            )}
           </button>
         </form>
 

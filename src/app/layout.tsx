@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 
 import { StoreProvider } from "@/components/StoreProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "react-hot-toast";
 
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans transition-colors duration-300 selection:bg-primary/20 selection:text-foreground">
         <StoreProvider>
           <ThemeProvider>
+            <Toaster position="top-right" />
             <div className="motion-app-mount flex min-h-full flex-1 flex-col">{children}</div>
           </ThemeProvider>
         </StoreProvider>

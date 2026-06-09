@@ -10,6 +10,8 @@ import {
   useResetPasswordMutation,
   useVerifyForgotPasswordOtpMutation,
 } from "@/store/api/authApi";
+import { LoadingSpinner } from "@/app/components/VectorImages";
+import toast from "react-hot-toast";
 
 type Step = "email" | "otp" | "password";
 
@@ -95,6 +97,7 @@ export default function ForgotPasswordPage() {
         otp: otp.trim(),
         newPassword,
       }).unwrap();
+      toast.success("Password reset successfully!");
       router.replace("/signin?reset=1");
     } catch (err) {
       setFormError(formatRequestError(err));
@@ -183,21 +186,26 @@ export default function ForgotPasswordPage() {
               disabled={busy}
               className="btn-gradient-primary group flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 disabled:opacity-60"
             >
+              {sending && (
+                <LoadingSpinner className="h-5 w-5" color="white" />
+              )}
               {sending ? "Sending…" : "Send reset code"}
-              <svg
-                className="h-4 w-4 transition-transform group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
+              {!sending && (
+                <svg
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              )}
             </button>
           </form>
         )}
@@ -225,6 +233,9 @@ export default function ForgotPasswordPage() {
               disabled={busy}
               className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
             >
+              {verifying && (
+                <LoadingSpinner className="h-5 w-5" color="white" />
+              )}
               {verifying ? "Verifying…" : "Verify code"}
             </button>
             <button
@@ -263,6 +274,9 @@ export default function ForgotPasswordPage() {
               disabled={busy}
               className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
             >
+              {resetting && (
+                <LoadingSpinner className="h-5 w-5" color="white" />
+              )}
               {resetting ? "Saving…" : "Update password"}
             </button>
           </form>

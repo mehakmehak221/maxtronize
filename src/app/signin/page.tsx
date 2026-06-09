@@ -9,6 +9,8 @@ import { uiPersonaToApiRole } from "@/lib/authUi";
 import { getPostAuthRedirect } from "@/lib/authSession";
 import { useLoginMutation } from "@/store/api/authApi";
 import { useAppDispatch } from "@/store/hooks";
+import { LoadingSpinner } from "@/app/components/VectorImages";
+import toast from "react-hot-toast";
 
 function SignInContent() {
   const router = useRouter();
@@ -32,6 +34,7 @@ function SignInContent() {
         password,
         role: uiPersonaToApiRole(role),
       }).unwrap();
+      toast.success("Signed in successfully!");
       const path = await getPostAuthRedirect(dispatch, data, role);
       router.push(path);
     } catch (err) {
@@ -50,7 +53,7 @@ function SignInContent() {
             <button
               type="button"
               onClick={() => setRole("issuer")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -71,7 +74,7 @@ function SignInContent() {
             <button
               type="button"
               onClick={() => setRole("investor")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -148,7 +151,7 @@ function SignInContent() {
                 type="button"
                 onClick={() => setPasswordVisible((v) => !v)}
                 aria-label={passwordVisible ? "Hide password" : "Show password"}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-gray-200/60 transition-all duration-200"
               >
                 {passwordVisible ? (
                   <svg
@@ -217,20 +220,25 @@ function SignInContent() {
             disabled={isLoading}
             className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-base group disabled:opacity-60"
           >
+            {isLoading && (
+              <LoadingSpinner className="h-5 w-5" color="white" />
+            )}
             {isLoading ? "Signing in…" : "Sign In to Platform"}
-            <svg
-              className="w-4 h-4 transition-transform group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
+            {!isLoading && (
+              <svg
+                className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            )}
           </button>
         </form>
 

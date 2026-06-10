@@ -222,7 +222,7 @@ export default function ForgotPasswordPage() {
         {step === "email" && (
           <form className="space-y-6" onSubmit={handleEmailSubmit}>
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+              <label className="block text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563] mb-1">
                 Work Email
               </label>
               <input
@@ -267,7 +267,7 @@ export default function ForgotPasswordPage() {
         {step === "otp" && (
           <form className="space-y-6" onSubmit={handleOtpSubmit}>
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+              <label className="block text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563] mb-1">
                 One-time code
               </label>
               <input
@@ -330,7 +330,7 @@ export default function ForgotPasswordPage() {
         {step === "password" && (
           <form className="space-y-6" onSubmit={handlePasswordSubmit}>
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
+              <label className="block text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563] mb-1">
                 New password
               </label>
               <div className="relative">

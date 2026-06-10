@@ -203,7 +203,7 @@ export default function SignUpPage() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-3">
-                  <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                  <label className="block text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-1">
                     First Name
                   </label>
                   <input
@@ -225,7 +225,7 @@ export default function SignUpPage() {
                   )}
                 </div>
                 <div className="space-y-3">
-                  <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                  <label className="block text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-1">
                     Last Name
                   </label>
                   <input
@@ -249,7 +249,7 @@ export default function SignUpPage() {
               </div>
 
               <div className="space-y-3">
-                <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                <label className="block text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-1">
                   Work Email
                 </label>
                 <input
@@ -272,7 +272,7 @@ export default function SignUpPage() {
               </div>
 
               <div className="space-y-3">
-                <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+                <label className="block text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-1">
                   Password
                 </label>
                 <div className="relative">

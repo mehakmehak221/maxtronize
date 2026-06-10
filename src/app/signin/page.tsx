@@ -140,7 +140,7 @@ function SignInContent() {
 
         <form className="space-y-6" onSubmit={handleSubmit} noValidate>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+            <label className="block text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-1">
               Work Email
             </label>
             <input
@@ -161,7 +161,7 @@ function SignInContent() {
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
+              <label className="block text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-1">
                 Password
               </label>
               <Link

@@ -179,7 +179,7 @@ export default function ForgotPasswordPage() {
           <button
             type="button"
             onClick={() => router.push("/signin")}
-            className="mb-4 flex items-center gap-1.5 text-base font-bold text-[#6B7280] transition-colors hover:text-[#7C3AED]"
+            className="mb-4 flex items-center gap-1.5 text-base font-bold text-[#6B7280] transition-colors hover:text-[#7C3AED] cursor-pointer"
           >
             <svg
               className="h-4 w-4"
@@ -238,7 +238,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary group flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 disabled:opacity-60"
+              className="btn-gradient-primary group flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 hover:opacity-90 disabled:opacity-60 cursor-pointer"
             >
               {sending && (
                 <LoadingSpinner className="h-5 w-5" color="white" />
@@ -291,7 +291,7 @@ export default function ForgotPasswordPage() {
                   className={`font-bold transition-all text-left ${
                     resendCooldown > 0 || sending
                       ? "text-[#9CA3AF] cursor-not-allowed"
-                      : "text-[#7C3AED] hover:underline"
+                      : "text-[#7C3AED] hover:underline cursor-pointer"
                   }`}
                 >
                   {sending
@@ -305,7 +305,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
+              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 hover:opacity-90 cursor-pointer"
             >
               {verifying && (
                 <LoadingSpinner className="h-5 w-5" color="white" />
@@ -314,7 +314,7 @@ export default function ForgotPasswordPage() {
             </button>
             <button
               type="button"
-              className="w-full text-base font-semibold text-[#7C3AED] hover:underline"
+              className="w-full text-base font-semibold text-[#7C3AED] hover:underline cursor-pointer"
               onClick={() => {
                 setStep("email");
                 setFormError(null);
@@ -348,7 +348,7 @@ export default function ForgotPasswordPage() {
                   type="button"
                   onClick={() => setPasswordVisible((v) => !v)}
                   aria-label={passwordVisible ? "Hide password" : "Show password"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-gray-200/60 transition-all duration-200"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-gray-200/60 transition-all duration-200 cursor-pointer hover:opacity-80"
                 >
                   {passwordVisible ? (
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -367,7 +367,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60"
+              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 hover:opacity-90 cursor-pointer"
             >
               {resetting && (
                 <LoadingSpinner className="h-5 w-5" color="white" />

@@ -8,7 +8,7 @@ import type { AppDispatch } from "@/store/store";
 
 export function syncSessionFromAuthResponse(
   payload: unknown,
-  fallback?: { email?: string; role?: AuthRole },
+  fallback?: { email?: string; role?: AuthRole; rememberMe?: boolean },
 ): UserRole | null {
   const token = extractAccessToken(payload);
   const parsed = parseAuthUser(payload);
@@ -22,6 +22,7 @@ export function syncSessionFromAuthResponse(
       role,
       email,
       ...(token ? { token } : {}),
+      rememberMe: fallback?.rememberMe,
     });
   }
 

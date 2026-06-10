@@ -16,6 +16,7 @@ export type LoginRequest = {
   email: string;
   password: string;
   role: AuthRole;
+  rememberMe?: boolean;
 };
 
 export type ForgotPasswordRequest = {

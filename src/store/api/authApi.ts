@@ -55,18 +55,22 @@ export const authApi = baseApi.injectEndpoints({
       },
     }),
     login: build.mutation<unknown, LoginRequest>({
-      query: (body) => ({
-        url: "/auth/login",
-        method: "POST",
-        body,
-      }),
+      query: (body) => {
+        const { rememberMe, ...apiBody } = body;
+        return {
+          url: "/auth/login",
+          method: "POST",
+          body: apiBody,
+        };
+      },
       async onQueryStarted(arg, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          persistAccessToken(data);
+          persistAccessToken(data, arg.rememberMe);
           syncSessionFromAuthResponse(data, {
             email: arg.email,
             role: arg.role,
+            rememberMe: arg.rememberMe,
           });
         } catch {
           /* handled by caller */

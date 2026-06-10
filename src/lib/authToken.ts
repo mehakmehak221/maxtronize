@@ -55,10 +55,11 @@ export function isValidAccessToken(token: string | null | undefined): token is s
   return Boolean(token && token.trim() && token !== "demo-session");
 }
 
-export function persistAccessToken(payload: unknown): boolean {
+export function persistAccessToken(payload: unknown, rememberMe: boolean = true): boolean {
   const token = extractAccessToken(payload);
   if (isValidAccessToken(token) && typeof window !== "undefined") {
-    window.localStorage.setItem("access_token", token);
+    const storage = rememberMe ? window.localStorage : window.sessionStorage;
+    storage.setItem("access_token", token);
     return true;
   }
   return false;
@@ -67,20 +68,22 @@ export function persistAccessToken(payload: unknown): boolean {
 export function clearAccessToken(): void {
   if (typeof window !== "undefined") {
     window.localStorage.removeItem("access_token");
+    window.sessionStorage.removeItem("access_token");
   }
 }
 
 export function getStoredAccessToken(): string | null {
   if (typeof window === "undefined") return null;
-  const token = window.localStorage.getItem("access_token");
+  const token = window.localStorage.getItem("access_token") || window.sessionStorage.getItem("access_token");
   return isValidAccessToken(token) ? token : null;
 }
 
 /** Removes legacy demo placeholder so API calls are not sent with a fake token. */
 export function sanitizeStaleAccessToken(): void {
   if (typeof window === "undefined") return;
-  const token = window.localStorage.getItem("access_token");
+  const token = getStoredAccessToken();
   if (token === "demo-session") {
     window.localStorage.removeItem("access_token");
+    window.sessionStorage.removeItem("access_token");
   }
 }

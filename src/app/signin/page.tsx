@@ -23,6 +23,7 @@ function SignInContent() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
@@ -60,6 +61,7 @@ function SignInContent() {
         email: trimmedEmail,
         password,
         role: uiPersonaToApiRole(role),
+        rememberMe,
       }).unwrap();
       toast.success("Signed in successfully!");
       const path = await getPostAuthRedirect(dispatch, data, role);
@@ -80,7 +82,7 @@ function SignInContent() {
             <button
               type="button"
               onClick={() => setRole("issuer")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 cursor-pointer ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm hover:opacity-80" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -101,7 +103,7 @@ function SignInContent() {
             <button
               type="button"
               onClick={() => setRole("investor")}
-              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
+              className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 cursor-pointer ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm hover:opacity-80" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
             >
               <div className="w-8 h-8 mb-2">
                 <svg
@@ -147,11 +149,10 @@ function SignInContent() {
               onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
               autoComplete="email"
               placeholder="alex@maxtronize.com"
-              className={`w-full px-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20 ${
-                emailError
-                  ? "border-red-400 focus:border-red-400"
-                  : "border-[#E5E7EB] focus:border-[#C084FC]"
-              }`}
+              className={`w-full px-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20 ${emailError
+                ? "border-red-400 focus:border-red-400"
+                : "border-[#E5E7EB] focus:border-[#C084FC]"
+                }`}
             />
             {emailError && (
               <p className="text-xs text-red-600 mt-1" role="alert">{emailError}</p>
@@ -177,17 +178,16 @@ function SignInContent() {
                 onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
                 placeholder="Enter your password"
                 autoComplete="current-password"
-                className={`w-full px-5 py-4 pr-12 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20 ${
-                  passwordError
-                    ? "border-red-400 focus:border-red-400"
-                    : "border-[#E5E7EB] focus:border-[#C084FC]"
-                }`}
+                className={`w-full px-5 py-4 pr-12 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20 ${passwordError
+                  ? "border-red-400 focus:border-red-400"
+                  : "border-[#E5E7EB] focus:border-[#C084FC]"
+                  }`}
               />
               <button
                 type="button"
                 onClick={() => setPasswordVisible((v) => !v)}
                 aria-label={passwordVisible ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-gray-200/60 transition-all duration-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-gray-200/60 transition-all duration-200 cursor-pointer hover:opacity-80"
               >
                 {passwordVisible ? (
                   <svg
@@ -233,23 +233,34 @@ function SignInContent() {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-5 h-5 rounded bg-[#7C3AED] shadow-sm">
-              <svg
-                className="w-3.5 h-3.5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="4"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+          <div
+            className="flex items-center gap-3 cursor-pointer group w-fit"
+            onClick={() => setRememberMe(!rememberMe)}
+          >
+            <div
+              className={`flex items-center justify-center w-5 h-5 rounded shadow-sm transition-colors ${
+                rememberMe
+                  ? "bg-[#7C3AED]"
+                  : "bg-white border-2 border-[#E5E7EB] group-hover:border-[#C084FC]"
+              }`}
+            >
+              {rememberMe && (
+                <svg
+                  className="w-3.5 h-3.5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="4"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
             </div>
-            <span className="text-base font-medium text-[#9CA3AF]">
+            <span className="text-base font-medium text-[#4B5563] group-hover:text-[#111827] transition-colors">
               Remember me for 30 days
             </span>
           </div>
@@ -257,7 +268,7 @@ function SignInContent() {
           <button
             type="submit"
             disabled={isLoading}
-            className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 transition-all flex items-center justify-center gap-2 text-base group disabled:opacity-60"
+            className="btn-gradient-primary w-full py-4 text-white font-bold rounded-xl shadow-lg shadow-[#8B5CF6]/25 hover:shadow-xl hover:shadow-[#6366F1]/30 hover:opacity-90 transition-all flex items-center justify-center gap-2 text-base group disabled:opacity-60 cursor-pointer"
           >
             {isLoading && (
               <LoadingSpinner className="h-5 w-5" color="white" />

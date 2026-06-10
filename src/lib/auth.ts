@@ -11,29 +11,38 @@ export function signIn({
   role,
   email,
   token,
+  rememberMe = true,
 }: {
   role: UserRole;
   email?: string;
   token?: string;
+  rememberMe?: boolean;
 }) {
   if (typeof window === "undefined") return;
 
+  const storage = rememberMe ? window.localStorage : window.sessionStorage;
+
   if (token && token !== "demo-session") {
-    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    storage.setItem(ACCESS_TOKEN_KEY, token);
   }
-  localStorage.setItem(ROLE_KEY, role);
+  storage.setItem(ROLE_KEY, role);
   if (email) {
-    localStorage.setItem(EMAIL_KEY, email);
+    storage.setItem(EMAIL_KEY, email);
   }
 
-  document.cookie = `${SESSION_COOKIE}=${role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+  if (rememberMe) {
+    document.cookie = `${SESSION_COOKIE}=${role}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+  } else {
+    document.cookie = `${SESSION_COOKIE}=${role}; path=/; SameSite=Lax`;
+  }
 }
 
 export function signOut() {
   if (typeof window === "undefined") return;
 
   for (const key of STORAGE_KEYS) {
-    localStorage.removeItem(key);
+    window.localStorage.removeItem(key);
+    window.sessionStorage.removeItem(key);
   }
 
   document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
@@ -41,9 +50,9 @@ export function signOut() {
 
 export function isAuthenticated(): boolean {
   if (typeof window === "undefined") return false;
-  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  const token = window.localStorage.getItem(ACCESS_TOKEN_KEY) || window.sessionStorage.getItem(ACCESS_TOKEN_KEY);
   if (token && token !== "demo-session") return true;
-  const role = localStorage.getItem(ROLE_KEY);
+  const role = window.localStorage.getItem(ROLE_KEY) || window.sessionStorage.getItem(ROLE_KEY);
   return role === "issuer" || role === "investor";
 }
 
@@ -52,8 +61,8 @@ export function getSession(): { role: UserRole | null; email: string | null } {
     return { role: null, email: null };
   }
 
-  const role = localStorage.getItem(ROLE_KEY) as UserRole | null;
-  const email = localStorage.getItem(EMAIL_KEY);
+  const role = (window.localStorage.getItem(ROLE_KEY) || window.sessionStorage.getItem(ROLE_KEY)) as UserRole | null;
+  const email = window.localStorage.getItem(EMAIL_KEY) || window.sessionStorage.getItem(EMAIL_KEY);
 
   return {
     role: role === "issuer" || role === "investor" ? role : null,

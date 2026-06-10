@@ -17,7 +17,12 @@ export default function SignUpPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
+  const [firstNameError, setFirstNameError] = useState<string | null>(null);
+  const [lastNameError, setLastNameError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -34,37 +39,45 @@ export default function SignUpPage() {
 
   async function handleSendOtp(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    setFormError(null);
+    setApiError(null);
 
     const cleanFirstName = firstName.trim();
     const cleanLastName = lastName.trim();
+    const cleanEmail = email.trim();
 
-    if (!cleanFirstName || !cleanLastName) {
-      setFormError("Please enter both your first and last name.");
-      return;
-    }
+    let fnErr: string | null = null;
+    let lnErr: string | null = null;
+    let emailErr: string | null = null;
+    let pwErr: string | null = null;
 
     const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
-    if (!nameRegex.test(cleanFirstName)) {
-      setFormError("First name can only contain letters, spaces, hyphens, and apostrophes.");
-      return;
-    }
-    if (!nameRegex.test(cleanLastName)) {
-      setFormError("Last name can only contain letters, spaces, hyphens, and apostrophes.");
-      return;
-    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+
+    if (!cleanFirstName) fnErr = "Please enter your first name.";
+    else if (!nameRegex.test(cleanFirstName)) fnErr = "Letters, spaces, hyphens, and apostrophes only.";
+
+    if (!cleanLastName) lnErr = "Please enter your last name.";
+    else if (!nameRegex.test(cleanLastName)) lnErr = "Letters, spaces, hyphens, and apostrophes only.";
+
+    if (!cleanEmail) emailErr = "Please enter your email address.";
+    else if (!emailRegex.test(cleanEmail)) emailErr = "Please enter a valid email address.";
+
+    if (!password) pwErr = "Please enter your password.";
+    else if (!passwordRegex.test(password)) pwErr = "Password must be at least 8 characters, include uppercase, lowercase, number, and special character.";
+
+    setFirstNameError(fnErr);
+    setLastNameError(lnErr);
+    setEmailError(emailErr);
+    setPasswordError(pwErr);
+
+    if (fnErr || lnErr || emailErr || pwErr) return;
 
     const fullName = `${cleanFirstName} ${cleanLastName}`;
-    // Validate password strength
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      setFormError("Password must be at least 8 characters, include uppercase, lowercase, number, and special character.");
-      return;
-    }
     try {
       await sendOtp({
         fullName,
-        email: email.trim(),
+        email: cleanEmail,
         password,
         role: uiPersonaToApiRole(role),
       }).unwrap();
@@ -79,31 +92,33 @@ export default function SignUpPage() {
         message.toLowerCase().includes("already") ||
         message.toLowerCase().includes("please wait before requesting another otp")
       ) {
-        setFormError(
+        setApiError(
           "This email is already registered. Please sign in instead."
         );
       } else {
-        setFormError(message);
+        setApiError(message);
       }
     }
   }
 
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
-    setFormError(null);
+    setApiError(null);
     const trimmedOtp = otp.trim();
+    let otpErr: string | null = null;
+
     if (!trimmedOtp) {
-      setFormError("Please enter the OTP sent to your email.");
-      return;
+      otpErr = "Please enter the OTP sent to your email.";
+    } else if (trimmedOtp.length !== 6) {
+      otpErr = "OTP must be exactly 6 digits.";
+    } else if (/\s/.test(trimmedOtp)) {
+      otpErr = "OTP cannot contain spaces.";
     }
-    if (trimmedOtp.length !== 6) {
-      setFormError("OTP must be exactly 6 digits.");
-      return;
-    }
-    if (/\s/.test(trimmedOtp)) {
-      setFormError("OTP cannot contain spaces.");
-      return;
-    }
+
+    setOtpError(otpErr);
+
+    if (otpErr) return;
+
     try {
       await verifyOtp({
         email: email.trim(),
@@ -112,7 +127,7 @@ export default function SignUpPage() {
       toast.success("Account created successfully!");
       router.push("/setup-profile");
     } catch (err) {
-      setFormError(formatRequestError(err));
+      setApiError(formatRequestError(err));
     }
   }
 
@@ -170,17 +185,18 @@ export default function SignUpPage() {
           </div>
         </div>
 
-        {formError && (
+        {apiError && (
           <p
             className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700"
             role="alert"
           >
-            {formError}
+            {apiError}
           </p>
         )}
 
         <form
           className="space-y-6"
+          noValidate
           onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}
         >
           {!otpSent && (
@@ -191,28 +207,44 @@ export default function SignUpPage() {
                     First Name
                   </label>
                   <input
-                    required
                     type="text"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      if (firstNameError) setFirstNameError(null);
+                    }}
                     autoComplete="given-name"
                     placeholder="Alex"
-                    className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                    className={`w-full px-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 ${firstNameError
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-[#E5E7EB] focus:border-[#C084FC] focus:ring-[#8B5CF6]/20"
+                      }`}
                   />
+                  {firstNameError && (
+                    <p className="text-xs text-red-600 mt-1" role="alert">{firstNameError}</p>
+                  )}
                 </div>
                 <div className="space-y-3">
                   <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
                     Last Name
                   </label>
                   <input
-                    required
                     type="text"
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                      if (lastNameError) setLastNameError(null);
+                    }}
                     autoComplete="family-name"
                     placeholder="Chen"
-                    className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                    className={`w-full px-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 ${lastNameError
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-[#E5E7EB] focus:border-[#C084FC] focus:ring-[#8B5CF6]/20"
+                      }`}
                   />
+                  {lastNameError && (
+                    <p className="text-xs text-red-600 mt-1" role="alert">{lastNameError}</p>
+                  )}
                 </div>
               </div>
 
@@ -221,14 +253,22 @@ export default function SignUpPage() {
                   Work Email
                 </label>
                 <input
-                  required
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError(null);
+                  }}
                   autoComplete="email"
                   placeholder="you@yourfirm.com"
-                  className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                  className={`w-full px-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 ${emailError
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-[#E5E7EB] focus:border-[#C084FC] focus:ring-[#8B5CF6]/20"
+                    }`}
                 />
+                {emailError && (
+                  <p className="text-xs text-red-600 mt-1" role="alert">{emailError}</p>
+                )}
               </div>
 
               <div className="space-y-3">
@@ -237,14 +277,18 @@ export default function SignUpPage() {
                 </label>
                 <div className="relative">
                   <input
-                    required
                     type={passwordVisible ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
+                    onChange={(e) => {
+                      setPassword(e.target.value.replace(/\s/g, ""));
+                      if (passwordError) setPasswordError(null);
+                    }}
                     autoComplete="new-password"
-                    minLength={8}
                     placeholder="Create a strong password"
-                    className="w-full px-5 py-4 pr-12 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                    className={`w-full px-5 py-4 pr-12 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 ${passwordError
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-[#E5E7EB] focus:border-[#C084FC] focus:ring-[#8B5CF6]/20"
+                      }`}
                   />
                   <button
                     type="button"
@@ -293,6 +337,9 @@ export default function SignUpPage() {
                     )}
                   </button>
                 </div>
+                {passwordError && (
+                  <p className="text-xs text-red-600 mt-1" role="alert">{passwordError}</p>
+                )}
               </div>
             </>
           )}
@@ -304,7 +351,8 @@ export default function SignUpPage() {
                 onClick={() => {
                   setOtpSent(false);
                   setOtp("");
-                  setFormError(null);
+                  setApiError(null);
+                  setOtpError(null);
                   setResendCooldown(0);
                 }}
                 className="flex items-center gap-1.5 text-base font-bold text-[#6B7280] transition-colors hover:text-[#7C3AED]"
@@ -334,26 +382,34 @@ export default function SignUpPage() {
                   type="text"
                   inputMode="numeric"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => {
+                    setOtp(e.target.value.replace(/\D/g, ""));
+                    if (otpError) setOtpError(null);
+                  }}
                   autoComplete="one-time-code"
                   placeholder="Enter 6-digit OTP"
                   maxLength={6}
-                  className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20 text-center tracking-widest"
+                  className={`w-full px-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 text-center tracking-widest ${otpError
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-[#E5E7EB] focus:border-[#C084FC] focus:ring-[#8B5CF6]/20"
+                    }`}
                 />
-                <p className="text-base text-[#9CA3AF]">OTP sent to {email}</p>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 text-base">
+                {otpError && (
+                  <p className="text-xs text-red-600 mt-1" role="alert">{otpError}</p>
+                )}
+                <p className="text-sm text-[#9CA3AF] mt-2">OTP sent to {email}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1 text-sm">
                   <span className="text-[#9CA3AF]">
-                   OTP expires shortly. Check your email now.
+                    OTP is valid for 30 minutes.
                   </span>
                   <button
                     type="button"
                     disabled={resendCooldown > 0 || isSendingOtp}
                     onClick={() => handleSendOtp()}
-                    className={`font-bold transition-all text-left ${
-                      resendCooldown > 0 || isSendingOtp
-                        ? "text-[#9CA3AF] cursor-not-allowed"
-                        : "text-[#7C3AED] hover:underline"
-                    }`}
+                    className={`font-bold transition-all text-left ${resendCooldown > 0 || isSendingOtp
+                      ? "text-[#9CA3AF] cursor-not-allowed"
+                      : "text-[#7C3AED] hover:underline"
+                      }`}
                   >
                     {resendCooldown > 0
                       ? `Resend OTP in ${resendCooldown}s`

@@ -13,10 +13,10 @@ const Footer = () => {
       <div className="relative z-10 max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-10 pt-10 md:pt-14 lg:pt-16 pb-14 md:pb-20 lg:pb-24">
         
     
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-5 lg:mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
           
-       
-          <div className="relative w-40 h-14 sm:w-56 sm:h-16">
+     
+          <div className="relative w-44 h-12 md:w-52 md:h-14 shrink-0">
             <Image
               src="/images/newfooterlogo.png"
               alt="Maxtronize logo"
@@ -25,38 +25,38 @@ const Footer = () => {
             />
           </div>
 
-         <div className="flex flex-wrap items-center gap-6 sm:gap-10 md:gap-14 lg:gap-20 mb-12 relative top-5">
-          
-          <Link href="/" className="text-[#4A4A6A] text-base hover:text-black transition">
-            Home
-          </Link>
+          <div className="flex flex-wrap items-center justify-start md:justify-end gap-x-6 gap-y-3 md:gap-x-8 lg:gap-x-12">
+            
+            <Link href="/" className="text-[#4A4A6A] text-base hover:text-black transition">
+              Home
+            </Link>
 
-          <Link href="#whyus" className="text-[#4A4A6A] text-base hover:text-black transition">
-            Why Us
-          </Link>
+            <Link href="#whyus" className="text-[#4A4A6A] text-base hover:text-black transition">
+              Why Us
+            </Link>
 
-          <Link href="#assets" className="text-[#4A4A6A] text-base hover:text-black transition">
-            Assets
-          </Link>
+            <Link href="#assets" className="text-[#4A4A6A] text-base hover:text-black transition">
+              Assets
+            </Link>
 
-          <Link
-            href="https://maxtronize.gitbook.io/docs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#4A4A6A] text-base hover:text-black transition"
-          >
-            Whitepaper
-          </Link>
+            <Link
+              href="https://maxtronize.gitbook.io/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#4A4A6A] text-base hover:text-black transition"
+            >
+              Whitepaper
+            </Link>
 
-          <Link
-            href="https://calendly.com/maxtronize/30min"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#4A4A6A] text-base hover:text-black transition"
-          >
-            Contact Us
-          </Link>
-        </div>
+            <Link
+              href="https://calendly.com/maxtronize/30min"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#4A4A6A] text-base hover:text-black transition"
+            >
+              Contact Us
+            </Link>
+          </div>
         
         </div>
 

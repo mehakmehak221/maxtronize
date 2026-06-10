@@ -281,9 +281,16 @@ export default function ForgotPasswordPage() {
                 placeholder="123456"
                 className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
               />
-              <p className="text-sm text-[#9CA3AF]">Code sent to {email}</p>
+              <div className="bg-[#FAF5FF] border border-[#E9D5FF] rounded-xl p-3.5 flex items-start gap-2.5 mt-2">
+                <svg className="w-5 h-5 text-[#9333EA] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm text-[#4B5563]">
+                  We sent a 6-digit OTP to <span className="font-semibold text-gray-900 break-all">{email}</span>
+                </p>
+              </div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1 text-sm">
-                <span className="text-[#9CA3AF]">Codes expire shortly — enter yours promptly.</span>
+                <span className="text-[#6B7280]">Codes expire shortly — enter yours promptly.</span>
                 <button
                   type="button"
                   disabled={resendCooldown > 0 || sending}

@@ -397,9 +397,16 @@ export default function SignUpPage() {
                 {otpError && (
                   <p className="text-xs text-red-600 mt-1" role="alert">{otpError}</p>
                 )}
-                <p className="text-sm text-[#9CA3AF] mt-2">OTP sent to {email}</p>
+                <div className="bg-[#FAF5FF] border border-[#E9D5FF] rounded-xl p-3.5 flex items-start gap-2.5 mt-2">
+                  <svg className="w-5 h-5 text-[#9333EA] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm text-[#4B5563]">
+                    We sent a 6-digit OTP to <span className="font-semibold text-gray-900 break-all">{email}</span>
+                  </p>
+                </div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1 text-sm">
-                  <span className="text-[#9CA3AF]">
+                  <span className="text-[#6B7280]">
                     OTP is valid for 30 minutes.
                   </span>
                   <button
@@ -453,19 +460,13 @@ export default function SignUpPage() {
           </button>
         </form>
 
-        <div className="relative flex items-center justify-center">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[#E5E7EB]"></div>
-          </div>
-        </div>
-
-        <div className="text-center pt-2">
-          <p className="text-base font-medium text-[#9CA3AF]">
+        <div className="text-center pt-6 border-t border-[#E5E7EB]">
+          <p className="text-base font-medium text-[#4B5563]">
             Already have an account?{" "}
             <button
               type="button"
               onClick={() => router.push("/signin")}
-              className="font-bold text-[#7C3AED] hover:underline"
+              className="font-bold text-[#7C3AED] hover:text-[#6D28D9] hover:underline transition-colors focus:outline-none"
             >
               Sign in
             </button>

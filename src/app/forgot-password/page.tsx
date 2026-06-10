@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthLayout from "@/components/AuthLayout";
 import { formatRequestError } from "@/lib/formatRequestError";
 import {
@@ -12,6 +12,11 @@ import {
 } from "@/store/api/authApi";
 import { LoadingSpinner } from "@/app/components/VectorImages";
 import toast from "react-hot-toast";
+
+// Must match Sign Up password policy exactly
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+const PASSWORD_HINT = "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character (!@#$%^&*).";
+
 
 type Step = "email" | "otp" | "password";
 
@@ -23,6 +28,15 @@ export default function ForgotPasswordPage() {
   const [newPassword, setNewPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
   const [sendOtp, { isLoading: sending }] = useForgotPasswordMutation();
   const [verifyOtp, { isLoading: verifying }] =
@@ -35,17 +49,52 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setFormError(null);
     setSuccessMessage(null);
+
+    const trimmedEmail = email.trim();
+
+    // Client-side email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmedEmail) {
+      setFormError("Please enter your email address.");
+      return;
+    }
+    if (!emailRegex.test(trimmedEmail)) {
+      setFormError("Please enter a valid email address.");
+      return;
+    }
+
     try {
-      const result = await sendOtp({ email: email.trim() }).unwrap();
+      const result = await sendOtp({ email: trimmedEmail }).unwrap();
       const message =
         result &&
-        typeof result === "object" &&
-        "message" in result &&
-        typeof (result as { message: unknown }).message === "string"
+          typeof result === "object" &&
+          "message" in result &&
+          typeof (result as { message: unknown }).message === "string"
           ? (result as { message: string }).message
           : "OTP sent successfully";
       setSuccessMessage(message);
       setStep("otp");
+      setResendCooldown(60);
+    } catch (err) {
+      setFormError(formatRequestError(err));
+    }
+  }
+
+  async function handleResendOtp() {
+    setFormError(null);
+    setSuccessMessage(null);
+    try {
+      const result = await sendOtp({ email: email.trim() }).unwrap();
+      const message =
+        result &&
+          typeof result === "object" &&
+          "message" in result &&
+          typeof (result as { message: unknown }).message === "string"
+          ? (result as { message: string }).message
+          : "OTP resent successfully";
+      setSuccessMessage(message);
+      setOtp("");
+      setResendCooldown(60);
     } catch (err) {
       setFormError(formatRequestError(err));
     }
@@ -75,9 +124,9 @@ export default function ForgotPasswordPage() {
       }).unwrap();
       const message =
         result &&
-        typeof result === "object" &&
-        "message" in result &&
-        typeof (result as { message: unknown }).message === "string"
+          typeof result === "object" &&
+          "message" in result &&
+          typeof (result as { message: unknown }).message === "string"
           ? (result as { message: string }).message
           : "Code verified. Choose a new password.";
       setSuccessMessage(message);
@@ -91,6 +140,11 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setFormError(null);
     setSuccessMessage(null);
+    // Enforce the same password policy as Sign Up
+    if (!PASSWORD_REGEX.test(newPassword)) {
+      setFormError(PASSWORD_HINT);
+      return;
+    }
     try {
       await resetPassword({
         email: email.trim(),
@@ -227,6 +281,26 @@ export default function ForgotPasswordPage() {
                 placeholder="123456"
                 className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
               />
+              <p className="text-sm text-[#9CA3AF]">Code sent to {email}</p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1 text-sm">
+                <span className="text-[#9CA3AF]">Codes expire shortly — enter yours promptly.</span>
+                <button
+                  type="button"
+                  disabled={resendCooldown > 0 || sending}
+                  onClick={handleResendOtp}
+                  className={`font-bold transition-all text-left ${
+                    resendCooldown > 0 || sending
+                      ? "text-[#9CA3AF] cursor-not-allowed"
+                      : "text-[#7C3AED] hover:underline"
+                  }`}
+                >
+                  {sending
+                    ? "Sending…"
+                    : resendCooldown > 0
+                      ? `Resend code in ${resendCooldown}s`
+                      : "Resend code"}
+                </button>
+              </div>
             </div>
             <button
               type="submit"
@@ -245,6 +319,7 @@ export default function ForgotPasswordPage() {
                 setStep("email");
                 setFormError(null);
                 setSuccessMessage(null);
+                setResendCooldown(0);
               }}
             >
               Use a different email
@@ -258,16 +333,36 @@ export default function ForgotPasswordPage() {
               <label className="text-xs font-bold uppercase tracking-[0.1em] text-[#4B5563]">
                 New password
               </label>
-              <input
-                required
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value.replace(/\s/g, ""))}
-                autoComplete="new-password"
-                minLength={8}
-                placeholder="Create a new password"
-                className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
-              />
+              <div className="relative">
+                <input
+                  required
+                  type={passwordVisible ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value.replace(/\s/g, ""))}
+                  autoComplete="new-password"
+                  minLength={8}
+                  placeholder="Create a strong password"
+                  className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 pr-12 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setPasswordVisible((v) => !v)}
+                  aria-label={passwordVisible ? "Hide password" : "Show password"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-gray-200/60 transition-all duration-200"
+                >
+                  {passwordVisible ? (
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <p className="text-xs text-[#6B7280] leading-relaxed">{PASSWORD_HINT}</p>
             </div>
             <button
               type="submit"
@@ -283,7 +378,7 @@ export default function ForgotPasswordPage() {
         )}
 
         <p className="text-center text-base leading-relaxed text-[#9CA3AF]">
-          Codes expire after 30 minutes. Need help?{" "}
+          Codes expire shortly — enter yours promptly. Need help?{" "}
           <Link
             href="mailto:support@maxtronize.com"
             className="font-bold text-[#7C3AED] hover:underline"

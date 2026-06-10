@@ -343,7 +343,7 @@ export default function SignUpPage() {
                 <p className="text-base text-[#9CA3AF]">OTP sent to {email}</p>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 text-base">
                   <span className="text-[#9CA3AF]">
-                    OTP is valid for 30 minutes.
+                   OTP expires shortly. Check your email now.
                   </span>
                   <button
                     type="button"

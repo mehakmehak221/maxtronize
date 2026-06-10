@@ -20,17 +20,44 @@ function SignInContent() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setFormError(null);
+    setApiError(null);
+
+    // Validate all fields simultaneously
+    const trimmedEmail = email.trim();
+    let emailErr: string | null = null;
+    let passwordErr: string | null = null;
+
+    if (!trimmedEmail) {
+      emailErr = "Please enter your email address.";
+    } else if (!EMAIL_REGEX.test(trimmedEmail)) {
+      emailErr = "Please enter a valid email address.";
+    }
+
+    if (!password) {
+      passwordErr = "Please enter your password.";
+    } else if (password.length < 8) {
+      passwordErr = "Password must be at least 8 characters.";
+    }
+
+    setEmailError(emailErr);
+    setPasswordError(passwordErr);
+
+    if (emailErr || passwordErr) return;
+
     try {
       const data = await login({
-        email: email.trim(),
+        email: trimmedEmail,
         password,
         role: uiPersonaToApiRole(role),
       }).unwrap();
@@ -38,7 +65,7 @@ function SignInContent() {
       const path = await getPostAuthRedirect(dispatch, data, role);
       router.push(path);
     } catch (err) {
-      setFormError(formatRequestError(err));
+      setApiError(formatRequestError(err));
     }
   }
 
@@ -100,29 +127,35 @@ function SignInContent() {
           </p>
         )}
 
-        {formError && (
+        {apiError && (
           <p
             className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-base text-red-700"
             role="alert"
           >
-            {formError}
+            {apiError}
           </p>
         )}
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit} noValidate>
           <div className="space-y-2">
             <label className="text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em]">
               Work Email
             </label>
             <input
-              required
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
               autoComplete="email"
               placeholder="alex@maxtronize.com"
-              className="w-full px-5 py-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+              className={`w-full px-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20 ${
+                emailError
+                  ? "border-red-400 focus:border-red-400"
+                  : "border-[#E5E7EB] focus:border-[#C084FC]"
+              }`}
             />
+            {emailError && (
+              <p className="text-xs text-red-600 mt-1" role="alert">{emailError}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -139,13 +172,16 @@ function SignInContent() {
             </div>
             <div className="relative">
               <input
-                required
                 type={passwordVisible ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
                 placeholder="Enter your password"
                 autoComplete="current-password"
-                className="w-full px-5 py-4 pr-12 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:border-[#C084FC] focus:ring-2 focus:ring-[#8B5CF6]/20"
+                className={`w-full px-5 py-4 pr-12 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20 ${
+                  passwordError
+                    ? "border-red-400 focus:border-red-400"
+                    : "border-[#E5E7EB] focus:border-[#C084FC]"
+                }`}
               />
               <button
                 type="button"
@@ -192,6 +228,9 @@ function SignInContent() {
                 )}
               </button>
             </div>
+            {passwordError && (
+              <p className="text-xs text-red-600 mt-1" role="alert">{passwordError}</p>
+            )}
           </div>
 
           <div className="flex items-center gap-3">

@@ -48,7 +48,7 @@ export default function AuthLayout({
           </div>
 
           <div className="relative z-10 flex flex-col gap-6 p-6 md:gap-7 md:p-7 lg:gap-8 lg:p-10 xl:p-12 2xl:p-14">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between gap-3">
               <div className="relative h-9 w-36 md:h-10 md:w-44">
                 <Image
                   src="/lightlogo.png"
@@ -59,6 +59,15 @@ export default function AuthLayout({
                   priority
                 />
               </div>
+              <a
+                href="https://beta.maxtronize.com"
+                className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/80 backdrop-blur-sm transition-all hover:bg-white/20 hover:text-white"
+              >
+                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Home
+              </a>
             </div>
 
             <div className="max-w-2xl">
@@ -204,16 +213,27 @@ export default function AuthLayout({
 
         <div className="auth-form-panel relative flex w-full min-w-0 shrink-0 flex-col p-3 pb-16 sm:p-4 sm:pb-20 md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-y-auto md:p-6 md:pb-8 lg:p-8 lg:pb-10 xl:p-10">
           <div className="auth-form-panel-inner auth-form-viewport-scale motion-auth-form mx-auto w-full min-w-0 space-y-5 py-2 md:space-y-6 lg:space-y-7">
-            <div className="md:hidden text-center space-y-2 pb-3 border-b border-[#E5E7EB]">
-              <div className="relative h-7 w-28 mx-auto">
-                <MaxtronizeLogo
-                  fill
-                  sizes="112px"
-                  className="object-contain"
-                  alt="Maxtronize Logo"
-                />
+            <div className="md:hidden pb-3 border-b border-[#E5E7EB]">
+              <div className="flex items-center justify-between">
+                <div className="relative h-7 w-28">
+                  <MaxtronizeLogo
+                    fill
+                    sizes="112px"
+                    className="object-contain"
+                    alt="Maxtronize Logo"
+                  />
+                </div>
+                <a
+                  href="https://beta.maxtronize.com"
+                  className="flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-1.5 text-xs font-semibold text-[#6B7280] transition-all hover:border-[#C084FC] hover:bg-[#FAF5FF] hover:text-[#7C3AED]"
+                >
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back to Home
+                </a>
               </div>
-              <p className="text-xs font-bold text-[#7C3AED] uppercase tracking-widest">
+              <p className="mt-1.5 text-xs font-bold text-[#7C3AED] uppercase tracking-widest text-center">
                 Asset Protocol
               </p>
             </div>

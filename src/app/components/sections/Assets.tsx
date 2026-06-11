@@ -32,7 +32,7 @@ interface AssetCardProps {
   href?: string;
 }
 
-const AssetCard = ({ title, description, buttonText, icon, imagePath, href = "/sign-in" }: AssetCardProps) => {
+const AssetCard = ({ title, description, buttonText, icon, imagePath, href = "https://beta.maxtronize.com/signin" }: AssetCardProps) => {
   return (
     <motion.div 
       variants={fadeInUp}

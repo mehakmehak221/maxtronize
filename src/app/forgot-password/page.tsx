@@ -347,7 +347,6 @@ export default function ForgotPasswordPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value.replace(/\s/g, ""))}
                   autoComplete="new-password"
-                  minLength={8}
                   placeholder="Create a strong password"
                   className="w-full rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4 pr-12 text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:border-[#C084FC] focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20"
                 />

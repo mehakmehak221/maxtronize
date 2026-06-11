@@ -270,9 +270,8 @@ export default function Intelligence() {
                 description="Intelligent drip campaigns keep every lead warm and conversion-ready."
               />
             </motion.ul>
-            https://beta.maxtronize.comni
             <motion.div custom={0.2} variants={fadeRight}>
-              <CTAButton href="/sign-up" label="Join as an Asset Issuer" />
+              <CTAButton href="https://beta.maxtronize.com/signup" label="Join as an Asset Issuer" />
             </motion.div>
           </motion.div>
         </div>

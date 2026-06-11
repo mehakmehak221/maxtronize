@@ -145,18 +145,11 @@ export default function SignUpPage() {
               onClick={() => setRole("issuer")}
               className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 ${otpSent ? "opacity-60 cursor-not-allowed" : "hover:-translate-y-0.5 cursor-pointer"} ${role === "issuer" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm hover:opacity-80" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
             >
-              <div className="w-8 h-8 mb-2">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
-                  <path d="M9 20v-8h6v8" />
-                  <path d="M9 4v4h6V4" />
+              <div className="w-10 h-10 mb-2 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
+                  <ellipse cx="12" cy="6" rx="8" ry="3" />
+                  <path d="M4 6v4c0 1.657 3.582 3 8 3s8-1.343 8-3V6" />
+                  <path d="M4 10v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" />
                 </svg>
               </div>
               <span className="text-base font-bold">Asset Issuer</span>
@@ -167,17 +160,10 @@ export default function SignUpPage() {
               onClick={() => setRole("investor")}
               className={`flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all duration-200 ${otpSent ? "opacity-60 cursor-not-allowed" : "hover:-translate-y-0.5 cursor-pointer"} ${role === "investor" ? "border-[#C084FC] bg-[#faf5ff] text-[#7C3AED] shadow-sm hover:opacity-80" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#4B5563] hover:border-[#D1D5DB]"}`}
             >
-              <div className="w-8 h-8 mb-2">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
+              <div className="w-10 h-10 mb-2 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                  <polyline points="16 7 22 7 22 13" />
                 </svg>
               </div>
               <span className="text-base font-bold">Investor</span>

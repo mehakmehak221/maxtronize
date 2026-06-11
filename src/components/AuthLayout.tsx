@@ -59,22 +59,6 @@ export default function AuthLayout({
                   priority
                 />
               </div>
-              <a
-                href="https://beta.maxtronize.com"
-                className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white/85 backdrop-blur-md transition-all duration-300 hover:bg-white/[0.08] hover:text-white hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-              >
-                <svg
-                  className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-                <span>Home</span>
-              </a>
             </div>
 
             <div className="max-w-2xl">
@@ -250,6 +234,25 @@ export default function AuthLayout({
               <p className="mt-1.5 text-xs font-bold text-[#7C3AED] uppercase tracking-widest text-center">
                 Asset Protocol
               </p>
+            </div>
+
+            <div className="hidden md:block pb-2">
+              <a
+                href="https://beta.maxtronize.com"
+                className="group inline-flex items-center gap-2 text-[15px] font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-all duration-300"
+              >
+                <svg
+                  className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Back to Home</span>
+              </a>
             </div>
 
             {!hideToggle && (

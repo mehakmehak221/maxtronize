@@ -61,12 +61,19 @@ export default function AuthLayout({
               </div>
               <a
                 href="https://beta.maxtronize.com"
-                className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/80 backdrop-blur-sm transition-all hover:bg-white/20 hover:text-white"
+                className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white/85 backdrop-blur-md transition-all duration-300 hover:bg-white/[0.08] hover:text-white hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]"
               >
-                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                <svg
+                  className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
-                Home
+                <span>Home</span>
               </a>
             </div>
 
@@ -225,12 +232,19 @@ export default function AuthLayout({
                 </div>
                 <a
                   href="https://beta.maxtronize.com"
-                  className="flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-1.5 text-xs font-semibold text-[#6B7280] transition-all hover:border-[#C084FC] hover:bg-[#FAF5FF] hover:text-[#7C3AED]"
+                  className="group flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] transition-all duration-300 hover:border-[#C084FC] hover:bg-[#FAF5FF] hover:text-[#7C3AED] hover:shadow-[0_0_10px_rgba(124,58,237,0.05)]"
                 >
-                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  <svg
+                    className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                   </svg>
-                  Back to Home
+                  <span>Home</span>
                 </a>
               </div>
               <p className="mt-1.5 text-xs font-bold text-[#7C3AED] uppercase tracking-widest text-center">

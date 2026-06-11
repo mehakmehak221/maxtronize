@@ -302,9 +302,10 @@ function SignInContent() {
             <button
               type="button"
               onClick={() => router.push("/signup")}
-              className="font-bold text-[#7C3AED] hover:text-[#6D28D9] hover:underline transition-colors focus:outline-none"
+              className="group inline-flex items-center gap-1 font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-all focus:outline-none"
             >
-              Apply for institutional access →
+              <span>Apply for institutional access</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>
             </button>
           </p>
         </div>

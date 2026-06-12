@@ -122,6 +122,9 @@ export default function Navbar() {
           <NavLink href="https://maxtronize.gitbook.io/docs" label="Whitepaper" delay={0.4} />
         </motion.div>
         <motion.div variants={itemVariants} className="hidden md:block">
+          <NavLink href="/tokenomics" label="Tokenomics" delay={0.45} active={pathname === "/tokenomics"} />
+        </motion.div>
+        <motion.div variants={itemVariants} className="hidden md:block">
           <NavLink href="https://presale.maxtronize.com/" label="Presale" delay={0.5} target="_blank" />
         </motion.div>
         {/* <motion.div variants={itemVariants} className="hidden md:block">
@@ -230,6 +233,11 @@ export default function Navbar() {
           <MobileNavLink
             href="https://maxtronize.gitbook.io/docs"
             label="Whitepaper"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <MobileNavLink
+            href="/tokenomics"
+            label="Tokenomics"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <MobileNavLink

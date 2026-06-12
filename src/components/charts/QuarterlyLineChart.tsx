@@ -10,7 +10,7 @@ export default function QuarterlyLineChart() {
   const [vis, setVis] = useState(false);
   const w = 280;
   const h = 100;
-  const pad = { t: 8, r: 8, b: 22, l: 8 };
+  const pad = { t: 8, r: 20, b: 24, l: 20 };
   const cw = w - pad.l - pad.r;
   const ch = h - pad.t - pad.b;
   const max = 60;

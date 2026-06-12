@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, type MouseEvent } from 'react';
-import { Menu, Shield, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
 
 const links = [
   { label: 'Framework', href: '#framework' },
@@ -52,9 +53,8 @@ export default function Header() {
     <header className={`te-nav-wrap${solid ? ' te-nav-solid' : ''}${open ? ' te-nav-open' : ''}`}>
       <div className="page-container">
         <div className="te-nav-inner">
-          <a href="#overview" onClick={(e) => go(e, '#overview')} className="te-brand">
-            <div className="te-logo"><Shield className="h-4 w-4 text-white" /></div>
-            <span className="te-brand-name">MAXTRON</span>
+          <a href="#overview" onClick={(e) => go(e, '#overview')} className="te-brand" style={{ display: 'flex', alignItems: 'center' }}>
+            <Image src="/light-logo.png" alt="MAXTRON" width={200} height={40} style={{ objectFit: 'contain' }} />
           </a>
 
           <nav className="te-nav-pill" aria-label="Sections">

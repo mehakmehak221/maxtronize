@@ -1,6 +1,6 @@
 'use client';
 
-import { Shield } from 'lucide-react';
+import Image from 'next/image';
 import { closingContent, heroContent } from '@/lib/tokenomics-data';
 
 const cols = [
@@ -27,9 +27,8 @@ export default function SiteFooter() {
         <div className="te-footer-card te-glass">
           <div className="te-footer-main">
             <div className="te-footer-brand">
-              <a href="#overview" className="te-brand">
-                <div className="te-logo"><Shield className="h-4 w-4 text-white" /></div>
-                <span className="te-brand-name">MAXTRON</span>
+              <a href="#overview" className="te-brand" style={{ display: 'flex', alignItems: 'center' }}>
+                <Image src="/light-logo.png" alt="MAXTRON" width={200} height={40} style={{ objectFit: 'contain' }} />
               </a>
               <p className="te-footer-desc">{heroContent.lead}</p>
             </div>

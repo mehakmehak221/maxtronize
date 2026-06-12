@@ -25,7 +25,7 @@ export default function AnimatedAreaChart({ data, width = 900, height = 112, act
     return () => io.disconnect();
   }, []);
 
-  const pad = { t: 12, r: 12, b: 18, l: 12 };
+  const pad = { t: 12, r: 24, b: 22, l: 24 };
   const cw = width - pad.l - pad.r;
   const ch = height - pad.t - pad.b;
   const max = Math.max(...data.map((d) => d.value));
@@ -90,10 +90,10 @@ export default function AnimatedAreaChart({ data, width = 900, height = 112, act
               />
               <text
                 x={p.x}
-                y={height - 6}
-                textAnchor="middle"
-                fill={active ? '#e9d5ff' : 'rgba(255,255,255,0.4)'}
-                fontSize="9"
+                y={height - 4}
+                textAnchor={p.index === 0 ? 'start' : p.index === data.length - 1 ? 'end' : 'middle'}
+                fill={active ? '#e9d5ff' : 'rgba(255,255,255,0.55)'}
+                fontSize="10"
                 fontWeight={active ? '700' : '500'}
                 style={{ transition: 'fill 0.35s' }}
               >

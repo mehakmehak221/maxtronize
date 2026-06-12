@@ -53,7 +53,7 @@ export default function Header() {
     <header className={`te-nav-wrap${solid ? ' te-nav-solid' : ''}${open ? ' te-nav-open' : ''}`}>
       <div className="page-container">
         <div className="te-nav-inner">
-          <a href="#overview" onClick={(e) => go(e, '#overview')} className="te-brand" style={{ display: 'flex', alignItems: 'center' }}>
+          <a href="https://maxtronize.com/" target="_blank" rel="noopener noreferrer" className="te-brand" style={{ display: 'flex', alignItems: 'center' }}>
             <Image src="/light-logo.png" alt="MAXTRON" width={200} height={40} style={{ objectFit: 'contain' }} />
           </a>
 

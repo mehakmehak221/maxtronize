@@ -35,6 +35,10 @@ const Footer = () => {
               Why Us
             </Link>
 
+            <Link href="/tokenomics" className="text-[#4A4A6A] text-base hover:text-black transition">
+              Tokenomics
+            </Link>
+
             <Link href="#assets" className="text-[#4A4A6A] text-base hover:text-black transition">
               Assets
             </Link>

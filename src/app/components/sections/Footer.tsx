@@ -13,7 +13,7 @@ const Footer = () => {
       <div className="relative z-10 max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-10 pt-10 md:pt-14 lg:pt-16 pb-14 md:pb-20 lg:pb-24">
 
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
 
 
           <div className="relative w-44 h-12 md:w-52 md:h-14 shrink-0">
@@ -25,7 +25,7 @@ const Footer = () => {
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-start md:justify-end gap-x-6 gap-y-3 md:gap-x-8 lg:gap-x-12">
+          <div className="flex flex-wrap items-center justify-start lg:justify-end gap-x-6 gap-y-3 md:gap-x-8 lg:gap-x-12">
 
             <Link href="/" className="text-[#4A4A6A] text-base hover:text-black transition">
               Home
@@ -78,8 +78,8 @@ const Footer = () => {
       </div>
 
 
-      <div className="pointer-events-none relative bottom-8  w-full text-center select-none">
-        <p className="font-saira text-white uppercase opacity-50 leading-none text-[60px] sm:text-[100px] md:text-[160px] lg:text-[200px]" style={{ color: '#ffffff' }}>
+      <div className="pointer-events-none relative bottom-8  w-full text-center select-none overflow-hidden">
+        <p className="font-saira text-white uppercase opacity-50 leading-none text-[13vw]" style={{ color: '#ffffff' }}>
           MAXTRONIZE
         </p>
       </div>

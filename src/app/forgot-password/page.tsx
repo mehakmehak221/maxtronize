@@ -173,13 +173,13 @@ export default function ForgotPasswordPage() {
         : "Choose a strong password for your account.";
 
   return (
-    <AuthLayout isSignUp={false} hideToggle>
+    <AuthLayout isSignUp={false} hideToggle showHomeButton={false}>
       <div className="min-w-0 space-y-6 animate-fade-in sm:space-y-8">
         <div>
           <button
             type="button"
             onClick={() => router.push("/signin")}
-            className="mb-4 flex items-center gap-1.5 text-base font-bold text-[#6B7280] transition-colors hover:text-[#7C3AED] cursor-pointer"
+            className="mb-4 flex items-center gap-1.5 text-base font-bold text-[#6B7280] transition-all hover:text-[#7C3AED] hover:-translate-x-1 hover:scale-[1.02] active:scale-95 cursor-pointer"
           >
             <svg
               className="h-4 w-4"
@@ -238,7 +238,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary group flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 hover:opacity-90 disabled:opacity-60 cursor-pointer"
+              className="btn-gradient-primary group flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 transition-all hover:shadow-xl hover:shadow-[#6366F1]/40 hover:scale-[1.02] hover:-translate-y-0.5 hover:brightness-110 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:translate-y-0 disabled:hover:brightness-100 cursor-pointer"
             >
               {sending && (
                 <LoadingSpinner className="h-5 w-5" color="white" />
@@ -312,7 +312,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 hover:opacity-90 cursor-pointer"
+              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60 transition-all hover:shadow-xl hover:shadow-[#6366F1]/40 hover:scale-[1.02] hover:-translate-y-0.5 hover:brightness-110 disabled:hover:scale-100 disabled:hover:translate-y-0 disabled:hover:brightness-100 cursor-pointer"
             >
               {verifying && (
                 <LoadingSpinner className="h-5 w-5" color="white" />
@@ -321,7 +321,7 @@ export default function ForgotPasswordPage() {
             </button>
             <button
               type="button"
-              className="w-full text-base font-semibold text-[#7C3AED] hover:underline cursor-pointer"
+              className="w-full text-base font-semibold text-[#7C3AED] hover:underline hover:scale-105 active:scale-95 transition-transform cursor-pointer"
               onClick={() => {
                 setStep("email");
                 setFormError(null);
@@ -354,7 +354,7 @@ export default function ForgotPasswordPage() {
                   type="button"
                   onClick={() => setPasswordVisible((v) => !v)}
                   aria-label={passwordVisible ? "Hide password" : "Show password"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-gray-200/60 transition-all duration-200 cursor-pointer hover:opacity-80"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-[#9CA3AF] hover:text-[#7C3AED] hover:bg-[#F3F4F6] hover:scale-110 transition-all duration-200 cursor-pointer"
                 >
                   {passwordVisible ? (
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -373,7 +373,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={busy}
-              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60 transition-all hover:shadow-xl hover:shadow-[#6366F1]/30 hover:opacity-90 cursor-pointer"
+              className="btn-gradient-primary w-full rounded-xl py-4 text-base font-bold text-white shadow-lg shadow-[#8B5CF6]/25 disabled:opacity-60 transition-all hover:shadow-xl hover:shadow-[#6366F1]/40 hover:scale-[1.02] hover:-translate-y-0.5 hover:brightness-110 disabled:hover:scale-100 disabled:hover:translate-y-0 disabled:hover:brightness-100 cursor-pointer"
             >
               {resetting && (
                 <LoadingSpinner className="h-5 w-5" color="white" />

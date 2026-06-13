@@ -9,12 +9,14 @@ interface AuthLayoutProps {
   children: React.ReactNode;
   isSignUp: boolean;
   hideToggle?: boolean;
+  showHomeButton?: boolean;
 }
 
 export default function AuthLayout({
   children,
   isSignUp,
   hideToggle = false,
+  showHomeButton = true,
 }: AuthLayoutProps) {
   useLayoutEffect(() => {
     const html = document.documentElement;
@@ -205,7 +207,7 @@ export default function AuthLayout({
         <div className="auth-form-panel relative flex w-full min-w-0 shrink-0 flex-col p-3 pb-16 sm:p-4 sm:pb-20 md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-y-auto md:p-6 md:pb-8 lg:p-8 lg:pb-10 xl:p-10">
           <div className="auth-form-panel-inner auth-form-viewport-scale motion-auth-form mx-auto w-full min-w-0 space-y-5 py-2 md:space-y-6 lg:space-y-7">
             <div className="md:hidden pb-3 border-b border-[#E5E7EB]">
-              <div className="flex items-center justify-between">
+              <div className={`flex items-center ${showHomeButton ? "justify-between" : "justify-center"}`}>
                 <div className="relative h-7 w-28">
                   <MaxtronizeLogo
                     fill
@@ -214,46 +216,50 @@ export default function AuthLayout({
                     alt="Maxtronize Logo"
                   />
                 </div>
-                <a
-                  href="https://beta.maxtronize.com"
-                  className="group flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] transition-all duration-300 hover:border-[#C084FC] hover:bg-[#FAF5FF] hover:text-[#7C3AED] hover:shadow-[0_0_10px_rgba(124,58,237,0.05)]"
-                >
-                  <svg
-                    className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    viewBox="0 0 24 24"
-                    aria-hidden
+                {showHomeButton && (
+                  <a
+                    href="https://beta.maxtronize.com"
+                    className="group flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] transition-all duration-300 hover:border-[#C084FC] hover:bg-[#FAF5FF] hover:text-[#7C3AED] hover:shadow-[0_0_10px_rgba(124,58,237,0.05)]"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                  <span>Home</span>
-                </a>
+                    <svg
+                      className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      viewBox="0 0 24 24"
+                      aria-hidden
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span>Home</span>
+                  </a>
+                )}
               </div>
               <p className="mt-1.5 text-xs font-bold text-[#7C3AED] uppercase tracking-widest text-center">
                 Asset Protocol
               </p>
             </div>
 
-            <div className="hidden md:block pb-2">
-              <a
-                href="https://beta.maxtronize.com"
-                className="group inline-flex items-center gap-2 text-[15px] font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-all duration-300"
-              >
-                <svg
-                  className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  viewBox="0 0 24 24"
-                  aria-hidden
+            {showHomeButton && (
+              <div className="hidden md:block pb-2">
+                <a
+                  href="https://beta.maxtronize.com"
+                  className="group inline-flex items-center gap-2 text-[15px] font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-all duration-300"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Back to Home</span>
-              </a>
-            </div>
+                  <svg
+                    className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  <span>Back to Home</span>
+                </a>
+              </div>
+            )}
 
             {!hideToggle && (
               <div className="flex rounded-full border border-[#E5E7EB] bg-[#F3F4F6] p-1 shadow-inner">

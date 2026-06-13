@@ -115,25 +115,25 @@ export default function Navbar() {
           </motion.div>
         </Link>
 
-        <motion.div variants={itemVariants} className="hidden md:block">
+        <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink href="/#tokenize" label="Why Tokenize" delay={0.3} />
         </motion.div>
-        <motion.div variants={itemVariants} className="hidden md:block">
+        <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink href="https://maxtronize.gitbook.io/docs" label="Whitepaper" delay={0.4} />
         </motion.div>
-        <motion.div variants={itemVariants} className="hidden md:block">
+        <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink href="/tokenomics" label="Tokenomics" delay={0.45} active={pathname === "/tokenomics"} />
         </motion.div>
-        <motion.div variants={itemVariants} className="hidden md:block">
+        <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink href="https://presale.maxtronize.com/" label="Presale" delay={0.5} target="_blank" />
         </motion.div>
-        {/* <motion.div variants={itemVariants} className="hidden md:block">
+        {/* <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink href="/asset_register" label="Asset Register" delay={0.45} active={pathname === "/asset_register"} />
         </motion.div> */}
-        <motion.div variants={itemVariants} className="hidden md:block">
+        <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink href="/#leadership" label="About Us" delay={0.4} />
         </motion.div>
-        <motion.div variants={itemVariants} className="hidden md:block">
+        <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink
             href="https://calendly.com/maxtronize/30min"
             label="Contact"
@@ -145,7 +145,7 @@ export default function Navbar() {
 
         <motion.button
           variants={itemVariants}
-          className="group relative z-50 flex h-5 lg:h-6 w-8 flex-col justify-between md:hidden"
+          className="group relative z-50 flex h-5 lg:h-6 w-8 flex-col justify-between xl:hidden"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle Menu"
           whileHover={{ scale: 1.1 }}
@@ -188,11 +188,11 @@ export default function Navbar() {
           duration: 0.6,
           ease: [0.77, 0, 0.175, 1],
         }}
-        className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gradient-to-br from-white via-gray-50 to-white backdrop-blur-xl"
+        className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-white/95 backdrop-blur-xl"
         style={{ pointerEvents: isMobileMenuOpen ? "auto" : "none" }}
       >
         <motion.div
-          className="flex flex-col items-center gap-10"
+          className="flex flex-col items-center gap-6 sm:gap-8 pt-16"
           variants={{
             open: {
               transition: {
@@ -397,25 +397,21 @@ const MobileNavLink = ({
       target={target}
       rel={rel}
       variants={itemVariants}
-      className="relative overflow-hidden text-3xl font-light uppercase tracking-widest text-[#222222]"
-      whileHover={{
-        scale: 1.1,
-        fontWeight: 400,
-        letterSpacing: "0.2em",
-      }}
+      className="relative overflow-hidden text-xl sm:text-2xl font-medium uppercase tracking-wider text-[#222222] py-2"
+      whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
       <span
-        className="relative z-10 inline-block transition-all duration-300 hover:bg-gradient-to-r hover:from-[#222222] hover:via-[#666666] hover:to-[#222222] hover:bg-clip-text hover:text-transparent"
+        className="relative z-10 inline-block transition-colors duration-300 hover:text-black"
       >
         {label}
       </span>
       <motion.span
-        className="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-black to-transparent"
+        className="absolute bottom-1 left-0 h-[2px] w-full bg-black origin-left"
         initial={{ scaleX: 0 }}
         whileHover={{ scaleX: 1 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
       />
     </motion.a>
   );

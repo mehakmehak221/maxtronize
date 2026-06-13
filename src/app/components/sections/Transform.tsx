@@ -31,7 +31,7 @@ const Transform = () => {
                 Transform Real-World Assets,
               </h2>
               <h2 className="text-white font-teachers  text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-tight lg:leading-[1.2] tracking-tight">
-                Tokenize With Us
+                Tokenize with Us
               </h2>
             </motion.div>
 

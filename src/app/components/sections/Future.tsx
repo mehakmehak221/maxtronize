@@ -7,7 +7,7 @@ import Link from "next/link";
 
 const features = [
   {
-    title: "Your own tokenization platform",
+    title: "Your Own Tokenization Platform",
     description:
       "Our platform empowers you to issue, distribute, and manage tokens effortlessly, ensuring a seamless and compliant experience at every step.",
     image: "/images/future1.webp",
@@ -21,7 +21,7 @@ const features = [
     icon: Link2,
   },
   {
-    title: "Scale your investor base",
+    title: "Scale Your Investor Base",
     description:
       "Expand global reach and access more investors through tokenized assets.",
     image: "/images/future33.webp",

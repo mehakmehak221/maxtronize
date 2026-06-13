@@ -183,7 +183,7 @@ export default function Tokenization() {
             animate={{ x: "0%" }}
             transition={{ duration: 0.3 }}
           />
-          <span className="relative z-10">Tokenize With Us</span>
+          <span className="relative z-10">Tokenize with Us</span>
           <motion.span 
             className="relative z-10 text-base sm:text-lg leading-none"
             animate={{ x: isButtonHovered ? 5 : 0 }}

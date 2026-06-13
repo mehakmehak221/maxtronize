@@ -222,7 +222,7 @@ export default function Tokenize() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="text-[22px] font-semibold text-[#111111] sm:text-[30px] md:text-[36px]"
           >
-            Empowering The Institutions Building The Future Of Tokenized Finance
+            Empowering the Institutions Building the Future of Tokenized Finance
           </motion.h2>
 
           <motion.div

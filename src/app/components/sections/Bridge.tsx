@@ -43,8 +43,8 @@ export default function Bridge() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
           className="mt-4 sm:mt-5 md:mt-6 text-[16px] sm:text-[18px] md:text-[20px] font-medium text-[#111111]"
         >
-          The Evolution Of{" "}
-          <span className="text-[#6452B0]">Real World Assets</span>
+          The Evolution of{" "}
+          <span className="text-[#6452B0]">Real-World Assets</span>
         </motion.p>
 
         <motion.div
@@ -56,7 +56,7 @@ export default function Bridge() {
         >
           <img
             src="/images/bridge.webp"
-            alt="Bridging Two Worlds - The Evolution of Real World Assets"
+            alt="Bridging Two Worlds: The Evolution of Real-World Assets"
             className="w-full h-auto object-contain"
           />
         </motion.div>

@@ -125,32 +125,32 @@ function SignInContent() {
         )}
 
         <form className="space-y-6" onSubmit={handleSubmit} noValidate>
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-1">
-                Work Email
-              </label>
-              <div className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
-                  autoComplete="email"
-                  placeholder="alex@maxtronize.com"
-                  className={`w-full pl-10 pr-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20 ${emailError
-                    ? "border-red-400 focus:border-red-400"
-                    : "border-[#E5E7EB] focus:border-[#C084FC]"
-                    }`}
-                />
-              </div>
-              {emailError && (
-                <p className="text-xs text-red-600 mt-1" role="alert">{emailError}</p>
-              )}
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-[#4B5563] uppercase tracking-[0.1em] mb-1">
+              Work Email
+            </label>
+            <div className="relative">
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
+                autoComplete="email"
+                placeholder="alex@maxtronize.com"
+                className={`w-full pl-10 pr-5 py-4 rounded-xl border bg-[#F9FAFB] text-base text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#8B5CF6]/20 ${emailError
+                  ? "border-red-400 focus:border-red-400"
+                  : "border-[#E5E7EB] focus:border-[#C084FC]"
+                  }`}
+              />
             </div>
+            {emailError && (
+              <p className="text-xs text-red-600 mt-1" role="alert">{emailError}</p>
+            )}
+          </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
@@ -236,11 +236,10 @@ function SignInContent() {
             onClick={() => setRememberMe(!rememberMe)}
           >
             <div
-              className={`flex items-center justify-center w-5 h-5 rounded shadow-sm transition-colors ${
-                rememberMe
-                  ? "bg-[#7C3AED]"
-                  : "bg-white border-2 border-[#E5E7EB] group-hover:border-[#C084FC]"
-              }`}
+              className={`flex items-center justify-center w-5 h-5 rounded shadow-sm transition-colors ${rememberMe
+                ? "bg-[#7C3AED]"
+                : "bg-white border-2 border-[#E5E7EB] group-hover:border-[#C084FC]"
+                }`}
             >
               {rememberMe && (
                 <svg
@@ -298,11 +297,11 @@ function SignInContent() {
 
         <div className="text-center pt-2">
           <p className="text-base font-medium text-[#9CA3AF]">
-            {"Don't have an account? "}
+            {"Don't have an account?"}
             <button
               type="button"
               onClick={() => router.push("/signup")}
-              className="group inline-flex items-center gap-1 font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-all focus:outline-none hover:scale-105 active:scale-95"
+              className="group inline-flex items-center gap-1 ml-2 font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-all focus:outline-none active:scale-95"
             >
               <span>Apply for institutional access</span>
               <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>

@@ -448,11 +448,11 @@ export default function SignUpPage() {
 
         <div className="text-center pt-6 border-t border-[#E5E7EB]">
           <p className="text-base font-medium text-[#4B5563]">
-            Already have an account?{" "}
+            Already have an account?
             <button
               type="button"
               onClick={() => router.push("/signin")}
-              className="group inline-flex items-center gap-1 font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-all focus:outline-none hover:scale-105 active:scale-95"
+              className="group inline-flex items-center gap-1 ml-2 font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-all focus:outline-none active:scale-95"
             >
               <span>Sign in</span>
               <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>

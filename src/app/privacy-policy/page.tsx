@@ -10,7 +10,7 @@ export const metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-gray-50/50">
-      {/* Header with Maxtronize Logo */}
+
       <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] md:w-[85%] lg:w-[80%] xl:w-[75%] max-w-[96rem] z-50 flex items-center justify-between px-4 lg:px-8 py-3 lg:py-4 rounded-xl border bg-white/90 border-black/10 shadow-md backdrop-blur-xl md:px-10">
         <Link href="/" className="flex items-center gap-3">
           <div className="relative h-10 w-36 lg:w-48">

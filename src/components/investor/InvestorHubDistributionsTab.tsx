@@ -125,18 +125,24 @@ export function InvestorHubDistributionsTab() {
               placeholder="Search assets…"
               className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20"
             />
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-sm font-medium"
-            />
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="rounded-xl border border-ui-border bg-ui-card px-3 py-2 text-sm font-medium"
-            />
+            <label className="flex items-center gap-2 rounded-xl border border-ui-border bg-ui-card px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-ui-faint">
+              <span>From</span>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="min-w-[9rem] border-0 bg-transparent px-0 py-1 text-sm font-medium text-ui-strong outline-none focus:ring-0"
+              />
+            </label>
+            <label className="flex items-center gap-2 rounded-xl border border-ui-border bg-ui-card px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-ui-faint">
+              <span>To</span>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="min-w-[9rem] border-0 bg-transparent px-0 py-1 text-sm font-medium text-ui-strong outline-none focus:ring-0"
+              />
+            </label>
             <button
               type="button"
               onClick={() => void handleExport()}

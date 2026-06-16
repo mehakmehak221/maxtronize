@@ -225,9 +225,11 @@ function FormField({
   return (
     <div className={`space-y-3 ${fullWidth ? 'md:col-span-2' : ''}`}>
       {label ? (
-        <label className="text-xs font-bold text-ui-faint uppercase tracking-widest flex items-center gap-1">
-          {label}
-          {required && <span className="text-ui-danger-text font-bold">*</span>}
+        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
+          <span className="inline-flex items-center gap-1">
+            {label}
+            {required ? <span className="text-ui-danger-text font-bold">*</span> : null}
+          </span>
         </label>
       ) : null}
       {hint ? <p className={`text-xs text-ui-faint leading-relaxed ${label ? '' : '-mt-1'}`}>{hint}</p> : null}
@@ -237,7 +239,7 @@ function FormField({
             value={value ?? ''}
             onChange={onChange ? (e) => onChange(e.target.value) : undefined}
             disabled={isApprovedOrLocked}
-            className={`w-full min-w-0 px-4 py-3.5 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-base text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 appearance-none disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
+            className={`w-full min-w-0 px-4 py-4 leading-normal bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-base text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 appearance-none disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
           >
             <option value="" disabled>{placeholder}</option>
             {options.map(opt => (
@@ -251,7 +253,7 @@ function FormField({
             value={value ?? ''}
             onChange={onChange ? (e) => onChange(e.target.value) : undefined}
             disabled={isApprovedOrLocked}
-            className={`w-full min-w-0 px-4 py-3.5 bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-base text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 sm:py-4 disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
+            className={`w-full min-w-0 px-4 py-4 leading-normal bg-ui-input border rounded-2xl focus:bg-ui-input-focus focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-base text-foreground placeholder:text-ui-placeholder font-medium sm:px-6 disabled:opacity-75 disabled:cursor-not-allowed ${borderClass}`}
           />
         )}
         {(isSelect || options) && (
@@ -380,31 +382,31 @@ function IssuerOnboardingStartPage({
         <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
           <h3 className="text-base font-bold text-ui-strong mb-1">Asset type</h3>
           <p className="text-base text-ui-faint mb-8">Select the category of asset you are tokenizing.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {ONBOARDING_ASSET_TYPES.map((type) => (
               <button
                 type="button"
                 key={type.id}
                 onClick={() => onSelectedAssetTypeChange(type.id)}
-                className={`relative p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 min-w-0 ${selectedAssetType === type.id
+                className={`relative flex h-full min-h-[168px] flex-col items-start gap-4 rounded-2xl border-2 p-6 text-left transition-all ${selectedAssetType === type.id
                   ? 'border-primary bg-ui-accent-tint'
                   : 'border-ui-border bg-ui-card hover:border-ui-border-strong'
                   }`}
               >
                 <div
-                  className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm ${selectedAssetType === type.id ? 'bg-ui-card' : 'bg-ui-muted-deep'
                     }`}
                 >
                   {type.icon}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 w-full">
                   <p
-                    className={`text-base font-bold mb-1 ${selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'
+                    className={`mb-1 text-base font-bold leading-snug ${selectedAssetType === type.id ? 'text-primary' : 'text-ui-strong'
                       }`}
                   >
                     {type.name}
                   </p>
-                  <p className="text-xs text-ui-faint leading-relaxed">{type.sub}</p>
+                  <p className="text-xs leading-relaxed text-ui-faint">{type.sub}</p>
                 </div>
               </button>
             ))}
@@ -2382,7 +2384,7 @@ function IssuerOnboardingWizardForm({
   const effectiveStep = applicationStatus.key !== 'draft' ? 8 : currentStep;
 
   return (
-    <OnboardingLayout currentStep={effectiveStep} showSaved={effectiveStep === 2}>
+    <OnboardingLayout currentStep={effectiveStep} showSaved={effectiveStep === 2} applicationStatus={applicationStatus}>
       {saveError ? (
         <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-base text-rose-800">
           {saveError}

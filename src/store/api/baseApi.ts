@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { getStoredAccessToken } from "@/lib/authToken";
 
 const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
 
@@ -8,8 +9,8 @@ export const baseApi = createApi({
     baseUrl,
     credentials: "include",
     prepareHeaders: (headers) => {
-      const token = typeof window !== "undefined" ? window.localStorage.getItem("access_token") : null;
-      if (token && token !== "demo-session") {
+      const token = getStoredAccessToken();
+      if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
       return headers;

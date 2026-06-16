@@ -19,14 +19,15 @@ import Link from 'next/link';
 import React from 'react';
 import { ForceLightTheme } from '@/components/ForceLightTheme';
 import { MaxtronizeLogo } from '@/components/MaxtronizeLogo';
+import type { OnboardingApplicationStatusDisplay } from '@/lib/onboarding';
 
 const iconStroke = 1.75;
 
 interface OnboardingLayoutProps {
   children: React.ReactNode;
   currentStep: number;
-  /** Shown on accreditation step in mocks (e.g. “✓ Saved”). */
   showSaved?: boolean;
+  applicationStatus?: OnboardingApplicationStatusDisplay | null;
 }
 
 const STEP_ITEMS: { id: number; name: string; sub: string; Icon: LucideIcon }[] = [
@@ -42,13 +43,38 @@ const STEP_ITEMS: { id: number; name: string; sub: string; Icon: LucideIcon }[] 
 
 const TOTAL_STEPS = STEP_ITEMS.length;
 
+const STATUS_BANNER_STYLES: Record<
+  OnboardingApplicationStatusDisplay['key'],
+  string
+> = {
+  draft: '',
+  under_review: 'border-amber-200 bg-amber-50 text-amber-900',
+  approved: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+  locked: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+  rejected: 'border-rose-200 bg-rose-50 text-rose-900',
+};
+
+function stepStatusSub(
+  stepId: number,
+  defaultSub: string,
+  applicationStatus?: OnboardingApplicationStatusDisplay | null,
+): string {
+  if (!applicationStatus || applicationStatus.key === 'draft' || stepId !== 8) {
+    return defaultSub;
+  }
+  return applicationStatus.label;
+}
+
 export default function OnboardingLayout({
   children,
   currentStep,
   showSaved = false,
+  applicationStatus = null,
 }: OnboardingLayoutProps) {
   const progressPct =
     currentStep <= 0 ? 0 : (currentStep / TOTAL_STEPS) * 100;
+  const showStatusBanner =
+    applicationStatus != null && applicationStatus.key !== 'draft';
 
   return (
     <ForceLightTheme>
@@ -105,27 +131,57 @@ export default function OnboardingLayout({
       <div className="flex flex-1 min-h-0">
         <aside className="sticky top-[70px] hidden h-[calc(100vh-70px)] w-72 shrink-0 flex-col self-start border-r border-ui-border bg-ui-sidebar py-8 pl-7 pr-5 xl:flex xl:w-80">
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2">
-            <h3 className="mb-6 text-xs font-bold uppercase tracking-[0.22em] text-[#9CA3AF]">
+            <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-[#9CA3AF]">
               Onboarding Steps
             </h3>
+            {showStatusBanner ? (
+              <div
+                className={`mb-5 rounded-2xl border px-3.5 py-3 ${STATUS_BANNER_STYLES[applicationStatus.key]}`}
+              >
+                <div className="flex items-center gap-2">
+                  {applicationStatus.key === 'under_review' ? (
+                    <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-amber-500" aria-hidden />
+                  ) : null}
+                  <p className="text-xs font-bold uppercase tracking-[0.12em]">
+                    {applicationStatus.label}
+                  </p>
+                </div>
+                <p className="mt-1 text-[11px] font-medium leading-relaxed opacity-90">
+                  {applicationStatus.key === 'under_review'
+                    ? 'Compliance is reviewing your submission.'
+                    : applicationStatus.description}
+                </p>
+              </div>
+            ) : null}
             <nav className="motion-onboarding-nav space-y-1.5 pb-4">
               {STEP_ITEMS.map((step) => {
                 const done = currentStep > 0 && step.id < currentStep;
                 const active = currentStep > 0 && step.id === currentStep;
                 const locked = currentStep <= 0 || step.id > currentStep;
+                const reviewStep =
+                  step.id === 8 &&
+                  applicationStatus?.key === 'under_review' &&
+                  active;
                 const StepIcon = step.Icon;
+                const stepSub = stepStatusSub(step.id, step.sub, applicationStatus);
 
                 return (
                   <div
                     key={step.id}
                     className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 transition-all ${
-                      active ? 'bg-[#F5F3FF] shadow-[inset_0_0_0_1px_#DDD6FE]' : ''
+                      reviewStep
+                        ? 'bg-amber-50 shadow-[inset_0_0_0_1px_#FDE68A]'
+                        : active
+                          ? 'bg-[#F5F3FF] shadow-[inset_0_0_0_1px_#DDD6FE]'
+                          : ''
                     }`}
                   >
                     <div
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all ${
                         done
                           ? 'border border-[#BBF7D0] bg-[#ECFDF5] text-emerald-600'
+                          : reviewStep
+                            ? 'border border-amber-200 bg-amber-100 text-amber-700'
                           : active
                             ? 'bg-[#7C3AED] text-white shadow-[0_4px_12px_-2px_rgba(124,58,237,0.45)]'
                             : 'border border-[#E5E7EB] bg-[#FAFAFA] text-[#D1D5DB]'
@@ -142,7 +198,9 @@ export default function OnboardingLayout({
                     <div className="flex-1 min-w-0">
                       <p
                         className={`text-base font-bold leading-snug ${
-                          active
+                          reviewStep
+                            ? 'text-amber-800'
+                            : active
                             ? 'text-[#6D28D9]'
                             : done
                               ? 'text-[#111827]'
@@ -153,18 +211,28 @@ export default function OnboardingLayout({
                       </p>
                       <p
                         className={`mt-0.5 text-xs font-semibold uppercase tracking-[0.08em] ${
-                          active ? 'text-[#6B7280]' : done ? 'text-[#6B7280]' : 'text-[#E5E7EB]'
+                          reviewStep
+                            ? 'text-amber-700'
+                            : active
+                              ? 'text-[#6B7280]'
+                              : done
+                                ? 'text-[#6B7280]'
+                                : 'text-[#E5E7EB]'
                         }`}
                       >
-                        {step.sub}
+                        {stepSub}
                       </p>
                     </div>
-                    {active && (
+                    {reviewStep ? (
+                      <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-800">
+                        In review
+                      </span>
+                    ) : active ? (
                       <span
                         className="h-2 w-2 shrink-0 rounded-full bg-[#7C3AED] shadow-[0_0_0_3px_rgba(124,58,237,0.15)]"
                         aria-hidden
                       />
-                    )}
+                    ) : null}
                   </div>
                 );
               })}

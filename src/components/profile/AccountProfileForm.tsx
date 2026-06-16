@@ -8,7 +8,7 @@ import {
 } from "@/store/api/authApi";
 
 const inputClass =
-  "w-full rounded-xl border border-ui-border bg-ui-card px-5 py-3.5 text-base text-ui-strong outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-500/10";
+  "w-full rounded-xl border border-ui-border bg-ui-card px-5 py-4 text-base leading-normal text-ui-strong outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-500/10";
 
 export function AccountProfileForm() {
   const { data: profile, isLoading: loadingProfile } =
@@ -29,7 +29,7 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   const [fullName, setFullName] = useState(profile.fullName ?? "");
-  const [country, setCountry] = useState(profile.country ?? "");
+  const [country, setCountry] = useState(profile.country ?? profile.nationality ?? "");
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -39,15 +39,24 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
     e.preventDefault();
     setFormError(null);
     setSuccess(null);
+    const trimmedName = fullName.trim();
     const trimmedCountry = country.trim();
-    if (trimmedCountry && !countryRegex.test(trimmedCountry)) {
+    if (!trimmedName) {
+      setFormError("Full name is required.");
+      return;
+    }
+    if (!trimmedCountry) {
+      setFormError("Country is required.");
+      return;
+    }
+    if (!countryRegex.test(trimmedCountry)) {
       setFormError("Country name can only contain letters, spaces, hyphens, apostrophes, and periods.");
       return;
     }
     try {
       await updateProfile({
-        fullName: fullName.trim() || undefined,
-        country: trimmedCountry || undefined,
+        fullName: trimmedName,
+        country: trimmedCountry,
       }).unwrap();
       setSuccess("Profile updated successfully.");
     } catch (err) {
@@ -72,7 +81,7 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
       ) : null}
 
       <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint">
+        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
           Email
         </label>
         <input
@@ -87,19 +96,20 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint">
+        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
           Full name
         </label>
         <input
           type="text"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
+          required
           className={inputClass}
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint">
+        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
           Country
         </label>
         <input
@@ -108,6 +118,7 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
           onChange={(e) =>
             setCountry(e.target.value.replace(/[^a-zA-ZÀ-ÿ\s'\-\.]/g, ""))
           }
+          required
           className={inputClass}
           placeholder="United States"
         />

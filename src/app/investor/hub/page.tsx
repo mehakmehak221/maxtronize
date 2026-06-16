@@ -266,7 +266,14 @@ function InvestorHubContent() {
       {
         label: 'Pending Approvals',
         val: overviewLoading ? '…' : String(s?.pendingApprovals.count ?? 0),
-        sub: s?.pendingApprovals.summary || 'Under review',
+        sub:
+          (s?.pendingApprovals.count ?? 0) > 0
+            ? 'Awaiting compliance decision'
+            : 'No items pending',
+        statusTag:
+          (s?.pendingApprovals.count ?? 0) > 0
+            ? s?.pendingApprovals.summary || 'In review'
+            : '',
         trend: '',
         Icon: PendingIcon,
         up: false,
@@ -311,15 +318,19 @@ function InvestorHubContent() {
         {statsOverview.map((stat, i) => (
           <div
             key={i}
-            className="rounded-[20px] border border-ui-border bg-ui-card p-4 shadow-sm transition-shadow hover:shadow-md md:rounded-[24px] md:p-6"
+            className="flex h-full min-h-[148px] flex-col rounded-[20px] border border-ui-border bg-ui-card p-4 shadow-sm transition-shadow hover:shadow-md md:rounded-[24px] md:p-6"
           >
-            <div className="mb-4 flex items-start justify-between gap-2">
+            <div className="flex items-center justify-between gap-2">
               <div
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full md:h-11 md:w-11 ${stat.iconBg}`}
               >
                 <stat.Icon className="h-5 w-5" />
               </div>
-              {stat.trend ? (
+              {'statusTag' in stat && stat.statusTag ? (
+                <span className="inline-flex max-w-[52%] items-center justify-center rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-700 dark:bg-amber-950/35 dark:text-amber-300 md:text-[10px]">
+                  {stat.statusTag}
+                </span>
+              ) : stat.trend ? (
                 <span
                   className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[9px] font-bold md:text-[10px] ${stat.up ? 'bg-green-50 text-green-600 dark:bg-green-950/35 dark:text-green-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-950/35 dark:text-amber-400'
                     }`}
@@ -327,16 +338,13 @@ function InvestorHubContent() {
                   <ReturnIcon className="h-3 w-3 shrink-0" />
                   {stat.trend}
                 </span>
-              ) : (
-                <span
-                  className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-200 ring-2 ring-amber-100/80 dark:bg-amber-400/50 dark:ring-amber-900/50"
-                  aria-hidden
-                />
-              )}
+              ) : null}
             </div>
-            <p className="mb-1 text-xl font-bold tracking-tight text-ui-strong md:text-2xl lg:text-3xl">{stat.val}</p>
-            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{stat.label}</p>
-            <p className="text-xs font-medium text-ui-faint">{stat.sub}</p>
+            <div className="mt-3 flex flex-1 flex-col justify-start">
+              <p className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl lg:text-3xl">{stat.val}</p>
+              <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{stat.label}</p>
+              <p className="mt-0.5 text-xs font-medium text-ui-faint">{stat.sub}</p>
+            </div>
           </div>
         ))}
       </div>

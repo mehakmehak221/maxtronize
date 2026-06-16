@@ -131,7 +131,9 @@ export function parseProfile(payload: unknown): UserProfile | null {
     ]),
     fullName: pickString(record, ["fullName", "full_name", "name"]),
     email: pickString(record, ["email"]),
-    country: pickString(record, ["country"]),
+    country:
+      pickString(record, ["country"]) ??
+      pickString(record, ["nationality"]),
     role,
     dateOfBirth,
     nationality: pickString(record, ["nationality"]),

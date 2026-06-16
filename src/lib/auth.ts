@@ -1,3 +1,5 @@
+import { getStoredAccessToken } from "@/lib/authToken";
+
 export type UserRole = "issuer" | "investor";
 
 const SESSION_COOKIE = "maxtronize_session";
@@ -50,10 +52,7 @@ export function signOut() {
 
 export function isAuthenticated(): boolean {
   if (typeof window === "undefined") return false;
-  const token = window.localStorage.getItem(ACCESS_TOKEN_KEY) || window.sessionStorage.getItem(ACCESS_TOKEN_KEY);
-  if (token && token !== "demo-session") return true;
-  const role = window.localStorage.getItem(ROLE_KEY) || window.sessionStorage.getItem(ROLE_KEY);
-  return role === "issuer" || role === "investor";
+  return Boolean(getStoredAccessToken());
 }
 
 export function getSession(): { role: UserRole | null; email: string | null } {

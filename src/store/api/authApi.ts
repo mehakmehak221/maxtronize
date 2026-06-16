@@ -111,8 +111,18 @@ export const authApi = baseApi.injectEndpoints({
         url: "/auth/profile",
         method: "PATCH",
         body,
+        responseHandler: async (response) => {
+          const text = await response.text();
+          if (!text.trim()) return null;
+          try {
+            return JSON.parse(text) as unknown;
+          } catch {
+            return text;
+          }
+        },
       }),
-      transformResponse: (response: unknown) => parseProfile(response),
+      transformResponse: (response: unknown) =>
+        response ? parseProfile(response) : null,
       invalidatesTags: ["User"],
     }),
     setupProfile: build.mutation<UserProfile | null, SetupProfileRequest>({

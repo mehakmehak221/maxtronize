@@ -125,6 +125,9 @@ export default function Navbar() {
           <NavLink href="/tokenomics" label="Tokenomics" delay={0.45} active={pathname === "/tokenomics"} />
         </motion.div>
         <motion.div variants={itemVariants} className="hidden xl:block">
+          <NavLink href="/roadmap" label="Roadmap" delay={0.48} active={pathname === "/roadmap"} />
+        </motion.div>
+        <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink href="https://presale.maxtronize.com/" label="Presale" delay={0.5} target="_blank" />
         </motion.div>
         {/* <motion.div variants={itemVariants} className="hidden xl:block">
@@ -241,6 +244,11 @@ export default function Navbar() {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <MobileNavLink
+            href="/roadmap"
+            label="Roadmap"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <MobileNavLink
             href="https://calendly.com/maxtronize/30min"
             label="Contact"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -293,6 +301,7 @@ const NavLink = ({
   target,
   rel,
   active = false,
+  className = "text-[14px]",
 }: {
   href: string;
   label: string;
@@ -300,6 +309,7 @@ const NavLink = ({
   target?: string;
   rel?: string;
   active?: boolean;
+  className?: string;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const buttonRef = useRef<HTMLAnchorElement>(null);
@@ -334,7 +344,7 @@ const NavLink = ({
       href={href}
       target={target}
       rel={rel}
-      className="group relative text-base font-medium uppercase tracking-wider transition-colors duration-300"
+      className={`group relative font-medium uppercase tracking-wider transition-colors duration-300 ${className}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}

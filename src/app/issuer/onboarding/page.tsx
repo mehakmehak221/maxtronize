@@ -1270,11 +1270,11 @@ function IssuerOnboardingWizardForm({
           <h4 className="text-base font-bold text-alert-warn-title">Important: Regulation Selection</h4>
           <p className="text-base text-alert-warn-body leading-relaxed">
             This selection determines your <span className="font-bold">investor eligibility</span>,{' '}
-            <span className="font-bold">marketing restrictions</span>, and ongoing compliance obligations. Consult with legal counsel before proceeding.{' '}
-            <button type="button" className="font-bold text-[#7C3AED] hover:underline">
+            <span className="font-bold">marketing restrictions</span>, and ongoing compliance obligations. Consult with legal counsel before proceeding.
+            {/* <button type="button" className="font-bold text-[#7C3AED] hover:underline">
               Talk to Compliance
             </button>{' '}
-            for guidance.
+            for guidance. */}
           </p>
         </div>
       </div>

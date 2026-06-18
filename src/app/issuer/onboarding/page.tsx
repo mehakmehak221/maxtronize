@@ -181,6 +181,26 @@ function OnboardingStartFallback() {
   );
 }
 
+function formatStepValidationBannerMessage(
+  message: string | null,
+  fieldErrors: Record<string, string>,
+): string | null {
+  if (!message) return null;
+
+  const normalizedMessage = message.trim();
+  const inlineFieldErrorCount = Object.entries(fieldErrors).filter(
+    ([key, fieldMessage]) => key !== '_form' && fieldMessage.trim().length > 0,
+  ).length;
+
+  // When fields already show rule-specific errors inline, suppress the banner
+  // entirely to avoid duplicate / redundant messaging on screen.
+  if (inlineFieldErrorCount > 0) {
+    return null;
+  }
+
+  return normalizedMessage;
+}
+
 function StepValidationBanner({ message }: { message: string | null }) {
   if (!message) return null;
   return (
@@ -188,8 +208,7 @@ function StepValidationBanner({ message }: { message: string | null }) {
       role="alert"
       className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-base text-rose-900"
     >
-      <p className="font-bold">Please complete all required fields</p>
-      <p className="mt-1 text-rose-800">{message}</p>
+      <p className="font-medium text-rose-800">{message}</p>
     </div>
   );
 }
@@ -304,7 +323,7 @@ type IssuerOnboardingStartPageProps = {
   onCoverImageUrlChange: (url: string | null) => void;
   isStartingSession: boolean;
   onIsStartingSessionChange: (value: boolean) => void;
-  stepValidationMessage: string | null;
+  stepValidationBannerMessage: string | null;
   fieldError: (key: string) => string | undefined;
   onClearStartFieldError: (key: string) => void;
   onValidationFail: (fieldErrors: Record<string, string>, message: string) => void;
@@ -324,7 +343,7 @@ function IssuerOnboardingStartPage({
   onCoverImageUrlChange,
   isStartingSession,
   onIsStartingSessionChange,
-  stepValidationMessage,
+  stepValidationBannerMessage,
   fieldError,
   onClearStartFieldError,
   onValidationFail,
@@ -359,6 +378,23 @@ function IssuerOnboardingStartPage({
     <OnboardingLayout currentStep={0}>
       <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <header>
+          <div className="mb-6">
+            <Link
+              href="/issuer/dashboard"
+              className="inline-flex items-center gap-2 text-base font-semibold text-[#6B7280] hover:text-[#7C3AED] transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+              Back to Dashboard
+            </Link>
+          </div>
           <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">
             New tokenization
           </p>
@@ -377,7 +413,7 @@ function IssuerOnboardingStartPage({
           </p>
         ) : null}
 
-        <StepValidationBanner message={stepValidationMessage} />
+        <StepValidationBanner message={stepValidationBannerMessage} />
 
         <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
           <h3 className="text-base font-bold text-ui-strong mb-1">Asset type</h3>
@@ -521,6 +557,10 @@ function IssuerOnboardingWizard() {
   const validationAppliesToView =
     stepValidation != null && onStartPage && stepValidation.step === 0;
   const stepValidationMessage = validationAppliesToView ? stepValidation.message : null;
+  const stepValidationBannerMessage = formatStepValidationBannerMessage(
+    stepValidationMessage,
+    validationAppliesToView ? stepValidation.fieldErrors : {},
+  );
   const fieldError = (key: string) =>
     validationAppliesToView ? onboardingFieldError(stepValidation.fieldErrors, key) : undefined;
 
@@ -554,13 +594,14 @@ function IssuerOnboardingWizard() {
         onCoverImageUrlChange={setCoverImageUrl}
         isStartingSession={isStartingSession}
         onIsStartingSessionChange={setIsStartingSession}
-        stepValidationMessage={stepValidationMessage}
+        stepValidationBannerMessage={stepValidationBannerMessage}
         fieldError={fieldError}
         onClearStartFieldError={(key) => {
           setStepValidation((prev) => {
             if (!prev?.fieldErrors[key]) return prev;
             const nextErrors = { ...prev.fieldErrors };
             delete nextErrors[key];
+            if (Object.keys(nextErrors).length === 0) return null;
             return { ...prev, fieldErrors: nextErrors };
           });
         }}
@@ -731,6 +772,7 @@ function IssuerOnboardingWizardForm({
       if (!prev?.fieldErrors[key]) return prev;
       const nextErrors = { ...prev.fieldErrors };
       delete nextErrors[key];
+      if (Object.keys(nextErrors).length === 0) return null;
       return { ...prev, fieldErrors: nextErrors };
     });
   };
@@ -780,6 +822,10 @@ function IssuerOnboardingWizardForm({
       fieldErrors: result.fieldErrors,
       message: result.message,
     });
+    // Scroll window/page to the top to see the validation error banner
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     return false;
   }
 
@@ -788,6 +834,10 @@ function IssuerOnboardingWizardForm({
 
   const activeFieldErrors = validationAppliesToView ? stepValidation.fieldErrors : {};
   const stepValidationMessage = validationAppliesToView ? stepValidation.message : null;
+  const stepValidationBannerMessage = formatStepValidationBannerMessage(
+    stepValidationMessage,
+    activeFieldErrors,
+  );
 
   const fieldError = (key: string) => onboardingFieldError(activeFieldErrors, key);
 
@@ -1019,7 +1069,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Provide your entity details for Know Your Business (KYB) verification.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
@@ -1183,7 +1233,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base leading-relaxed">Configure your offering type and investor accreditation requirements.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <div className="bg-alert-warn-bg border border-alert-warn-border rounded-2xl p-4 flex flex-col gap-4 items-start sm:flex-row sm:gap-5 sm:p-6 md:p-8">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
@@ -1400,7 +1450,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Submit asset details. Fields adjust dynamically based on your asset type.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       {/* Asset Type Selection */}
       <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
@@ -1572,7 +1622,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Set up the Special Purpose Vehicle (SPV) structure for this asset.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       {/* Info Box */}
       <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
@@ -1744,7 +1794,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Configure capital raise parameters, timeline, and transfer restrictions.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
@@ -1811,7 +1861,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Configure the on-chain token parameters and blockchain network.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
@@ -1939,7 +1989,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Select a qualified custodian for your tokenized asset.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <div className="bg-alert-info-bg border border-alert-info-border rounded-3xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border flex items-center justify-center shrink-0">
@@ -2098,7 +2148,7 @@ function IssuerOnboardingWizardForm({
         ) : null}
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-8 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">

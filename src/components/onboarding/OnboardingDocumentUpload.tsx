@@ -9,6 +9,7 @@ type OnboardingDocumentUploadProps = {
   sub?: string;
   documentType: OnboardingDocumentType | string;
   metadata?: Record<string, unknown>;
+  required?: boolean;
 };
 
 export function OnboardingDocumentUpload({
@@ -16,6 +17,7 @@ export function OnboardingDocumentUpload({
   sub = "Upload PDF",
   documentType,
   metadata,
+  required,
 }: OnboardingDocumentUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const {
@@ -70,7 +72,14 @@ export function OnboardingDocumentUpload({
   return (
     <div className="space-y-3">
       <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">
-        {label}
+        <span className="inline-flex items-center gap-1">
+          {label}
+          {required ? (
+            <span className="text-ui-danger-text font-bold">*</span>
+          ) : (
+            <span className="normal-case tracking-normal text-[10px] font-semibold text-ui-faint/70 ml-1">(Optional)</span>
+          )}
+        </span>
       </label>
 
       {existing ? (

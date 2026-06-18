@@ -22,19 +22,19 @@ interface Props {
 export default function RoadmapHero({ onPillarClick }: Props) {
   const containerSize = 640;
   const center = containerSize / 2;
-  const outerRadius = 280; // pillar badges radius (outside rings)
-  const ringR1 = 180; // main decorative ring
+  const outerRadius = 280; 
+  const ringR1 = 180; 
   const ringR2 = 140;
   const ringR3 = 100;
   const dotCount = 8;
 
   return (
     <section className="relative pt-36 pb-16 md:pt-44 md:pb-20 overflow-hidden z-10">
-      {/* Grid background */}
+   
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#EAE6F5_1px,transparent_1px),linear-gradient(to_bottom,#EAE6F5_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_60%,transparent_100%)] opacity-30 pointer-events-none" />
 
       <div className="max-w-[1440px] mx-auto px-6 md:px-10 lg:px-16 xl:px-20 text-center relative z-10">
-        {/* Badge */}
+       
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -45,7 +45,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
           RWA Tokenization Infrastructure & Institutional Launch
         </motion.div>
 
-        {/* Title */}
+      
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -69,7 +69,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
           </span>
         </motion.p>
 
-        {/* ========== CHAKRA WHEEL — Desktop Only ========== */}
+       
         <motion.div
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -77,7 +77,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
           className="hidden lg:block relative mx-auto mt-16 mb-4"
           style={{ width: containerSize, height: containerSize }}
         >
-          {/* Beautiful Multi-Ring SVG Circle */}
+  
           <svg
             viewBox={`0 0 ${containerSize} ${containerSize}`}
             className="absolute inset-0 w-full h-full"
@@ -104,10 +104,10 @@ export default function RoadmapHero({ onPillarClick }: Props) {
               </radialGradient>
             </defs>
 
-            {/* Center glow */}
+         
             <circle cx={center} cy={center} r="60" fill="url(#centerGlow)" />
 
-            {/* Outer ring - rotating dashed */}
+           
             <circle
               cx={center} cy={center} r={ringR1}
               stroke="url(#ringGrad1)" strokeWidth="1.5" strokeDasharray="8 6"
@@ -115,7 +115,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
               style={{ transformOrigin: "center" }}
             />
 
-            {/* Middle ring - solid thin */}
+           
             <circle
               cx={center} cy={center} r={ringR2}
               stroke="url(#ringGrad2)" strokeWidth="1"
@@ -123,13 +123,13 @@ export default function RoadmapHero({ onPillarClick }: Props) {
               style={{ transformOrigin: "center" }}
             />
 
-            {/* Inner ring - dotted */}
+    
             <circle
               cx={center} cy={center} r={ringR3}
               stroke="#6653AF" strokeWidth="0.8" strokeDasharray="2 4" opacity="0.2"
             />
 
-            {/* Decorative spokes connecting center to outer ring */}
+           
             {Array.from({ length: dotCount }).map((_, i) => {
               const angle = (i * 360) / dotCount - 90;
               const rad = (angle * Math.PI) / 180;
@@ -145,7 +145,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
               );
             })}
 
-            {/* Small dots on outer ring intersections */}
+     
             {Array.from({ length: dotCount }).map((_, i) => {
               const angle = (i * 360) / dotCount - 90;
               const rad = (angle * Math.PI) / 180;
@@ -160,7 +160,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
               );
             })}
 
-            {/* Small decorative dots on middle ring */}
+         
             {Array.from({ length: 16 }).map((_, i) => {
               const angle = (i * 360) / 16;
               const rad = (angle * Math.PI) / 180;
@@ -176,7 +176,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
             })}
           </svg>
 
-          {/* Center Core Badge */}
+          
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6653AF] to-[#513C9E] shadow-2xl shadow-purple-500/40 flex items-center justify-center border-2 border-white/30">
               <div className="text-center">
@@ -186,7 +186,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
             </div>
           </div>
 
-          {/* Pillar Nodes positioned OUTSIDE the rings */}
+         
           {pillars.map((p, i) => {
             const angle = (i * 360) / pillars.length - 90;
             const rad = (angle * Math.PI) / 180;
@@ -217,7 +217,7 @@ export default function RoadmapHero({ onPillarClick }: Props) {
           })}
         </motion.div>
 
-        {/* ========== MOBILE/TABLET — Grid Fallback ========== */}
+      
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

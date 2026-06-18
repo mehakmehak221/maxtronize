@@ -11,7 +11,7 @@ export function StrategyTab() {
         <p className="text-slate-500 text-xs mt-1">The roadmap is divided into three parallel tracks:</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        {/* Track A */}
+      
         <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-5 sm:p-6 rounded-2xl shadow-xl shadow-purple-900/5 hover:shadow-2xl transition duration-300">
           <div className="w-10 h-10 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center mb-4">
             <Cpu className="w-5 h-5 text-[#6653AF]" />
@@ -26,7 +26,7 @@ export function StrategyTab() {
           </div>
         </div>
 
-        {/* Track B */}
+      
         <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-5 sm:p-6 rounded-2xl shadow-xl shadow-purple-900/5 hover:shadow-2xl transition duration-300">
           <div className="w-10 h-10 rounded-lg bg-cyan-50 border border-cyan-100 flex items-center justify-center mb-4">
             <AppWindow className="w-5 h-5 text-cyan-600" />
@@ -49,7 +49,6 @@ export function StrategyTab() {
           </div>
         </div>
 
-        {/* Track C */}
         <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-5 sm:p-6 rounded-2xl shadow-xl shadow-purple-900/5 hover:shadow-2xl transition duration-300">
           <div className="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
             <Smartphone className="w-5 h-5 text-emerald-600" />
@@ -146,7 +145,7 @@ export function FutureTab() {
         <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-5 sm:p-6 rounded-2xl shadow-xl shadow-purple-900/5">
           <div className="flex justify-between items-center pb-4 border-b border-purple-100 mb-4">
             <span className="text-xs font-bold text-[#6653AF] uppercase tracking-wider">Active Track</span>
-            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">12-16 Weeks</span>
+            {/* <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">12-16 Weeks</span> */}
           </div>
           <h3 className="text-lg font-bold text-slate-900">Phase 2 – Core Infrastructure</h3>
           <ul className="mt-4 space-y-2">

@@ -20,7 +20,7 @@ import {
   Smartphone
 } from "lucide-react";
 
-// Helper to get matching icon for each train station (Epic)
+
 const getEpicIcon = (id: number) => {
   switch (id) {
     case 1: return FileText;
@@ -40,7 +40,7 @@ const getEpicIcon = (id: number) => {
 export default function EpicsTab() {
   return (
     <div className="relative w-full py-8">
-      {/* Central Rail Track Line */}
+  
       <div className="absolute left-6 lg:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-[#6653AF] via-cyan-400 to-[#513C9E] -translate-x-1/2 opacity-25 rounded-full pointer-events-none" />
 
       <div className="space-y-12 lg:space-y-20 relative">
@@ -56,19 +56,19 @@ export default function EpicsTab() {
               id={`epic-${epic.id}`}
               className="relative flex flex-col lg:flex-row items-stretch justify-between w-full min-h-[280px] transition-all duration-300 rounded-2xl"
             >
-              {/* Left Column (Timeline Badge if even, Content Card if odd) */}
+           
               <div className="w-full lg:w-[46%] pl-14 lg:pl-0 flex flex-col justify-center">
                 {isEven ? (
-                  // Timeline Info on the Left (aligned right on desktop)
+                 
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     className="hidden lg:flex flex-col items-end text-right pr-8 space-y-2"
                   >
-                    <span className="text-sm font-bold text-[#6653AF] bg-[#6653AF]/10 px-3 py-1 rounded-full">
+                    {/* <span className="text-sm font-bold text-[#6653AF] bg-[#6653AF]/10 px-3 py-1 rounded-full">
                       {epic.weeks}
-                    </span>
+                    </span> */}
                     <p className="text-xs uppercase tracking-widest font-extrabold text-slate-400 mt-2">
                       {epic.category}
                     </p>
@@ -79,7 +79,7 @@ export default function EpicsTab() {
                     )}
                   </motion.div>
                 ) : (
-                  // Content Card on the Left (for odd index)
+              
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -92,7 +92,7 @@ export default function EpicsTab() {
                 )}
               </div>
 
-              {/* Central Track Node (Station Indicator) */}
+        
               <div className="absolute left-6 lg:left-1/2 -translate-x-1/2 top-8 lg:top-1/2 lg:-translate-y-1/2 z-20">
                 <motion.div
                   initial={{ scale: 0.7, opacity: 0 }}
@@ -101,15 +101,15 @@ export default function EpicsTab() {
                   className="w-10 h-10 rounded-full bg-white border-4 border-[#6653AF] shadow-lg flex items-center justify-center relative hover:border-[#513C9E] transition-colors duration-300"
                 >
                   <EpicIcon className="w-4 h-4 text-[#6653AF]" />
-                  {/* Glowing pulsing aura */}
+              
                   <div className="absolute inset-0 rounded-full bg-[#6653AF]/20 -z-10 animate-ping opacity-75" />
                 </motion.div>
               </div>
 
-              {/* Right Column (Content Card if even, Timeline Badge if odd) */}
+           
               <div className="w-full lg:w-[46%] pl-14 lg:pl-0 flex flex-col justify-center mt-4 lg:mt-0">
                 {isEven ? (
-                  // Content Card on the Right (for even index)
+                 
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -120,16 +120,16 @@ export default function EpicsTab() {
                     <EpicCard epic={epic} isEven={isEven} />
                   </motion.div>
                 ) : (
-                  // Timeline Info on the Right (aligned left on desktop)
+               
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     className="hidden lg:flex flex-col items-start text-left pl-8 space-y-2"
                   >
-                    <span className="text-sm font-bold text-[#6653AF] bg-[#6653AF]/10 px-3 py-1 rounded-full">
+                    {/* <span className="text-sm font-bold text-[#6653AF] bg-[#6653AF]/10 px-3 py-1 rounded-full">
                       {epic.weeks}
-                    </span>
+                    </span> */}
                     <p className="text-xs uppercase tracking-widest font-extrabold text-slate-400 mt-2">
                       {epic.category}
                     </p>
@@ -149,12 +149,12 @@ export default function EpicsTab() {
   );
 }
 
-// Extracted Card Sub-component for clean rendering
+
 function EpicCard({ epic, isEven }: { epic: any; isEven: boolean }) {
   return (
     <div className="bg-white/40 border border-white/60 backdrop-blur-xl rounded-2xl p-5 sm:p-6 shadow-xl shadow-purple-900/5 hover:shadow-2xl hover:border-[#6653AF]/25 transition-all duration-300 relative overflow-hidden group">
       
-      {/* Dynamic Chakra background decor for cards */}
+  
       <div className="absolute -bottom-8 -right-8 w-24 h-24 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity pointer-events-none select-none">
         <svg viewBox="0 0 100 100" className="w-full h-full text-purple-950 animate-[spin_30s_linear_infinite]" fill="none" stroke="currentColor" strokeWidth="1">
           <circle cx="50" cy="50" r="45" strokeDasharray="3 3" />
@@ -167,7 +167,7 @@ function EpicCard({ epic, isEven }: { epic: any; isEven: boolean }) {
 
       <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-      {/* Header info for mobile/all viewports */}
+      
       <div className="flex items-start justify-between flex-wrap gap-2 mb-4 border-b border-purple-100/60 pb-3">
         <div className="flex items-center gap-3">
           <span className="w-7 h-7 rounded-full bg-[#6653AF]/10 text-[#513C9E] font-bold text-xs flex items-center justify-center shrink-0">
@@ -178,7 +178,7 @@ function EpicCard({ epic, isEven }: { epic: any; isEven: boolean }) {
               {epic.title}
             </h4>
             <span className="lg:hidden text-[9px] uppercase tracking-wider font-extrabold text-slate-400 mt-0.5 block">
-              {epic.category} • {epic.weeks}
+              {epic.category} • 
             </span>
           </div>
         </div>
@@ -189,7 +189,7 @@ function EpicCard({ epic, isEven }: { epic: any; isEven: boolean }) {
         )}
       </div>
 
-      {/* Body Content */}
+
       <div className="space-y-4 text-xs sm:text-sm">
         <div>
           <h5 className="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold">Objective</h5>
@@ -198,13 +198,13 @@ function EpicCard({ epic, isEven }: { epic: any; isEven: boolean }) {
           </p>
         </div>
 
-        {/* Features List */}
+    
         <div>
           <h5 className="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold mb-2">Key Features</h5>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {epic.features.map((feature: string, idx: number) => (
               <div key={idx} className="flex gap-2 items-start p-2.5 rounded-lg bg-white/50 border border-slate-200/50 shadow-sm">
-                <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                {/* <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" /> */}
                 <span className="text-[11px] text-slate-700 leading-normal font-semibold">
                   {feature}
                 </span>
@@ -213,7 +213,7 @@ function EpicCard({ epic, isEven }: { epic: any; isEven: boolean }) {
           </div>
         </div>
 
-        {/* Platform Deliverables */}
+  
         {(epic.webDeliverables.length > 0 || epic.mobileDeliverables.length > 0) && (
           <div className="border-t border-purple-100/60 pt-4">
             <h5 className="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold mb-2.5">Platform Deliverables</h5>
@@ -254,7 +254,7 @@ function EpicCard({ epic, isEven }: { epic: any; isEven: boolean }) {
           </div>
         )}
 
-        {/* Third-Party Dependencies */}
+     
         {epic.vendors.length > 0 && (
           <div className="border-t border-purple-100/60 pt-4">
             <h5 className="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold mb-2">Third-Party Integration Stack</h5>

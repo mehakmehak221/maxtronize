@@ -247,7 +247,7 @@ export function buildOfferingPayload(
     offeringCloseDate: toIsoDate(ui.offeringCloseDate),
     firstYieldDate: toIsoDate(ui.firstYieldDate),
     distributionFrequency: normalizeFrequency(ui.distributionFrequency),
-    lockupPeriod: ui.lockupPeriod.trim() || undefined,
+    lockupPeriod: ui.lockupPeriod.trim() ? `${ui.lockupPeriod.trim().replace(/\s*months?/gi, "")} months` : undefined,
     secondaryMarket: ui.secondaryMarket.trim().toUpperCase() || undefined,
     regulationType: regulationType
       ? toApiRegulationType(regulationType)
@@ -355,7 +355,7 @@ export function parseOfferingFormFromDraft(
       "distributionFrequency",
       "distribution_frequency",
     ]),
-    lockupPeriod: readStringField(draft, ["lockupPeriod", "lockup_period"]),
+    lockupPeriod: readStringField(draft, ["lockupPeriod", "lockup_period"]).replace(/\s*months?/gi, "").trim(),
     secondaryMarket: readStringField(draft, [
       "secondaryMarket",
       "secondary_market",

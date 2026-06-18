@@ -245,6 +245,40 @@ function validateAssetStep(
   if (!parsed.success) {
     return fail(parsed.error, STEP_REQUIRED_MESSAGE);
   }
+
+  const docTypes = snapshot.entityDocumentTypes || [];
+  let requiredDocType: string | null = null;
+  let requiredDocLabel = "";
+
+  switch (snapshot.selectedAssetType) {
+    case "real-estate":
+      requiredDocType = "APPRAISAL_REPORT";
+      requiredDocLabel = "MAI Appraisal Report";
+      break;
+    case "commodities":
+      requiredDocType = "VAULT_CERTIFICATE";
+      requiredDocLabel = "Vault Storage Certificate";
+      break;
+    case "data-centers":
+      requiredDocType = "FACILITY_APPRAISAL";
+      requiredDocLabel = "Facility Appraisal Report";
+      break;
+    case "private-credit":
+      requiredDocType = "CREDIT_AGREEMENT";
+      requiredDocLabel = "Credit Agreement";
+      break;
+  }
+
+  if (requiredDocType && !docTypes.includes(requiredDocType)) {
+    return {
+      success: false,
+      fieldErrors: {
+        assetDocuments: `Upload required document: ${requiredDocLabel}`,
+      },
+      message: STEP_REQUIRED_MESSAGE,
+    };
+  }
+
   return { success: true };
 }
 

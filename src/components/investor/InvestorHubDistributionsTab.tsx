@@ -99,14 +99,14 @@ export function InvestorHubDistributionsTab() {
             key={card.label}
             className="rounded-[20px] border border-ui-border bg-ui-card p-5 shadow-sm md:rounded-[24px] md:p-6"
           >
-            <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full ${card.iconBg}`}>
+            <div className={`mb-5 flex h-10 w-10 items-center justify-center rounded-full ${card.iconBg}`}>
               <card.Icon className="h-5 w-5" strokeWidth={iconStroke} />
             </div>
-            <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{card.label}</p>
+            <p className="mb-3 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{card.label}</p>
             <p className={card.compact ? 'text-base font-bold text-ui-strong md:text-lg' : 'text-2xl font-bold text-ui-strong'}>
               {card.value}
             </p>
-            {card.sub ? <p className="mt-1 text-xs font-medium text-ui-faint">{card.sub}</p> : null}
+            {card.sub ? <p className="mt-2.5 text-xs font-medium text-ui-faint">{card.sub}</p> : null}
           </div>
         ))}
       </div>

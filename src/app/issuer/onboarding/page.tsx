@@ -978,6 +978,28 @@ function IssuerOnboardingWizardForm({
       setCurrentStep(submitValidation.firstInvalidStep);
       return;
     }
+
+    if (progress?.steps) {
+      const incompleteStep = progress.steps
+        .filter((s) => s.step !== 'REVIEW_SUBMIT')
+        .sort((a, b) => a.order - b.order)
+        .find((s) => !s.completed);
+
+      if (incompleteStep) {
+        const stepNum = incompleteStep.order;
+        const stepResult = validateOnboardingStep(stepNum, buildFormSnapshot());
+        setStepValidation({
+          step: stepNum,
+          fieldErrors: stepResult.success ? {} : stepResult.fieldErrors,
+          message: stepResult.success
+            ? "This section is incomplete. Please review and ensure all details are saved."
+            : stepResult.message,
+        });
+        setCurrentStep(stepNum);
+        return;
+      }
+    }
+
     if (onboardingId) {
       const ok = await submitApplication();
       if (!ok) return;
@@ -1194,6 +1216,7 @@ function IssuerOnboardingWizardForm({
           <OnboardingDocumentUpload
             label="Certificate of Formation / Incorporation"
             documentType="CERTIFICATE_OF_FORMATION"
+            required
           />
           <OnboardingDocumentUpload
             label="Operating Agreement"
@@ -1202,10 +1225,12 @@ function IssuerOnboardingWizardForm({
           <OnboardingDocumentUpload
             label="EIN Confirmation Letter"
             documentType="EIN_CONFIRMATION"
+            required
           />
           <OnboardingDocumentUpload
             label="Government-Issued ID"
             documentType="GOVERNMENT_ID"
+            required
           />
         </div>
       </section>
@@ -1408,7 +1433,7 @@ function IssuerOnboardingWizardForm({
       case 'real-estate':
         return (
           <>
-            <OnboardingDocumentUpload label="MAI Appraisal Report" documentType="APPRAISAL_REPORT" />
+            <OnboardingDocumentUpload label="MAI Appraisal Report" documentType="APPRAISAL_REPORT" required />
             <OnboardingDocumentUpload label="Rent Roll (last 12 months)" documentType="RENT_ROLL" />
             <OnboardingDocumentUpload label="Title Report" documentType="TITLE_REPORT" />
             <OnboardingDocumentUpload label="Environmental Assessment (Phase I)" documentType="ENVIRONMENTAL_REPORT" />
@@ -1417,21 +1442,21 @@ function IssuerOnboardingWizardForm({
       case 'commodities':
         return (
           <>
-            <OnboardingDocumentUpload label="Vault Storage Certificate" documentType="VAULT_CERTIFICATE" />
+            <OnboardingDocumentUpload label="Vault Storage Certificate" documentType="VAULT_CERTIFICATE" required />
             <OnboardingDocumentUpload label="Independent Assay Report" documentType="ASSAY_REPORT" />
           </>
         );
       case 'data-centers':
         return (
           <>
-            <OnboardingDocumentUpload label="Facility Appraisal Report" documentType="FACILITY_APPRAISAL" />
+            <OnboardingDocumentUpload label="Facility Appraisal Report" documentType="FACILITY_APPRAISAL" required />
             <OnboardingDocumentUpload label="Colocation Agreements" documentType="COLOCATION_AGREEMENT" />
           </>
         );
       case 'private-credit':
         return (
           <>
-            <OnboardingDocumentUpload label="Credit Agreement" documentType="CREDIT_AGREEMENT" />
+            <OnboardingDocumentUpload label="Credit Agreement" documentType="CREDIT_AGREEMENT" required />
             <OnboardingDocumentUpload label="Borrower Financial Statements" documentType="FINANCIAL_STATEMENT" />
           </>
         );
@@ -1587,6 +1612,9 @@ function IssuerOnboardingWizardForm({
       <section className="space-y-4">
         <p className="text-xs font-semibold text-ui-faint uppercase tracking-[0.22em]">Required Documents</p>
         <div className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm">
+          {fieldError('assetDocuments') ? (
+            <p className="mb-4 text-base font-medium text-rose-600">{fieldError('assetDocuments')}</p>
+          ) : null}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{renderAssetDocumentUploads()}</div>
         </div>
       </section>
@@ -1821,7 +1849,7 @@ function IssuerOnboardingWizardForm({
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <h3 className="text-base font-bold text-ui-strong">Transfer Restrictions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Lock-up Period" placeholder="12 months" value={lockupPeriod} onChange={setLockupPeriod} />
+            <FormField label="Lock-up Period (months)" placeholder="12" inputType="number" value={lockupPeriod} onChange={(v) => setLockupPeriod(v.replace(/[^0-9]/g, ''))} />
             <FormField label="Secondary Market" placeholder="RESTRICTED" value={secondaryMarket} onChange={setSecondaryMarket} />
           </div>
           <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-6 flex gap-4 items-start">
@@ -2245,7 +2273,7 @@ function IssuerOnboardingWizardForm({
                 <button
                   type="button"
                   onClick={() => setCurrentStep(item.step)}
-                  className="text-xs font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="text-xs font-bold text-primary hover:text-primary/80 shrink-0 transition-colors"
                 >
                   Edit
                 </button>

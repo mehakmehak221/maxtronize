@@ -138,7 +138,7 @@ export function buildOnboardingWizardInitialState(
     firstYieldDate: hydratedOfferingForm.firstYieldDate,
     distributionFrequency:
       hydratedOfferingForm.distributionFrequency || "QUARTERLY",
-    lockupPeriod: hydratedOfferingForm.lockupPeriod || "12 months",
+    lockupPeriod: hydratedOfferingForm.lockupPeriod || "12",
     secondaryMarket: hydratedOfferingForm.secondaryMarket || "RESTRICTED",
     tokenName: hydratedTokenizationForm.tokenName,
     tokenSymbol: hydratedTokenizationForm.tokenSymbol,

@@ -314,7 +314,7 @@ function InvestorHubContent() {
           {formatRequestError(overviewError)}
         </p>
       ) : null}
-      <div className="grid grid-cols-2 gap-4 md:gap-6 2xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
         {statsOverview.map((stat, i) => (
           <div
             key={i}
@@ -340,10 +340,10 @@ function InvestorHubContent() {
                 </span>
               ) : null}
             </div>
-            <div className="mt-3 flex flex-1 flex-col justify-start">
+            <div className="mt-6 flex flex-1 flex-col justify-start">
               <p className="text-xl font-bold tracking-tight text-ui-strong md:text-2xl lg:text-3xl">{stat.val}</p>
-              <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{stat.label}</p>
-              <p className="mt-0.5 text-xs font-medium text-ui-faint">{stat.sub}</p>
+              <p className="mt-3 text-[9px] font-bold uppercase tracking-widest text-ui-faint">{stat.label}</p>
+              <p className="mt-2 text-xs font-medium text-ui-faint">{stat.sub}</p>
             </div>
           </div>
         ))}

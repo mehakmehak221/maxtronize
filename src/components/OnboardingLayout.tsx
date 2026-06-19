@@ -131,7 +131,7 @@ export default function OnboardingLayout({
         </header>
 
         <div className="flex flex-1 min-h-0">
-          <aside className="sticky top-[70px] hidden h-[calc(100vh-70px)] w-72 shrink-0 flex-col self-start border-r border-ui-border bg-ui-sidebar py-8 pl-7 pr-5 xl:flex xl:w-80">
+          <aside className="sticky top-[70px] hidden max-h-[calc(100vh-70px)] w-72 shrink-0 flex-col self-start border-r border-ui-border bg-ui-sidebar py-8 pl-7 pr-5 xl:flex xl:w-80">
             <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2">
               <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-[#9CA3AF]">
                 Onboarding Steps

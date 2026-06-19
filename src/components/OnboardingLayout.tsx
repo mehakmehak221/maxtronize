@@ -28,6 +28,7 @@ interface OnboardingLayoutProps {
   currentStep: number;
   showSaved?: boolean;
   applicationStatus?: OnboardingApplicationStatusDisplay | null;
+  onStepClick?: (stepId: number) => void;
 }
 
 const STEP_ITEMS: { id: number; name: string; sub: string; Icon: LucideIcon }[] = [
@@ -70,6 +71,7 @@ export default function OnboardingLayout({
   currentStep,
   showSaved = false,
   applicationStatus = null,
+  onStepClick,
 }: OnboardingLayoutProps) {
   const progressPct =
     currentStep <= 0 ? 0 : (currentStep / TOTAL_STEPS) * 100;
@@ -164,16 +166,22 @@ export default function OnboardingLayout({
                   active;
                 const StepIcon = step.Icon;
                 const stepSub = stepStatusSub(step.id, step.sub, applicationStatus);
+                const clickable = onStepClick && !locked;
 
                 return (
                   <div
                     key={step.id}
-                    className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 transition-all ${
+                    role={clickable ? 'button' : undefined}
+                    tabIndex={clickable ? 0 : undefined}
+                    onClick={clickable ? () => onStepClick(step.id) : undefined}
+                    className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                       reviewStep
                         ? 'bg-amber-50 shadow-[inset_0_0_0_1px_#FDE68A]'
                         : active
                           ? 'bg-[#F5F3FF] shadow-[inset_0_0_0_1px_#DDD6FE]'
-                          : ''
+                          : clickable
+                            ? 'hover:bg-ui-muted-surface cursor-pointer'
+                            : ''
                     }`}
                   >
                     <div

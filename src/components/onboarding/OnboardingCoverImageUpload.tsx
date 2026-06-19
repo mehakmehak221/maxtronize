@@ -151,8 +151,9 @@ export function OnboardingCoverImageUpload({
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint">
-          Cover image
+        <label className="text-xs font-bold uppercase tracking-widest text-ui-faint inline-flex items-center gap-1.5">
+          <span>Cover image</span>
+          <span className="normal-case tracking-normal text-[10px] font-semibold text-ui-faint/70 ml-1">(Optional)</span>
         </label>
         <p className="mt-1 text-base text-ui-faint">
           Upload a JPG or PNG. The file is stored on the server and linked on your asset draft.

@@ -546,7 +546,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex flex-1 flex-col gap-3">
+            <div className="flex flex-1 flex-col gap-3 max-h-[420px] overflow-y-auto pr-1">
               {upcomingEvents.length > 0 ? (
                 upcomingEvents.map((event) => (
                   <div

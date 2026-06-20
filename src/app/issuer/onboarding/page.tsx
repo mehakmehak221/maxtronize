@@ -897,6 +897,7 @@ function IssuerOnboardingWizardForm({
       if (!ok) return;
     }
     setCurrentStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function advanceFromAccreditation() {
@@ -910,6 +911,7 @@ function IssuerOnboardingWizardForm({
       if (!ok) return;
     }
     setCurrentStep(3);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function advanceFromAsset() {
@@ -933,6 +935,7 @@ function IssuerOnboardingWizardForm({
       if (!ok) return;
     }
     setCurrentStep(4);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function advanceFromCustody() {
@@ -946,6 +949,7 @@ function IssuerOnboardingWizardForm({
       if (!ok) return;
     }
     setCurrentStep(8);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function advanceFromLegal() {
@@ -963,6 +967,7 @@ function IssuerOnboardingWizardForm({
       if (!ok) return;
     }
     setCurrentStep(5);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function advanceFromOffering() {
@@ -986,6 +991,7 @@ function IssuerOnboardingWizardForm({
       if (!ok) return;
     }
     setCurrentStep(6);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function advanceFromTokenization() {
@@ -1003,6 +1009,7 @@ function IssuerOnboardingWizardForm({
       if (!ok) return;
     }
     setCurrentStep(7);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function handleSubmitApplication() {
@@ -1018,28 +1025,8 @@ function IssuerOnboardingWizardForm({
         message: submitValidation.message,
       });
       setCurrentStep(submitValidation.firstInvalidStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
-    }
-
-    if (progress?.steps) {
-      const incompleteStep = progress.steps
-        .filter((s) => s.step !== 'REVIEW_SUBMIT')
-        .sort((a, b) => a.order - b.order)
-        .find((s) => !s.completed);
-
-      if (incompleteStep) {
-        const stepNum = incompleteStep.order;
-        const stepResult = validateOnboardingStep(stepNum, buildFormSnapshot());
-        setStepValidation({
-          step: stepNum,
-          fieldErrors: stepResult.success ? {} : stepResult.fieldErrors,
-          message: stepResult.success
-            ? "This section is incomplete. Please review and ensure all details are saved."
-            : stepResult.message,
-        });
-        setCurrentStep(stepNum);
-        return;
-      }
     }
 
     if (onboardingId) {

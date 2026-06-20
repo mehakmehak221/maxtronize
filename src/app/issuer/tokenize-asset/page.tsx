@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { ForceLightTheme } from '@/components/ForceLightTheme';
 import { MaxtronizeLogo } from '@/components/MaxtronizeLogo';
@@ -67,6 +67,8 @@ const TOKENIZATION_ICON_MAP = {
 } as const;
 
 export default function TokenizeAssetPage() {
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const scrollToTop = () => scrollAreaRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedJurisdiction, setSelectedJurisdiction] = useState('US');
@@ -1025,7 +1027,7 @@ export default function TokenizeAssetPage() {
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-background p-4 md:p-10 lg:p-16">
+        <div ref={scrollAreaRef} className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-background p-4 md:p-10 lg:p-16">
           <div className="max-w-4xl mx-auto space-y-12">
             <div className="flex items-center justify-between">
               <button
@@ -1035,6 +1037,7 @@ export default function TokenizeAssetPage() {
                     window.location.href = '/issuer/dashboard';
                   } else {
                     setCurrentStep(Math.max(1, currentStep - 1));
+                    scrollToTop();
                   }
                 }}
                 className="flex w-fit items-center gap-2 text-base font-bold text-ui-faint transition-colors hover:text-primary"
@@ -1102,7 +1105,7 @@ export default function TokenizeAssetPage() {
               <>
                 <button
                   type="button"
-                  onClick={() => setCurrentStep(5)}
+                  onClick={() => { setCurrentStep(5); scrollToTop(); }}
                   className="text-base font-semibold text-[#64748b] transition-colors hover:text-ui-strong"
                 >
                   Back
@@ -1139,6 +1142,7 @@ export default function TokenizeAssetPage() {
                   onClick={() => {
                     if (currentStep < 6) {
                       setCurrentStep(currentStep + 1);
+                      scrollToTop();
                     } else {
                       setIsSubmitted(true);
                       setTimeout(() => {

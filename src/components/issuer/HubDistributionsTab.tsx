@@ -161,17 +161,17 @@ export function HubDistributionsTab() {
               key={card.label}
               className="rounded-[24px] border border-card-border bg-card p-6 shadow-sm"
             >
-              <MetricIconCircle className="mb-4 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
+              <MetricIconCircle className="mb-6 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
                 <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
               </MetricIconCircle>
-              <p className="mb-1 text-xs font-bold uppercase tracking-widest text-text-muted">
+              <p className="mb-4 text-xs font-bold uppercase tracking-widest text-text-muted">
                 {card.label}
               </p>
               <p className="text-2xl font-bold tracking-tight text-foreground">
                 {card.value}
               </p>
               {"sub" in card && card.sub ? (
-                <p className="mt-1 text-base font-medium text-text-muted">
+                <p className="mt-4 text-base font-medium text-text-muted">
                   {card.sub}
                 </p>
               ) : null}

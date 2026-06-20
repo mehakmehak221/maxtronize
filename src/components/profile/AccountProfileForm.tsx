@@ -6,6 +6,7 @@ import {
   useAuthenticatedProfileQuery,
   useUpdateProfileMutation,
 } from "@/store/api/authApi";
+import { getSession } from "@/lib/auth";
 
 const inputClass =
   "w-full rounded-xl border border-ui-border bg-ui-card px-5 py-4 text-base leading-normal text-ui-strong outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-500/10";
@@ -20,9 +21,16 @@ export function AccountProfileForm() {
     );
   }
 
-  if (!profile) return null;
+  const session = typeof window !== "undefined" ? getSession() : { email: null };
+  const activeProfile = profile || (session.email ? {
+    email: session.email,
+    fullName: session.email.split("@")[0],
+    country: "",
+  } : null);
 
-  return <AccountProfileFormInner profile={profile} />;
+  if (!activeProfile) return null;
+
+  return <AccountProfileFormInner profile={activeProfile} />;
 }
 
 function AccountProfileFormInner({ profile }: { profile: any }) {

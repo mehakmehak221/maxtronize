@@ -161,21 +161,21 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
         className={
           isIssuer
             ? 'grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'
-            : 'grid grid-cols-2 gap-4 md:gap-6 2xl:grid-cols-4'
+            : 'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6'
         }
       >
         {analyticsMetrics.map((m) => {
           const Icon = m.Icon as LucideIcon;
           return (
             <div key={m.label} className={metricCardClass}>
-              <MetricIconCircle className={`mb-4 ${m.iconClass}`}>
+              <MetricIconCircle className={`mb-5 ${m.iconClass}`}>
                 <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
               </MetricIconCircle>
               <p
                 className={
                   isIssuer
-                    ? 'mb-1 text-xs font-bold uppercase tracking-widest text-text-muted'
-                    : 'mb-1 text-[9px] font-bold uppercase tracking-widest text-ui-faint'
+                    ? 'mb-3 text-xs font-bold uppercase tracking-widest text-text-muted'
+                    : 'mb-3 text-[9px] font-bold uppercase tracking-widest text-ui-faint'
                 }
               >
                 {m.label}
@@ -192,8 +192,8 @@ export function HubAnalyticsTab({ variant = 'investor' }: HubAnalyticsTabProps) 
               <p
                 className={
                   isIssuer
-                    ? 'mt-2 text-base text-text-muted'
-                    : 'mt-1 text-xs font-medium text-ui-faint'
+                    ? 'mt-3.5 text-base text-text-muted'
+                    : 'mt-2.5 text-xs font-medium text-ui-faint'
                 }
               >
                 {m.sub}

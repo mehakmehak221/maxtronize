@@ -444,7 +444,7 @@ export default function DashboardPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-8">
-          <div className="min-w-0 rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] sm:p-6 md:rounded-[28px] md:p-9 xl:col-span-2 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+          <div className="flex min-w-0 max-h-[420px] flex-col rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] sm:p-6 md:rounded-[28px] md:p-9 xl:col-span-2 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6 md:mb-8">
               <h3 className="text-lg font-bold text-ui-strong md:text-xl">
                 Recent Activity
@@ -523,7 +523,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-col rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] sm:p-6 md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+          <div className="flex min-w-0 max-h-[420px] flex-col rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] sm:p-6 md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
             <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6 md:mb-8">
               <h3 className="text-lg font-bold text-ui-strong md:text-xl">
                 Upcoming
@@ -546,7 +546,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex flex-1 flex-col gap-3">
+            <div className="flex flex-1 flex-col gap-3 min-h-0 overflow-y-auto pr-1">
               {upcomingEvents.length > 0 ? (
                 upcomingEvents.map((event) => (
                   <div

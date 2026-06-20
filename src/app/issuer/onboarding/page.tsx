@@ -181,6 +181,26 @@ function OnboardingStartFallback() {
   );
 }
 
+function formatStepValidationBannerMessage(
+  message: string | null,
+  fieldErrors: Record<string, string>,
+): string | null {
+  if (!message) return null;
+
+  const normalizedMessage = message.trim();
+  const inlineFieldErrorCount = Object.entries(fieldErrors).filter(
+    ([key, fieldMessage]) => key !== '_form' && fieldMessage.trim().length > 0,
+  ).length;
+
+  // When fields already show rule-specific errors inline, suppress the banner
+  // entirely to avoid duplicate / redundant messaging on screen.
+  if (inlineFieldErrorCount > 0) {
+    return null;
+  }
+
+  return normalizedMessage;
+}
+
 function StepValidationBanner({ message }: { message: string | null }) {
   if (!message) return null;
   return (
@@ -188,13 +208,13 @@ function StepValidationBanner({ message }: { message: string | null }) {
       role="alert"
       className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-base text-rose-900"
     >
-      <p className="font-bold">Please complete all required fields</p>
-      <p className="mt-1 text-rose-800">{message}</p>
+      <p className="font-medium text-rose-800">{message}</p>
     </div>
   );
 }
 
 function FormField({
+  id,
   label,
   placeholder,
   required,
@@ -207,6 +227,7 @@ function FormField({
   inputType = 'text',
   error,
 }: {
+  id?: string;
   label: string;
   placeholder: string;
   required?: boolean;
@@ -225,10 +246,14 @@ function FormField({
   return (
     <div className={`space-y-3 ${fullWidth ? 'md:col-span-2' : ''}`}>
       {label ? (
-        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
-          <span className="inline-flex items-center gap-1">
+        <label htmlFor={id} className="block text-xs font-bold uppercase tracking-widest text-ui-faint cursor-pointer">
+          <span className="inline-flex items-center gap-1.5">
             {label}
-            {required ? <span className="text-ui-danger-text font-bold">*</span> : null}
+            {required ? (
+              <span className="text-ui-danger-text font-bold">*</span>
+            ) : (
+              <span className="normal-case tracking-normal text-[10px] font-semibold text-ui-faint/70 ml-1">(Optional)</span>
+            )}
           </span>
         </label>
       ) : null}
@@ -236,6 +261,7 @@ function FormField({
       <div className="relative">
         {options ? (
           <select
+            id={id}
             value={value ?? ''}
             onChange={onChange ? (e) => onChange(e.target.value) : undefined}
             disabled={isApprovedOrLocked}
@@ -248,6 +274,7 @@ function FormField({
           </select>
         ) : (
           <input
+            id={id}
             type={inputType}
             placeholder={placeholder}
             value={value ?? ''}
@@ -304,7 +331,7 @@ type IssuerOnboardingStartPageProps = {
   onCoverImageUrlChange: (url: string | null) => void;
   isStartingSession: boolean;
   onIsStartingSessionChange: (value: boolean) => void;
-  stepValidationMessage: string | null;
+  stepValidationBannerMessage: string | null;
   fieldError: (key: string) => string | undefined;
   onClearStartFieldError: (key: string) => void;
   onValidationFail: (fieldErrors: Record<string, string>, message: string) => void;
@@ -324,7 +351,7 @@ function IssuerOnboardingStartPage({
   onCoverImageUrlChange,
   isStartingSession,
   onIsStartingSessionChange,
-  stepValidationMessage,
+  stepValidationBannerMessage,
   fieldError,
   onClearStartFieldError,
   onValidationFail,
@@ -359,6 +386,23 @@ function IssuerOnboardingStartPage({
     <OnboardingLayout currentStep={0}>
       <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <header>
+          <div className="mb-6">
+            <Link
+              href="/issuer/dashboard"
+              className="inline-flex items-center gap-2 text-base font-semibold text-[#6B7280] hover:text-[#7C3AED] transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+              Back to Dashboard
+            </Link>
+          </div>
           <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">
             New tokenization
           </p>
@@ -377,7 +421,7 @@ function IssuerOnboardingStartPage({
           </p>
         ) : null}
 
-        <StepValidationBanner message={stepValidationMessage} />
+        <StepValidationBanner message={stepValidationBannerMessage} />
 
         <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
           <h3 className="text-base font-bold text-ui-strong mb-1">Asset type</h3>
@@ -417,6 +461,7 @@ function IssuerOnboardingStartPage({
           <h3 className="text-base font-bold text-ui-strong">Asset details</h3>
           <div className="grid grid-cols-1 gap-8">
             <FormField
+              id="startAssetName"
               label="Asset name"
               placeholder="Palm Jumeirah Residences SPV"
               required
@@ -520,7 +565,29 @@ function IssuerOnboardingWizard() {
 
   const validationAppliesToView =
     stepValidation != null && onStartPage && stepValidation.step === 0;
+
+  useEffect(() => {
+    if (validationAppliesToView && stepValidation && stepValidation.fieldErrors) {
+      const firstErrorKey = Object.keys(stepValidation.fieldErrors)[0];
+      if (firstErrorKey) {
+        const timer = setTimeout(() => {
+          const element = document.getElementById(firstErrorKey);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.focus({ preventScroll: true });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [stepValidation, validationAppliesToView]);
   const stepValidationMessage = validationAppliesToView ? stepValidation.message : null;
+  const stepValidationBannerMessage = formatStepValidationBannerMessage(
+    stepValidationMessage,
+    validationAppliesToView ? stepValidation.fieldErrors : {},
+  );
   const fieldError = (key: string) =>
     validationAppliesToView ? onboardingFieldError(stepValidation.fieldErrors, key) : undefined;
 
@@ -554,13 +621,14 @@ function IssuerOnboardingWizard() {
         onCoverImageUrlChange={setCoverImageUrl}
         isStartingSession={isStartingSession}
         onIsStartingSessionChange={setIsStartingSession}
-        stepValidationMessage={stepValidationMessage}
+        stepValidationBannerMessage={stepValidationBannerMessage}
         fieldError={fieldError}
         onClearStartFieldError={(key) => {
           setStepValidation((prev) => {
             if (!prev?.fieldErrors[key]) return prev;
             const nextErrors = { ...prev.fieldErrors };
             delete nextErrors[key];
+            if (Object.keys(nextErrors).length === 0) return null;
             return { ...prev, fieldErrors: nextErrors };
           });
         }}
@@ -726,11 +794,31 @@ function IssuerOnboardingWizardForm({
     return () => window.clearInterval(timer);
   }, [isSubmitted, router]);
 
+  // Automatically scroll to and focus the first invalid field when validation is triggered
+  useEffect(() => {
+    if (stepValidation && stepValidation.fieldErrors && stepValidation.step === currentStep) {
+      const firstErrorKey = Object.keys(stepValidation.fieldErrors)[0];
+      if (firstErrorKey) {
+        const timer = setTimeout(() => {
+          const element = document.getElementById(firstErrorKey);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.focus({ preventScroll: true });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [stepValidation, currentStep]);
+
   const clearFieldError = (key: string) => {
     setStepValidation((prev) => {
       if (!prev?.fieldErrors[key]) return prev;
       const nextErrors = { ...prev.fieldErrors };
       delete nextErrors[key];
+      if (Object.keys(nextErrors).length === 0) return null;
       return { ...prev, fieldErrors: nextErrors };
     });
   };
@@ -788,6 +876,10 @@ function IssuerOnboardingWizardForm({
 
   const activeFieldErrors = validationAppliesToView ? stepValidation.fieldErrors : {};
   const stepValidationMessage = validationAppliesToView ? stepValidation.message : null;
+  const stepValidationBannerMessage = formatStepValidationBannerMessage(
+    stepValidationMessage,
+    activeFieldErrors,
+  );
 
   const fieldError = (key: string) => onboardingFieldError(activeFieldErrors, key);
 
@@ -928,6 +1020,28 @@ function IssuerOnboardingWizardForm({
       setCurrentStep(submitValidation.firstInvalidStep);
       return;
     }
+
+    if (progress?.steps) {
+      const incompleteStep = progress.steps
+        .filter((s) => s.step !== 'REVIEW_SUBMIT')
+        .sort((a, b) => a.order - b.order)
+        .find((s) => !s.completed);
+
+      if (incompleteStep) {
+        const stepNum = incompleteStep.order;
+        const stepResult = validateOnboardingStep(stepNum, buildFormSnapshot());
+        setStepValidation({
+          step: stepNum,
+          fieldErrors: stepResult.success ? {} : stepResult.fieldErrors,
+          message: stepResult.success
+            ? "This section is incomplete. Please review and ensure all details are saved."
+            : stepResult.message,
+        });
+        setCurrentStep(stepNum);
+        return;
+      }
+    }
+
     if (onboardingId) {
       const ok = await submitApplication();
       if (!ok) return;
@@ -1019,7 +1133,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Provide your entity details for Know Your Business (KYB) verification.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
@@ -1040,6 +1154,7 @@ function IssuerOnboardingWizardForm({
           <h3 className="text-base font-bold text-ui-strong">Entity Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
             <FormField
+              id="legalCompanyName"
               label="Legal Company Name"
               placeholder="Crescent Capital Partners LLC"
               required
@@ -1052,6 +1167,7 @@ function IssuerOnboardingWizardForm({
               }}
             />
             <FormField
+              id="entityType"
               label="Entity Type"
               placeholder="LLC"
               required
@@ -1063,17 +1179,19 @@ function IssuerOnboardingWizardForm({
               }}
             />
             <FormField
+              id="ein"
               label="Employer Identification Number (EIN)"
               placeholder="82-4519302"
               required
               value={ein}
               error={fieldError('ein')}
               onChange={(value) => {
-                setEin(value);
+                setEin(value.replace(/[^\d-]/g, ''));
                 clearFieldError('ein');
               }}
             />
             <FormField
+              id="businessAddress"
               label="Registered Business Address"
               placeholder="1234 Financial District Blvd, Suite 800, New York, NY 10004"
               required
@@ -1096,6 +1214,7 @@ function IssuerOnboardingWizardForm({
                 Directors <span className="text-ui-danger-text font-bold">*</span>
               </span>
               <textarea
+                id="directorsNotes"
                 value={directorsNotes}
                 onChange={(e) => {
                   setDirectorsNotes(e.target.value);
@@ -1116,6 +1235,7 @@ function IssuerOnboardingWizardForm({
                 Ultimate Beneficial Owners (UBOs) <span className="text-ui-danger-text font-bold">*</span>
               </span>
               <textarea
+                id="ubosNotes"
                 value={ubosNotes}
                 onChange={(e) => {
                   setUbosNotes(e.target.value);
@@ -1135,7 +1255,7 @@ function IssuerOnboardingWizardForm({
         </div>
       </section>
 
-      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
+      <section id="entityDocuments" className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
         <h3 className="text-base font-bold text-ui-strong">Supporting Documents</h3>
         {fieldError('entityDocuments') ? (
           <p className="text-base font-medium text-rose-600">{fieldError('entityDocuments')}</p>
@@ -1144,6 +1264,7 @@ function IssuerOnboardingWizardForm({
           <OnboardingDocumentUpload
             label="Certificate of Formation / Incorporation"
             documentType="CERTIFICATE_OF_FORMATION"
+            required
           />
           <OnboardingDocumentUpload
             label="Operating Agreement"
@@ -1152,10 +1273,12 @@ function IssuerOnboardingWizardForm({
           <OnboardingDocumentUpload
             label="EIN Confirmation Letter"
             documentType="EIN_CONFIRMATION"
+            required
           />
           <OnboardingDocumentUpload
             label="Government-Issued ID"
             documentType="GOVERNMENT_ID"
+            required
           />
         </div>
       </section>
@@ -1183,7 +1306,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base leading-relaxed">Configure your offering type and investor accreditation requirements.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <div className="bg-alert-warn-bg border border-alert-warn-border rounded-2xl p-4 flex flex-col gap-4 items-start sm:flex-row sm:gap-5 sm:p-6 md:p-8">
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0">
@@ -1195,11 +1318,11 @@ function IssuerOnboardingWizardForm({
           <h4 className="text-base font-bold text-alert-warn-title">Important: Regulation Selection</h4>
           <p className="text-base text-alert-warn-body leading-relaxed">
             This selection determines your <span className="font-bold">investor eligibility</span>,{' '}
-            <span className="font-bold">marketing restrictions</span>, and ongoing compliance obligations. Consult with legal counsel before proceeding.{' '}
-            <button type="button" className="font-bold text-[#7C3AED] hover:underline">
+            <span className="font-bold">marketing restrictions</span>, and ongoing compliance obligations. Consult with legal counsel before proceeding.
+            {/* <button type="button" className="font-bold text-[#7C3AED] hover:underline">
               Talk to Compliance
             </button>{' '}
-            for guidance.
+            for guidance. */}
           </p>
         </div>
       </div>
@@ -1210,7 +1333,7 @@ function IssuerOnboardingWizardForm({
           <p className="text-base text-ui-faint">Choose the exemption under which you will conduct this offering.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div id="selectedReg" className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { id: 'reg-d-506b', name: 'Reg D — Rule 506(b)', tag: 'Most Common', sub: 'Up to 35 non-accredited + unlimited accredited investors. No SEC registration. No general solicitation.', checks: ['No SEC filing required', 'Up to 35 non-accredited investors'], crosses: ['No advertising', 'Pre-existing relationships required'] },
             { id: 'reg-d-506c', name: 'Reg D — Rule 506(c)', tag: 'Recommended', sub: 'Unlimited accredited investors only. General solicitation permitted. Must verify accreditation for each investor.', checks: ['General solicitation allowed', 'Unlimited raise size'], crosses: ['Accredited investors only', 'Must verify each investor'] },
@@ -1290,7 +1413,7 @@ function IssuerOnboardingWizardForm({
         </div>
 
         <div className="space-y-3 sm:space-y-4">
-          <label className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-bold uppercase tracking-widest text-ui-faint">
+          <label htmlFor="verificationMethod" className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-bold uppercase tracking-widest text-ui-faint cursor-pointer">
             <svg className="shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <g clipPath="url(#clip0_accred_shield)">
                 <path d="M11.6556 7.57612C11.6556 10.49 9.61586 11.947 7.19149 12.792C7.06454 12.835 6.92664 12.833 6.80103 12.7862C4.37084 11.947 2.33112 10.49 2.33112 7.57612V3.49666C2.33112 3.3421 2.39252 3.19387 2.50181 3.08457C2.6111 2.97528 2.75933 2.91388 2.91389 2.91388C4.07945 2.91388 5.5364 2.21455 6.55044 1.32872C6.6739 1.22324 6.83096 1.16528 6.99335 1.16528C7.15574 1.16528 7.3128 1.22324 7.43626 1.32872C8.45612 2.22038 9.90724 2.91388 11.0728 2.91388C11.2274 2.91388 11.3756 2.97528 11.4849 3.08457C11.5942 3.19387 11.6556 3.3421 11.6556 3.49666V7.57612Z" stroke="#00BC7D" strokeWidth="1.16556" strokeLinecap="round" strokeLinejoin="round" />
@@ -1301,9 +1424,10 @@ function IssuerOnboardingWizardForm({
                 </clipPath>
               </defs>
             </svg>
-            <span>Accreditation Verification Method</span>
+            <span>Accreditation Verification Method <span className="text-ui-danger-text font-bold">*</span></span>
           </label>
           <FormField
+            id="verificationMethod"
             label=""
             placeholder="Select Method"
             required
@@ -1358,7 +1482,7 @@ function IssuerOnboardingWizardForm({
       case 'real-estate':
         return (
           <>
-            <OnboardingDocumentUpload label="MAI Appraisal Report" documentType="APPRAISAL_REPORT" />
+            <OnboardingDocumentUpload label="MAI Appraisal Report" documentType="APPRAISAL_REPORT" required />
             <OnboardingDocumentUpload label="Rent Roll (last 12 months)" documentType="RENT_ROLL" />
             <OnboardingDocumentUpload label="Title Report" documentType="TITLE_REPORT" />
             <OnboardingDocumentUpload label="Environmental Assessment (Phase I)" documentType="ENVIRONMENTAL_REPORT" />
@@ -1367,21 +1491,21 @@ function IssuerOnboardingWizardForm({
       case 'commodities':
         return (
           <>
-            <OnboardingDocumentUpload label="Vault Storage Certificate" documentType="VAULT_CERTIFICATE" />
+            <OnboardingDocumentUpload label="Vault Storage Certificate" documentType="VAULT_CERTIFICATE" required />
             <OnboardingDocumentUpload label="Independent Assay Report" documentType="ASSAY_REPORT" />
           </>
         );
       case 'data-centers':
         return (
           <>
-            <OnboardingDocumentUpload label="Facility Appraisal Report" documentType="FACILITY_APPRAISAL" />
+            <OnboardingDocumentUpload label="Facility Appraisal Report" documentType="FACILITY_APPRAISAL" required />
             <OnboardingDocumentUpload label="Colocation Agreements" documentType="COLOCATION_AGREEMENT" />
           </>
         );
       case 'private-credit':
         return (
           <>
-            <OnboardingDocumentUpload label="Credit Agreement" documentType="CREDIT_AGREEMENT" />
+            <OnboardingDocumentUpload label="Credit Agreement" documentType="CREDIT_AGREEMENT" required />
             <OnboardingDocumentUpload label="Borrower Financial Statements" documentType="FINANCIAL_STATEMENT" />
           </>
         );
@@ -1400,7 +1524,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Submit asset details. Fields adjust dynamically based on your asset type.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       {/* Asset Type Selection */}
       <section className="bg-ui-card border border-ui-border rounded-2xl p-8 shadow-sm">
@@ -1459,10 +1583,10 @@ function IssuerOnboardingWizardForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
           {selectedAssetType === 'commodities' && (
             <>
-              <FormField label="Asset Name" placeholder="Gold Bullion Reserve Series I" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
-              <FormField label="Commodity Type" placeholder="Select Type" required options={[{ label: 'Precious Metals', value: 'precious-metals' }, { label: 'Base Metals', value: 'base-metals' }, { label: 'Energy', value: 'energy' }, { label: 'Agriculture', value: 'agriculture' }]} value={assetMetadata?.commodityType} error={fieldError('commodityType')} onChange={(v) => { setAssetMetadata(prev => ({ ...prev, commodityType: v })); clearFieldError('commodityType'); }} />
+              <FormField id="assetName" label="Asset Name" placeholder="Gold Bullion Reserve Series I" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
+              <FormField id="commodityType" label="Commodity Type" placeholder="Select Type" required options={[{ label: 'Precious Metals', value: 'precious-metals' }, { label: 'Base Metals', value: 'base-metals' }, { label: 'Energy', value: 'energy' }, { label: 'Agriculture', value: 'agriculture' }]} value={assetMetadata?.commodityType} error={fieldError('commodityType')} onChange={(v) => { setAssetMetadata(prev => ({ ...prev, commodityType: v })); clearFieldError('commodityType'); }} />
               <FormField label="Storage Location" placeholder="London, UK (LBMA Vault)" value={assetAddress} onChange={setAssetAddress} />
-              <FormField label="Total Value (USD)" placeholder="50,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
+              <FormField id="assetAppraisal" label="Total Value (USD)" placeholder="50,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v.replace(/[^0-9.,]/g, '')); clearFieldError('assetAppraisal'); }} />
               <FormField label="Purity / Grade" placeholder="99.99% Fine Gold" value={assetMetadata?.purity} onChange={(v) => setAssetMetadata(prev => ({ ...prev, purity: v }))} />
               <FormField label="Vault Provider" placeholder="Brinks / Loomis International" value={assetMetadata?.vaultProvider} onChange={(v) => setAssetMetadata(prev => ({ ...prev, vaultProvider: v }))} />
             </>
@@ -1470,20 +1594,20 @@ function IssuerOnboardingWizardForm({
 
           {selectedAssetType === 'data-centers' && (
             <>
-              <FormField label="Facility Name" placeholder="Ashburn DC Campus Alpha" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
-              <FormField label="Total Capacity (MW)" placeholder="48" value={assetMetadata?.capacity} onChange={(v) => setAssetMetadata(prev => ({ ...prev, capacity: v }))} />
-              <FormField label="Location" placeholder="Ashburn, VA, USA" required value={assetAddress} error={fieldError('assetAddress')} onChange={(v) => { setAssetAddress(v); clearFieldError('assetAddress'); }} />
-              <FormField label="Appraised Value (USD)" placeholder="250,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
-              <FormField label="Annual NOI (USD)" placeholder="18,500,000" value={assetIncome} onChange={setAssetIncome} />
+              <FormField id="assetName" label="Facility Name" placeholder="Ashburn DC Campus Alpha" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
+              <FormField label="Total Capacity (MW)" placeholder="48" value={assetMetadata?.capacity} onChange={(v) => setAssetMetadata(prev => ({ ...prev, capacity: v.replace(/[^0-9.]/g, '') }))} />
+              <FormField id="assetAddress" label="Location" placeholder="Ashburn, VA, USA" required value={assetAddress} error={fieldError('assetAddress')} onChange={(v) => { setAssetAddress(v); clearFieldError('assetAddress'); }} />
+              <FormField id="assetAppraisal" label="Appraised Value (USD)" placeholder="250,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v.replace(/[^0-9.,]/g, '')); clearFieldError('assetAppraisal'); }} />
+              <FormField label="Annual NOI (USD)" placeholder="18,500,000" value={assetIncome} onChange={(v) => setAssetIncome(v.replace(/[^0-9.,]/g, ''))} />
               <FormField label="Tier Level" placeholder="Select Tier" options={[{ label: 'Tier I', value: 'tier-1' }, { label: 'Tier II', value: 'tier-2' }, { label: 'Tier III', value: 'tier-3' }, { label: 'Tier IV', value: 'tier-4' }]} value={assetMetadata?.tierLevel} onChange={(v) => setAssetMetadata(prev => ({ ...prev, tierLevel: v }))} />
             </>
           )}
 
           {selectedAssetType === 'private-credit' && (
             <>
-              <FormField label="Loan / Bond Name" placeholder="Senior Secured Term Loan A" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
-              <FormField label="Principal Amount (USD)" placeholder="25,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v); clearFieldError('assetAppraisal'); }} />
-              <FormField label="Credit Type" placeholder="Select Type" required options={[{ label: 'Senior Secured Term Loan', value: 'senior-secured' }, { label: 'Mezzanine Debt', value: 'mezzanine' }, { label: 'Unitranche', value: 'unitranche' }, { label: 'Convertible Note', value: 'convertible' }]} value={assetMetadata?.creditType} error={fieldError('creditType')} onChange={(v) => { setAssetMetadata(prev => ({ ...prev, creditType: v })); clearFieldError('creditType'); }} />
+              <FormField id="assetName" label="Loan / Bond Name" placeholder="Senior Secured Term Loan A" required value={assetName} error={fieldError('assetName')} onChange={(v) => { setAssetName(v); clearFieldError('assetName'); }} />
+              <FormField id="assetAppraisal" label="Principal Amount (USD)" placeholder="25,000,000" required value={assetAppraisal} error={fieldError('assetAppraisal')} onChange={(v) => { setAssetAppraisal(v.replace(/[^0-9.,]/g, '')); clearFieldError('assetAppraisal'); }} />
+              <FormField id="creditType" label="Credit Type" placeholder="Select Type" required options={[{ label: 'Senior Secured Term Loan', value: 'senior-secured' }, { label: 'Mezzanine Debt', value: 'mezzanine' }, { label: 'Unitranche', value: 'unitranche' }, { label: 'Convertible Note', value: 'convertible' }]} value={assetMetadata?.creditType} error={fieldError('creditType')} onChange={(v) => { setAssetMetadata(prev => ({ ...prev, creditType: v })); clearFieldError('creditType'); }} />
               <FormField label="Interest Rate (%)" placeholder="SOFR + 450bps" value={assetMetadata?.interestRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, interestRate: v }))} />
               <FormField label="Maturity Date" placeholder="Select Date" value={assetMetadata?.maturityDate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, maturityDate: v }))} />
               <FormField label="Credit Rating" placeholder="BB+ / Ba1" value={assetMetadata?.creditRating} onChange={(v) => setAssetMetadata(prev => ({ ...prev, creditRating: v }))} />
@@ -1493,9 +1617,10 @@ function IssuerOnboardingWizardForm({
           {selectedAssetType === 'real-estate' && (
             <>
               {fieldError('assetName') ? (
-                <p className="md:col-span-2 text-base font-medium text-rose-600">{fieldError('assetName')}</p>
+                <p id="assetName" className="md:col-span-2 text-base font-medium text-rose-600">{fieldError('assetName')}</p>
               ) : null}
               <FormField
+                id="assetAddress"
                 label="Property Address"
                 placeholder="2847 Peachtree Rd NE, Atlanta, GA 30305"
                 required
@@ -1508,6 +1633,7 @@ function IssuerOnboardingWizardForm({
                 }}
               />
               <FormField
+                id="assetAppraisal"
                 label="Appraised Valuation (USD)"
                 placeholder="12,500,000"
                 required
@@ -1515,7 +1641,7 @@ function IssuerOnboardingWizardForm({
                 value={assetAppraisal}
                 error={fieldError('assetAppraisal')}
                 onChange={(v) => {
-                  setAssetAppraisal(v);
+                  setAssetAppraisal(v.replace(/[^0-9.,]/g, ''));
                   clearFieldError('assetAppraisal');
                 }}
               />
@@ -1523,20 +1649,23 @@ function IssuerOnboardingWizardForm({
                 label="Annual Rental Income (USD)"
                 placeholder="890,000"
                 value={assetIncome}
-                onChange={setAssetIncome}
+                onChange={(v) => setAssetIncome(v.replace(/[^0-9.,]/g, ''))}
               />
               <FormField label="Property Type" placeholder="Select Type" options={[{ label: 'Residential', value: 'residential' }, { label: 'Commercial', value: 'commercial' }, { label: 'Industrial', value: 'industrial' }, { label: 'Mixed-Use', value: 'mixed-use' }, { label: 'Land', value: 'land' }]} value={assetMetadata?.propertyType} onChange={(v) => setAssetMetadata(prev => ({ ...prev, propertyType: v }))} />
-              <FormField label="Cap Rate (%)" placeholder="6.8" value={assetMetadata?.capRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, capRate: v }))} />
-              <FormField label="Occupancy Rate (%)" placeholder="94.2" value={assetMetadata?.occupancyRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, occupancyRate: v }))} />
-              <FormField label="Year Built / Renovated" placeholder="2018 / 2023" value={assetMetadata?.yearBuilt} onChange={(v) => setAssetMetadata(prev => ({ ...prev, yearBuilt: v }))} />
+              <FormField label="Cap Rate (%)" placeholder="6.8" value={assetMetadata?.capRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, capRate: v.replace(/[^0-9.]/g, '') }))} />
+              <FormField label="Occupancy Rate (%)" placeholder="94.2" value={assetMetadata?.occupancyRate} onChange={(v) => setAssetMetadata(prev => ({ ...prev, occupancyRate: v.replace(/[^0-9.]/g, '') }))} />
+              <FormField label="Year Built / Renovated" placeholder="2018 / 2023" value={assetMetadata?.yearBuilt} onChange={(v) => setAssetMetadata(prev => ({ ...prev, yearBuilt: v.replace(/[^0-9\s/]/g, '') }))} />
             </>
           )}
         </div>
       </section>
 
-      <section className="space-y-4">
+      <section id="assetDocuments" className="space-y-4">
         <p className="text-xs font-semibold text-ui-faint uppercase tracking-[0.22em]">Required Documents</p>
         <div className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm">
+          {fieldError('assetDocuments') ? (
+            <p className="mb-4 text-base font-medium text-rose-600">{fieldError('assetDocuments')}</p>
+          ) : null}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{renderAssetDocumentUploads()}</div>
         </div>
       </section>
@@ -1572,7 +1701,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Set up the Special Purpose Vehicle (SPV) structure for this asset.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       {/* Info Box */}
       <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
@@ -1594,6 +1723,7 @@ function IssuerOnboardingWizardForm({
           <h3 className="text-base font-bold text-ui-strong">SPV Configuration</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
             <FormField
+              id="spvEntityName"
               label="SPV Entity Name"
               placeholder="Crescent Peachtree Tower Holdings LLC"
               required
@@ -1607,6 +1737,7 @@ function IssuerOnboardingWizardForm({
               }}
             />
             <FormField
+              id="spvJurisdiction"
               label="SPV Jurisdiction"
               placeholder="ADGM"
               required
@@ -1618,6 +1749,7 @@ function IssuerOnboardingWizardForm({
               }}
             />
             <FormField
+              id="retainedOwnership"
               label="Issuer Retained Ownership (%)"
               placeholder="100"
               required
@@ -1625,7 +1757,7 @@ function IssuerOnboardingWizardForm({
               value={retainedOwnership}
               error={fieldError('retainedOwnership')}
               onChange={(v) => {
-                setRetainedOwnership(v);
+                setRetainedOwnership(v.replace(/[^0-9.]/g, ''));
                 clearFieldError('retainedOwnership');
               }}
             />
@@ -1744,16 +1876,16 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Configure capital raise parameters, timeline, and transfer restrictions.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
           <h3 className="text-base font-bold text-ui-strong">Offering Configuration</h3>
           <p className="text-base text-ui-faint -mt-6">Define the capital raise parameters for this offering.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Target Raise Amount (USD)" placeholder="5,000,000" required value={targetRaiseAmount} error={fieldError('targetRaiseAmount')} onChange={(v) => { setTargetRaiseAmount(v); clearFieldError('targetRaiseAmount'); }} />
-            <FormField label="Minimum Investment (USD)" placeholder="25,000" required value={minimumInvestment} error={fieldError('minimumInvestment')} onChange={(v) => { setMinimumInvestment(v); clearFieldError('minimumInvestment'); }} />
-            <FormField label="Maximum Investors" placeholder="250" value={maximumInvestors} onChange={setMaximumInvestors} />
+            <FormField id="targetRaiseAmount" label="Target Raise Amount (USD)" placeholder="5,000,000" required value={targetRaiseAmount} error={fieldError('targetRaiseAmount')} onChange={(v) => { setTargetRaiseAmount(v.replace(/[^0-9.,]/g, '')); clearFieldError('targetRaiseAmount'); }} />
+            <FormField id="minimumInvestment" label="Minimum Investment (USD)" placeholder="25,000" required value={minimumInvestment} error={fieldError('minimumInvestment')} onChange={(v) => { setMinimumInvestment(v.replace(/[^0-9.,]/g, '')); clearFieldError('minimumInvestment'); }} />
+            <FormField label="Maximum Investors" placeholder="250" value={maximumInvestors} onChange={(v) => setMaximumInvestors(v.replace(/[^0-9]/g, ''))} />
             <FormField label="Offering Currency" placeholder="USD" value={offeringCurrency} onChange={setOfferingCurrency} />
           </div>
         </div>
@@ -1761,8 +1893,8 @@ function IssuerOnboardingWizardForm({
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <h3 className="text-base font-bold text-ui-strong">Timeline</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Offering Open Date" placeholder="2026-06-01" inputType="date" required value={offeringOpenDate} error={fieldError('offeringOpenDate')} onChange={(v) => { setOfferingOpenDate(v); clearFieldError('offeringOpenDate'); }} />
-            <FormField label="Offering Close Date" placeholder="2026-09-30" inputType="date" required value={offeringCloseDate} error={fieldError('offeringCloseDate')} onChange={(v) => { setOfferingCloseDate(v); clearFieldError('offeringCloseDate'); }} />
+            <FormField id="offeringOpenDate" label="Offering Open Date" placeholder="2026-06-01" inputType="date" required value={offeringOpenDate} error={fieldError('offeringOpenDate')} onChange={(v) => { setOfferingOpenDate(v); clearFieldError('offeringOpenDate'); }} />
+            <FormField id="offeringCloseDate" label="Offering Close Date" placeholder="2026-09-30" inputType="date" required value={offeringCloseDate} error={fieldError('offeringCloseDate')} onChange={(v) => { setOfferingCloseDate(v); clearFieldError('offeringCloseDate'); }} />
             <FormField label="First Yield Distribution" placeholder="2026-10-15" inputType="date" value={firstYieldDate} onChange={setFirstYieldDate} />
             <FormField label="Distribution Frequency" placeholder="QUARTERLY" value={distributionFrequency} onChange={setDistributionFrequency} />
           </div>
@@ -1771,7 +1903,7 @@ function IssuerOnboardingWizardForm({
         <div className="space-y-8 pt-10 border-t border-ui-divider">
           <h3 className="text-base font-bold text-ui-strong">Transfer Restrictions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Lock-up Period" placeholder="12 months" value={lockupPeriod} onChange={setLockupPeriod} />
+            <FormField label="Lock-up Period (months)" placeholder="12" inputType="number" value={lockupPeriod} onChange={(v) => setLockupPeriod(v.replace(/[^0-9]/g, ''))} />
             <FormField label="Secondary Market" placeholder="RESTRICTED" value={secondaryMarket} onChange={setSecondaryMarket} />
           </div>
           <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-6 flex gap-4 items-start">
@@ -1811,17 +1943,17 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Configure the on-chain token parameters and blockchain network.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-10">
         <div className="space-y-8">
           <h3 className="text-base font-bold text-ui-strong">Token Configuration</h3>
           <p className="text-base text-ui-faint -mt-6">Define the on-chain token parameters for this asset.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField label="Token Name" placeholder="Crescent Peachtree Tower Token" required value={tokenName} error={fieldError('tokenName')} onChange={(v) => { setTokenName(v); clearFieldError('tokenName'); }} />
-            <FormField label="Token Symbol" placeholder="CPTT" required value={tokenSymbol} error={fieldError('tokenSymbol')} onChange={(v) => { setTokenSymbol(v); clearFieldError('tokenSymbol'); }} />
-            <FormField label="Total Supply" placeholder="1,000,000" value={totalSupply} onChange={setTotalSupply} />
-            <FormField label="Token Price (USD)" placeholder="5.00" required value={tokenPrice} error={fieldError('tokenPrice')} onChange={(v) => { setTokenPrice(v); clearFieldError('tokenPrice'); }} />
+            <FormField id="tokenName" label="Token Name" placeholder="Crescent Peachtree Tower Token" required value={tokenName} error={fieldError('tokenName')} onChange={(v) => { setTokenName(v); clearFieldError('tokenName'); }} />
+            <FormField id="tokenSymbol" label="Token Symbol" placeholder="CPTT" required value={tokenSymbol} error={fieldError('tokenSymbol')} onChange={(v) => { setTokenSymbol(v); clearFieldError('tokenSymbol'); }} />
+            <FormField label="Total Supply" placeholder="1,000,000" value={totalSupply} onChange={(v) => setTotalSupply(v.replace(/[^0-9,]/g, ''))} />
+            <FormField id="tokenPrice" label="Token Price (USD)" placeholder="5.00" required value={tokenPrice} error={fieldError('tokenPrice')} onChange={(v) => { setTokenPrice(v.replace(/[^0-9.]/g, '')); clearFieldError('tokenPrice'); }} />
           </div>
         </div>
 
@@ -1939,7 +2071,7 @@ function IssuerOnboardingWizardForm({
         <p className="text-ui-muted-text text-base">Select a qualified custodian for your tokenized asset.</p>
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <div className="bg-alert-info-bg border border-alert-info-border rounded-3xl p-8 flex gap-5 items-start">
         <div className="w-10 h-10 rounded-2xl bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border flex items-center justify-center shrink-0">
@@ -1960,7 +2092,7 @@ function IssuerOnboardingWizardForm({
           <h3 className="text-base font-bold text-ui-strong mb-1">Select Custodian</h3>
           <p className="text-base text-ui-faint">Your tokenized asset private keys will be managed by the selected custodian.</p>
         </div>
-        <div className="space-y-4">
+        <div id="selectedCustodian" className="space-y-4">
           {[
             { id: 'anchorage', name: 'Anchorage Digital', tag: 'Rating A+', sub: 'OCC-chartered crypto bank. Institutional cold storage with $11B+ in assets under custody.', badges: ['OCC Chartered', 'SOC 2 Type II', 'FDIC Member'] },
             { id: 'bitgo', name: 'BitGo', tag: 'Rating A', sub: 'Multi-signature institutional custody. $250M insurance coverage per wallet from Lloyd\'s of London.', badges: ['$250M Insurance', 'Multi-Sig', 'ISO 27001'] },
@@ -1994,17 +2126,19 @@ function IssuerOnboardingWizardForm({
           <h3 className="text-base font-bold text-ui-strong">Wallet Configuration</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <FormField
+              id="coldStorageRatio"
               label="Cold Storage Ratio (%)"
               placeholder="85"
               required
               value={coldStorageRatio}
               error={fieldError('coldStorageRatio')}
               onChange={(v) => {
-                setColdStorageRatio(v);
+                setColdStorageRatio(v.replace(/[^0-9.]/g, ''));
                 clearFieldError('coldStorageRatio');
               }}
             />
             <FormField
+              id="multiSigConfig"
               label="Multi-Sig Configuration"
               placeholder="2-of-3 multisig"
               required
@@ -2098,7 +2232,7 @@ function IssuerOnboardingWizardForm({
         ) : null}
       </header>
 
-      <StepValidationBanner message={stepValidationMessage} />
+      <StepValidationBanner message={stepValidationBannerMessage} />
 
       <section className="bg-ui-card border border-ui-border rounded-3xl p-8 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -2195,7 +2329,7 @@ function IssuerOnboardingWizardForm({
                 <button
                   type="button"
                   onClick={() => setCurrentStep(item.step)}
-                  className="text-xs font-bold text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="text-xs font-bold text-primary hover:text-primary/80 shrink-0 transition-colors"
                 >
                   Edit
                 </button>
@@ -2206,7 +2340,7 @@ function IssuerOnboardingWizardForm({
       </section>
 
       {applicationStatus.key === 'draft' && (
-        <section className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
+        <section id="acceptedTerms" className="bg-ui-card border border-ui-border rounded-3xl p-10 shadow-sm space-y-8">
           <h3 className="text-base font-bold text-ui-strong">Terms & Certification</h3>
           {fieldError('acceptedTerms') ? (
             <p className="text-base font-medium text-rose-600">{fieldError('acceptedTerms')}</p>
@@ -2384,7 +2518,7 @@ function IssuerOnboardingWizardForm({
   const effectiveStep = applicationStatus.key !== 'draft' ? 8 : currentStep;
 
   return (
-    <OnboardingLayout currentStep={effectiveStep} showSaved={effectiveStep === 2} applicationStatus={applicationStatus}>
+    <OnboardingLayout currentStep={effectiveStep} showSaved={effectiveStep === 2} applicationStatus={applicationStatus} onStepClick={setCurrentStep}>
       {saveError ? (
         <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-base text-rose-800">
           {saveError}

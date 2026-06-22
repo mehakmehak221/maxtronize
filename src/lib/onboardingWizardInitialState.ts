@@ -17,6 +17,7 @@ export type ParsedAssetFormFromDraft = {
   capRate: string;
   occupancyRate: string;
   yearBuilt: string;
+  metadata?: Record<string, string>;
 };
 
 export type ParsedCustodyFormFromDraft = {
@@ -151,7 +152,7 @@ export function buildOnboardingWizardInitialState(
     assetAddress: hydratedAssetForm.address,
     assetAppraisal: hydratedAssetForm.appraisalValue,
     assetIncome: hydratedAssetForm.annualIncome,
-    assetMetadata: {},
+    assetMetadata: hydratedAssetForm.metadata || {},
     coverImageKey: hydratedAssetForm.coverImageKey,
     coverImageUrl: hydratedAssetForm.coverImageUrl,
     coldStorageRatio: hydratedCustodyForm.coldStorageRatio,

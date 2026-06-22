@@ -733,6 +733,19 @@ export function custodianFromDraft(draft: Record<string, unknown>): string {
   return "anchorage";
 }
 
+export function stringMetadataRecord(
+  draft: Record<string, unknown>,
+): Record<string, string> {
+  const meta = metadataRecord(draft);
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(meta)) {
+    if (v != null) {
+      out[k] = String(v);
+    }
+  }
+  return out;
+}
+
 export function parseAssetFormFromDraft(draft: Record<string, unknown>) {
   const meta = metadataRecord(draft);
   const appraisal =
@@ -760,6 +773,7 @@ export function parseAssetFormFromDraft(draft: Record<string, unknown>) {
     capRate: readStringField(meta, ["capRate", "cap_rate"]),
     occupancyRate: readStringField(meta, ["occupancyRate", "occupancy_rate"]),
     yearBuilt: readStringField(meta, ["yearBuilt", "year_built"]),
+    metadata: stringMetadataRecord(draft),
   };
 }
 

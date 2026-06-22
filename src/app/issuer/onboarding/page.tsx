@@ -1029,6 +1029,34 @@ function IssuerOnboardingWizardForm({
       return;
     }
 
+
+    if (onboardingId && !isApprovedOrLocked) {
+      const saves = await Promise.all([
+        saveEntityDraft({ legalCompanyName, entityType, ein, businessAddress, directorsNotes, ubosNotes }),
+        saveAccreditationDraft({ regulation: selectedReg, accreditedOnly, verificationMethod }),
+        saveAssetDraft({
+          assetType: selectedAssetType,
+          name: assetName || undefined,
+          description: assetDescription || undefined,
+          address: assetAddress || undefined,
+          appraisalValue: assetAppraisal || undefined,
+          annualIncome: assetIncome || undefined,
+          metadata: {
+            ...assetMetadata,
+            ...(coverImageKey ? { coverImageKey } : {}),
+            ...(resolveStoragePublicUrl(coverImageKey, coverImageUrl)
+              ? { coverImageUrl: resolveStoragePublicUrl(coverImageKey, coverImageUrl) }
+              : {}),
+          },
+        }),
+        saveLegalDraft({ spvEntityName, jurisdiction: spvJurisdiction, retainedOwnershipPercent: retainedOwnership, proRataDistributions, votingRights, liquidationPreference, informationRights }),
+        saveOfferingDraft({ targetRaiseAmount, minimumInvestment, maximumInvestors, currency: offeringCurrency, offeringOpenDate, offeringCloseDate, firstYieldDate, distributionFrequency, lockupPeriod, secondaryMarket }, selectedReg),
+        saveTokenizationDraft({ tokenName, tokenSymbol, totalSupply, tokenPrice, tokenStandard: selectedTokenStandard, blockchainNetwork: selectedNetwork, contractAddress: '' }),
+        saveCustodyDraft({ custodian: selectedCustodian, coldStorageRatio, multiSigConfig }),
+      ]);
+      if (saves.some((ok) => !ok)) return;
+    }
+
     if (onboardingId) {
       const ok = await submitApplication();
       if (!ok) return;

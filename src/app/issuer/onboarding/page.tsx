@@ -1284,6 +1284,7 @@ function IssuerOnboardingWizardForm({
           <OnboardingDocumentUpload
             label="Operating Agreement"
             documentType="OPERATING_AGREEMENT"
+            required
           />
           <OnboardingDocumentUpload
             label="EIN Confirmation Letter"

@@ -53,6 +53,7 @@ const SUBMIT_REQUIRED_MESSAGE =
 
 const ENTITY_KYB_DOCUMENTS = [
   "CERTIFICATE_OF_FORMATION",
+  "OPERATING_AGREEMENT",
   "EIN_CONFIRMATION",
   "GOVERNMENT_ID",
 ] as const;
@@ -216,6 +217,7 @@ function validateEntityDocuments(
 
   const labels: Record<string, string> = {
     CERTIFICATE_OF_FORMATION: "Certificate of Formation",
+    OPERATING_AGREEMENT: "Operating Agreement",
     EIN_CONFIRMATION: "EIN Confirmation Letter",
     GOVERNMENT_ID: "Government-Issued ID",
   };

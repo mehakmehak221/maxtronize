@@ -849,6 +849,7 @@ function IssuerOnboardingWizardForm({
       offeringCloseDate,
       tokenName,
       tokenSymbol,
+      totalSupply,
       tokenPrice,
       selectedCustodian,
       coldStorageRatio,

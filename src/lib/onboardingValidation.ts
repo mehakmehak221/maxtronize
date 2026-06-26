@@ -31,6 +31,7 @@ export type OnboardingFormSnapshot = {
   offeringCloseDate: string;
   tokenName: string;
   tokenSymbol: string;
+  totalSupply: string;
   tokenPrice: string;
   selectedCustodian: string;
   coldStorageRatio: string;

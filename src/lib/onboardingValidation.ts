@@ -379,6 +379,7 @@ export function validateOnboardingStep(
         {
           tokenName: snapshot.tokenName,
           tokenSymbol: snapshot.tokenSymbol,
+          totalSupply: snapshot.totalSupply,
           tokenPrice: snapshot.tokenPrice,
         },
         STEP_REQUIRED_MESSAGE,

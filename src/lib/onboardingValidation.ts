@@ -158,6 +158,7 @@ export const onboardingTokenizationSchema = z.object({
     (v) => /^[A-Za-z0-9]{2,12}$/.test(v),
     "Token symbol must be 2–12 letters or numbers",
   ),
+  totalSupply: positiveAmount("Total supply"),
   tokenPrice: positiveAmount("Token price"),
 });
 

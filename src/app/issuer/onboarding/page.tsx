@@ -1968,7 +1968,7 @@ function IssuerOnboardingWizardForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
             <FormField id="tokenName" label="Token Name" placeholder="Crescent Peachtree Tower Token" required value={tokenName} error={fieldError('tokenName')} onChange={(v) => { setTokenName(v); clearFieldError('tokenName'); }} />
             <FormField id="tokenSymbol" label="Token Symbol" placeholder="CPTT" required value={tokenSymbol} error={fieldError('tokenSymbol')} onChange={(v) => { setTokenSymbol(v); clearFieldError('tokenSymbol'); }} />
-            <FormField label="Total Supply" placeholder="1,000,000" value={totalSupply} onChange={(v) => setTotalSupply(v.replace(/[^0-9,]/g, ''))} />
+            <FormField id="totalSupply" label="Total Supply" placeholder="1,000,000" required value={totalSupply} error={fieldError('totalSupply')} onChange={(v) => { setTotalSupply(v.replace(/[^0-9,]/g, '')); clearFieldError('totalSupply'); }} />
             <FormField id="tokenPrice" label="Token Price (USD)" placeholder="5.00" required value={tokenPrice} error={fieldError('tokenPrice')} onChange={(v) => { setTokenPrice(v.replace(/[^0-9.]/g, '')); clearFieldError('tokenPrice'); }} />
           </div>
         </div>

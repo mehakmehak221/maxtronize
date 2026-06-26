@@ -55,7 +55,11 @@ export type TokenizationPayload = {
   totalSupply?: number;
   tokenPrice: number;
   tokenStandard: string;
+  token_standard?: string;
+  standard?: string;
   network: string;
+  blockchainNetwork?: string;
+  blockchain_network?: string;
   contractAddress?: string;
   metadata?: Record<string, unknown>;
 };
@@ -256,13 +260,19 @@ export function buildOfferingPayload(
 }
 
 export function buildTokenizationPayload(ui: TokenizationFormState): TokenizationPayload {
+  const tokenStandard = toApiTokenStandard(ui.tokenStandard);
+  const network = toApiNetwork(ui.blockchainNetwork);
   return {
     tokenName: ui.tokenName.trim(),
     tokenSymbol: ui.tokenSymbol.trim().toUpperCase(),
     totalSupply: parseNumberish(ui.totalSupply),
     tokenPrice: parseNumberish(ui.tokenPrice) ?? 0,
-    tokenStandard: toApiTokenStandard(ui.tokenStandard),
-    network: toApiNetwork(ui.blockchainNetwork),
+    tokenStandard,
+    token_standard: tokenStandard,
+    standard: tokenStandard,
+    network,
+    blockchainNetwork: network,
+    blockchain_network: network,
     contractAddress: ui.contractAddress.trim() || undefined,
   };
 }

@@ -109,7 +109,7 @@ export default function RoadmapPage() {
             </p>
           </div>
           <motion.a
-            href="https://maxtronize.gitbook.io/docs"
+            href="https://maxtronize.gitbook.io/maxtronize-whitepaper"
             target="_blank"
             rel="noopener noreferrer"
             onMouseEnter={() => setBtnHovered(true)}

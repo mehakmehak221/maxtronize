@@ -48,7 +48,7 @@ const Footer = () => {
             </Link>
 
             <Link
-              href="https://maxtronize.gitbook.io/docs"
+              href="https://maxtronize.gitbook.io/maxtronize-whitepaper"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#4A4A6A] text-base hover:text-black transition"

@@ -70,6 +70,11 @@ export function IssuerDocumentUploadModal({
   const [documentDate, setDocumentDate] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [signaturesRequired, setSignaturesRequired] = useState("0");
+  const [fieldErrors, setFieldErrors] = useState<{
+    file?: string;
+    title?: string;
+    category?: string;
+  }>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -118,6 +123,7 @@ export function IssuerDocumentUploadModal({
   function handleClose() {
     resetForm();
     setFormError(null);
+    setFieldErrors({});
     setSuccess(null);
     onClose();
   }
@@ -148,18 +154,18 @@ export function IssuerDocumentUploadModal({
     setFormError(null);
     setSuccess(null);
 
-    if (!file) {
-      setFormError("Please choose a file to upload.");
+    // Collect all field-level errors before bailing out
+    const errors: { file?: string; title?: string; category?: string } = {};
+    if (!file) errors.file = "Please choose a file to upload.";
+    if (!title.trim()) errors.title = "Title is required.";
+    if (!resolvedCategory) errors.category = "Category is required.";
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      // Scroll to top of form body so errors are visible
       return;
     }
-    if (!title.trim()) {
-      setFormError("Title is required.");
-      return;
-    }
-    if (!resolvedCategory) {
-      setFormError("Category is required.");
-      return;
-    }
+    setFieldErrors({});
 
     const trimmedAssetId = assetId.trim();
     if (trimmedAssetId && !isDocumentAssetUuid(trimmedAssetId)) {
@@ -177,7 +183,7 @@ export function IssuerDocumentUploadModal({
 
     try {
       await upload({
-        file: normalizeIssuerDocumentFile(file),
+        file: normalizeIssuerDocumentFile(file!),
         title: title.trim(),
         category: resolvedCategory,
         assetId: trimmedAssetId || undefined,
@@ -276,10 +282,16 @@ export function IssuerDocumentUploadModal({
                 type="file"
                 className="hidden"
                 accept={ISSUER_DOCUMENT_ACCEPT}
-                onChange={(e) => handleFileChosen(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  handleFileChosen(e.target.files?.[0] ?? null);
+                  if (e.target.files?.[0]) {
+                    setFieldErrors((prev) => ({ ...prev, file: undefined }));
+                  }
+                }}
               />
               <button
                 type="button"
+                aria-required="true"
                 disabled={isLoading}
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={(e) => {
@@ -292,9 +304,11 @@ export function IssuerDocumentUploadModal({
                   handleFileChosen(e.dataTransfer.files?.[0] ?? null);
                 }}
                 className={`group w-full rounded-2xl border-2 border-dashed p-4 text-left transition-all sm:p-5 ${
-                  file
-                    ? "border-violet-300 bg-violet-50/40"
-                    : "border-ui-border bg-[#F9FAFB] hover:border-violet-300 hover:bg-violet-50/30"
+                  fieldErrors.file
+                    ? "border-red-400 bg-red-50/40"
+                    : file
+                      ? "border-violet-300 bg-violet-50/40"
+                      : "border-ui-border bg-[#F9FAFB] hover:border-violet-300 hover:bg-violet-50/30"
                 } disabled:opacity-60`}
               >
                 <div className="flex items-center gap-3 sm:gap-4">
@@ -302,7 +316,9 @@ export function IssuerDocumentUploadModal({
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11 ${
                       file
                         ? "bg-violet-100 text-[#7C3AED]"
-                        : "bg-white text-ui-muted-text shadow-sm"
+                        : fieldErrors.file
+                          ? "bg-red-100 text-red-500"
+                          : "bg-white text-ui-muted-text shadow-sm"
                     }`}
                   >
                     {file ? (
@@ -324,8 +340,10 @@ export function IssuerDocumentUploadModal({
                     ) : (
                       <>
                         <p className="text-base font-bold text-ui-strong">
-                          <span className="text-[#7C3AED]">Choose a file</span> or
-                          drag & drop
+                          <span className={fieldErrors.file ? "text-red-500" : "text-[#7C3AED]"}>
+                            Choose a file
+                          </span>{" "}
+                          or drag & drop
                         </p>
                         <p className="mt-0.5 text-xs font-medium text-ui-faint">
                           {ISSUER_DOCUMENT_ALLOWED_LABEL} · up to 50MB
@@ -335,25 +353,57 @@ export function IssuerDocumentUploadModal({
                   </div>
                 </div>
               </button>
+              {fieldErrors.file ? (
+                <p className="text-xs font-medium text-red-500" role="alert">
+                  {fieldErrors.file}
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
               <FieldLabel required>Title</FieldLabel>
               <input
                 type="text"
+                required
+                aria-required="true"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={inputClass}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (e.target.value.trim()) {
+                    setFieldErrors((prev) => ({ ...prev, title: undefined }));
+                  }
+                }}
+                className={`${inputClass} ${
+                  fieldErrors.title
+                    ? "border-red-400 bg-red-50/40 focus:border-red-400 focus:ring-red-500/20"
+                    : ""
+                }`}
                 placeholder="e.g. Limited Partnership Agreement"
               />
+              {fieldErrors.title ? (
+                <p className="text-xs font-medium text-red-500" role="alert">
+                  {fieldErrors.title}
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
               <FieldLabel required>Category</FieldLabel>
               <select
+                required
+                aria-required="true"
                 value={resolvedCategory}
-                onChange={(e) => setCategory(e.target.value)}
-                className={`${inputClass} cursor-pointer appearance-none bg-size-[16px] bg-position-[right_1rem_center] bg-no-repeat pr-10`}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  if (e.target.value) {
+                    setFieldErrors((prev) => ({ ...prev, category: undefined }));
+                  }
+                }}
+                className={`${inputClass} cursor-pointer appearance-none bg-size-[16px] bg-position-[right_1rem_center] bg-no-repeat pr-10 ${
+                  fieldErrors.category
+                    ? "border-red-400 bg-red-50/40 focus:border-red-400 focus:ring-red-500/20"
+                    : ""
+                }`}
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
                 }}
@@ -368,6 +418,11 @@ export function IssuerDocumentUploadModal({
                   ))
                 )}
               </select>
+              {fieldErrors.category ? (
+                <p className="text-xs font-medium text-red-500" role="alert">
+                  {fieldErrors.category}
+                </p>
+              ) : null}
             </div>
 
             <div className="rounded-2xl border border-ui-divider bg-ui-muted/40 p-4 sm:p-5">
@@ -401,7 +456,7 @@ export function IssuerDocumentUploadModal({
                   ) : null}
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <FieldLabel>Document date</FieldLabel>
                     <input
@@ -441,12 +496,12 @@ export function IssuerDocumentUploadModal({
         </div>
 
         {/* Footer — always visible */}
-        <div className="flex shrink-0 flex-col gap-2 border-t border-ui-divider bg-ui-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-end sm:gap-3 sm:px-6 sm:py-4">
+        <div className="flex shrink-0 items-center justify-end gap-3 border-t border-ui-divider bg-ui-card px-4 py-4 sm:px-6">
           <button
             type="button"
             onClick={handleClose}
             disabled={isLoading}
-            className="w-full rounded-xl border border-ui-border bg-white px-6 py-3 text-base font-bold text-ui-body transition-colors hover:bg-ui-muted-deep disabled:opacity-60 sm:w-auto"
+            className="rounded-xl border border-ui-border bg-white px-5 py-2.5 text-sm font-bold text-ui-body transition-colors hover:bg-ui-muted-deep disabled:opacity-60 dark:bg-ui-muted-deep"
           >
             Cancel
           </button>
@@ -454,7 +509,7 @@ export function IssuerDocumentUploadModal({
             type="submit"
             form="issuer-document-upload-form"
             disabled={isLoading}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#9810FA] px-8 py-3 text-base font-bold text-white shadow-lg shadow-violet-500/25 transition-all hover:bg-[#7C3AED] disabled:opacity-60 sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#9810FA] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-500/25 transition-all hover:bg-[#7C3AED] disabled:opacity-60"
           >
             <Upload className="h-4 w-4" strokeWidth={iconStroke} />
             {isLoading ? "Uploading…" : "Upload document"}

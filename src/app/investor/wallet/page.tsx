@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState, type ComponentType, type SVGProps } from 'react';
+import React, { useRef, useState, type ComponentType, type SVGProps } from 'react';
 import InvestorLayout from '@/components/InvestorLayout';
 import {
   Wallet,
@@ -173,6 +173,17 @@ function WalletActionForm({
         </button>
       </div>
 
+      {error ? (
+        <p className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-base font-medium text-red-700">
+          {error}
+        </p>
+      ) : null}
+      {success ? (
+        <p className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-base font-medium text-emerald-700">
+          {success}
+        </p>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {action !== 'connect' ? (
           <>
@@ -263,17 +274,6 @@ function WalletActionForm({
         ) : null}
       </div>
 
-      {error ? (
-        <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-base font-medium text-red-700">
-          {error}
-        </p>
-      ) : null}
-      {success ? (
-        <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-base font-medium text-emerald-700">
-          {success}
-        </p>
-      ) : null}
-
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <button
           type="button"
@@ -302,6 +302,7 @@ export default function InvestorWalletPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const { data: initData, isLoading: initLoading } = useGetInvestorWalletInitQuery();
   const { data: summaryData, isLoading: summaryLoading } = useGetInvestorWalletSummaryQuery();
@@ -344,6 +345,9 @@ export default function InvestorWalletPage() {
       currency,
       network: prev.network || INITIAL_FORM.network,
     }));
+    window.setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   };
 
   const closeAction = () => {
@@ -514,16 +518,18 @@ export default function InvestorWalletPage() {
         </div>
 
         {activeAction ? (
-          <WalletActionForm
-            action={activeAction}
-            form={form}
-            setForm={setForm}
-            onSubmit={submitAction}
-            onCancel={closeAction}
-            isSubmitting={isSubmitting}
-            error={error}
-            success={message}
-          />
+          <div ref={formRef}>
+            <WalletActionForm
+              action={activeAction}
+              form={form}
+              setForm={setForm}
+              onSubmit={submitAction}
+              onCancel={closeAction}
+              isSubmitting={isSubmitting}
+              error={error}
+              success={message}
+            />
+          </div>
         ) : null}
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 2xl:grid-cols-3">

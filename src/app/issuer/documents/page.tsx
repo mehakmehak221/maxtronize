@@ -5,6 +5,7 @@ import {
   BarChart3,
   CheckCircle2,
   Clock,
+  ExternalLink,
   FileText,
   Folder,
   Lock,
@@ -14,6 +15,7 @@ import {
   Search,
   Shield,
   ShieldCheck,
+  Trash2,
   Upload,
   XCircle,
 } from "lucide-react";
@@ -32,6 +34,7 @@ import {
   useGetIssuerDocumentCategoriesQuery,
   useGetIssuerDocumentsSummaryQuery,
   useListIssuerDocumentsQuery,
+  useDeleteIssuerDocumentMutation,
 } from "@/store/api/issuerDocumentsApi";
 
 const iconStroke = 1.75;
@@ -63,24 +66,24 @@ const STAT_ICONS: Record<
 };
 
 const CATEGORY_STYLES: Record<DocCategory, { pill: string; Icon: LucideIcon }> =
-  {
-    LEGAL: {
-      pill: "border-app-status-purple-border bg-app-status-purple-bg text-app-status-purple-fg",
-      Icon: Scale,
-    },
-    COMPLIANCE: {
-      pill: "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300",
-      Icon: ShieldCheck,
-    },
-    "ASSET DOCS": {
-      pill: "border-app-status-warn-border bg-app-status-warn-bg text-app-status-warn-fg",
-      Icon: Package,
-    },
-    REPORTS: {
-      pill: "border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg",
-      Icon: BarChart3,
-    },
-  };
+{
+  LEGAL: {
+    pill: "border-app-status-purple-border bg-app-status-purple-bg text-app-status-purple-fg",
+    Icon: Scale,
+  },
+  COMPLIANCE: {
+    pill: "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300",
+    Icon: ShieldCheck,
+  },
+  "ASSET DOCS": {
+    pill: "border-app-status-warn-border bg-app-status-warn-bg text-app-status-warn-fg",
+    Icon: Package,
+  },
+  REPORTS: {
+    pill: "border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg",
+    Icon: BarChart3,
+  },
+};
 
 const STATUS_STYLES: Record<DocStatus, { pill: string; Icon: LucideIcon }> = {
   signed: {
@@ -133,9 +136,8 @@ function DocStatCard({
       </div>
       <div className="min-w-0">
         <p
-          className={`mb-1 text-xs font-bold uppercase tracking-widest ${
-            highlight ? "text-amber-700/80" : "text-ui-faint"
-          }`}
+          className={`mb-1 text-xs font-bold uppercase tracking-widest ${highlight ? "text-amber-700/80" : "text-ui-faint"
+            }`}
         >
           {label}
         </p>
@@ -168,15 +170,26 @@ function CategoryBadge({ catLabel }: { catLabel: DocCategory }) {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const statusLower = status.toLowerCase();
-  let statusType: DocStatus = "draft";
-  if (statusLower.includes("sign") && !statusLower.includes("pending")) {
-    statusType = "signed";
-  } else if (statusLower.includes("pending") || statusLower.includes("await")) {
-    statusType = "pending";
-  } else if (statusLower.includes("expir")) {
-    statusType = "expired";
+function StatusBadge({
+  status,
+  statusType: statusTypeProp,
+}: {
+  status: string;
+  statusType?: DocStatus;
+}) {
+  let statusType: DocStatus = statusTypeProp ?? "draft";
+  if (!statusTypeProp) {
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes("sign") && !statusLower.includes("pending")) {
+      statusType = "signed";
+    } else if (
+      statusLower.includes("pending") ||
+      statusLower.includes("await")
+    ) {
+      statusType = "pending";
+    } else if (statusLower.includes("expir")) {
+      statusType = "expired";
+    }
   }
   const { pill, Icon } = STATUS_STYLES[statusType];
   return (
@@ -189,12 +202,15 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+
 function DocRowCard({
   doc,
   onSelect,
+  onDelete,
 }: {
   doc: IssuerDocument;
   onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
 }) {
   return (
     <article
@@ -227,32 +243,58 @@ function DocRowCard({
           <CategoryBadge catLabel={doc.categoryLabel} />
           <StatusBadge status={doc.statusLabel} />
         </div>
-        <div className="grid grid-cols-3 gap-4 text-xs">
+        <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="min-w-0">
             <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
               Asset
             </p>
-            <p className="line-clamp-2 font-medium text-ui-body">
+            <p className="truncate font-medium text-ui-body" title={doc.assetTitle}>
               {doc.assetTitle}
             </p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
               Date
             </p>
-            <p className="font-medium text-ui-muted-text">{doc.fileName}</p>
+            <p className="truncate font-medium text-ui-muted-text">{doc.documentDate || "—"}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-ui-faint">
               Size
             </p>
-            <p className="font-medium text-ui-muted-text">{doc.sizeLabel}</p>
+            <p className="truncate font-medium text-ui-muted-text">{doc.sizeLabel}</p>
           </div>
+        </div>
+        {/* Action buttons */}
+        <div
+          className="flex items-center gap-2 pt-1"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {doc.signedUrl ? (
+            <a
+              href={doc.signedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#9810FA]/10 px-3 py-2 text-xs font-bold text-[#7C3AED] transition-colors hover:bg-[#9810FA]/20"
+            >
+              <ExternalLink className="h-3.5 w-3.5" strokeWidth={iconStroke} />
+              View
+            </a>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => onDelete(doc.id)}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600 transition-colors hover:bg-rose-100 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400"
+          >
+            <Trash2 className="h-3.5 w-3.5" strokeWidth={iconStroke} />
+            Delete
+          </button>
         </div>
       </div>
     </article>
   );
 }
+
 
 export default function DocumentsPage() {
   const [activeTabKey, setActiveTabKey] = useState("ALL");
@@ -262,6 +304,9 @@ export default function DocumentsPage() {
     null,
   );
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  const [deleteDoc, { isLoading: isDeleting }] = useDeleteIssuerDocumentMutation();
 
   useEffect(() => {
     const timer = window.setTimeout(
@@ -296,6 +341,7 @@ export default function DocumentsPage() {
     useListIssuerDocumentsQuery(listParams);
 
   const documents = data?.items ?? [];
+
   const pageError = summaryError ?? categoriesError ?? error;
 
   const docStats = useMemo(() => {
@@ -368,14 +414,14 @@ export default function DocumentsPage() {
         <div className="motion-stagger-children grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5">
           {summaryLoading
             ? Object.keys(STAT_ICONS).map((label) => (
-                <div
-                  key={label}
-                  className="h-[104px] animate-pulse rounded-2xl border border-ui-border bg-ui-muted-deep sm:rounded-[20px] xl:rounded-[24px]"
-                />
-              ))
+              <div
+                key={label}
+                className="h-[104px] animate-pulse rounded-2xl border border-ui-border bg-ui-muted-deep sm:rounded-[20px] xl:rounded-[24px]"
+              />
+            ))
             : docStats.map((stat) => (
-                <DocStatCard key={stat.label} {...stat} />
-              ))}
+              <DocStatCard key={stat.label} {...stat} />
+            ))}
         </div>
 
         {(isLoading || isFetching) && (
@@ -386,7 +432,7 @@ export default function DocumentsPage() {
 
         {/* Filters + search */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
-          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-1">
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {categoriesLoading ? (
               <p className="text-base text-ui-muted-text">Loading categories…</p>
             ) : (
@@ -397,11 +443,10 @@ export default function DocumentsPage() {
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveTabKey(tab.key)}
-                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-all md:px-5 md:py-2.5 md:text-[13px] ${
-                      active
-                        ? "bg-dash-filter-active-bg text-dash-filter-active-fg shadow-md"
-                        : "bg-ui-muted-deep text-ui-body hover:bg-ui-border hover:text-ui-strong"
-                    }`}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-all md:px-5 md:py-2.5 md:text-[13px] ${active
+                      ? "bg-dash-filter-active-bg text-dash-filter-active-fg shadow-md"
+                      : "bg-ui-muted-deep text-ui-body hover:bg-ui-border hover:text-ui-strong"
+                      }`}
                   >
                     {tab.label} ({tab.count})
                   </button>
@@ -436,6 +481,7 @@ export default function DocumentsPage() {
                 key={doc.id}
                 doc={doc}
                 onSelect={setSelectedDocumentId}
+                onDelete={setConfirmDeleteId}
               />
             ))
           )}
@@ -444,7 +490,7 @@ export default function DocumentsPage() {
         {/* Desktop: table */}
         <div className="hidden min-w-0 overflow-hidden rounded-2xl border border-ui-border bg-ui-card shadow-sm sm:rounded-3xl xl:block xl:rounded-[24px]">
           <div className="min-w-0 overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left">
+            <table className="w-full min-w-[800px] text-left">
               <thead>
                 <tr className="border-b border-ui-border bg-ui-muted">
                   {[
@@ -454,14 +500,16 @@ export default function DocumentsPage() {
                     "Status",
                     "Date",
                     "Size",
+                    "Actions",
                   ].map((col) => (
                     <th
                       key={col}
-                      className={`px-4 py-4 text-xs font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${
-                        col === "Document"
-                          ? "sticky left-0 z-10 bg-ui-muted pl-6 xl:pl-8"
+                      className={`px-4 py-4 text-xs font-bold uppercase tracking-widest text-ui-faint xl:px-8 xl:py-5 ${col === "Document"
+                        ? "sticky left-0 z-10 bg-ui-muted pl-6 xl:pl-8"
+                        : col === "Actions"
+                          ? "pr-6 xl:pr-8 text-right"
                           : ""
-                      }`}
+                        }`}
                     >
                       {col}
                     </th>
@@ -471,7 +519,7 @@ export default function DocumentsPage() {
               <tbody className="divide-y divide-ui-divider">
                 {!isLoading && documents.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-8 py-14 text-center">
+                    <td colSpan={7} className="px-8 py-14 text-center">
                       <p className="text-base font-medium text-ui-faint">
                         No documents match your filters.
                       </p>
@@ -520,10 +568,37 @@ export default function DocumentsPage() {
                           {doc.fileName}
                         </span>
                       </td>
-                      <td className="px-4 py-5 last:pr-6 xl:px-8 xl:py-6 xl:pr-8">
+                      <td className="px-4 py-5 xl:px-8 xl:py-6">
                         <span className="text-sm font-medium text-ui-muted-text">
                           {doc.sizeLabel}
                         </span>
+                      </td>
+                      {/* Actions */}
+                      <td
+                        className="px-4 py-5 pr-6 xl:px-8 xl:py-6 xl:pr-8"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex items-center justify-end gap-2">
+                          {doc.signedUrl ? (
+                            <a
+                              href={doc.signedUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="View document"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-[#7C3AED] transition-colors hover:bg-violet-100 dark:bg-violet-950/30 dark:hover:bg-violet-950/50"
+                            >
+                              <ExternalLink className="h-4 w-4" strokeWidth={iconStroke} />
+                            </a>
+                          ) : null}
+                          <button
+                            type="button"
+                            title="Delete document"
+                            onClick={() => setConfirmDeleteId(doc.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 transition-colors hover:bg-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/50"
+                          >
+                            <Trash2 className="h-4 w-4" strokeWidth={iconStroke} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -545,7 +620,64 @@ export default function DocumentsPage() {
           CategoryBadge={CategoryBadge}
           StatusBadge={StatusBadge}
         />
+
+        {/* Confirm-delete overlay */}
+        {confirmDeleteId ? (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+              aria-label="Cancel delete"
+              onClick={() => setConfirmDeleteId(null)}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="relative w-full max-w-sm rounded-2xl border border-ui-border bg-ui-card p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-950/40">
+                <Trash2 className="h-6 w-6" strokeWidth={iconStroke} />
+              </div>
+              <h3 className="mb-1 text-lg font-bold text-ui-strong">
+                Delete document?
+              </h3>
+              <p className="mb-6 text-sm font-medium text-ui-muted-text">
+                This action cannot be undone. The document will be permanently
+                removed.
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setConfirmDeleteId(null)}
+                  disabled={isDeleting}
+                  className="flex-1 rounded-xl border border-ui-border px-4 py-2.5 text-sm font-bold text-ui-body transition-colors hover:bg-ui-muted disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={async () => {
+                    if (!confirmDeleteId) return;
+                    try {
+                      await deleteDoc(confirmDeleteId).unwrap();
+                      setConfirmDeleteId(null);
+                    } catch {
+                      // error handled by RTK Query; dismiss the modal
+                      setConfirmDeleteId(null);
+                    }
+                  }}
+                  className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-rose-700 disabled:opacity-50"
+                >
+                  {isDeleting ? "Deleting…" : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </DashboardLayout>
   );
 }
+

@@ -15,7 +15,7 @@ import {
   Wallet,
   Zap,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import {
   useGetIssuerWalletSummaryQuery,
@@ -227,6 +227,17 @@ function WalletActionForm({
         </button>
       </div>
 
+      {error ? (
+        <p className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-base font-medium text-red-700">
+          {error}
+        </p>
+      ) : null}
+      {success ? (
+        <p className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-base font-medium text-emerald-700">
+          {success}
+        </p>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {action === 'connect' ? (
           <>
@@ -427,17 +438,6 @@ function WalletActionForm({
         )}
       </div>
 
-      {error ? (
-        <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-base font-medium text-red-700">
-          {error}
-        </p>
-      ) : null}
-      {success ? (
-        <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-base font-medium text-emerald-700">
-          {success}
-        </p>
-      ) : null}
-
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <button
           type="button"
@@ -478,6 +478,7 @@ export default function WalletPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const { data: summary } = useGetIssuerWalletSummaryQuery();
   const { data: walletsRaw, isLoading: walletsLoading } = useGetIssuerWalletsQuery();
@@ -514,6 +515,9 @@ export default function WalletPage() {
       toWalletId: destinationWalletId,
       note: action === 'deposit' ? 'Platform treasury deposit' : '',
     });
+    window.setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   };
 
   const closeAction = () => {
@@ -707,21 +711,23 @@ export default function WalletPage() {
         </div>
 
         {activeAction ? (
-          <WalletActionForm
-            action={activeAction}
-            form={form}
-            setForm={setForm}
-            onSubmit={submitAction}
-            onCancel={closeAction}
-            isSubmitting={isSubmitting}
-            error={error}
-            success={message}
-            wallets={wallets}
-          />
+          <div ref={formRef}>
+            <WalletActionForm
+              action={activeAction}
+              form={form}
+              setForm={setForm}
+              onSubmit={submitAction}
+              onCancel={closeAction}
+              isSubmitting={isSubmitting}
+              error={error}
+              success={message}
+              wallets={wallets}
+            />
+          </div>
         ) : null}
 
         <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-3 2xl:gap-8">
-          <section className="animate-slide-up delay-200 min-w-0 space-y-4">
+          <section className="animate-slide-up delay-200 flex min-w-0 flex-col space-y-4">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-[15px] font-bold text-ui-strong">Connected Wallets</h2>
@@ -731,89 +737,91 @@ export default function WalletPage() {
               </div>
             </div>
 
-            <div className="space-y-3">
-              {walletsLoading ? (
-                <p className="rounded-2xl border border-ui-border bg-ui-card px-4 py-8 text-center text-base font-medium text-ui-muted-text">
-                  Loading wallets...
-                </p>
-              ) : wallets.length > 0 ? (
-                wallets.map((wallet, index) => {
-                  const explorerUrl = buildExplorerUrl(wallet.network, wallet.address);
-                  return (
-                    <div
-                      key={wallet.address || index}
-                      className="rounded-2xl border border-ui-border bg-ui-card p-4 shadow-sm transition-shadow hover:shadow-[0_8px_24px_-8px_rgba(15,23,42,0.12)] sm:rounded-[20px] sm:p-5"
-                    >
-                      <div className="mb-5 flex items-start justify-between gap-3">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <WalletNetworkIcon type={wallet.icon} />
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <h3 className="truncate text-base font-bold text-ui-strong">{wallet.name}</h3>
-                              {wallet.secured ? (
-                                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" strokeWidth={iconStroke} aria-label="Secured" />
-                              ) : null}
-                            </div>
-                            <p className="text-xs font-medium text-ui-faint">{wallet.network}</p>
-                          </div>
-                        </div>
-                        {explorerUrl ? (
-                          <a
-                            href={explorerUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="shrink-0 text-ui-faint transition-colors hover:text-[#7C3AED]"
-                            aria-label={`Open ${wallet.name}`}
-                          >
-                            <ExternalLink className="h-4 w-4" strokeWidth={iconStroke} />
-                          </a>
-                        ) : null}
-                      </div>
-                      <p className="mb-2 text-xl font-bold text-ui-strong">{wallet.balance}</p>
-                      <div className="flex items-center gap-2">
-                        <code className="rounded-md bg-ui-muted-deep px-2 py-1 font-mono text-xs text-ui-muted-text">
-                          {wallet.address}
-                        </code>
-                        <button
-                          type="button"
-                          onClick={() => void copyAddress(wallet.address)}
-                          className="text-ui-faint transition-colors hover:text-[#7C3AED]"
-                          aria-label="Copy address"
-                        >
-                          {copied === wallet.address ? (
-                            <span className="text-xs font-bold text-emerald-500">Copied!</span>
-                          ) : (
-                            <Copy className="h-3.5 w-3.5" strokeWidth={iconStroke} />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="rounded-2xl border border-dashed border-ui-border bg-ui-card px-4 py-8 text-center">
-                  <p className="text-base font-bold text-ui-strong">No managed wallets yet</p>
-                  <p className="mt-1 text-base font-medium text-ui-muted-text">
-                    Wallets will appear here once they are provisioned on the backend.
+            <div className="flex flex-1 flex-col rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-7">
+              <div className="flex-1 space-y-3">
+                {walletsLoading ? (
+                  <p className="py-10 text-center text-base font-medium text-ui-muted-text">
+                    Loading wallets...
                   </p>
-                </div>
-              )}
-
-              {allWalletsSecured ? (
-                <div className="flex items-start gap-3 rounded-[16px] border border-emerald-200 bg-emerald-50/80 px-4 py-4">
-                  <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" strokeWidth={iconStroke} />
-                  <div>
-                    <p className="text-sm font-bold text-emerald-800">All wallets secured</p>
-                    <p className="text-xs font-medium text-emerald-700/80">
-                      Live wallet records show secure custody coverage.
+                ) : wallets.length > 0 ? (
+                  wallets.map((wallet, index) => {
+                    const explorerUrl = buildExplorerUrl(wallet.network, wallet.address);
+                    return (
+                      <div
+                        key={wallet.address || index}
+                        className="rounded-2xl border border-ui-border bg-ui-muted-deep p-4 transition-shadow hover:shadow-[0_8px_24px_-8px_rgba(15,23,42,0.12)] sm:p-5"
+                      >
+                        <div className="mb-5 flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <WalletNetworkIcon type={wallet.icon} />
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <h3 className="truncate text-base font-bold text-ui-strong">{wallet.name}</h3>
+                                {wallet.secured ? (
+                                  <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" strokeWidth={iconStroke} aria-label="Secured" />
+                                ) : null}
+                              </div>
+                              <p className="text-xs font-medium text-ui-faint">{wallet.network}</p>
+                            </div>
+                          </div>
+                          {explorerUrl ? (
+                            <a
+                              href={explorerUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="shrink-0 text-ui-faint transition-colors hover:text-[#7C3AED]"
+                              aria-label={`Open ${wallet.name}`}
+                            >
+                              <ExternalLink className="h-4 w-4" strokeWidth={iconStroke} />
+                            </a>
+                          ) : null}
+                        </div>
+                        <p className="mb-2 text-xl font-bold text-ui-strong">{wallet.balance}</p>
+                        <div className="flex items-center gap-2">
+                          <code className="rounded-md bg-ui-muted-deep px-2 py-1 font-mono text-xs text-ui-muted-text">
+                            {wallet.address}
+                          </code>
+                          <button
+                            type="button"
+                            onClick={() => void copyAddress(wallet.address)}
+                            className="text-ui-faint transition-colors hover:text-[#7C3AED]"
+                            aria-label="Copy address"
+                          >
+                            {copied === wallet.address ? (
+                              <span className="text-xs font-bold text-emerald-500">Copied!</span>
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" strokeWidth={iconStroke} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-ui-border px-4 py-10 text-center">
+                    <p className="text-base font-bold text-ui-strong">No managed wallets yet</p>
+                    <p className="mt-1 text-base font-medium text-ui-muted-text">
+                      Wallets will appear here once they are provisioned on the backend.
                     </p>
                   </div>
-                </div>
-              ) : null}
+                )}
+
+                {allWalletsSecured ? (
+                  <div className="flex items-start gap-3 rounded-[16px] border border-emerald-200 bg-emerald-50/80 px-4 py-4">
+                    <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" strokeWidth={iconStroke} />
+                    <div>
+                      <p className="text-sm font-bold text-emerald-800">All wallets secured</p>
+                      <p className="text-xs font-medium text-emerald-700/80">
+                        Live wallet records show secure custody coverage.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </section>
 
-          <section id="issuer-wallet-holdings" className="animate-slide-up delay-300 min-w-0 space-y-4">
+          <section id="issuer-wallet-holdings" className="animate-slide-up delay-300 flex min-w-0 flex-col space-y-4">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-[15px] font-bold text-ui-strong">Token Holdings</h2>
               <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#7C3AED]">
@@ -821,7 +829,7 @@ export default function WalletPage() {
               </span>
             </div>
 
-            <div className="rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-7">
+            <div className="flex flex-1 flex-col rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-7">
               {holdingsLoading ? (
                 <p className="py-10 text-center text-base font-medium text-ui-muted-text">Loading holdings...</p>
               ) : holdings.length > 0 ? (
@@ -884,7 +892,7 @@ export default function WalletPage() {
             </div>
           </section>
 
-          <section id="issuer-wallet-transactions" className="animate-slide-up delay-400 min-w-0 space-y-4 md:col-span-2 2xl:col-span-1">
+          <section id="issuer-wallet-transactions" className="animate-slide-up delay-400 flex min-w-0 flex-col space-y-4 md:col-span-2 2xl:col-span-1">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-[15px] font-bold text-ui-strong">Transactions</h2>
               <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ui-faint">
@@ -893,7 +901,7 @@ export default function WalletPage() {
               </span>
             </div>
 
-            <div className="rounded-[24px] border border-ui-border bg-ui-card p-3 shadow-sm md:p-4">
+            <div className="flex flex-1 flex-col rounded-[24px] border border-ui-border bg-ui-card p-3 shadow-sm md:p-4">
               <div className="divide-y divide-ui-divider">
                 {transactionsLoading ? (
                   <p className="px-4 py-10 text-center text-base font-medium text-ui-muted-text">Loading transactions...</p>

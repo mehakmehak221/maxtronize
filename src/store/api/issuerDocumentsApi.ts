@@ -67,6 +67,15 @@ export const issuerDocumentsApi = baseApi.injectEndpoints({
         { type: "IssuerDocuments", id },
       ],
     }),
+    deleteIssuerDocument: build.mutation<unknown, string>({
+      query: (id) => ({ url: `/documents/${id}`, method: "DELETE" }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: "IssuerDocuments", id },
+        { type: "IssuerDocuments", id: "LIST" },
+        { type: "IssuerDocuments", id: "SUMMARY" },
+        { type: "IssuerDocuments", id: "CATEGORIES" },
+      ],
+    }),
     uploadIssuerDocument: build.mutation<unknown, UploadIssuerDocumentRequest>({
       query: (body) => {
         const formData = new FormData();
@@ -109,5 +118,6 @@ export const {
   useGetIssuerDocumentCategoriesQuery,
   useListIssuerDocumentsQuery,
   useGetIssuerDocumentQuery,
+  useDeleteIssuerDocumentMutation,
   useUploadIssuerDocumentMutation,
 } = issuerDocumentsApi;

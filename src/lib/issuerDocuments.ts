@@ -28,14 +28,14 @@ export type IssuerDocument = {
     required: number;
     label: string;
   };
-  documentDate: Record<string, unknown>;
-  expiresAt: Record<string, unknown>;
+  documentDate: string | null;
+  expiresAt: string | null;
   size: number;
   sizeLabel: string;
   fileName: string;
   mimeType: string;
   signedUrl: string;
-  createdAt: Record<string, unknown>;
+  createdAt: string | null;
 };
 
 export type PaginationMeta = {
@@ -188,6 +188,21 @@ function parsePagination(payload: unknown): PaginationMeta {
   };
 }
 
+function extractDateString(raw: unknown): string | null {
+  if (!raw) return null;
+  if (typeof raw === "string") return raw || null;
+  if (typeof raw === "number") return new Date(raw).toISOString();
+  if (raw instanceof Date) return raw.toISOString();
+  if (typeof raw === "object" && !Array.isArray(raw)) {
+    const obj = raw as Record<string, unknown>;
+    // Try common API key names for date string values
+    for (const key of ["date", "value", "timestamp", "iso", "dateString", "date_string"]) {
+      if (typeof obj[key] === "string" && obj[key]) return obj[key] as string;
+    }
+  }
+  return null;
+}
+
 function parseDocumentItem(record: Record<string, unknown>): IssuerDocument {
   const id =
     pickString(record, ["id", "_id", "documentId", "document_id"]) ?? "";
@@ -238,21 +253,13 @@ function parseDocumentItem(record: Record<string, unknown>): IssuerDocument {
         }
       : { completed: 0, required: 0, label: "0/0" };
 
-  const documentDateRaw = record.documentDate ?? record.document_date ?? {};
-  const documentDate =
-    documentDateRaw &&
-    typeof documentDateRaw === "object" &&
-    !Array.isArray(documentDateRaw)
-      ? (documentDateRaw as Record<string, unknown>)
-      : {};
+  const documentDate = extractDateString(
+    record.documentDate ?? record.document_date,
+  );
 
-  const expiresAtRaw = record.expiresAt ?? record.expires_at ?? {};
-  const expiresAt =
-    expiresAtRaw &&
-    typeof expiresAtRaw === "object" &&
-    !Array.isArray(expiresAtRaw)
-      ? (expiresAtRaw as Record<string, unknown>)
-      : {};
+  const expiresAt = extractDateString(
+    record.expiresAt ?? record.expires_at,
+  );
 
   const size = pickNumber(record, ["size", "fileSize", "file_size"]) ?? 0;
   const sizeLabel =
@@ -263,13 +270,9 @@ function parseDocumentItem(record: Record<string, unknown>): IssuerDocument {
   const signedUrl =
     pickString(record, ["signedUrl", "signed_url", "url"]) ?? "";
 
-  const createdAtRaw = record.createdAt ?? record.created_at ?? {};
-  const createdAt =
-    createdAtRaw &&
-    typeof createdAtRaw === "object" &&
-    !Array.isArray(createdAtRaw)
-      ? (createdAtRaw as Record<string, unknown>)
-      : {};
+  const createdAt = extractDateString(
+    record.createdAt ?? record.created_at,
+  );
 
   return {
     id: id || title,

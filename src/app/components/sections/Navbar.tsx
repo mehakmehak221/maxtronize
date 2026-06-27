@@ -119,7 +119,7 @@ export default function Navbar() {
           <NavLink href="/#tokenize" label="Why Tokenize" delay={0.3} />
         </motion.div>
         <motion.div variants={itemVariants} className="hidden xl:block">
-          <NavLink href="https://maxtronize.gitbook.io/docs" label="Whitepaper" delay={0.4} />
+          <NavLink href="https://maxtronize.gitbook.io/maxtronize-whitepaper" label="Whitepaper" delay={0.4} />
         </motion.div>
         <motion.div variants={itemVariants} className="hidden xl:block">
           <NavLink href="/tokenomics" label="Tokenomics" delay={0.45} active={pathname === "/tokenomics"} />
@@ -234,7 +234,7 @@ export default function Navbar() {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <MobileNavLink
-            href="https://maxtronize.gitbook.io/docs"
+            href="https://maxtronize.gitbook.io/maxtronize-whitepaper"
             label="Whitepaper"
             onClick={() => setIsMobileMenuOpen(false)}
           />

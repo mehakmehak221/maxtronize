@@ -4,20 +4,20 @@
 
 
 :root {
-  --background: #f9fafb;
+  --background: #f0ecf7;
   --foreground: #111827;
   --primary: #7c3aed;
   --primary-dark: #5b21b6;
   --primary-deep: #1a0033;
   --accent: #dab2ff;
-  --surface: #f3f4f6;
-  --border: #e5e7eb;
+  --surface: #e8e3f2;
+  --border: #ddd6ef;
   --text-muted: #6b7280;
 
-  --card: #ffffff;
-  --card-border: #e5e7eb;
-  --header-bg: rgba(255, 255, 255, 0.92);
-  --sidebar-bg: #ffffff;
+  --card: #f8f6fc;
+  --card-border: #ddd6ef;
+  --header-bg: rgba(238, 234, 246, 0.95);
+  --sidebar-bg: #eeeaf6;
 
   --palette-success: #10b981;
   --palette-success-light: #34d399;
@@ -31,19 +31,19 @@
   --brand-purple: #9810fa;
   --brand-indigo: #6366f1;
 
-  --ui-page: #f9fafb;
-  --ui-sidebar: #ffffff;
-  --ui-card: #ffffff;
-  --ui-elevated: #ffffff;
-  --ui-input: #f8fafc;
-  --ui-input-focus: #ffffff;
-  --ui-muted: #f9fafb;
-  --ui-muted-surface: rgba(249, 250, 251, 0.65);
-  --ui-muted-deep: #f3f4f6;
-  --ui-border: #e5e7eb;
-  --ui-border-strong: #d1d5db;
-  --ui-divider: #f3f4f6;
-  --ui-divider-strong: #e5e7eb;
+  --ui-page: #ebe7f4;
+  --ui-sidebar: #eeeaf6;
+  --ui-card: #f8f6fc;
+  --ui-elevated: #faf8fd;
+  --ui-input: #f3f0f9;
+  --ui-input-focus: #faf8fd;
+  --ui-muted: #f0ecf7;
+  --ui-muted-surface: rgba(240, 236, 247, 0.65);
+  --ui-muted-deep: #e6e1f0;
+  --ui-border: #ddd6ef;
+  --ui-border-strong: #cbc3e0;
+  --ui-divider: #e8e4f0;
+  --ui-divider-strong: #ddd6ef;
   --ui-strong: #111827;
   --ui-body: #4b5563;
   --ui-muted-text: #6b7280;
@@ -54,12 +54,12 @@
   --ui-accent-tint-hover: rgba(124, 58, 237, 0.1);
   --ui-help-bg: #f5f3ff;
   --ui-help-border: rgba(124, 58, 237, 0.12);
-  --ui-highlight-box: #fbfbff;
-  --ui-inset-shadow: rgba(15, 23, 42, 0.06);
+  --ui-highlight-box: #f5f2fb;
+  --ui-inset-shadow: rgba(91, 33, 182, 0.06);
 
   --alert-info-bg: rgba(239, 246, 255, 0.85);
   --alert-info-border: #bfdbfe;
-  --alert-info-icon-wrap-bg: #ffffff;
+  --alert-info-icon-wrap-bg: #f8f6fc;
   --alert-info-icon-wrap-border: #bfdbfe;
   --alert-info-icon: #3b82f6;
   --alert-info-title: #1e3a8a;
@@ -67,7 +67,7 @@
 
   --alert-warn-bg: rgba(255, 251, 235, 0.9);
   --alert-warn-border: #fde68a;
-  --alert-warn-icon-wrap-bg: #ffffff;
+  --alert-warn-icon-wrap-bg: #f8f6fc;
   --alert-warn-icon-wrap-border: #fde68a;
   --alert-warn-icon: #d97706;
   --alert-warn-title: #92400e;
@@ -87,12 +87,12 @@
 
   --ui-purple-banner-bg: rgba(245, 243, 255, 0.95);
   --ui-purple-banner-border: rgba(124, 58, 237, 0.14);
-  --ui-purple-banner-icon-bg: #ffffff;
+  --ui-purple-banner-icon-bg: #f8f6fc;
 
   --btn-primary-from: #8b5cf6;
   --btn-primary-to: #6366f1;
-  --btn-secondary-bg: #ffffff;
-  --btn-secondary-hover: #f9fafb;
+  --btn-secondary-bg: #f8f6fc;
+  --btn-secondary-hover: #f0ecf7;
   --btn-secondary-text: #6b7280;
 
   --progress-track: #e5e7eb;
@@ -106,13 +106,13 @@
   --celebrate-green-soft: #4ade80;
   --celebrate-shadow: rgba(34, 197, 94, 0.35);
 
-  --dash-filter-rail-bg: rgba(243, 244, 246, 0.75);
+  --dash-filter-rail-bg: rgba(230, 225, 240, 0.75);
   --dash-filter-active-bg: #111827;
   --dash-filter-active-fg: #ffffff;
   --dash-filter-active-badge-bg: rgba(255, 255, 255, 0.22);
   --dash-filter-inactive-fg: #9ca3af;
   --dash-filter-inactive-hover-fg: #4b5563;
-  --dash-filter-count-bg: rgba(229, 231, 235, 0.85);
+  --dash-filter-count-bg: rgba(221, 214, 239, 0.85);
 
   --app-status-success-bg: #ecfdf5;
   --app-status-success-fg: #047857;
@@ -129,14 +129,14 @@
   --app-status-purple-border: #ddd6fe;
   --app-status-purple-dot: #7c3aed;
 
-  --app-status-neutral-bg: #f9fafb;
+  --app-status-neutral-bg: #f0ecf7;
   --app-status-neutral-fg: #6b7280;
-  --app-status-neutral-border: #e5e7eb;
+  --app-status-neutral-border: #ddd6ef;
   --app-status-neutral-dot: #9ca3af;
 
-  --network-badge-bg: #f3f4f6;
+  --network-badge-bg: #e6e1f0;
   --network-badge-fg: #4b5563;
-  --network-badge-border: #e5e7eb;
+  --network-badge-border: #ddd6ef;
 
   --dash-kpi-violet-fg: #7f22fe;
   --dash-kpi-violet-soft: rgba(127, 34, 254, 0.1);

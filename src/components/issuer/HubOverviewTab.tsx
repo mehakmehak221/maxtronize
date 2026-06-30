@@ -173,7 +173,7 @@ export function HubOverviewTab() {
           </div>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
+        <div className="space-y-4 rounded-2xl border border-violet-200/70 bg-violet-50/60 p-5 shadow-sm dark:border-violet-800/40 dark:bg-violet-950/20 sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
           <div className="flex items-start justify-between">
             <MetricIconCircle className="bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
               <Building2 className="h-5 w-5" strokeWidth={iconStroke} />
@@ -203,9 +203,9 @@ export function HubOverviewTab() {
           </div>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
+        <div className="space-y-4 rounded-2xl border border-indigo-200/70 bg-indigo-50/55 p-5 shadow-sm dark:border-indigo-800/40 dark:bg-indigo-950/20 sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
           <div className="flex items-start justify-between gap-2">
-            <MetricIconCircle className="bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
+            <MetricIconCircle className="bg-indigo-100 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
               <Users className="h-5 w-5" strokeWidth={iconStroke} />
             </MetricIconCircle>
             <span className="rounded-full bg-ui-success-bg-soft px-2 py-1 text-xs font-bold text-ui-success-text">
@@ -298,9 +298,9 @@ export function HubOverviewTab() {
           </div>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
+        <div className="space-y-4 rounded-2xl border border-sky-200/70 bg-sky-50/55 p-5 shadow-sm dark:border-sky-800/40 dark:bg-sky-950/20 sm:space-y-5 sm:rounded-3xl sm:p-6 md:space-y-6 md:p-7 xl:rounded-[32px] xl:p-8">
           <div className="flex items-start justify-between">
-            <MetricIconCircle className="bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
+            <MetricIconCircle className="bg-sky-100 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400">
               <Calendar className="h-5 w-5" strokeWidth={iconStroke} />
             </MetricIconCircle>
           </div>

@@ -9,7 +9,8 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import { chartScaleForAmounts } from "@/lib/yield";
 import { formatCompactCurrency } from "@/lib/issuerDashboard";
@@ -40,6 +41,7 @@ function MetricIconCircle({
 
 export function HubDistributionsTab() {
   const currentYear = new Date().getFullYear();
+  const [mounted, setMounted] = useState(false);
   const [year, setYear] = useState(currentYear);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -59,6 +61,28 @@ export function HubDistributionsTab() {
     useGetUpcomingPayoutsQuery();
   const [schedulePayout, { isLoading: isScheduling }] =
     useSchedulePayoutMutation();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!showScheduleModal) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showScheduleModal]);
+
+  useEffect(() => {
+    if (!showScheduleModal) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setShowScheduleModal(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showScheduleModal]);
 
   async function handleSchedulePayout(e: React.FormEvent) {
     e.preventDefault();
@@ -535,123 +559,144 @@ export function HubDistributionsTab() {
         </table>
       </div>
 
-      {showScheduleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-card-border bg-card p-6 shadow-lg">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-foreground">
-                Schedule Payout
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowScheduleModal(false)}
-                className="text-text-muted hover:text-foreground"
-              >
-                <X className="h-5 w-5" strokeWidth={iconStroke} />
-              </button>
-            </div>
-            <form onSubmit={handleSchedulePayout} className="space-y-4">
-              {validationError && (
-                <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600 font-medium">
-                  {validationError}
-                </div>
-              )}
-              <div>
-                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
-                  Asset ID
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.assetId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, assetId: e.target.value })
-                  }
-                  placeholder="Enter asset UUID"
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  placeholder="e.g., Q2 2026 Yield Distribution"
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
-                  Payout Type
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.payoutType}
-                  onChange={(e) =>
-                    setFormData({ ...formData, payoutType: e.target.value })
-                  }
-                  placeholder="e.g., Quarterly Yield"
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
-                  Scheduled Date
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={formData.scheduledDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, scheduledDate: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
-                  Total Amount
-                </label>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  step="0.01"
-                  value={formData.totalAmount}
-                  onChange={(e) =>
-                    setFormData({ ...formData, totalAmount: e.target.value })
-                  }
-                  placeholder="Enter amount"
-                  className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
-                />
-              </div>
-              <div className="flex gap-2 pt-2">
+      {mounted &&
+        showScheduleModal &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            role="presentation"
+          >
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              aria-label="Close dialog"
+              onClick={() => setShowScheduleModal(false)}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="schedule-payout-title"
+              className="relative w-full max-w-md rounded-2xl border border-card-border bg-card p-6 shadow-lg"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h3
+                  id="schedule-payout-title"
+                  className="text-lg font-bold text-foreground"
+                >
+                  Schedule Payout
+                </h3>
                 <button
                   type="button"
                   onClick={() => setShowScheduleModal(false)}
-                  className="flex-1 rounded-lg border border-card-border bg-surface px-4 py-2 text-base font-bold text-foreground hover:bg-surface/80"
+                  className="text-text-muted hover:text-foreground"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isScheduling}
-                  className="flex-1 rounded-lg bg-primary px-4 py-2 text-base font-bold text-white hover:opacity-90 disabled:opacity-60"
-                >
-                  {isScheduling ? "Scheduling..." : "Schedule"}
+                  <X className="h-5 w-5" strokeWidth={iconStroke} />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+              <form onSubmit={handleSchedulePayout} className="space-y-4">
+                {validationError && (
+                  <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600 font-medium">
+                    {validationError}
+                  </div>
+                )}
+                <div>
+                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
+                    Asset ID
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.assetId}
+                    onChange={(e) =>
+                      setFormData({ ...formData, assetId: e.target.value })
+                    }
+                    placeholder="Enter asset UUID"
+                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                    placeholder="e.g., Q2 2026 Yield Distribution"
+                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
+                    Payout Type
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.payoutType}
+                    onChange={(e) =>
+                      setFormData({ ...formData, payoutType: e.target.value })
+                    }
+                    placeholder="e.g., Quarterly Yield"
+                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
+                    Scheduled Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.scheduledDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, scheduledDate: e.target.value })
+                    }
+                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
+                    Total Amount
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="0.01"
+                    value={formData.totalAmount}
+                    onChange={(e) =>
+                      setFormData({ ...formData, totalAmount: e.target.value })
+                    }
+                    placeholder="Enter amount"
+                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
+                  />
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowScheduleModal(false)}
+                    className="flex-1 rounded-lg border border-card-border bg-surface px-4 py-2 text-base font-bold text-foreground hover:bg-surface/80"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isScheduling}
+                    className="flex-1 rounded-lg bg-primary px-4 py-2 text-base font-bold text-white hover:opacity-90 disabled:opacity-60"
+                  >
+                    {isScheduling ? "Scheduling..." : "Schedule"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

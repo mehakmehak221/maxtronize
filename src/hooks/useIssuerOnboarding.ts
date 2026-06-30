@@ -67,6 +67,10 @@ import {
 export function useIssuerOnboarding() {
   const searchParams = useSearchParams();
   const forceFreshStart = searchParams.get("start") === "1";
+  const queryOnboardingId =
+    searchParams.get("id")?.trim() ||
+    searchParams.get("onboardingId")?.trim() ||
+    null;
 
   const { data: profile, isLoading: profileLoading } =
     useAuthenticatedProfileQuery();
@@ -79,8 +83,13 @@ export function useIssuerOnboarding() {
 
   const storedOrProfileId = useMemo(() => {
     if (resetStoredSession || forceFreshStart) return null;
-    return profile?.onboardingId ?? null;
-  }, [forceFreshStart, profile?.onboardingId, resetStoredSession]);
+    return queryOnboardingId ?? profile?.onboardingId ?? null;
+  }, [
+    forceFreshStart,
+    profile?.onboardingId,
+    queryOnboardingId,
+    resetStoredSession,
+  ]);
 
   const candidateOnboardingId = sessionId ?? storedOrProfileId;
   const onboardingId =

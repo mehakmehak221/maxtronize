@@ -204,7 +204,7 @@ export function HubAssetsTab({ search, onSearchChange }: HubAssetsTabProps) {
                  <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
                   {asset.displayStatus.toUpperCase() === 'DRAFT' ? (
                     <Link
-                      href="/issuer/onboarding"
+                      href={`/issuer/onboarding?id=${encodeURIComponent(asset.onboardingId ?? asset.id)}`}
                       className="inline-flex items-center gap-1 rounded-xl bg-violet-50 px-3 py-1.5 text-xs font-bold text-[#7C3AED] transition-colors hover:bg-violet-100 dark:bg-violet-950/40 dark:text-violet-300 dark:hover:bg-violet-950/60"
                     >
                       Edit Draft

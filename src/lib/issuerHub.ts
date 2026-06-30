@@ -26,6 +26,7 @@ export type HubAssetDisplayStatus = "Live" | "Funded" | "Draft" | string;
 
 export type HubAsset = {
   id: string;
+  onboardingId: string | null;
   name: string;
   displayStatus: HubAssetDisplayStatus;
   tag: string;
@@ -267,8 +268,17 @@ function parseHubAsset(
     pickString(record, ["targetLabel", "target_label", "displayTarget"]) ??
     (targetValue !== null ? formatCompactCurrency(targetValue) : "—");
 
+  const onboardingId =
+    pickString(record, [
+      "onboardingId",
+      "onboarding_id",
+      "draftId",
+      "draft_id",
+    ]) ?? (displayStatus === "Draft" && id ? id : null);
+
   return {
     id: id || `asset-${index}`,
+    onboardingId,
     name,
     displayStatus,
     tag,

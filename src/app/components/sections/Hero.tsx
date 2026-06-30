@@ -15,7 +15,7 @@ export default function Hero() {
         className="absolute inset-0 w-full h-full object-cover hidden xl:block rounded-md"
       >
         <source
-          src="https://res.cloudinary.com/dxe74eowp/video/upload/v1776836583/mobileherobg1_nwcxmq.mp4"
+          src="https://res.cloudinary.com/ddt2hwvym/video/upload/v1782809335/Untitled_design_68_clzchh.mp4"
           type="video/mp4"
         />
         Your browser does not support the video tag.
@@ -32,7 +32,7 @@ export default function Hero() {
         className="absolute inset-0 w-full h-full object-cover block xl:hidden rounded-md"
       >
         <source
-          src="https://res.cloudinary.com/dxe74eowp/video/upload/v1776836583/mobileherobg1_nwcxmq.mp4"
+          src="https://res.cloudinary.com/ddt2hwvym/video/upload/v1782809335/Untitled_design_68_clzchh.mp4"
           type="video/mp4"
         />
         Your browser does not support the video tag.

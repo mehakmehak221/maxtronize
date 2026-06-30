@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { chartScaleForAmounts } from "@/lib/yield";
 import { formatCompactCurrency } from "@/lib/issuerDashboard";
 import {
@@ -41,6 +42,7 @@ export function HubDistributionsTab() {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     assetId: "",
     title: "",
@@ -60,14 +62,57 @@ export function HubDistributionsTab() {
 
   async function handleSchedulePayout(e: React.FormEvent) {
     e.preventDefault();
+    setValidationError(null);
+
+    // 1. Validate Asset ID (UUID format check)
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!uuidRegex.test(formData.assetId.trim())) {
+      setValidationError("Asset ID must be a valid UUID format (e.g., 123e4567-e89b-12d3-a456-426614174000).");
+      return;
+    }
+
+    // 2. Validate Title length
+    if (formData.title.trim().length < 3) {
+      setValidationError("Title must be at least 3 characters long.");
+      return;
+    }
+
+    // 3. Validate Payout Type length
+    if (formData.payoutType.trim().length < 3) {
+      setValidationError("Payout Type must be at least 3 characters long.");
+      return;
+    }
+
+    // 4. Validate Scheduled Date (cannot be in the past)
+    const dateVal = new Date(formData.scheduledDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (isNaN(dateVal.getTime())) {
+      setValidationError("Please select a valid scheduled date.");
+      return;
+    }
+    if (dateVal < today) {
+      setValidationError("Scheduled date cannot be in the past.");
+      return;
+    }
+
+    // 5. Validate Total Amount (must be a positive number greater than 0)
+    const amountVal = parseFloat(formData.totalAmount);
+    if (isNaN(amountVal) || amountVal <= 0) {
+      setValidationError("Total amount must be a positive number greater than 0.");
+      return;
+    }
+
     try {
       await schedulePayout({
-        assetId: formData.assetId,
-        title: formData.title,
-        payoutType: formData.payoutType,
+        assetId: formData.assetId.trim(),
+        title: formData.title.trim(),
+        payoutType: formData.payoutType.trim(),
         scheduledDate: formData.scheduledDate,
-        totalAmount: Number(formData.totalAmount),
+        totalAmount: amountVal,
       }).unwrap();
+      
+      toast.success("Payout scheduled successfully!");
       setShowScheduleModal(false);
       setFormData({
         assetId: "",
@@ -78,6 +123,7 @@ export function HubDistributionsTab() {
       });
     } catch (error) {
       console.error("Failed to schedule payout:", error);
+      setValidationError("Failed to schedule payout. Please check your inputs and try again.");
     }
   }
 
@@ -159,29 +205,35 @@ export function HubDistributionsTab() {
           return (
             <div
               key={card.label}
-              className="rounded-[24px] border border-card-border bg-card p-6 shadow-sm"
+              className="flex flex-col justify-between rounded-[24px] border border-card-border bg-card p-6 shadow-sm"
             >
-              <MetricIconCircle className="mb-6 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
-                <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
-              </MetricIconCircle>
-              <p className="mb-4 text-xs font-bold uppercase tracking-widest text-text-muted">
-                {card.label}
-              </p>
-              <p className="text-2xl font-bold tracking-tight text-foreground">
-                {card.value}
-              </p>
+              <div>
+                <MetricIconCircle className="mb-6 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
+                  <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
+                </MetricIconCircle>
+                <p className="mb-4 text-xs font-bold uppercase tracking-widest text-text-muted">
+                  {card.label}
+                </p>
+                <p className="text-2xl font-bold tracking-tight text-foreground">
+                  {card.value}
+                </p>
+              </div>
               {"sub" in card && card.sub ? (
                 <p className="mt-4 text-base font-medium text-text-muted">
                   {card.sub}
                 </p>
-              ) : null}
+              ) : (
+                <p className="mt-4 text-base font-medium text-transparent select-none" aria-hidden>
+                  &nbsp;
+                </p>
+              )}
             </div>
           );
         })}
       </div>
 
       <div className="max-w-full min-w-0 rounded-[32px] border border-card-border bg-card p-8 shadow-sm md:p-10">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-bold text-foreground">
               Distribution Schedule {schedule?.year ?? year}
@@ -207,7 +259,10 @@ export function HubDistributionsTab() {
             </select>
             <button
               type="button"
-              onClick={() => setShowScheduleModal(true)}
+              onClick={() => {
+                setValidationError(null);
+                setShowScheduleModal(true);
+              }}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90"
             >
               <Plus className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
@@ -312,38 +367,50 @@ export function HubDistributionsTab() {
 
         {summary && !summaryLoading ? (
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
-                YTD Distributions
-              </p>
-              <p className="mt-1 text-lg font-bold text-foreground">
-                {formatCompactCurrency(
-                  summary.ytdDistributions.amount,
-                  summary.ytdDistributions.currency,
-                  { decimals: 0 },
-                )}
-              </p>
-              <p className="text-base text-text-muted">
+            <div className="flex flex-col justify-between h-full rounded-2xl border border-card-border bg-surface px-4 py-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
+                  YTD Distributions
+                </p>
+                <p className="mt-1 text-lg font-bold text-foreground">
+                  {formatCompactCurrency(
+                    summary.ytdDistributions.amount,
+                    summary.ytdDistributions.currency,
+                    { decimals: 0 },
+                  )}
+                </p>
+              </div>
+              <p className="mt-1.5 text-base text-text-muted">
                 {summary.ytdDistributions.changePercent >= 0 ? "+" : ""}
                 {summary.ytdDistributions.changePercent.toFixed(1)}% vs prior
                 year
               </p>
             </div>
-            <div className="rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-1">
-                <Target className="h-3 w-3" strokeWidth={iconStroke} />
-                Achievement
-              </p>
-              <p className="mt-1 text-lg font-bold text-foreground">
-                {(schedule?.achievementRate ?? 0).toFixed(0)}%
+            <div className="flex flex-col justify-between h-full rounded-2xl border border-card-border bg-surface px-4 py-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-1">
+                  <Target className="h-3 w-3" strokeWidth={iconStroke} />
+                  Achievement
+                </p>
+                <p className="mt-1 text-lg font-bold text-foreground">
+                  {(schedule?.achievementRate ?? 0).toFixed(0)}%
+                </p>
+              </div>
+              <p className="mt-1.5 text-base text-transparent select-none" aria-hidden>
+                &nbsp;
               </p>
             </div>
-            <div className="rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
-                {summary.totalDistributed.summary || "All-time total"}
-              </p>
-              <p className="mt-1 text-lg font-bold text-foreground">
-                {totalDistributed}
+            <div className="flex flex-col justify-between h-full rounded-2xl border border-card-border bg-surface px-4 py-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
+                  {summary.totalDistributed.summary || "All-time total"}
+                </p>
+                <p className="mt-1 text-lg font-bold text-foreground">
+                  {totalDistributed}
+                </p>
+              </div>
+              <p className="mt-1.5 text-base text-transparent select-none" aria-hidden>
+                &nbsp;
               </p>
             </div>
           </div>
@@ -484,6 +551,11 @@ export function HubDistributionsTab() {
               </button>
             </div>
             <form onSubmit={handleSchedulePayout} className="space-y-4">
+              {validationError && (
+                <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600 font-medium">
+                  {validationError}
+                </div>
+              )}
               <div>
                 <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
                   Asset ID

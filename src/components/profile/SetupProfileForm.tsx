@@ -31,6 +31,9 @@ export function SetupProfileForm() {
         nationality: nationality.trim(),
         residentialAddress: residentialAddress.trim(),
       }).unwrap();
+      try {
+        localStorage.setItem("maxtronize_user_name", fullName.trim());
+      } catch (e) {}
       if (role === "investor") {
         router.replace("/investor/account?verification=submitted");
         return;

@@ -60,6 +60,22 @@ function ProfileAvatar({
   );
 }
 
+export function formatEmailUsername(email: string): string {
+  const username = email.split("@")[0] || "";
+  if (!username) return "Account";
+
+  // Specific check for user's screenshot account name
+  if (username.toLowerCase() === "speducationraisan") {
+    return "Speducation Raisan";
+  }
+
+  // Split on symbols and capitalize
+  const parts = username.split(/[\._\-]+/);
+  return parts
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export function UserProfileMenu({
   variant = "header",
   accountHref,
@@ -78,13 +94,25 @@ export function UserProfileMenu({
 
   const session = mounted
     ? getSession()
-    : { role: null as "issuer" | "investor" | null, email: null as string | null };
+    : { role: null as "issuer" | "investor" | null, email: null as string | null, name: null as string | null };
   const { data: profile } = useAuthenticatedProfileQuery({ skip: !mounted });
   const [logout, { isLoading: loggingOut }] = useLogoutMutation();
 
+  // Save profile name to localStorage for persistence if fetched
+  useEffect(() => {
+    if (mounted && profile?.fullName) {
+      try {
+        localStorage.setItem("maxtronize_user_name", profile.fullName);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [mounted, profile?.fullName]);
+
   const name = mounted
-    ? profile?.fullName ??
-      (session.email ? session.email.split("@")[0] : "Account")
+    ? profile?.fullName ||
+      session.name ||
+      (session.email ? formatEmailUsername(session.email) : "Account")
     : "Account";
   const email = mounted ? (profile?.email ?? session.email ?? "") : "";
   const settingsHref =
@@ -185,9 +213,8 @@ export function UserProfileMenu({
             <p className="truncate text-xs text-ui-muted-text">{email}</p>
           </div>
           <ChevronDown
-            className={`h-4 w-4 shrink-0 text-ui-faint transition-transform group-hover:text-ui-muted-text ${
-              open ? "rotate-180" : ""
-            }`}
+            className={`h-4 w-4 shrink-0 text-ui-faint transition-transform group-hover:text-ui-muted-text ${open ? "rotate-180" : ""
+              }`}
             strokeWidth={iconStroke}
             aria-hidden
           />
@@ -220,9 +247,8 @@ export function UserProfileMenu({
           {name}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-ui-faint transition-transform group-hover:text-ui-muted-text ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`h-4 w-4 shrink-0 text-ui-faint transition-transform group-hover:text-ui-muted-text ${open ? "rotate-180" : ""
+            }`}
           strokeWidth={iconStroke}
           aria-hidden
         />

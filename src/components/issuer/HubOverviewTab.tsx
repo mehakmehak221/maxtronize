@@ -346,7 +346,7 @@ export function HubOverviewTab() {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-2.5 w-2.5 shrink-0 rounded-full bg-palette-success" />
+                <div className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#10B981]" />
                 <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
                   Committed
                 </span>
@@ -383,6 +383,14 @@ export function HubOverviewTab() {
                 </linearGradient>
               </defs>
 
+              {/* Labels on either side of the graph */}
+              <text x="52" y="16" fill="var(--text-muted)" className="text-[11px] font-bold uppercase tracking-wider">
+                Raised
+              </text>
+              <text x="572" y="16" textAnchor="end" fill="var(--text-muted)" className="text-[11px] font-bold uppercase tracking-wider">
+                Committed
+              </text>
+
               {yTicks.map((m) => {
                 const chartTop = 28;
                 const chartH = 132;
@@ -393,16 +401,27 @@ export function HubOverviewTab() {
                     <line
                       x1="52"
                       y1={y}
-                      x2="620"
+                      x2="572"
                       y2={y}
                       stroke="var(--border)"
                       strokeWidth="1"
                       strokeDasharray="4 6"
                     />
+                    {/* Left side ticks (Raised) */}
                     <text
-                      x="48"
+                      x="44"
                       y={y + 4}
                       textAnchor="end"
+                      fill="var(--text-muted)"
+                      className="text-xs font-bold"
+                    >
+                      {m === 0 ? "$0" : `$${m}M`}
+                    </text>
+                    {/* Right side ticks (Committed) */}
+                    <text
+                      x="580"
+                      y={y + 4}
+                      textAnchor="start"
                       fill="var(--text-muted)"
                       className="text-xs font-bold"
                     >
@@ -414,8 +433,8 @@ export function HubOverviewTab() {
 
               {chart.raisedM.length > 0
                 ? (() => {
-                    const chartLeft = 56;
-                    const chartW = 564;
+                    const chartLeft = 52;
+                    const chartW = 520;
                     const chartTop = 28;
                     const chartH = 132;
                     const chartBottom = chartTop + chartH;
@@ -450,7 +469,7 @@ export function HubOverviewTab() {
                         <path
                           d={committedPath}
                           fill="none"
-                          stroke="var(--palette-success)"
+                          stroke="#10B981"
                           strokeWidth="2.5"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -486,8 +505,8 @@ export function HubOverviewTab() {
                     "W12",
                   ]
               ).map((label, i, arr) => {
-                const chartLeft = 56;
-                const chartW = 564;
+                const chartLeft = 52;
+                const chartW = 520;
                 const x =
                   chartLeft + (i / Math.max(arr.length - 1, 1)) * chartW;
                 return (

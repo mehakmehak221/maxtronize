@@ -174,7 +174,7 @@ export default function OnboardingLayout({
                       role={clickable ? 'button' : undefined}
                       tabIndex={clickable ? 0 : undefined}
                       onClick={clickable ? () => onStepClick(step.id) : undefined}
-                      className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${reviewStep
+                      className={`group flex items-center gap-3 rounded-2xl px-3.5 py-3 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${reviewStep
                         ? 'bg-amber-50 shadow-[inset_0_0_0_1px_#FDE68A]'
                         : active
                           ? 'bg-[#F5F3FF] shadow-[inset_0_0_0_1px_#DDD6FE]'
@@ -184,13 +184,15 @@ export default function OnboardingLayout({
                         }`}
                     >
                       <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all ${done
-                          ? 'border border-[#BBF7D0] bg-[#ECFDF5] text-emerald-600'
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${done
+                          ? 'border border-[#BBF7D0] bg-[#ECFDF5] text-emerald-600 group-hover:scale-105 group-hover:bg-[#d1fae5] group-hover:border-[#86efac]'
                           : reviewStep
-                            ? 'border border-amber-200 bg-amber-100 text-amber-700'
+                            ? 'border border-amber-200 bg-amber-100 text-amber-700 group-hover:scale-105'
                             : active
-                              ? 'bg-[#7C3AED] text-white shadow-[0_4px_12px_-2px_rgba(124,58,237,0.45)]'
-                              : 'border border-[#E5E7EB] bg-[#FAFAFA] text-[#D1D5DB]'
+                              ? 'bg-[#7C3AED] text-white shadow-[0_4px_12px_-2px_rgba(124,58,237,0.45)] group-hover:scale-105'
+                              : clickable
+                                ? 'border border-[#E5E7EB] bg-[#FAFAFA] text-[#D1D5DB] group-hover:scale-105 group-hover:bg-violet-50 group-hover:text-[#7C3AED] group-hover:border-primary/30'
+                                : 'border border-[#E5E7EB] bg-[#FAFAFA] text-[#D1D5DB]'
                           }`}
                       >
                         {done ? (
@@ -203,13 +205,15 @@ export default function OnboardingLayout({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p
-                          className={`text-base font-bold leading-snug ${reviewStep
+                          className={`text-base font-bold leading-snug transition-colors duration-200 ${reviewStep
                             ? 'text-amber-800'
                             : active
                               ? 'text-[#6D28D9]'
                               : done
-                                ? 'text-[#111827]'
-                                : 'text-[#D1D5DB]'
+                                ? 'text-[#111827] group-hover:text-primary'
+                                : clickable
+                                  ? 'text-[#D1D5DB] group-hover:text-primary'
+                                  : 'text-[#D1D5DB]'
                             }`}
                         >
                           {step.name}

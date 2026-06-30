@@ -1076,32 +1076,52 @@ export default function TokenizeAssetPage() {
         </div>
 
         <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-8 space-y-6 scrollbar-hide">
-          {steps.map((step) => (
-            <div key={step.id} className="flex gap-4 group">
-              <div className="flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all ${
-                  currentStep === step.id 
-                    ? 'bg-linear-to-br from-[#9810FA] to-[#4F39F6] text-white shadow-lg shadow-[#9810FA]/25' 
-                    : currentStep > step.id 
-                    ? 'bg-ui-success-bg-soft text-ui-success-icon border border-ui-success-border' 
-                    : 'bg-ui-muted-deep text-[#90A1B9] border border-ui-border'
-                }`}>
-                  {currentStep > step.id ? '✓' : step.icon}
+          {steps.map((step) => {
+            const isUnlocked = step.id <= currentStep;
+            return (
+              <button
+                key={step.id}
+                type="button"
+                disabled={!isUnlocked}
+                onClick={() => {
+                  if (isUnlocked) {
+                    setCurrentStep(step.id);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
+                className={`flex w-full gap-4 group text-left outline-none transition-all ${
+                  isUnlocked ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+                }`}
+              >
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all duration-200 ${
+                    currentStep === step.id 
+                      ? "bg-linear-to-br from-[#9810FA] to-[#4F39F6] text-white shadow-lg shadow-[#9810FA]/25 scale-105" 
+                      : currentStep > step.id 
+                      ? "bg-ui-success-bg-soft text-ui-success-icon border border-ui-success-border group-hover:border-ui-success-icon group-hover:bg-ui-success-bg-soft/80 group-hover:scale-105" 
+                      : "bg-ui-muted-deep text-[#90A1B9] border border-ui-border"
+                  }`}>
+                    {currentStep > step.id ? "✓" : step.icon}
+                  </div>
+                  {step.id !== 6 && (
+                    <div className={`w-0.5 flex-1 my-2 rounded-full ${
+                      currentStep > step.id ? "bg-success" : "bg-ui-muted-deep"
+                    }`}></div>
+                  )}
                 </div>
-                {step.id !== 6 && (
-                  <div className={`w-0.5 flex-1 my-2 rounded-full ${
-                    currentStep > step.id ? 'bg-success' : 'bg-ui-muted-deep'
-                  }`}></div>
-                )}
-              </div>
-              <div className="pt-1">
-                <p className={`text-base font-bold transition-colors ${
-                  currentStep === step.id ? 'text-ui-strong' : 'text-ui-faint'
-                }`}>{step.name}</p>
-                <p className="text-xs text-ui-faint font-medium leading-relaxed">{step.desc}</p>
-              </div>
-            </div>
-          ))}
+                <div className="pt-1">
+                  <p className={`text-base font-bold transition-colors duration-200 ${
+                    currentStep === step.id 
+                      ? "text-ui-strong font-extrabold" 
+                      : isUnlocked 
+                      ? "text-ui-faint group-hover:text-primary" 
+                      : "text-ui-faint"
+                  }`}>{step.name}</p>
+                  <p className="text-xs text-ui-faint font-medium leading-relaxed">{step.desc}</p>
+                </div>
+              </button>
+            );
+          })}
         </nav>
 
         <div className="shrink-0 p-8 border-t border-ui-divider bg-ui-muted-surface">

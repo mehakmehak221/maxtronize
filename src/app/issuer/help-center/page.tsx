@@ -21,6 +21,7 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 
 const iconStroke = 1.75;
@@ -270,6 +271,7 @@ export default function HelpCenterPage() {
                 <button
                   key={topic.title}
                   type="button"
+                  onClick={() => toast.success(`${topic.title} guides coming soon!`, { icon: 'ℹ️' })}
                   className="group flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl border border-ui-border bg-ui-card p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_28px_-8px_rgba(15,23,42,0.12)] sm:gap-4 sm:rounded-[20px] sm:p-5 xl:p-6"
                 >
                   <div className="flex min-w-0 items-center gap-4">

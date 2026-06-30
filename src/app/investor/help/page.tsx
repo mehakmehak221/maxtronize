@@ -20,6 +20,7 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import InvestorLayout from '@/components/InvestorLayout';
 
 const iconStroke = 1.75;
@@ -268,6 +269,7 @@ export default function InvestorHelpPage() {
               <button
                 key={topic.title}
                 type="button"
+                onClick={() => toast.success(`${topic.title} guides coming soon!`, { icon: 'ℹ️' })}
                 className="group flex items-center gap-4 rounded-[20px] border border-ui-border bg-ui-card p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-ui-border-strong hover:shadow-md md:rounded-[24px]"
               >
                 <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${topic.iconClass}`}>

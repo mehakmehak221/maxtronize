@@ -66,6 +66,9 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
         fullName: trimmedName,
         country: trimmedCountry,
       }).unwrap();
+      try {
+        localStorage.setItem("maxtronize_user_name", trimmedName);
+      } catch (e) {}
       setSuccess("Profile updated successfully.");
     } catch (err) {
       setFormError(formatRequestError(err));

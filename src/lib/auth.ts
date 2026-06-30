@@ -6,17 +6,20 @@ const SESSION_COOKIE = "maxtronize_session";
 const ACCESS_TOKEN_KEY = "access_token";
 const ROLE_KEY = "maxtronize_role";
 const EMAIL_KEY = "maxtronize_user_email";
+const NAME_KEY = "maxtronize_user_name";
 
-const STORAGE_KEYS = [ACCESS_TOKEN_KEY, ROLE_KEY, EMAIL_KEY, "refresh_token"] as const;
+const STORAGE_KEYS = [ACCESS_TOKEN_KEY, ROLE_KEY, EMAIL_KEY, NAME_KEY, "refresh_token"] as const;
 
 export function signIn({
   role,
   email,
+  name,
   token,
   rememberMe = true,
 }: {
   role: UserRole;
   email?: string;
+  name?: string;
   token?: string;
   rememberMe?: boolean;
 }) {
@@ -30,6 +33,9 @@ export function signIn({
   storage.setItem(ROLE_KEY, role);
   if (email) {
     storage.setItem(EMAIL_KEY, email);
+  }
+  if (name) {
+    storage.setItem(NAME_KEY, name);
   }
 
   if (rememberMe) {
@@ -55,16 +61,18 @@ export function isAuthenticated(): boolean {
   return Boolean(getStoredAccessToken());
 }
 
-export function getSession(): { role: UserRole | null; email: string | null } {
+export function getSession(): { role: UserRole | null; email: string | null; name: string | null } {
   if (typeof window === "undefined") {
-    return { role: null, email: null };
+    return { role: null, email: null, name: null };
   }
 
   const role = (window.localStorage.getItem(ROLE_KEY) || window.sessionStorage.getItem(ROLE_KEY)) as UserRole | null;
   const email = window.localStorage.getItem(EMAIL_KEY) || window.sessionStorage.getItem(EMAIL_KEY);
+  const name = window.localStorage.getItem(NAME_KEY) || window.sessionStorage.getItem(NAME_KEY);
 
   return {
     role: role === "issuer" || role === "investor" ? role : null,
     email,
+    name,
   };
 }

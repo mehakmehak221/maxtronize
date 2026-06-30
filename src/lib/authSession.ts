@@ -12,15 +12,18 @@ export function syncSessionFromAuthResponse(
 ): UserRole | null {
   const token = extractAccessToken(payload);
   const parsed = parseAuthUser(payload);
+  const profile = parseProfile(payload);
   const role =
     parsed?.role ??
     (fallback?.role ? apiRoleToUiPersona(fallback.role) : null);
   const email = parsed?.email ?? fallback?.email ?? undefined;
+  const name = profile?.fullName ?? undefined;
 
   if (role) {
     signIn({
       role,
       email,
+      name,
       ...(token ? { token } : {}),
       rememberMe: fallback?.rememberMe,
     });

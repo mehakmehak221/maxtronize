@@ -58,6 +58,9 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
       countClass: 'text-ui-success-text',
       iconBorder: 'border-ui-success-text text-ui-success-text',
       iconPath: 'M5 13l4 4L19 7',
+      hoverClass: 'hover:bg-emerald-50/20 dark:hover:bg-emerald-950/10 hover:border-emerald-300',
+      activeClass: 'border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20 ring-2 ring-emerald-500/20',
+      dotClass: 'bg-emerald-500',
     },
     {
       bucket: 'pendingReview' as const,
@@ -67,6 +70,9 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
       countClass: 'text-alert-warn-title',
       iconBorder: 'border-alert-warn-icon text-alert-warn-icon',
       iconPath: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+      hoverClass: 'hover:bg-amber-50/20 dark:hover:bg-amber-950/10 hover:border-amber-300',
+      activeClass: 'border-amber-500 bg-amber-50/30 dark:bg-amber-950/20 ring-2 ring-amber-500/20',
+      dotClass: 'bg-amber-500',
     },
     {
       bucket: 'actionRequired' as const,
@@ -77,6 +83,9 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
       iconBorder: 'border-ui-danger-text text-ui-danger-text',
       iconPath:
         'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+      hoverClass: 'hover:bg-rose-50/20 dark:hover:bg-rose-950/10 hover:border-rose-300',
+      activeClass: 'border-rose-500 bg-rose-50/30 dark:bg-rose-950/20 ring-2 ring-rose-500/20',
+      dotClass: 'bg-rose-500',
     },
   ];
 
@@ -90,13 +99,13 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
               key={card.bucket}
               type="button"
               onClick={() => setBucket(active ? undefined : card.bucket)}
-              className={`flex w-full items-center justify-between rounded-2xl border bg-card p-6 text-left shadow-sm transition-all hover:shadow-md ${card.border} ${
-                active ? 'ring-2 ring-primary/40' : ''
+              className={`flex w-full items-center justify-between rounded-2xl border p-6 text-left shadow-sm transition-all hover:shadow-md ${
+                active ? card.activeClass : `bg-card ${card.border} ${card.hoverClass}`
               }`}
             >
               <div className="flex items-center gap-4">
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border ${card.iconBorder}`}
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${card.iconBorder}`}
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -117,6 +126,17 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
                     {card.label}
                   </p>
                 </div>
+              </div>
+
+              {/* Selector Indicator */}
+              <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all ${
+                active ? 'border-primary' : 'border-card-border group-hover:border-ui-muted-text'
+              }`}>
+                <div
+                  className={`h-2.5 w-2.5 rounded-full transition-transform duration-200 ${
+                    active ? `scale-100 ${card.dotClass}` : 'scale-0'
+                  }`}
+                />
               </div>
             </button>
           );
@@ -153,7 +173,7 @@ export function HubInvestorsTab({ search, onSearchChange }: HubInvestorsTabProps
             type="button"
             disabled={exporting}
             onClick={() => exportInvestors(listParams)}
-            className="flex items-center gap-2 rounded-full border border-card-border bg-card px-4 py-2 text-base font-bold text-foreground transition-colors hover:bg-surface disabled:opacity-60"
+            className="flex items-center gap-2 rounded-full border border-card-border bg-card px-4 py-2 text-base font-bold text-foreground transition-all hover:bg-ui-muted-deep hover:text-primary hover:border-primary/30 disabled:opacity-60"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

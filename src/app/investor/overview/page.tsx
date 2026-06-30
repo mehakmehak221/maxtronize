@@ -481,8 +481,8 @@ export default function InvestorOverviewPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-8">
-          <div className="xl:col-span-2 rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
-            <div className="mb-6 flex items-center justify-between md:mb-8">
+          <div className="flex min-w-0 max-h-[420px] flex-col rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-9 xl:col-span-2 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+            <div className="mb-6 flex shrink-0 items-center justify-between md:mb-8">
               <div>
                 <h3 className="text-lg font-bold text-ui-strong md:text-xl">
                   Recent Activity
@@ -500,7 +500,7 @@ export default function InvestorOverviewPage() {
               </Link>
             </div>
 
-            <div className="space-y-1">
+            <div className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
               {activities.length > 0 ? (
                 activities.map((item) => (
                   <div
@@ -554,8 +554,8 @@ export default function InvestorOverviewPage() {
             </div>
           </div>
 
-          <div className="flex h-full flex-col rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
-            <div className="mb-6 flex items-center justify-between md:mb-8">
+          <div className="flex min-w-0 max-h-[420px] flex-col rounded-[22px] border border-ui-border bg-ui-card p-6 shadow-sm md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
+            <div className="mb-6 flex shrink-0 items-center justify-between md:mb-8">
               <div>
                 <h3 className="text-lg font-bold text-ui-strong md:text-xl">
                   Upcoming
@@ -569,7 +569,7 @@ export default function InvestorOverviewPage() {
               </div>
             </div>
 
-            <div className="flex flex-1 flex-col space-y-3">
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               {upcomingEvents.length > 0 ? (
                 upcomingEvents.map((event) => (
                   <div
@@ -601,7 +601,7 @@ export default function InvestorOverviewPage() {
 
             <Link
               href="/investor/hub?tab=overview"
-              className="mt-6 flex w-full items-center justify-center gap-1 rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-xs font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
+              className="mt-6 flex w-full shrink-0 items-center justify-center gap-1 rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-xs font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
             >
               Full Calendar
               <ChevronRight className="h-4 w-4" strokeWidth={iconStroke} />

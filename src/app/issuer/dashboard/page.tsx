@@ -445,7 +445,7 @@ export default function DashboardPage() {
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-8">
           <div className="flex min-w-0 max-h-[420px] flex-col rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] sm:p-6 md:rounded-[28px] md:p-9 xl:col-span-2 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
-            <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6 md:mb-8">
+            <div className="mb-5 flex shrink-0 items-center justify-between gap-3 sm:mb-6 md:mb-8">
               <h3 className="text-lg font-bold text-ui-strong md:text-xl">
                 Recent Activity
               </h3>
@@ -457,7 +457,7 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            <div className="space-y-1">
+            <div className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
               {activities.length > 0 ? (
                 activities.map((activity) => (
                   <div
@@ -524,7 +524,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex min-w-0 max-h-[420px] flex-col rounded-[22px] border border-ui-border bg-ui-card p-5 shadow-[0_4px_28px_-12px_rgba(15,23,42,0.08)] sm:p-6 md:rounded-[28px] md:p-9 dark:shadow-[0_4px_28px_-12px_rgba(0,0,0,0.35)]">
-            <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6 md:mb-8">
+            <div className="mb-5 flex shrink-0 items-center justify-between gap-3 sm:mb-6 md:mb-8">
               <h3 className="text-lg font-bold text-ui-strong md:text-xl">
                 Upcoming
               </h3>
@@ -578,7 +578,7 @@ export default function DashboardPage() {
 
             <Link
               href="/issuer/yield"
-              className="mt-6 block w-full rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-center text-xs font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
+              className="mt-6 block w-full shrink-0 rounded-2xl border border-ui-border bg-ui-muted-deep/50 py-3.5 text-center text-xs font-bold uppercase tracking-widest text-ui-muted-text transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary md:mt-8"
             >
               Full Calendar <span aria-hidden>→</span>
             </Link>

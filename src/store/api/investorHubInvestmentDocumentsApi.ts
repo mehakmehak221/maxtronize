@@ -8,6 +8,8 @@ import {
   type InvestmentHubDocumentsDownloadAll,
   type InvestmentHubDocumentsResult,
 } from "@/lib/investorHubInvestmentDocuments";
+import { parseProfile } from "@/lib/profile";
+import { parseOnboardingDocuments } from "@/lib/onboarding";
 import { baseApi } from "./baseApi";
 
 export const investorHubInvestmentDocumentsApi = baseApi.injectEndpoints({
@@ -69,6 +71,35 @@ export const investorHubInvestmentDocumentsApi = baseApi.injectEndpoints({
             method: "GET",
           });
           if (docResult.error) {
+            // Fallback for onboarding/KYC documents
+            const profileResult = await baseQuery({
+              url: "/auth/profile",
+              method: "GET",
+            });
+            if (!profileResult.error && profileResult.data) {
+              const profile = parseProfile(profileResult.data);
+              const onboardingId = profile?.onboardingId;
+              if (onboardingId) {
+                const onboardingDocsResult = await baseQuery({
+                  url: `/onboarding/${onboardingId}/documents`,
+                  method: "GET",
+                });
+                if (!onboardingDocsResult.error && onboardingDocsResult.data) {
+                  const onboardingDocs = parseOnboardingDocuments(onboardingDocsResult.data);
+                  const targetDoc = onboardingDocs.find(
+                    (d) =>
+                      d.id === id ||
+                      d.id === id.replace(/^kyc-/, "") ||
+                      id === `kyc-${d.id}`
+                  );
+                  if (targetDoc?.url) {
+                    await downloadInvestmentDocumentViaProxy(targetDoc.url, filename);
+                    return { data: { success: true as const } };
+                  }
+                }
+              }
+            }
+
             const errMsg =
               typeof docResult.error === "object" &&
               docResult.error !== null &&

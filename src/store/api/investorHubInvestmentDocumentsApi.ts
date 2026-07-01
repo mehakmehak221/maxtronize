@@ -51,8 +51,10 @@ export const investorHubInvestmentDocumentsApi = baseApi.injectEndpoints({
                 "status" in result.error
                   ? Number(result.error.status)
                   : 0;
-              if (status === 404) continue;
-              throw result.error;
+              if (status === 401) {
+                throw result.error;
+              }
+              continue;
             }
 
             const parsed = parseInvestmentHubDocumentsDownloadAll(result.data);
@@ -67,7 +69,15 @@ export const investorHubInvestmentDocumentsApi = baseApi.injectEndpoints({
             method: "GET",
           });
           if (docResult.error) {
-            throw docResult.error;
+            const errMsg =
+              typeof docResult.error === "object" &&
+              docResult.error !== null &&
+              "data" in docResult.error &&
+              typeof (docResult.error as Record<string, unknown>).data === "object" &&
+              (docResult.error as Record<string, unknown>).data !== null
+                ? ((docResult.error as any).data.message || (docResult.error as any).data.error)
+                : null;
+            throw new Error(errMsg || `Failed to retrieve document (status: ${docResult.error.status})`);
           }
 
           const signedUrl = parseInvestmentDocumentDownloadUrl(docResult.data);
@@ -80,6 +90,8 @@ export const investorHubInvestmentDocumentsApi = baseApi.injectEndpoints({
           const message =
             error instanceof Error
               ? error.message
+              : typeof error === "object" && error !== null && "error" in error
+              ? String((error as any).error)
               : "Unable to download this document.";
           return {
             error: {

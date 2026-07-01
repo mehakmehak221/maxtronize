@@ -20,6 +20,7 @@ import {
   useGetYieldSummaryQuery,
   useSchedulePayoutMutation,
 } from "@/store/api/yieldApi";
+import { useListIssuerHubAssetsQuery } from "@/store/api/issuerHubApi";
 
 const iconStroke = 1.75;
 
@@ -61,6 +62,15 @@ export function HubDistributionsTab() {
     useGetUpcomingPayoutsQuery();
   const [schedulePayout, { isLoading: isScheduling }] =
     useSchedulePayoutMutation();
+  const { data: assetsData } = useListIssuerHubAssetsQuery();
+  const assets = assetsData?.items ?? [];
+
+  // Automatically select the first asset when list loads
+  useEffect(() => {
+    if (assets.length > 0 && !formData.assetId) {
+      setFormData((prev) => ({ ...prev, assetId: assets[0].id }));
+    }
+  }, [assets, formData.assetId]);
 
   useEffect(() => {
     setMounted(true);
@@ -107,10 +117,20 @@ export function HubDistributionsTab() {
       return;
     }
 
-    // 4. Validate Scheduled Date (cannot be in the past)
-    const dateVal = new Date(formData.scheduledDate);
+    // 4. Validate Scheduled Date (cannot be in the past, timezone-safe)
+    const dateParts = formData.scheduledDate.split("-");
+    if (dateParts.length !== 3) {
+      setValidationError("Please select a valid scheduled date.");
+      return;
+    }
+    const yearNum = parseInt(dateParts[0], 10);
+    const monthNum = parseInt(dateParts[1], 10) - 1;
+    const dayNum = parseInt(dateParts[2], 10);
+    const dateVal = new Date(yearNum, monthNum, dayNum);
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     if (isNaN(dateVal.getTime())) {
       setValidationError("Please select a valid scheduled date.");
       return;
@@ -139,7 +159,7 @@ export function HubDistributionsTab() {
       toast.success("Payout scheduled successfully!");
       setShowScheduleModal(false);
       setFormData({
-        assetId: "",
+        assetId: assets[0]?.id ?? "",
         title: "",
         payoutType: "",
         scheduledDate: "",
@@ -285,6 +305,13 @@ export function HubDistributionsTab() {
               type="button"
               onClick={() => {
                 setValidationError(null);
+                setFormData({
+                  assetId: assets[0]?.id ?? "",
+                  title: "",
+                  payoutType: "",
+                  scheduledDate: "",
+                  totalAmount: "",
+                });
                 setShowScheduleModal(true);
               }}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90"
@@ -563,7 +590,7 @@ export function HubDistributionsTab() {
         showScheduleModal &&
         createPortal(
           <div
-            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 overflow-y-auto"
             role="presentation"
           >
             <button
@@ -576,10 +603,10 @@ export function HubDistributionsTab() {
               role="dialog"
               aria-modal="true"
               aria-labelledby="schedule-payout-title"
-              className="relative w-full max-w-md rounded-2xl border border-card-border bg-card p-6 shadow-lg"
+              className="relative w-full max-w-md rounded-2xl border border-card-border bg-card p-5 shadow-xl transition-all"
               onClick={(event) => event.stopPropagation()}
             >
-              <div className="mb-4 flex items-center justify-between">
+              <div className="mb-4 flex items-center justify-between border-b border-card-border pb-3">
                 <h3
                   id="schedule-payout-title"
                   className="text-lg font-bold text-foreground"
@@ -589,34 +616,53 @@ export function HubDistributionsTab() {
                 <button
                   type="button"
                   onClick={() => setShowScheduleModal(false)}
-                  className="text-text-muted hover:text-foreground"
+                  className="text-text-muted hover:text-foreground transition-colors"
                 >
                   <X className="h-5 w-5" strokeWidth={iconStroke} />
                 </button>
               </div>
               <form onSubmit={handleSchedulePayout} className="space-y-4">
                 {validationError && (
-                  <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600 font-medium">
+                  <div className="rounded-lg border border-red-155 bg-red-500/10 p-3 text-sm text-red-500 font-medium">
                     {validationError}
                   </div>
                 )}
+                
                 <div>
-                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
-                    Asset ID
+                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
+                    Asset
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.assetId}
-                    onChange={(e) =>
-                      setFormData({ ...formData, assetId: e.target.value })
-                    }
-                    placeholder="Enter asset UUID"
-                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
-                  />
+                  {assets.length === 0 ? (
+                    <input
+                      type="text"
+                      required
+                      value={formData.assetId}
+                      onChange={(e) =>
+                        setFormData({ ...formData, assetId: e.target.value })
+                      }
+                      placeholder="Enter asset UUID"
+                      className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  ) : (
+                    <select
+                      required
+                      value={formData.assetId}
+                      onChange={(e) =>
+                        setFormData({ ...formData, assetId: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    >
+                      {assets.map((asset) => (
+                        <option key={asset.id} value={asset.id}>
+                          {asset.name} ({asset.tag})
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
+
                 <div>
-                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
+                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
                     Title
                   </label>
                   <input
@@ -627,26 +673,47 @@ export function HubDistributionsTab() {
                       setFormData({ ...formData, title: e.target.value })
                     }
                     placeholder="e.g., Q2 2026 Yield Distribution"
-                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
+                    className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
-                <div>
-                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
-                    Payout Type
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.payoutType}
-                    onChange={(e) =>
-                      setFormData({ ...formData, payoutType: e.target.value })
-                    }
-                    placeholder="e.g., Quarterly Yield"
-                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
-                  />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
+                      Payout Type
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.payoutType}
+                      onChange={(e) =>
+                        setFormData({ ...formData, payoutType: e.target.value })
+                      }
+                      placeholder="e.g., Quarterly Yield"
+                      className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
+                      Total Amount
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      step="0.01"
+                      value={formData.totalAmount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, totalAmount: e.target.value })
+                      }
+                      placeholder="0.00"
+                      className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
                 </div>
+
                 <div>
-                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
+                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
                     Scheduled Date
                   </label>
                   <input
@@ -656,38 +723,22 @@ export function HubDistributionsTab() {
                     onChange={(e) =>
                       setFormData({ ...formData, scheduledDate: e.target.value })
                     }
-                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
+                    className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
-                <div>
-                  <label className="mb-1 block text-base font-bold uppercase tracking-widest text-text-muted">
-                    Total Amount
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={formData.totalAmount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, totalAmount: e.target.value })
-                    }
-                    placeholder="Enter amount"
-                    className="w-full rounded-lg border border-card-border bg-surface px-4 py-2 text-base text-foreground"
-                  />
-                </div>
-                <div className="flex gap-2 pt-2">
+
+                <div className="flex gap-3 pt-3 border-t border-card-border">
                   <button
                     type="button"
                     onClick={() => setShowScheduleModal(false)}
-                    className="flex-1 rounded-lg border border-card-border bg-surface px-4 py-2 text-base font-bold text-foreground hover:bg-surface/80"
+                    className="flex-1 rounded-lg border border-card-border bg-surface px-4 py-2 text-sm font-bold text-foreground hover:bg-surface/80 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isScheduling}
-                    className="flex-1 rounded-lg bg-primary px-4 py-2 text-base font-bold text-white hover:opacity-90 disabled:opacity-60"
+                    className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
                   >
                     {isScheduling ? "Scheduling..." : "Schedule"}
                   </button>

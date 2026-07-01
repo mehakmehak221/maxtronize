@@ -150,6 +150,8 @@ export function parseInvestmentDocumentDownloadUrl(
   const data =
     root.data && typeof root.data === "object"
       ? (root.data as Record<string, unknown>)
+      : root.document && typeof root.document === "object"
+      ? (root.document as Record<string, unknown>)
       : root;
   return pickDownloadUrl(data);
 }

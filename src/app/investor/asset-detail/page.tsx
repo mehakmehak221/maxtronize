@@ -763,7 +763,7 @@ function InvestModal({
 
   const amountValue = Number.parseFloat(investmentAmount) || 0;
   const quantityValue = Number.parseFloat(quantity) || 0;
-  const { data: profile } = useAuthenticatedProfileQuery();
+  const { data: profile, isLoading: isProfileLoading } = useAuthenticatedProfileQuery();
 
   const { data: listingsResult, isLoading: listingsLoading } =
     useListSecondaryListingsQuery({
@@ -852,15 +852,16 @@ function InvestModal({
     previewErrorLower.includes("kyc") ||
     previewErrorLower.includes("verification is required");
   const requiresFunding = investPreview?.requiresFunding ?? false;
-  const profileIncomplete = !isProfileComplete(profile);
+  const profileIncomplete = !isProfileLoading && !isProfileComplete(profile);
   const profileKycVerified = isKycVerified(profile);
-  const profilePendingReview = isKycPendingReview(profile);
-  const profileRejected = isKycRejected(profile);
+  const profilePendingReview = !isProfileLoading && isKycPendingReview(profile);
+  const profileRejected = !isProfileLoading && isKycRejected(profile);
   const verificationBlocked =
-    profileIncomplete ||
-    profilePendingReview ||
-    profileRejected ||
-    requiresKycVerification;
+    !isProfileLoading &&
+    (profileIncomplete ||
+      profilePendingReview ||
+      profileRejected ||
+      requiresKycVerification);
 
   const secondaryPriceNum = selectedListing
     ? selectedListing.pricePerTokenValue ||
@@ -1418,7 +1419,12 @@ function InvestModal({
                         min={minimumInvestmentValue || 0}
                         step="0.01"
                         value={investmentAmount}
-                        onChange={(e) => setInvestmentAmount(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val.length <= 15) {
+                            setInvestmentAmount(val);
+                          }
+                        }}
                         placeholder="Enter investment amount"
                         className="flex-1 bg-transparent px-1 py-3.5 pr-4 text-base font-bold text-zinc-800 dark:text-zinc-100 outline-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
                       />
@@ -1437,20 +1443,20 @@ function InvestModal({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 px-5 py-4">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/30 px-5 py-4 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <span className="block text-sm font-bold text-zinc-550 dark:text-zinc-400">
                         Primary Investment Total
                       </span>
-                      <span className="mt-1 block text-xs font-medium text-zinc-400 dark:text-zinc-550">
+                      <span className="mt-1 block text-xs font-medium text-zinc-400 dark:text-zinc-550 break-all">
                         {estimatedPrimaryTokens != null
                           ? `${estimatedPrimaryTokens.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${displayTicker}`
                           : "Live token allocation appears after you enter an amount"}
                       </span>
                     </div>
-                    <span className="text-2xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100">
+                    <span className="text-xl sm:text-2xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100 break-all select-all self-start sm:self-center shrink-0">
                       $
-                      {Number.parseFloat(total).toLocaleString(undefined, {
+                      {Number.isNaN(Number.parseFloat(total)) ? "0.00" : Number.parseFloat(total).toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}

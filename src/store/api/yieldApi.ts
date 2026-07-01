@@ -39,6 +39,7 @@ export const yieldApi = baseApi.injectEndpoints({
         parseDistributionSchedule(response),
       providesTags: (_result, _error, params) => [
         { type: "Yield", id: `SCHEDULE-${params?.year ?? "current"}` },
+        { type: "Yield", id: "SCHEDULE" },
       ],
     }),
     getUpcomingPayouts: build.query<UpcomingPayout[], void>({
@@ -65,6 +66,7 @@ export const yieldApi = baseApi.injectEndpoints({
         parseDistributionHistory(response),
       providesTags: (_result, _error, params) => [
         { type: "Yield", id: `HISTORY-${params?.year ?? "current"}` },
+        { type: "Yield", id: "HISTORY" },
       ],
     }),
     schedulePayout: build.mutation<unknown, SchedulePayoutRequest>({
@@ -75,7 +77,9 @@ export const yieldApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [
         { type: "Yield", id: "UPCOMING" },
-        { type: "Yield", id: "SCHEDULE-*" },
+        { type: "Yield", id: "SCHEDULE" },
+        { type: "Yield", id: "SUMMARY" },
+        { type: "Yield", id: "HISTORY" },
       ],
     }),
     cancelPayout: build.mutation<unknown, string>({
@@ -85,7 +89,9 @@ export const yieldApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [
         { type: "Yield", id: "UPCOMING" },
-        { type: "Yield", id: "SCHEDULE-*" },
+        { type: "Yield", id: "SCHEDULE" },
+        { type: "Yield", id: "SUMMARY" },
+        { type: "Yield", id: "HISTORY" },
       ],
     }),
     processPayout: build.mutation<unknown, string>({
@@ -95,7 +101,9 @@ export const yieldApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [
         { type: "Yield", id: "UPCOMING" },
-        { type: "Yield", id: "SCHEDULE-*" },
+        { type: "Yield", id: "SCHEDULE" },
+        { type: "Yield", id: "SUMMARY" },
+        { type: "Yield", id: "HISTORY" },
       ],
     }),
     setProjection: build.mutation<ProjectionResponse, ProjectionRequest>({

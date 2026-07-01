@@ -203,15 +203,22 @@ function WalletActionForm({
             </label>
             <label className="space-y-2">
               <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Currency</span>
-              <input
-                type="text"
+              <select
                 value={form.currency}
                 onChange={(event) =>
-                  setForm((prev) => ({ ...prev, currency: event.target.value.toUpperCase() }))
+                  setForm((prev) => ({ ...prev, currency: event.target.value }))
                 }
                 className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-                placeholder="USD"
-              />
+              >
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="CAD">CAD</option>
+                <option value="AUD">AUD</option>
+                <option value="SGD">SGD</option>
+                <option value="HKD">HKD</option>
+                <option value="JPY">JPY</option>
+              </select>
             </label>
           </>
         ) : (

@@ -745,7 +745,7 @@ export default function WalletPage() {
             </div>
 
             <div className="flex flex-1 flex-col rounded-2xl border border-ui-border bg-ui-card p-5 shadow-sm sm:rounded-3xl sm:p-6 md:p-7">
-              <div className="flex-1 space-y-3">
+              <div className="flex-1 max-h-[380px] overflow-y-auto space-y-3 pr-2 scrollbar-thin">
                 {walletsLoading ? (
                   <p className="py-10 text-center text-base font-medium text-ui-muted-text">
                     Loading wallets...

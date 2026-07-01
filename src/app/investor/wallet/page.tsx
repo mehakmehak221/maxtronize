@@ -552,7 +552,7 @@ export default function InvestorWalletPage() {
                 +
               </button>
             </div>
-            <div className="space-y-3 p-4">
+            <div className="max-h-[360px] overflow-y-auto space-y-3 p-4 pr-2 scrollbar-thin">
               {isLoading ? (
                 <p className="rounded-2xl bg-ui-muted px-4 py-6 text-center text-base font-medium text-ui-muted-text">
                   Loading wallets...

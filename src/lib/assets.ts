@@ -205,7 +205,7 @@ function parseAssetRecord(record: Record<string, unknown>): MarketplaceAsset {
       "raisedAmount",
       "raised_amount",
       "amountRaised",
-    ]) ?? 
+    ]) ??
     (metaOffering ? pickNumber(metaOffering, ["raised", "raisedAmount"]) : null) ??
     0;
 
@@ -232,7 +232,7 @@ function parseAssetRecord(record: Record<string, unknown>): MarketplaceAsset {
     calcPct(raised, target);
 
   const investors =
-    pickNumber(record, ["investors", "investorCount", "investor_count"]) ?? 
+    pickNumber(record, ["investors", "investorCount", "investor_count"]) ??
     (metaOffering ? pickNumber(metaOffering, ["investors", "investorCount"]) : null) ??
     0;
 
@@ -271,10 +271,10 @@ function parseAssetRecord(record: Record<string, unknown>): MarketplaceAsset {
     description: pickString(record, ["description", "summary", "about"]),
     watchlist: Boolean(
       record.watchlist ??
-        record.isWatchlisted ??
-        record.inWatchlist ??
-        record.in_watchlist ??
-        record.is_watchlisted,
+      record.isWatchlisted ??
+      record.inWatchlist ??
+      record.in_watchlist ??
+      record.is_watchlisted,
     ),
   };
 }
@@ -318,8 +318,8 @@ export function parseAssetDetail(payload: unknown): AssetDetail | null {
     const currency = pickString(financialsRecord, ["currency"]) ?? "USD";
     const offering =
       financialsRecord.offering &&
-      typeof financialsRecord.offering === "object" &&
-      !Array.isArray(financialsRecord.offering)
+        typeof financialsRecord.offering === "object" &&
+        !Array.isArray(financialsRecord.offering)
         ? (financialsRecord.offering as Record<string, unknown>)
         : null;
     financials = [
@@ -337,9 +337,9 @@ export function parseAssetDetail(payload: unknown): AssetDetail | null {
         : null,
       offering
         ? {
-            label: "Lockup Period",
-            val: pickString(offering, ["lockupPeriod", "lockup_period"]) ?? "—",
-          }
+          label: "Lockup Period",
+          val: pickString(offering, ["lockupPeriod", "lockup_period"]) ?? "—",
+        }
         : null,
       pickString(root, ["regulationLabel"])
         ? { label: "Regulation", val: pickString(root, ["regulationLabel"]) ?? "—" }
@@ -414,9 +414,9 @@ export function parseAssetDetail(payload: unknown): AssetDetail | null {
         : null,
       lockupPeriod
         ? {
-            label: "Lockup Period",
-            val: lockupPeriod,
-          }
+          label: "Lockup Period",
+          val: lockupPeriod,
+        }
         : null,
       regulation
         ? { label: "Regulation", val: regulation }
@@ -432,7 +432,7 @@ export function parseAssetDetail(payload: unknown): AssetDetail | null {
     ...base,
     verified: Boolean(
       root.verified ??
-        root.isVerified,
+      root.isVerified,
     ),
     highlights,
     financials,
@@ -475,8 +475,8 @@ export function parseAssetOffering(payload: unknown): AssetOffering | null {
         "minimumInvestment",
       ]) !== null
         ? formatCurrencyShort(
-            pickNumber(o, ["minInvestment", "min_investment", "minimumInvestment"]),
-          )
+          pickNumber(o, ["minInvestment", "min_investment", "minimumInvestment"]),
+        )
         : null),
     targetRaise: target,
     raisedAmount: raised,
@@ -523,11 +523,68 @@ export function parseAssetDocuments(payload: unknown): AssetDocument[] {
       pickString(doc, ["name", "title", "fileName", "file_name"]) ??
       `Document ${index + 1}`;
     const type = pickString(doc, ["type", "category", "documentType"]) ?? "Document";
-    const size =
-      pickString(doc, ["size", "fileSize", "file_size"]) ?? "—";
-    const date =
-      pickString(doc, ["date", "createdAt", "created_at", "uploadedAt"]) ?? "—";
-    const url = pickString(doc, ["url", "fileUrl", "file_url", "downloadUrl"]);
+
+    let size = "—";
+    const rawSize = pickString(doc, [
+      "size",
+      "fileSize",
+      "file_size",
+      "sizeLabel",
+      "size_label",
+      "fileSizeLabel",
+      "file_size_label",
+    ]);
+    if (rawSize) {
+      if (/^\d+$/.test(rawSize.trim())) {
+        const bytes = parseInt(rawSize.trim(), 10);
+        if (bytes === 0) size = "0 B";
+        else {
+          const k = 1024;
+          const sizes = ["B", "KB", "MB", "GB"];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          size = parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+        }
+      } else {
+        size = rawSize;
+      }
+    }
+
+    const dateRaw = pickString(doc, [
+      "date",
+      "createdAt",
+      "created_at",
+      "uploadedAt",
+      "issuedAt",
+      "issued_at",
+    ]);
+    let date = "—";
+    if (dateRaw) {
+      try {
+        const d = new Date(dateRaw);
+        if (!isNaN(d.getTime())) {
+          date = d.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+        } else {
+          date = dateRaw;
+        }
+      } catch {
+        date = dateRaw;
+      }
+    }
+
+    const url = pickString(doc, [
+      "signedUrl",
+      "signed_url",
+      "url",
+      "downloadUrl",
+      "download_url",
+      "fileUrl",
+      "file_url",
+    ]);
+
     return {
       id: pickString(doc, ["id", "_id"]) ?? `${index}-${name}`,
       name,

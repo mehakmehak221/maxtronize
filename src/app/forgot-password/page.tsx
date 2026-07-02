@@ -14,8 +14,8 @@ import { LoadingSpinner } from "@/app/components/VectorImages";
 import toast from "react-hot-toast";
 
 // Must match Sign Up password policy exactly
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-const PASSWORD_HINT = "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character (!@#$%^&*).";
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]{8,}$/;
+const PASSWORD_HINT = "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character (e.g., !@#$%^&*_-).";
 
 
 type Step = "email" | "otp" | "password";

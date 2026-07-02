@@ -52,7 +52,7 @@ export default function SignUpPage() {
 
     const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]{8,}$/;
 
     if (!cleanFirstName) fnErr = "Please enter your first name.";
     else if (!nameRegex.test(cleanFirstName)) fnErr = "Letters, spaces, hyphens, and apostrophes only.";
@@ -64,7 +64,7 @@ export default function SignUpPage() {
     else if (!emailRegex.test(cleanEmail)) emailErr = "Please enter a valid email address.";
 
     if (!password) pwErr = "Please enter your password.";
-    else if (!passwordRegex.test(password)) pwErr = "Password must be at least 8 characters, include uppercase, lowercase, number, and special character.";
+    else if (!passwordRegex.test(password)) pwErr = "Password must be at least 8 characters, include uppercase, lowercase, number, and special character (e.g., !@#$%^&*_-).";
 
     setFirstNameError(fnErr);
     setLastNameError(lnErr);

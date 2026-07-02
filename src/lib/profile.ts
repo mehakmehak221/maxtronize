@@ -89,13 +89,14 @@ export function parseProfile(payload: unknown): UserProfile | null {
   ]);
 
   const profileComplete =
-    pickBool(record, [
+    (pickBool(record, [
       "profileComplete",
       "profileCompleted",
       "isProfileComplete",
       "profile_complete",
       "setupComplete",
     ]) ||
+    Boolean(dateOfBirth && residentialAddress)) &&
     Boolean(dateOfBirth && residentialAddress);
 
   const rawKycStatus = pickString(record, [

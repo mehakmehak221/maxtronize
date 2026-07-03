@@ -87,6 +87,135 @@ export default function TokenizeAssetPage() {
     investorCap: false,
   });
 
+  // Step 2: Asset Details
+  const [assetName, setAssetName] = useState('');
+  const [assetClass, setAssetClass] = useState('Commercial Real Estate');
+  const [appraisedValuation, setAppraisedValuation] = useState('');
+  const [assetLocation, setAssetLocation] = useState('');
+  const [expectedAnnualYield, setExpectedAnnualYield] = useState('');
+  const [assetDescription, setAssetDescription] = useState('');
+
+  // Step 3: Legal Structure
+  const [formationJurisdiction, setFormationJurisdiction] = useState('Delaware, US');
+  const [kycProvider, setKycProvider] = useState('Maxtronize Default (Sumsub)');
+  const [amlScreening, setAmlScreening] = useState('Real-time (Refinitiv)');
+
+  // Step 4: Offering Setup
+  const [offeringTarget, setOfferingTarget] = useState('');
+  const [minimumInvestment, setMinimumInvestment] = useState('');
+  const [offeringStartDate, setOfferingStartDate] = useState('');
+  const [offeringEndDate, setOfferingEndDate] = useState('');
+  const [investorAccreditation, setInvestorAccreditation] = useState('SEC Accredited Only');
+  const [distributionFrequency, setDistributionFrequency] = useState('Quarterly Payouts');
+
+  // Step 5: Tokenization
+  const [tokenName, setTokenName] = useState('');
+  const [tokenSymbol, setTokenSymbol] = useState('');
+  const [totalTokenSupply, setTotalTokenSupply] = useState('');
+  const [initialTokenPrice, setInitialTokenPrice] = useState('');
+
+  // Load from localStorage on mount (prevents SSR hydration issues)
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('tokenize_asset_draft');
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data.currentStep) setCurrentStep(data.currentStep);
+        if (data.selectedJurisdiction) setSelectedJurisdiction(data.selectedJurisdiction);
+        if (data.selectedFramework) setSelectedFramework(data.selectedFramework);
+        if (data.selectedEntity) setSelectedEntity(data.selectedEntity);
+        if (data.selectedNetwork) setSelectedNetwork(data.selectedNetwork);
+        if (data.legalComplianceToggles) setLegalComplianceToggles(data.legalComplianceToggles);
+        if (data.tokenizationSmartToggles) setTokenizationSmartToggles(data.tokenizationSmartToggles);
+        if (data.assetName) setAssetName(data.assetName);
+        if (data.assetClass) setAssetClass(data.assetClass);
+        if (data.appraisedValuation) setAppraisedValuation(data.appraisedValuation);
+        if (data.assetLocation) setAssetLocation(data.assetLocation);
+        if (data.expectedAnnualYield) setExpectedAnnualYield(data.expectedAnnualYield);
+        if (data.assetDescription) setAssetDescription(data.assetDescription);
+        if (data.formationJurisdiction) setFormationJurisdiction(data.formationJurisdiction);
+        if (data.kycProvider) setKycProvider(data.kycProvider);
+        if (data.amlScreening) setAmlScreening(data.amlScreening);
+        if (data.offeringTarget) setOfferingTarget(data.offeringTarget);
+        if (data.minimumInvestment) setMinimumInvestment(data.minimumInvestment);
+        if (data.offeringStartDate) setOfferingStartDate(data.offeringStartDate);
+        if (data.offeringEndDate) setOfferingEndDate(data.offeringEndDate);
+        if (data.investorAccreditation) setInvestorAccreditation(data.investorAccreditation);
+        if (data.distributionFrequency) setDistributionFrequency(data.distributionFrequency);
+        if (data.tokenName) setTokenName(data.tokenName);
+        if (data.tokenSymbol) setTokenSymbol(data.tokenSymbol);
+        if (data.totalTokenSupply) setTotalTokenSupply(data.totalTokenSupply);
+        if (data.initialTokenPrice) setInitialTokenPrice(data.initialTokenPrice);
+      }
+    } catch (e) {
+      console.error('Error loading draft from localStorage', e);
+    }
+  }, []);
+
+  // Save to localStorage when any form state changes
+  React.useEffect(() => {
+    try {
+      const data = {
+        currentStep,
+        selectedJurisdiction,
+        selectedFramework,
+        selectedEntity,
+        selectedNetwork,
+        legalComplianceToggles,
+        tokenizationSmartToggles,
+        assetName,
+        assetClass,
+        appraisedValuation,
+        assetLocation,
+        expectedAnnualYield,
+        assetDescription,
+        formationJurisdiction,
+        kycProvider,
+        amlScreening,
+        offeringTarget,
+        minimumInvestment,
+        offeringStartDate,
+        offeringEndDate,
+        investorAccreditation,
+        distributionFrequency,
+        tokenName,
+        tokenSymbol,
+        totalTokenSupply,
+        initialTokenPrice,
+      };
+      localStorage.setItem('tokenize_asset_draft', JSON.stringify(data));
+    } catch (e) {
+      console.error('Error saving draft to localStorage', e);
+    }
+  }, [
+    currentStep,
+    selectedJurisdiction,
+    selectedFramework,
+    selectedEntity,
+    selectedNetwork,
+    legalComplianceToggles,
+    tokenizationSmartToggles,
+    assetName,
+    assetClass,
+    appraisedValuation,
+    assetLocation,
+    expectedAnnualYield,
+    assetDescription,
+    formationJurisdiction,
+    kycProvider,
+    amlScreening,
+    offeringTarget,
+    minimumInvestment,
+    offeringStartDate,
+    offeringEndDate,
+    investorAccreditation,
+    distributionFrequency,
+    tokenName,
+    tokenSymbol,
+    totalTokenSupply,
+    initialTokenPrice,
+  ]);
+
   const steps: Step[] = [
     { id: 1, name: 'Jurisdiction', desc: 'Select legal region & framework', icon: <TokenizeWizardGlobeIcon className="shrink-0" /> },
     { id: 2, name: 'Asset Details', desc: 'Define the underlying asset', icon: <TokenizeWizardBuildingIcon className="shrink-0" /> },
@@ -240,13 +369,13 @@ export default function TokenizeAssetPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="md:col-span-2 space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Asset Name *</label>
-            <input type="text" placeholder="e.g. Prime Office Tower — New York City" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <input type="text" value={assetName} onChange={(e) => setAssetName(e.target.value)} placeholder="e.g. Prime Office Tower — New York City" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Asset Class *</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select value={assetClass} onChange={(e) => setAssetClass(e.target.value)} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Commercial Real Estate</option>
                 <option>Private Equity</option>
                 <option>Venture Capital</option>
@@ -260,23 +389,23 @@ export default function TokenizeAssetPage() {
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Appraised Valuation (USD) *</label>
             <div className="relative">
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-ui-faint font-bold">$</span>
-              <input type="text" placeholder="5,000,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+              <input type="text" value={appraisedValuation} onChange={(e) => setAppraisedValuation(e.target.value)} placeholder="5,000,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
             </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Asset Location</label>
-            <input type="text" placeholder="City, State / Country" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <input type="text" value={assetLocation} onChange={(e) => setAssetLocation(e.target.value)} placeholder="City, State / Country" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Expected Annual Yield (%)</label>
-            <input type="text" placeholder="e.g. 8.5" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <input type="text" value={expectedAnnualYield} onChange={(e) => setExpectedAnnualYield(e.target.value)} placeholder="e.g. 8.5" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="md:col-span-2 space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Asset Description</label>
-            <textarea placeholder="Describe the asset, its investment highlights, income potential, and risk factors..." rows={4} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all resize-none"></textarea>
+            <textarea value={assetDescription} onChange={(e) => setAssetDescription(e.target.value)} placeholder="Describe the asset, its investment highlights, income potential, and risk factors..." rows={4} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all resize-none"></textarea>
           </div>
         </div>
 
@@ -370,7 +499,7 @@ export default function TokenizeAssetPage() {
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Formation Jurisdiction</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select value={formationJurisdiction} onChange={(e) => setFormationJurisdiction(e.target.value)} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Delaware, US</option>
                 <option>British Virgin Islands</option>
                 <option>Cayman Islands</option>
@@ -382,7 +511,7 @@ export default function TokenizeAssetPage() {
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">KYC Provider</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select value={kycProvider} onChange={(e) => setKycProvider(e.target.value)} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Maxtronize Default (Sumsub)</option>
                 <option>Jumio</option>
                 <option>Onfido</option>
@@ -394,7 +523,7 @@ export default function TokenizeAssetPage() {
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">AML Screening</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select value={amlScreening} onChange={(e) => setAmlScreening(e.target.value)} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Real-time (Refinitiv)</option>
                 <option>Daily Batch</option>
                 <option>Manual Review</option>
@@ -482,7 +611,7 @@ export default function TokenizeAssetPage() {
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Offering Target (USD) *</label>
             <div className="relative">
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-ui-faint font-bold">$</span>
-              <input type="text" placeholder="10,000,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+              <input type="text" value={offeringTarget} onChange={(e) => setOfferingTarget(e.target.value)} placeholder="10,000,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
             </div>
           </div>
 
@@ -490,24 +619,24 @@ export default function TokenizeAssetPage() {
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Minimum Investment (USD) *</label>
             <div className="relative">
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-ui-faint font-bold">$</span>
-              <input type="text" placeholder="25,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+              <input type="text" value={minimumInvestment} onChange={(e) => setMinimumInvestment(e.target.value)} placeholder="25,000" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
             </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Offering Start Date</label>
-            <input type="date" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <input type="date" value={offeringStartDate} onChange={(e) => setOfferingStartDate(e.target.value)} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Offering End Date</label>
-            <input type="date" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <input type="date" value={offeringEndDate} onChange={(e) => setOfferingEndDate(e.target.value)} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Investor Accreditation</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select value={investorAccreditation} onChange={(e) => setInvestorAccreditation(e.target.value)} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>SEC Accredited Only</option>
                 <option>Qualified Purchasers</option>
                 <option>Non-Accredited (Reg A+)</option>
@@ -519,7 +648,7 @@ export default function TokenizeAssetPage() {
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Distribution Frequency</label>
             <div className="relative">
-              <select className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
+              <select value={distributionFrequency} onChange={(e) => setDistributionFrequency(e.target.value)} className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium appearance-none outline-none focus:bg-ui-input-focus focus:border-primary/20 transition-all">
                 <option>Quarterly Payouts</option>
                 <option>Monthly Payouts</option>
                 <option>Annual Payouts</option>
@@ -535,15 +664,33 @@ export default function TokenizeAssetPage() {
           <p className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Offering Preview</p>
           <div className="grid grid-cols-3 gap-12">
             <div className="space-y-2">
-              <p className="text-3xl font-bold text-ui-strong">$10.0M</p>
+              <p className="text-3xl font-bold text-ui-strong">
+                ${(() => {
+                  const targetNum = parseFloat(offeringTarget.replace(/,/g, ''));
+                  return isNaN(targetNum) ? '10.0M' : (targetNum >= 1000000 ? `${(targetNum / 1000000).toFixed(1)}M` : targetNum.toLocaleString());
+                })()}
+              </p>
               <p className="text-xs font-bold text-ui-faint uppercase tracking-widest">Target Capital</p>
             </div>
             <div className="space-y-2 px-12 border-x border-primary/10">
-              <p className="text-3xl font-bold text-ui-strong">1,000,000</p>
+              <p className="text-3xl font-bold text-ui-strong">
+                {(() => {
+                  const supplyNum = parseFloat(totalTokenSupply.replace(/,/g, ''));
+                  if (!isNaN(supplyNum)) return supplyNum.toLocaleString();
+                  const targetNum = parseFloat(offeringTarget.replace(/,/g, '')) || 10000000;
+                  const priceNum = parseFloat(initialTokenPrice) || 10;
+                  return Math.round(targetNum / priceNum).toLocaleString();
+                })()}
+              </p>
               <p className="text-xs font-bold text-ui-faint uppercase tracking-widest">Estimated Tokens</p>
             </div>
             <div className="space-y-2 pl-4">
-              <p className="text-3xl font-bold text-ui-strong">$10.00</p>
+              <p className="text-3xl font-bold text-ui-strong">
+                ${(() => {
+                  const priceNum = parseFloat(initialTokenPrice);
+                  return isNaN(priceNum) ? '10.00' : priceNum.toFixed(2);
+                })()}
+              </p>
               <p className="text-xs font-bold text-ui-faint uppercase tracking-widest">Token Price</p>
             </div>
           </div>
@@ -612,21 +759,21 @@ export default function TokenizeAssetPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Token Name *</label>
-            <input type="text" placeholder="e.g. Prime Office NYC Token" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <input type="text" value={tokenName} onChange={(e) => setTokenName(e.target.value)} placeholder="e.g. Prime Office NYC Token" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Token Symbol *</label>
-            <input type="text" placeholder="E.G. PONYC" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <input type="text" value={tokenSymbol} onChange={(e) => setTokenSymbol(e.target.value)} placeholder="E.G. PONYC" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Total Token Supply</label>
-            <input type="text" placeholder="1,000,000" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+            <input type="text" value={totalTokenSupply} onChange={(e) => setTotalTokenSupply(e.target.value)} placeholder="1,000,000" className="w-full px-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-bold text-ui-faint uppercase tracking-widest">Initial Token Price (USD)</label>
             <div className="relative">
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-ui-faint font-bold">$</span>
-              <input type="text" placeholder="10.00" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
+              <input type="text" value={initialTokenPrice} onChange={(e) => setInitialTokenPrice(e.target.value)} placeholder="10.00" className="w-full pl-10 pr-6 py-4 bg-ui-muted-deep border border-transparent rounded-2xl text-base font-medium focus:bg-ui-input-focus focus:border-primary/20 outline-none transition-all" />
             </div>
           </div>
         </div>
@@ -766,20 +913,26 @@ export default function TokenizeAssetPage() {
         badge: 'Asset',
         badgeClass: 'bg-sky-500 text-white shadow-sm shadow-sky-500/25',
         rows: [
-          { label: 'Asset Name', value: 'Prime Office Tower — New York City' },
-          { label: 'Asset Class', value: 'Commercial Real Estate' },
-          { label: 'Appraised Valuation', value: '$42,500,000 USD' },
-          { label: 'Location', value: 'New York City, NY' },
-          { label: 'Expected Yield', value: '8.5% per annum' },
+          { label: 'Asset Name', value: assetName || 'Prime Office Tower — New York City' },
+          { label: 'Asset Class', value: assetClass },
+          {
+            label: 'Appraised Valuation',
+            value: (() => {
+              const num = parseFloat(appraisedValuation.replace(/,/g, ''));
+              return isNaN(num) ? '$42,500,000 USD' : `$${num.toLocaleString()} USD`;
+            })(),
+          },
+          { label: 'Location', value: assetLocation || 'New York City, NY' },
+          { label: 'Expected Yield', value: expectedAnnualYield ? `${expectedAnnualYield}% per annum` : '8.5% per annum' },
         ],
       },
       {
         badge: 'Legal Structure',
         badgeClass: 'bg-orange-500 text-white shadow-sm shadow-orange-500/25',
         rows: [
-          { label: 'Entity Type', value: entityName },
-          { label: 'KYC Provider', value: 'Maxtronize Integrated KYC' },
-          { label: 'AML Screening', value: amlLine },
+          { label: 'Entity Type', value: `${entityName} (${formationJurisdiction})` },
+          { label: 'KYC Provider', value: kycProvider },
+          { label: 'AML Screening', value: amlScreening },
           { label: 'Lock-up Period', value: lockupLine },
         ],
       },
@@ -787,10 +940,25 @@ export default function TokenizeAssetPage() {
         badge: 'Offering',
         badgeClass: 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/25',
         rows: [
-          { label: 'Target Capital', value: '$10,000,000 USD' },
-          { label: 'Min. Investment', value: '$25,000 USD' },
-          { label: 'Offering Period', value: '180 days' },
-          { label: 'Distribution', value: 'Quarterly' },
+          {
+            label: 'Target Capital',
+            value: (() => {
+              const num = parseFloat(offeringTarget.replace(/,/g, ''));
+              return isNaN(num) ? '$10,000,000 USD' : `$${num.toLocaleString()} USD`;
+            })(),
+          },
+          {
+            label: 'Min. Investment',
+            value: (() => {
+              const num = parseFloat(minimumInvestment.replace(/,/g, ''));
+              return isNaN(num) ? '$25,000 USD' : `$${num.toLocaleString()} USD`;
+            })(),
+          },
+          {
+            label: 'Offering Period',
+            value: offeringStartDate && offeringEndDate ? `${offeringStartDate} to ${offeringEndDate}` : '180 days',
+          },
+          { label: 'Distribution', value: distributionFrequency },
         ],
       },
       {
@@ -798,10 +966,22 @@ export default function TokenizeAssetPage() {
         badgeClass: 'bg-fuchsia-600 text-white shadow-sm shadow-fuchsia-600/25',
         rows: [
           { label: 'Blockchain', value: blockchainLine },
-          { label: 'Token Name', value: 'Prime Office NYC Token' },
-          { label: 'Token Symbol', value: 'PONYC' },
-          { label: 'Total Supply', value: '1,000,000 tokens' },
-          { label: 'Initial Price', value: '$10.00 USD per token' },
+          { label: 'Token Name', value: tokenName || 'Prime Office NYC Token' },
+          { label: 'Token Symbol', value: tokenSymbol || 'PONYC' },
+          {
+            label: 'Total Supply',
+            value: (() => {
+              const num = parseFloat(totalTokenSupply.replace(/,/g, ''));
+              return isNaN(num) ? '1,000,000 tokens' : `${num.toLocaleString()} tokens`;
+            })(),
+          },
+          {
+            label: 'Initial Price',
+            value: (() => {
+              const num = parseFloat(initialTokenPrice);
+              return isNaN(num) ? '$10.00 USD per token' : `$${num.toFixed(2)} USD per token`;
+            })(),
+          },
         ],
       },
     ];
@@ -1073,13 +1253,19 @@ export default function TokenizeAssetPage() {
 
                 <h2 className="text-4xl font-bold text-ui-strong tracking-tight mb-4">Application Submitted!</h2>
                 <p className="text-ui-faint font-medium max-w-lg mx-auto mb-12 leading-relaxed">
-                  Your tokenization application for <span className="text-ui-strong font-bold">Prime Office Tower NYC</span> has been submitted for compliance review. Our team will process it within 24–48 hours.
+                  Your tokenization application for <span className="text-ui-strong font-bold">{assetName || 'Prime Office Tower NYC'}</span> has been submitted for compliance review. Our team will process it within 24–48 hours.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl mb-12">
                   {[
                     { label: 'Application ID', val: 'APP-007' },
-                    { label: 'Asset Value', val: '$42.5M' },
+                    {
+                      label: 'Asset Value',
+                      val: (() => {
+                        const num = parseFloat(appraisedValuation.replace(/,/g, ''));
+                        return isNaN(num) ? '$42.5M' : `$${num.toLocaleString(undefined, { maximumFractionDigits: 1, notation: 'compact' })}`;
+                      })(),
+                    },
                     { label: 'Status', val: 'Under Review', color: 'text-primary' }
                   ].map((card, i) => (
                     <div key={i} className="bg-ui-card border border-ui-border rounded-[24px] p-6 shadow-sm">
@@ -1114,6 +1300,11 @@ export default function TokenizeAssetPage() {
                   type="button"
                   onClick={() => {
                     setIsSubmitted(true);
+                    try {
+                      localStorage.removeItem('tokenize_asset_draft');
+                    } catch (e) {
+                      console.error('Error clearing draft', e);
+                    }
                     setTimeout(() => {
                       window.location.href = '/issuer/dashboard';
                     }, 4000);
@@ -1132,6 +1323,11 @@ export default function TokenizeAssetPage() {
                   type="button"
                   className="text-base font-bold uppercase tracking-widest text-ui-faint transition-colors hover:text-ui-strong"
                   onClick={() => {
+                    try {
+                      localStorage.removeItem('tokenize_asset_draft');
+                    } catch (e) {
+                      console.error('Error clearing draft', e);
+                    }
                     window.location.href = '/issuer/dashboard';
                   }}
                 >
@@ -1145,6 +1341,11 @@ export default function TokenizeAssetPage() {
                       scrollToTop();
                     } else {
                       setIsSubmitted(true);
+                      try {
+                        localStorage.removeItem('tokenize_asset_draft');
+                      } catch (e) {
+                        console.error('Error clearing draft', e);
+                      }
                       setTimeout(() => {
                         window.location.href = '/issuer/dashboard';
                       }, 4000);

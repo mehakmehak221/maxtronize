@@ -550,6 +550,137 @@ function IssuerOnboardingWizard() {
   } | null>(null);
   const lastStartFormResetKeyRef = useRef<string | null>(null);
 
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [redirectProgress, setRedirectProgress] = useState(0);
+  const router = useRouter();
+
+  // Auto-redirect to dashboard after successful submission
+  useEffect(() => {
+    if (!isSubmitted) return;
+    const DURATION_MS = 4000;
+    const TICK_MS = 40;
+    const totalSteps = DURATION_MS / TICK_MS;
+    let step = 0;
+    const timer = window.setInterval(() => {
+      step += 1;
+      const pct = Math.min((step / totalSteps) * 100, 100);
+      setRedirectProgress(pct);
+      if (step >= totalSteps) {
+        window.clearInterval(timer);
+        router.push('/issuer/dashboard');
+      }
+    }, TICK_MS);
+    return () => window.clearInterval(timer);
+  }, [isSubmitted, router]);
+
+  function beginAnotherAsset() {
+    clearSaveError();
+    setIsSubmitted(false);
+    setRedirectProgress(0);
+    router.replace('/issuer/onboarding?start=1');
+  }
+
+  const renderSuccess = () => (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-[#050508] p-6">
+      {/* Deep purple / black radial hero */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_50%_-10%,rgba(124,58,237,0.45)_0%,rgba(26,0,51,0.35)_35%,transparent_65%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_100%,rgba(91,33,182,0.25)_0%,transparent_55%)]"
+        aria-hidden
+      />
+      <div className="pointer-events-none absolute inset-0 bg-mesh auth-hero-mesh opacity-80" aria-hidden />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-[0.07]" aria-hidden />
+
+      <div className="relative z-10 flex w-full max-w-xl flex-col items-center text-center animate-in fade-in zoom-in duration-1000 space-y-10">
+        <div className="relative inline-flex">
+          <div className="absolute inset-0 scale-150 rounded-full bg-[var(--brand-cyan)]/25 blur-3xl" aria-hidden />
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-[var(--brand-cyan)] shadow-[0_0_48px_-8px_rgba(0,212,168,0.65)]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-ui-card shadow-inner">
+              <svg
+                className="h-8 w-8 text-[var(--brand-cyan-dark)]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">Application Submitted</h1>
+          <p className="mx-auto max-w-md text-base font-medium text-zinc-400">
+            Your issuance application is under compliance review.
+          </p>
+        </div>
+
+        <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-[0_24px_80px_-24px_rgba(0,0,0,0.65)] backdrop-blur-md">
+          {[
+            { label: 'KYB Verification', time: '1–2 business days', status: 'active' as const },
+            { label: 'Compliance Review', time: '2–3 business days', status: 'pending' as const },
+            { label: 'Smart Contract Deployment', time: 'Upon approval', status: 'pending' as const },
+          ].map((item, i, arr) => (
+            <div
+              key={item.label}
+              className={`flex items-center justify-between gap-4 px-5 py-4 ${i < arr.length - 1 ? 'border-b border-white/[0.08]' : ''
+                }`}
+            >
+              <div className="flex min-w-0 items-center gap-3 text-left">
+                <span
+                  className={`h-2 w-2 shrink-0 rounded-full ${item.status === 'active' ? 'bg-[var(--brand-cyan)] shadow-[0_0_10px_rgba(0,212,168,0.8)]' : 'bg-white/25'
+                    }`}
+                />
+                <span
+                  className={`truncate text-base font-semibold ${item.status === 'active' ? 'text-white' : 'text-zinc-400'
+                    }`}
+                >
+                  {item.label}
+                </span>
+              </div>
+              <span className="shrink-0 text-xs font-bold uppercase tracking-widest text-zinc-500">
+                {item.time}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Animated redirect progress bar */}
+        <div className="w-full max-w-md space-y-3 text-center">
+          <p className="text-base font-medium text-zinc-400">Redirecting to your dashboard...</p>
+          <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[var(--brand-cyan)] to-[#7C3AED] transition-all"
+              style={{ width: `${redirectProgress}%`, transitionDuration: '40ms', transitionTimingFunction: 'linear' }}
+            />
+          </div>
+        </div>
+
+        {/* Manual navigation fallback */}
+        <div className="flex w-full max-w-md flex-col gap-2 sm:flex-row sm:justify-center">
+          <button
+            type="button"
+            onClick={beginAnotherAsset}
+            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-base font-bold text-zinc-300 transition-colors hover:bg-white/10"
+          >
+            + Tokenize another asset
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/issuer/dashboard')}
+            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-base font-bold text-zinc-300 transition-colors hover:bg-white/10"
+          >
+            Go to dashboard →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const startFormResetKey = `${forceFreshStart ? '1' : '0'}:${onboardingId ?? ''}:${onboardingSessionMissing ? '1' : '0'}`;
 
   useEffect(() => {
@@ -595,6 +726,10 @@ function IssuerOnboardingWizard() {
     isPageReady && !onStartPage && Boolean(onboardingId) && !isLoading
       ? `${onboardingId}:${progressStep ?? onboardingState?.currentStep ?? 1}`
       : null;
+
+  if (isSubmitted) {
+    return renderSuccess();
+  }
 
   if (!isPageReady) {
     return (
@@ -663,6 +798,8 @@ function IssuerOnboardingWizard() {
   return (
     <IssuerOnboardingWizardForm
       key={draftWizardKey}
+      isSubmitted={isSubmitted}
+      onSubmitted={() => setIsSubmitted(true)}
       initialState={buildOnboardingWizardInitialState({
         hydratedEntityForm,
         hydratedRegulation,
@@ -684,8 +821,12 @@ function IssuerOnboardingWizard() {
 
 function IssuerOnboardingWizardForm({
   initialState,
+  isSubmitted,
+  onSubmitted,
 }: {
   initialState: OnboardingWizardFormState;
+  isSubmitted: boolean;
+  onSubmitted: () => void;
 }) {
   const router = useRouter();
   const {
@@ -723,8 +864,6 @@ function IssuerOnboardingWizardForm({
   const [selectedTokenStandard, setSelectedTokenStandard] = useState(initialState.selectedTokenStandard);
   const [selectedNetwork, setSelectedNetwork] = useState(initialState.selectedNetwork);
   const [selectedCustodian, setSelectedCustodian] = useState(initialState.selectedCustodian);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [redirectProgress, setRedirectProgress] = useState(0);
 
   const [legalCompanyName, setLegalCompanyName] = useState(initialState.legalCompanyName);
   const [entityType, setEntityType] = useState(initialState.entityType);
@@ -774,25 +913,6 @@ function IssuerOnboardingWizardForm({
         .filter((type): type is string => Boolean(type)),
     [documents],
   );
-
-  // Auto-redirect to dashboard after successful submission
-  useEffect(() => {
-    if (!isSubmitted) return;
-    const DURATION_MS = 4000;
-    const TICK_MS = 40;
-    const totalSteps = DURATION_MS / TICK_MS;
-    let step = 0;
-    const timer = window.setInterval(() => {
-      step += 1;
-      const pct = Math.min((step / totalSteps) * 100, 100);
-      setRedirectProgress(pct);
-      if (step >= totalSteps) {
-        window.clearInterval(timer);
-        router.push('/issuer/dashboard');
-      }
-    }, TICK_MS);
-    return () => window.clearInterval(timer);
-  }, [isSubmitted, router]);
 
   // Automatically scroll to and focus the first invalid field when validation is triggered
   useEffect(() => {
@@ -1062,7 +1182,7 @@ function IssuerOnboardingWizardForm({
       const ok = await submitApplication();
       if (!ok) return;
     }
-    setIsSubmitted(true);
+    onSubmitted();
   }
 
   function beginAnotherAsset() {
@@ -2429,108 +2549,7 @@ function IssuerOnboardingWizardForm({
     </div>
   );
 
-  const renderSuccess = () => (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-[#050508] p-6">
-      {/* Deep purple / black radial hero */}
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_50%_-10%,rgba(124,58,237,0.45)_0%,rgba(26,0,51,0.35)_35%,transparent_65%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_100%,rgba(91,33,182,0.25)_0%,transparent_55%)]"
-        aria-hidden
-      />
-      <div className="pointer-events-none absolute inset-0 bg-mesh auth-hero-mesh opacity-80" aria-hidden />
-      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-[0.07]" aria-hidden />
 
-      <div className="relative z-10 flex w-full max-w-xl flex-col items-center text-center animate-in fade-in zoom-in duration-1000 space-y-10">
-        <div className="relative inline-flex">
-          <div className="absolute inset-0 scale-150 rounded-full bg-[var(--brand-cyan)]/25 blur-3xl" aria-hidden />
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-[var(--brand-cyan)] shadow-[0_0_48px_-8px_rgba(0,212,168,0.65)]">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-ui-card shadow-inner">
-              <svg
-                className="h-8 w-8 text-[var(--brand-cyan-dark)]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">Application Submitted</h1>
-          <p className="mx-auto max-w-md text-base font-medium text-zinc-400">
-            Your issuance application is under compliance review.
-          </p>
-        </div>
-
-        <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-[0_24px_80px_-24px_rgba(0,0,0,0.65)] backdrop-blur-md">
-          {[
-            { label: 'KYB Verification', time: '1–2 business days', status: 'active' as const },
-            { label: 'Compliance Review', time: '2–3 business days', status: 'pending' as const },
-            { label: 'Smart Contract Deployment', time: 'Upon approval', status: 'pending' as const },
-          ].map((item, i, arr) => (
-            <div
-              key={item.label}
-              className={`flex items-center justify-between gap-4 px-5 py-4 ${i < arr.length - 1 ? 'border-b border-white/[0.08]' : ''
-                }`}
-            >
-              <div className="flex min-w-0 items-center gap-3 text-left">
-                <span
-                  className={`h-2 w-2 shrink-0 rounded-full ${item.status === 'active' ? 'bg-[var(--brand-cyan)] shadow-[0_0_10px_rgba(0,212,168,0.8)]' : 'bg-white/25'
-                    }`}
-                />
-                <span
-                  className={`truncate text-base font-semibold ${item.status === 'active' ? 'text-white' : 'text-zinc-400'
-                    }`}
-                >
-                  {item.label}
-                </span>
-              </div>
-              <span className="shrink-0 text-xs font-bold uppercase tracking-widest text-zinc-500">
-                {item.time}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Animated redirect progress bar */}
-        <div className="w-full max-w-md space-y-3 text-center">
-          <p className="text-base font-medium text-zinc-400">Redirecting to your dashboard...</p>
-          <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-white/10">
-            <div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[var(--brand-cyan)] to-[#7C3AED] transition-all"
-              style={{ width: `${redirectProgress}%`, transitionDuration: '40ms', transitionTimingFunction: 'linear' }}
-            />
-          </div>
-        </div>
-
-        {/* Manual navigation fallback */}
-        <div className="flex w-full max-w-md flex-col gap-2 sm:flex-row sm:justify-center">
-          <button
-            type="button"
-            onClick={beginAnotherAsset}
-            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-base font-bold text-zinc-300 transition-colors hover:bg-white/10"
-          >
-            + Tokenize another asset
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push('/issuer/dashboard')}
-            className="rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-3 text-base font-bold text-zinc-300 transition-colors hover:bg-white/10"
-          >
-            Go to dashboard →
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (isSubmitted) return renderSuccess();
 
   const effectiveStep = applicationStatus.key !== 'draft' ? 8 : currentStep;
 

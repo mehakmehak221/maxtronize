@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -16,6 +16,8 @@ type NavItem = {
   tag?: string;
 };
 
+const NAV_SCROLL_KEY = 'investor-sidebar-scroll';
+
 export default function InvestorLayout({
   children,
   pageTitle,
@@ -27,6 +29,39 @@ export default function InvestorLayout({
   const pathname = usePathname();
   const { theme } = useTheme();
   const sidebarLogoSrc = theme === "dark" ? "/lightlogo.png" : "/darklogo.png";
+  const navRef = useRef<HTMLElement>(null);
+  const activeItemRef = useRef<HTMLAnchorElement>(null);
+
+  // Persist scroll position while the user scrolls
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const handleScroll = () => {
+      sessionStorage.setItem(NAV_SCROLL_KEY, String(nav.scrollTop));
+    };
+    nav.addEventListener('scroll', handleScroll, { passive: true });
+    return () => nav.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // On every navigation: restore saved scroll, then scroll active item into
+  // view only if it is outside the currently visible area.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const saved = Number(sessionStorage.getItem(NAV_SCROLL_KEY) ?? 0);
+    nav.scrollTop = saved;
+
+    const activeEl = activeItemRef.current;
+    if (activeEl) {
+      const navRect = nav.getBoundingClientRect();
+      const itemRect = activeEl.getBoundingClientRect();
+      const isVisible = itemRect.top >= navRect.top && itemRect.bottom <= navRect.bottom;
+      if (!isVisible) {
+        activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }, [pathname]);
 
   const investorItems: NavItem[] = [
     { name: "Overview", href: "/investor/overview", icon: "overview" },
@@ -95,7 +130,7 @@ export default function InvestorLayout({
           </div>
 
           {/* Nav */}
-          <nav className="motion-sidebar-nav scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-5">
+          <nav ref={navRef} className="motion-sidebar-nav scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-5">
             <div className="space-y-1">
               <div className="mb-3 flex items-center justify-between px-1">
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-ui-faint">Investor</p>
@@ -105,6 +140,7 @@ export default function InvestorLayout({
                 return (
                   <Link
                     key={item.href}
+                    ref={isActive ? activeItemRef : undefined}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${
@@ -139,6 +175,7 @@ export default function InvestorLayout({
                 return (
                   <Link
                     key={item.href}
+                    ref={isActive ? activeItemRef : undefined}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
@@ -19,9 +19,45 @@ type NavItem = {
   tag?: NavTag;
 };
 
+const NAV_SCROLL_KEY = 'dashboard-sidebar-scroll';
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const navRef = useRef<HTMLElement>(null);
+  const activeItemRef = useRef<HTMLAnchorElement>(null);
+
+  // Persist scroll position while the user scrolls
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const handleScroll = () => {
+      sessionStorage.setItem(NAV_SCROLL_KEY, String(nav.scrollTop));
+    };
+    nav.addEventListener('scroll', handleScroll, { passive: true });
+    return () => nav.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // On every navigation: restore saved scroll, then scroll active item into
+  // view only if it is outside the currently visible area.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const saved = Number(sessionStorage.getItem(NAV_SCROLL_KEY) ?? 0);
+    nav.scrollTop = saved;
+
+    // Check visibility of the active item after restoring scroll
+    const activeEl = activeItemRef.current;
+    if (activeEl) {
+      const navRect = nav.getBoundingClientRect();
+      const itemRect = activeEl.getBoundingClientRect();
+      const isVisible = itemRect.top >= navRect.top && itemRect.bottom <= navRect.bottom;
+      if (!isVisible) {
+        activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }, [pathname]);
 
   const menuItems: { category: string; items: NavItem[] }[] = [
     {
@@ -100,7 +136,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Link>
           </div>
 
-          <nav className="motion-sidebar-nav scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-2">
+          <nav ref={navRef} className="motion-sidebar-nav scrollbar-hide flex-1 space-y-8 overflow-y-auto px-4 pb-4 pt-2">
             {menuItems.map((category, idx) => (
               <div key={idx} className="space-y-1">
                 <div className="mb-3 flex items-center justify-between px-1">
@@ -112,6 +148,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     return (
                       <Link
                         key={i}
+                        ref={isActive ? activeItemRef : undefined}
                         href={item.href}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${

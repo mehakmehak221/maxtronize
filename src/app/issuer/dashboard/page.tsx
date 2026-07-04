@@ -75,7 +75,7 @@ function buildKpiCards(
       label: "Assets Tokenized",
       val: formatCompactCurrency(assets.tokenizedValue, capitalRaised.currency),
       trend: `${assets.count} assets`,
-      sub: `${assets.jurisdictionCount} Jurisdiction${assets.jurisdictionCount === 1 ? '' : 's'}`,
+      sub: `${assets.jurisdictionCount} jurisdiction${assets.jurisdictionCount === 1 ? '' : 's'}`,
       up: true,
       Icon: IssuerStatIconBars,
       well: "bg-dash-kpi-blue-soft text-dash-kpi-blue-fg ring-1 ring-dash-kpi-blue-ring",

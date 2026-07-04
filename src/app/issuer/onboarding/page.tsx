@@ -26,6 +26,11 @@ import {
   buildOnboardingWizardInitialState,
   type OnboardingWizardFormState,
 } from '@/lib/onboardingWizardInitialState';
+import {
+  clearOnboardingWizardDraft,
+  loadOnboardingWizardDraft,
+  saveOnboardingWizardDraft,
+} from '@/lib/onboardingStorage';
 
 const iconStroke = 1.75;
 
@@ -795,6 +800,9 @@ function IssuerOnboardingWizard() {
     );
   }
 
+  // Load any in-progress draft saved to sessionStorage for this session.
+  const savedDraft = onboardingId ? loadOnboardingWizardDraft(onboardingId) : null;
+
   return (
     <IssuerOnboardingWizardForm
       key={draftWizardKey}
@@ -814,6 +822,7 @@ function IssuerOnboardingWizard() {
         hydratedTokenizationForm,
         progressStep,
         onboardingCurrentStep: onboardingState?.currentStep,
+        savedDraft,
       })}
     />
   );
@@ -905,6 +914,81 @@ function IssuerOnboardingWizardForm({
   const [coldStorageRatio, setColdStorageRatio] = useState(initialState.coldStorageRatio);
   const [multiSigConfig, setMultiSigConfig] = useState(initialState.multiSigConfig);
   const [acceptedTerms, setAcceptedTerms] = useState<boolean[]>(initialState.acceptedTerms);
+
+  // -------------------------------------------------------------------------
+  // Persist in-progress form to sessionStorage (debounced 400ms).
+  // This lets users recover typed-but-unsaved values after a page refresh.
+  // -------------------------------------------------------------------------
+  const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!onboardingId) return;
+    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
+    draftSaveTimerRef.current = setTimeout(() => {
+      saveOnboardingWizardDraft(onboardingId, {
+        currentStep,
+        selectedAssetType,
+        selectedReg,
+        selectedTokenStandard,
+        selectedNetwork,
+        selectedCustodian,
+        legalCompanyName,
+        entityType,
+        ein,
+        businessAddress,
+        directorsNotes,
+        ubosNotes,
+        spvEntityName,
+        spvJurisdiction,
+        retainedOwnership,
+        proRataDistributions,
+        votingRights,
+        liquidationPreference,
+        informationRights,
+        targetRaiseAmount,
+        minimumInvestment,
+        maximumInvestors,
+        offeringCurrency,
+        offeringOpenDate,
+        offeringCloseDate,
+        firstYieldDate,
+        distributionFrequency,
+        lockupPeriod,
+        secondaryMarket,
+        tokenName,
+        tokenSymbol,
+        totalSupply,
+        tokenPrice,
+        accreditedOnly,
+        verificationMethod,
+        assetName,
+        assetDescription,
+        assetAddress,
+        assetAppraisal,
+        assetIncome,
+        assetMetadata,
+        coverImageKey,
+        coverImageUrl,
+        coldStorageRatio,
+        multiSigConfig,
+        acceptedTerms,
+      });
+    }, 400);
+    return () => {
+      if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
+    };
+  }, [
+    onboardingId,
+    currentStep, selectedAssetType, selectedReg, selectedTokenStandard, selectedNetwork,
+    selectedCustodian, legalCompanyName, entityType, ein, businessAddress, directorsNotes,
+    ubosNotes, spvEntityName, spvJurisdiction, retainedOwnership, proRataDistributions,
+    votingRights, liquidationPreference, informationRights, targetRaiseAmount, minimumInvestment,
+    maximumInvestors, offeringCurrency, offeringOpenDate, offeringCloseDate, firstYieldDate,
+    distributionFrequency, lockupPeriod, secondaryMarket, tokenName, tokenSymbol, totalSupply,
+    tokenPrice, accreditedOnly, verificationMethod, assetName, assetDescription, assetAddress,
+    assetAppraisal, assetIncome, assetMetadata, coverImageKey, coverImageUrl, coldStorageRatio,
+    multiSigConfig, acceptedTerms,
+  ]);
 
   const entityDocumentTypes = useMemo(
     () =>
@@ -1181,6 +1265,8 @@ function IssuerOnboardingWizardForm({
     if (onboardingId) {
       const ok = await submitApplication();
       if (!ok) return;
+      // Clear the persisted draft now that the application is submitted.
+      clearOnboardingWizardDraft(onboardingId);
     }
     onSubmitted();
   }

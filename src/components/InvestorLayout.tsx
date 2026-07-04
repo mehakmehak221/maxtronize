@@ -264,7 +264,7 @@ export default function InvestorLayout({
               </button> */}
               <div className="mx-1 hidden h-8 w-px shrink-0 bg-ui-border sm:block" aria-hidden />
               <UserProfileMenu variant="header" />
-              <div className="flex items-center pl-1 [&_button]:p-1.5">
+              <div className="flex items-center">
                 <ThemeToggle />
               </div>
             </div>

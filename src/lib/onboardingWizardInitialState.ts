@@ -89,7 +89,31 @@ export type BuildOnboardingWizardInitialStateInput = {
   hydratedTokenizationForm: TokenizationFormState;
   progressStep: number | null;
   onboardingCurrentStep?: number | null;
+  savedDraft?: Record<string, unknown> | null;
 };
+
+function applyDraftOverlay(
+  base: OnboardingWizardFormState,
+  draft: Record<string, unknown>,
+): OnboardingWizardFormState {
+  const result = { ...base };
+  for (const key of Object.keys(base) as (keyof OnboardingWizardFormState)[]) {
+    if (!(key in draft)) continue;
+    const draftVal = draft[key];
+    const baseVal = base[key];
+    if (typeof draftVal === typeof baseVal) {
+
+      if (Array.isArray(baseVal)) {
+        if (Array.isArray(draftVal) && draftVal.every((v) => typeof v === typeof baseVal[0])) {
+          (result as Record<string, unknown>)[key] = draftVal;
+        }
+      } else {
+        (result as Record<string, unknown>)[key] = draftVal;
+      }
+    }
+  }
+  return result;
+}
 
 export function buildOnboardingWizardInitialState(
   input: BuildOnboardingWizardInitialStateInput,
@@ -108,9 +132,10 @@ export function buildOnboardingWizardInitialState(
     hydratedTokenizationForm,
     progressStep,
     onboardingCurrentStep,
+    savedDraft,
   } = input;
 
-  return {
+  const serverState: OnboardingWizardFormState = {
     currentStep: progressStep ?? onboardingCurrentStep ?? 1,
     selectedAssetType: (hydratedAssetType || "real-estate") as OnboardingAssetType,
     selectedReg: hydratedRegulation,
@@ -159,4 +184,11 @@ export function buildOnboardingWizardInitialState(
     multiSigConfig: hydratedCustodyForm.multiSigConfig,
     acceptedTerms: [false, false, false, false],
   };
+
+  // Overlay in-progress session draft on top of server state.
+  if (savedDraft) {
+    return applyDraftOverlay(serverState, savedDraft);
+  }
+
+  return serverState;
 }

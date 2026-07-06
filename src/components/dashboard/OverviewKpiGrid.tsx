@@ -51,7 +51,7 @@ export function OverviewKpiGrid({ cards }: OverviewKpiGridProps) {
             </p>
 
             <p className="mt-2 min-h-[2.375rem] text-base font-medium leading-[1.45] text-ui-muted-text md:mt-2.5 md:min-h-[2.5rem]">
-              {stat.sub}
+              {stat.sub ? stat.sub.charAt(0).toUpperCase() + stat.sub.slice(1) : ''}
             </p>
           </div>
         </article>

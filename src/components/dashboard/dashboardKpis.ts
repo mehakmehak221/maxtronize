@@ -11,7 +11,7 @@ export const DASHBOARD_KPI_CARDS: KpiCard[] = [
     label: 'Total Raised',
     val: '$14.82M',
     trend: '↗ +12.5%',
-    sub: 'vs $13.17M last quarter',
+    sub: 'Vs $13.17M last quarter',
     up: true,
     Icon: IssuerStatIconWallet,
     well: 'bg-dash-kpi-violet-soft text-dash-kpi-violet-fg ring-1 ring-dash-kpi-violet-ring',

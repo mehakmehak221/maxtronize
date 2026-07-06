@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
@@ -26,35 +26,49 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const navRef = useRef<HTMLElement>(null);
   const activeItemRef = useRef<HTMLAnchorElement>(null);
+  const suppressScrollSave = useRef(false);
 
-  // Persist scroll position while the user scrolls
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
     const handleScroll = () => {
-      sessionStorage.setItem(NAV_SCROLL_KEY, String(nav.scrollTop));
+      if (!suppressScrollSave.current) {
+        sessionStorage.setItem(NAV_SCROLL_KEY, String(nav.scrollTop));
+      }
     };
     nav.addEventListener('scroll', handleScroll, { passive: true });
     return () => nav.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // On every navigation: restore saved scroll, then scroll active item into
-  // view only if it is outside the currently visible area.
+  const handleNavClick = useCallback(() => {
+    const nav = navRef.current;
+    if (nav) {
+      sessionStorage.setItem(NAV_SCROLL_KEY, String(nav.scrollTop));
+    }
+    setIsMobileMenuOpen(false);
+  }, []);
+
+
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
 
     const saved = Number(sessionStorage.getItem(NAV_SCROLL_KEY) ?? 0);
+
+    suppressScrollSave.current = true;
     nav.scrollTop = saved;
 
-    // Check visibility of the active item after restoring scroll
+    requestAnimationFrame(() => {
+      suppressScrollSave.current = false;
+    });
+
     const activeEl = activeItemRef.current;
     if (activeEl) {
       const navRect = nav.getBoundingClientRect();
       const itemRect = activeEl.getBoundingClientRect();
       const isVisible = itemRect.top >= navRect.top && itemRect.bottom <= navRect.bottom;
       if (!isVisible) {
-        activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        activeEl.scrollIntoView({ block: 'nearest', behavior: 'instant' });
       }
     }
   }, [pathname]);
@@ -65,10 +79,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       items: [
         { name: 'Dashboard', icon: 'dashboard', href: '/issuer/dashboard' },
         { name: 'Issuer Hub', icon: 'hub', tag: 'NEW', href: '/issuer/hub' },
-        // Keep AI Intelligence visible in navigation even while some AI flows remain preview-oriented.
         { name: 'AI Intelligence', icon: 'ai', tag: 'AI', href: '/issuer/ai-intelligence' },
         { name: 'Portfolio', icon: 'portfolio', href: '/issuer/portfolio' },
-        // { name: 'Investors', icon: 'investors', href: '/issuer/investors' },
         { name: 'Yield', icon: 'yield', href: '/issuer/yield' },
         { name: 'Wallet', icon: 'wallet', href: '/issuer/wallet' },
         { name: 'Documents', icon: 'documents', href: '/issuer/documents' },
@@ -97,9 +109,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <aside
-          className={`motion-sidebar sidebar-gradient fixed top-0 z-[70] flex h-screen w-64 shrink-0 flex-col border-r border-ui-border shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] lg:sticky lg:max-h-screen lg:translate-x-0 ${
-            isMobileMenuOpen ? 'is-open translate-x-0' : '-translate-x-full lg:translate-x-0'
-          }`}
+          className={`motion-sidebar sidebar-gradient fixed top-0 z-[70] flex h-screen w-64 shrink-0 flex-col border-r border-ui-border shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] lg:sticky lg:max-h-screen lg:translate-x-0 ${isMobileMenuOpen ? 'is-open translate-x-0' : '-translate-x-full lg:translate-x-0'
+            }`}
         >
           <div className="relative flex h-17 shrink-0 items-center justify-center border-b border-ui-border px-4">
             {isMobileMenuOpen && (
@@ -151,12 +162,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         key={i}
                         ref={isActive ? activeItemRef : undefined}
                         href={item.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${
-                          isActive
+                        onClick={handleNavClick}
+                        className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${isActive
                             ? 'nav-active-glow text-primary font-bold'
                             : 'text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong'
-                        }`}
+                          }`}
                       >
                         <IssuerNavIcon
                           id={item.icon}
@@ -171,8 +181,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           <div className="flex shrink-0 items-center gap-2">
                             {item.tag ? (
                               <span
-                                className={`text-[9px] font-bold uppercase tracking-wide ${
-                                  item.tag === 'AI'
+                                className={`text-[9px] font-bold uppercase tracking-wide ${item.tag === 'AI'
                                     ? 'min-w-[26px] rounded-full bg-[#7C3AED] px-1.5 py-0.5 text-center text-white'
                                     : 'text-[#9CA3AF]'
                                   }`}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -31,26 +31,46 @@ export default function InvestorLayout({
   const sidebarLogoSrc = theme === "dark" ? "/lightlogo.png" : "/darklogo.png";
   const navRef = useRef<HTMLElement>(null);
   const activeItemRef = useRef<HTMLAnchorElement>(null);
+  // Flag to suppress the scroll listener during programmatic scroll restoration
+  const suppressScrollSave = useRef(false);
 
-  // Persist scroll position while the user scrolls
+  // Persist scroll position while the user scrolls (skip during restoration)
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
     const handleScroll = () => {
-      sessionStorage.setItem(NAV_SCROLL_KEY, String(nav.scrollTop));
+      if (!suppressScrollSave.current) {
+        sessionStorage.setItem(NAV_SCROLL_KEY, String(nav.scrollTop));
+      }
     };
     nav.addEventListener('scroll', handleScroll, { passive: true });
     return () => nav.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Save scroll position immediately when a nav link is clicked (before route change)
+  const handleNavClick = useCallback(() => {
+    const nav = navRef.current;
+    if (nav) {
+      sessionStorage.setItem(NAV_SCROLL_KEY, String(nav.scrollTop));
+    }
+    setIsMobileMenuOpen(false);
+  }, []);
+
   // On every navigation: restore saved scroll, then scroll active item into
-  // view only if it is outside the currently visible area.
+  // view only if it is genuinely outside the visible area.
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
 
     const saved = Number(sessionStorage.getItem(NAV_SCROLL_KEY) ?? 0);
+
+    // Suppress the scroll listener while we restore position
+    suppressScrollSave.current = true;
     nav.scrollTop = saved;
+    // Re-enable after a microtask to avoid capturing the programmatic scroll
+    requestAnimationFrame(() => {
+      suppressScrollSave.current = false;
+    });
 
     const activeEl = activeItemRef.current;
     if (activeEl) {
@@ -58,7 +78,7 @@ export default function InvestorLayout({
       const itemRect = activeEl.getBoundingClientRect();
       const isVisible = itemRect.top >= navRect.top && itemRect.bottom <= navRect.bottom;
       if (!isVisible) {
-        activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        activeEl.scrollIntoView({ block: 'nearest', behavior: 'instant' });
       }
     }
   }, [pathname]);
@@ -95,9 +115,8 @@ export default function InvestorLayout({
       <div className="flex min-h-0 flex-1">
         {/* Sidebar */}
         <aside
-          className={`motion-sidebar sidebar-gradient fixed lg:sticky top-0 h-screen lg:max-h-screen flex flex-col w-64 shrink-0 border-r border-ui-border shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] z-[70] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] ${
-            isMobileMenuOpen ? "is-open translate-x-0" : "-translate-x-full lg:translate-x-0"
-          }`}
+          className={`motion-sidebar sidebar-gradient fixed lg:sticky top-0 h-screen lg:max-h-screen flex flex-col w-64 shrink-0 border-r border-ui-border shadow-[2px_0_24px_-12px_rgba(15,23,42,0.06)] z-[70] dark:shadow-[2px_0_24px_-12px_rgba(0,0,0,0.45)] ${isMobileMenuOpen ? "is-open translate-x-0" : "-translate-x-full lg:translate-x-0"
+            }`}
         >
           {/* Logo row — same height + border as main header; logo centered in sidebar strip */}
           <div className="relative flex h-17 shrink-0 items-center justify-center border-b border-ui-border px-4">
@@ -143,12 +162,11 @@ export default function InvestorLayout({
                     key={item.href}
                     ref={isActive ? activeItemRef : undefined}
                     href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${
-                      isActive
-                        ? "nav-active-glow text-primary font-bold"
-                        : "text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
-                    }`}
+                    onClick={handleNavClick}
+                    className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${isActive
+                      ? "nav-active-glow text-primary font-bold"
+                      : "text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
+                      }`}
                   >
                     <InvestorNavIcon
                       id={item.icon}
@@ -181,12 +199,11 @@ export default function InvestorLayout({
                     key={item.href}
                     ref={isActive ? activeItemRef : undefined}
                     href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${
-                      isActive
-                        ? "nav-active-glow text-primary font-bold"
-                        : "text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
-                    }`}
+                    onClick={handleNavClick}
+                    className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${isActive
+                      ? "nav-active-glow text-primary font-bold"
+                      : "text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong"
+                      }`}
                   >
                     <InvestorNavIcon
                       id={item.icon}

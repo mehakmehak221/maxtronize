@@ -41,6 +41,14 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Sync form fields when profile data arrives from the API (e.g. after initial load)
+  useEffect(() => {
+    if (profile.fullName) setFullName(profile.fullName);
+    if (profile.country || profile.nationality) {
+      setCountry(profile.country ?? profile.nationality ?? "");
+    }
+  }, [profile.fullName, profile.country, profile.nationality]);
+
   const countryRegex = /^[a-zA-ZÀ-ÿ\s'\-\.]+$/;
 
   async function handleSubmit(e: React.FormEvent) {

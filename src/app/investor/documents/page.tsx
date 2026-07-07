@@ -8,6 +8,7 @@ import React, {
   type SVGProps,
 } from "react";
 import InvestorLayout from "@/components/InvestorLayout";
+import { getStoredAccessToken } from "@/lib/authToken";
 import {
   FileUploadZone,
   type FileUploadZoneHandle,
@@ -285,6 +286,44 @@ export default function InvestorDocumentsPage() {
       return next;
     });
   }
+
+  const handleOpenFile = async (e: React.MouseEvent, url: string, filename: string) => {
+    e.preventDefault();
+    const resolvedUrl = resolveAbsoluteUrl(url);
+    const token = getStoredAccessToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    try {
+      const response = await fetch(resolvedUrl, {
+        headers,
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = blobUrl;
+      a.download = filename;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+        a.remove();
+      }, 100);
+    } catch (err) {
+      console.error("Failed to open file with auth, fallback to direct open:", err);
+      window.open(resolvedUrl, "_blank");
+    }
+  };
 
   const pageError = summaryError || categoriesError || isError;
   const statsLoading = summaryLoading || categoriesLoading;
@@ -597,8 +636,7 @@ export default function InvestorDocumentsPage() {
                   </div>
                   <a
                     href={resolveAbsoluteUrl(file.url)}
-                    target="_blank"
-                    rel="noreferrer"
+                    onClick={(e) => handleOpenFile(e, file.url, file.name)}
                     className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-ui-border px-4 py-2.5 text-sm font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
                   >
                     Open File

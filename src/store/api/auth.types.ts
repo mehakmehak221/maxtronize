@@ -37,6 +37,8 @@ export type ResetPasswordRequest = {
 export type UpdateProfileRequest = {
   fullName: string;
   country: string;
+  dateOfBirth?: string;
+  residentialAddress?: string;
 };
 
 export type SetupProfileRequest = {

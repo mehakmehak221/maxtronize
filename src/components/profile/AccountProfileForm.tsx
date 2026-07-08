@@ -38,6 +38,8 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
 
   const [fullName, setFullName] = useState(profile.fullName ?? "");
   const [country, setCountry] = useState(profile.country ?? profile.nationality ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState(profile.dateOfBirth ?? "");
+  const [residentialAddress, setResidentialAddress] = useState(profile.residentialAddress ?? "");
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -47,7 +49,9 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
     if (profile.country || profile.nationality) {
       setCountry(profile.country ?? profile.nationality ?? "");
     }
-  }, [profile.fullName, profile.country, profile.nationality]);
+    if (profile.dateOfBirth) setDateOfBirth(profile.dateOfBirth);
+    if (profile.residentialAddress) setResidentialAddress(profile.residentialAddress);
+  }, [profile.fullName, profile.country, profile.nationality, profile.dateOfBirth, profile.residentialAddress]);
 
   const countryRegex = /^[a-zA-ZÀ-ÿ\s'\-\.]+$/;
 
@@ -57,6 +61,7 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
     setSuccess(null);
     const trimmedName = fullName.trim();
     const trimmedCountry = country.trim();
+    const trimmedAddress = residentialAddress.trim();
     if (!trimmedName) {
       setFormError("Full name is required.");
       return;
@@ -73,6 +78,8 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
       await updateProfile({
         fullName: trimmedName,
         country: trimmedCountry,
+        dateOfBirth,
+        residentialAddress: trimmedAddress,
       }).unwrap();
       try {
         localStorage.setItem("maxtronize_user_name", trimmedName);
@@ -129,7 +136,20 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
 
       <div className="space-y-2">
         <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
-          Country
+          Date of birth
+        </label>
+        <input
+          type="date"
+          value={dateOfBirth}
+          onChange={(e) => setDateOfBirth(e.target.value)}
+          required
+          className={inputClass}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
+          Country / Nationality
         </label>
         <input
           type="text"
@@ -140,6 +160,20 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
           required
           className={inputClass}
           placeholder="United States"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
+          Residential address
+        </label>
+        <textarea
+          required
+          value={residentialAddress}
+          onChange={(e) => setResidentialAddress(e.target.value)}
+          rows={3}
+          className={inputClass}
+          placeholder="Street, city, state, postal code, country"
         />
       </div>
 

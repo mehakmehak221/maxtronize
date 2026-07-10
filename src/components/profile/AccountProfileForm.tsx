@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { getSession, signIn } from "@/lib/auth";
 import { formatRequestError } from "@/lib/formatRequestError";
 import type { UserProfile } from "@/lib/profile";
@@ -27,51 +27,40 @@ export function AccountProfileForm() {
     profile ||
     (session.email
       ? {
+          id: null,
+          onboardingId: null,
           email: session.email,
           fullName: session.email.split("@")[0],
           country: "",
+          role: null,
+          dateOfBirth: null,
+          nationality: null,
+          residentialAddress: null,
+          profileComplete: false,
+          kycStatus: null,
+          kycVerified: false,
         }
       : null);
 
   if (!activeProfile) return null;
 
-  return <AccountProfileFormInner profile={activeProfile as UserProfile} />;
+  return (
+    <AccountProfileFormInner
+      key={`${activeProfile.id ?? ""}:${activeProfile.email ?? ""}`}
+      profile={activeProfile as UserProfile}
+    />
+  );
 }
 
 function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
-  const profileSnapshot = useMemo(
-    () => ({
-      fullName: profile.fullName ?? "",
-      country: profile.country ?? profile.nationality ?? "",
-      dateOfBirth: profile.dateOfBirth ?? "",
-      residentialAddress: profile.residentialAddress ?? "",
-    }),
-    [
-      profile.fullName,
-      profile.country,
-      profile.nationality,
-      profile.dateOfBirth,
-      profile.residentialAddress,
-    ],
-  );
-
-  const [fullName, setFullName] = useState(profileSnapshot.fullName);
-  const [country, setCountry] = useState(profileSnapshot.country);
-  const [dateOfBirth, setDateOfBirth] = useState(profileSnapshot.dateOfBirth);
-  const [residentialAddress, setResidentialAddress] = useState(
-    profileSnapshot.residentialAddress,
+  const [fullName, setFullName] = useState(profile.fullName ?? "");
+  const [country, setCountry] = useState(
+    profile.country ?? profile.nationality ?? "",
   );
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  useEffect(() => {
-    setFullName(profileSnapshot.fullName);
-    setCountry(profileSnapshot.country);
-    setDateOfBirth(profileSnapshot.dateOfBirth);
-    setResidentialAddress(profileSnapshot.residentialAddress);
-  }, [profileSnapshot]);
 
   const countryRegex = /^[a-zA-ZÀ-ÿ\s'\-\.]+$/;
 
@@ -81,7 +70,6 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
     setSuccess(null);
     const trimmedName = fullName.trim();
     const trimmedCountry = country.trim();
-    const trimmedAddress = residentialAddress.trim();
     if (!trimmedName) {
       setFormError("Full name is required.");
       return;
@@ -100,9 +88,6 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
       await updateProfile({
         fullName: trimmedName,
         country: trimmedCountry,
-        nationality: trimmedCountry,
-        ...(dateOfBirth.trim() ? { dateOfBirth: dateOfBirth.trim() } : {}),
-        ...(trimmedAddress ? { residentialAddress: trimmedAddress } : {}),
       }).unwrap();
 
       const session = getSession();
@@ -166,19 +151,7 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
 
       <div className="space-y-2">
         <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
-          Date of birth
-        </label>
-        <input
-          type="date"
-          value={dateOfBirth}
-          onChange={(e) => setDateOfBirth(e.target.value)}
-          className={inputClass}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
-          Country / Nationality
+          Country
         </label>
         <input
           type="text"
@@ -189,19 +162,6 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
           required
           className={inputClass}
           placeholder="United States"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
-          Residential address
-        </label>
-        <textarea
-          value={residentialAddress}
-          onChange={(e) => setResidentialAddress(e.target.value)}
-          rows={3}
-          className={inputClass}
-          placeholder="Street, city, state, postal code, country"
         />
       </div>
 

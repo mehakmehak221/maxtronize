@@ -107,61 +107,50 @@ export const authApi = baseApi.injectEndpoints({
       providesTags: ["User"],
     }),
     updateProfile: build.mutation<UserProfile | null, UpdateProfileRequest>({
-      query: (body) => {
-        const country = body.country.trim();
-        return {
-          url: "/auth/profile",
-          method: "PATCH",
-          body: {
-            fullName: body.fullName.trim(),
-            country,
-            nationality: (body.nationality ?? country).trim(),
-            ...(body.dateOfBirth?.trim()
-              ? { dateOfBirth: body.dateOfBirth.trim() }
-              : {}),
-            ...(body.residentialAddress?.trim()
-              ? { residentialAddress: body.residentialAddress.trim() }
-              : {}),
-          },
-          responseHandler: async (response) => {
-            const text = await response.text();
-            if (!text.trim()) return null;
-            try {
-              return JSON.parse(text) as unknown;
-            } catch {
-              return text;
-            }
-          },
-        };
-      },
+      query: (body) => ({
+        url: "/auth/profile",
+        method: "PATCH",
+        body: {
+          fullName: body.fullName.trim(),
+          country: body.country.trim(),
+        },
+        responseHandler: async (response) => {
+          const text = await response.text();
+          if (!response.ok) {
+            throw new Error(text.trim() || response.statusText);
+          }
+          if (!text.trim()) return null;
+          try {
+            return JSON.parse(text) as unknown;
+          } catch {
+            return text;
+          }
+        },
+      }),
       transformResponse: (response: unknown) =>
         response ? parseProfile(response) : null,
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        const trimmedName = arg.fullName.trim();
+        const trimmedCountry = arg.country.trim();
+        const patchResult = dispatch(
+          authApi.util.updateQueryData("getProfile", undefined, (draft) => {
+            if (!draft) return;
+            draft.fullName = trimmedName;
+            draft.country = trimmedCountry;
+            draft.nationality = trimmedCountry;
+          }),
+        );
         try {
           const { data } = await queryFulfilled;
-          const country = arg.country.trim();
-          dispatch(
-            authApi.util.updateQueryData("getProfile", undefined, (draft) => {
-              if (!draft) return;
-              if (data?.fullName) draft.fullName = data.fullName;
-              else draft.fullName = arg.fullName.trim();
-              const nextCountry = data?.country ?? data?.nationality ?? country;
-              draft.country = nextCountry;
-              draft.nationality = data?.nationality ?? nextCountry;
-              if (data?.dateOfBirth ?? arg.dateOfBirth) {
-                draft.dateOfBirth = data?.dateOfBirth ?? arg.dateOfBirth ?? null;
-              }
-              if (data?.residentialAddress ?? arg.residentialAddress) {
-                draft.residentialAddress =
-                  data?.residentialAddress ?? arg.residentialAddress ?? null;
-              }
-            }),
-          );
+          if (data) {
+            dispatch(
+              authApi.util.updateQueryData("getProfile", undefined, () => data),
+            );
+          }
         } catch {
-          /* handled by caller */
+          patchResult.undo();
         }
       },
-      invalidatesTags: ["User"],
     }),
     setupProfile: build.mutation<UserProfile | null, SetupProfileRequest>({
       query: (body) => ({

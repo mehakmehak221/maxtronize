@@ -51,7 +51,19 @@ function mergeRoleSpecificProfile(
     return record;
   }
   const { issuerProfile: _i, investorProfile: _v, ...rest } = record;
-  return { ...(nested as Record<string, unknown>), ...rest };
+  const nestedRecord = nested as Record<string, unknown>;
+  return {
+    ...nestedRecord,
+    ...rest,
+    fullName:
+      pickString(rest, ["fullName", "full_name", "name"]) ??
+      pickString(nestedRecord, ["fullName", "full_name", "name"]),
+    country:
+      pickString(rest, ["country"]) ??
+      pickString(nestedRecord, ["country"]) ??
+      pickString(rest, ["nationality"]) ??
+      pickString(nestedRecord, ["nationality"]),
+  };
 }
 
 function unwrapRecord(payload: unknown): Record<string, unknown> | null {

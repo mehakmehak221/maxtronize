@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getSession, signIn } from "@/lib/auth";
 import { formatRequestError } from "@/lib/formatRequestError";
+import type { UserProfile } from "@/lib/profile";
 import {
   useAuthenticatedProfileQuery,
   useUpdateProfileMutation,
 } from "@/store/api/authApi";
-import { getSession } from "@/lib/auth";
 
 const inputClass =
   "w-full rounded-xl border border-ui-border bg-ui-card px-5 py-4 text-base leading-normal text-ui-strong outline-none transition-all focus:border-violet-300 focus:ring-4 focus:ring-violet-500/10";
@@ -22,36 +23,55 @@ export function AccountProfileForm() {
   }
 
   const session = typeof window !== "undefined" ? getSession() : { email: null };
-  const activeProfile = profile || (session.email ? {
-    email: session.email,
-    fullName: session.email.split("@")[0],
-    country: "",
-  } : null);
+  const activeProfile =
+    profile ||
+    (session.email
+      ? {
+          email: session.email,
+          fullName: session.email.split("@")[0],
+          country: "",
+        }
+      : null);
 
   if (!activeProfile) return null;
 
-  return <AccountProfileFormInner profile={activeProfile} />;
+  return <AccountProfileFormInner profile={activeProfile as UserProfile} />;
 }
 
-function AccountProfileFormInner({ profile }: { profile: any }) {
+function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
-  const [fullName, setFullName] = useState(profile.fullName ?? "");
-  const [country, setCountry] = useState(profile.country ?? profile.nationality ?? "");
-  const [dateOfBirth, setDateOfBirth] = useState(profile.dateOfBirth ?? "");
-  const [residentialAddress, setResidentialAddress] = useState(profile.residentialAddress ?? "");
+  const profileSnapshot = useMemo(
+    () => ({
+      fullName: profile.fullName ?? "",
+      country: profile.country ?? profile.nationality ?? "",
+      dateOfBirth: profile.dateOfBirth ?? "",
+      residentialAddress: profile.residentialAddress ?? "",
+    }),
+    [
+      profile.fullName,
+      profile.country,
+      profile.nationality,
+      profile.dateOfBirth,
+      profile.residentialAddress,
+    ],
+  );
+
+  const [fullName, setFullName] = useState(profileSnapshot.fullName);
+  const [country, setCountry] = useState(profileSnapshot.country);
+  const [dateOfBirth, setDateOfBirth] = useState(profileSnapshot.dateOfBirth);
+  const [residentialAddress, setResidentialAddress] = useState(
+    profileSnapshot.residentialAddress,
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Sync form fields when profile data arrives from the API (e.g. after initial load)
   useEffect(() => {
-    if (profile.fullName) setFullName(profile.fullName);
-    if (profile.country || profile.nationality) {
-      setCountry(profile.country ?? profile.nationality ?? "");
-    }
-    if (profile.dateOfBirth) setDateOfBirth(profile.dateOfBirth);
-    if (profile.residentialAddress) setResidentialAddress(profile.residentialAddress);
-  }, [profile.fullName, profile.country, profile.nationality, profile.dateOfBirth, profile.residentialAddress]);
+    setFullName(profileSnapshot.fullName);
+    setCountry(profileSnapshot.country);
+    setDateOfBirth(profileSnapshot.dateOfBirth);
+    setResidentialAddress(profileSnapshot.residentialAddress);
+  }, [profileSnapshot]);
 
   const countryRegex = /^[a-zA-ZÀ-ÿ\s'\-\.]+$/;
 
@@ -71,19 +91,29 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
       return;
     }
     if (!countryRegex.test(trimmedCountry)) {
-      setFormError("Country name can only contain letters, spaces, hyphens, apostrophes, and periods.");
+      setFormError(
+        "Country name can only contain letters, spaces, hyphens, apostrophes, and periods.",
+      );
       return;
     }
     try {
       await updateProfile({
         fullName: trimmedName,
         country: trimmedCountry,
-        dateOfBirth,
-        residentialAddress: trimmedAddress,
+        nationality: trimmedCountry,
+        ...(dateOfBirth.trim() ? { dateOfBirth: dateOfBirth.trim() } : {}),
+        ...(trimmedAddress ? { residentialAddress: trimmedAddress } : {}),
       }).unwrap();
-      try {
-        localStorage.setItem("maxtronize_user_name", trimmedName);
-      } catch (e) {}
+
+      const session = getSession();
+      if (session.role) {
+        signIn({
+          role: session.role,
+          email: profile.email ?? session.email ?? undefined,
+          name: trimmedName,
+        });
+      }
+
       setSuccess("Profile updated successfully.");
     } catch (err) {
       setFormError(formatRequestError(err));
@@ -112,7 +142,7 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
         </label>
         <input
           type="email"
-          value={profile?.email ?? ""}
+          value={profile.email ?? ""}
           disabled
           className={`${inputClass} cursor-not-allowed opacity-70`}
         />
@@ -142,7 +172,6 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
           type="date"
           value={dateOfBirth}
           onChange={(e) => setDateOfBirth(e.target.value)}
-          required
           className={inputClass}
         />
       </div>
@@ -168,7 +197,6 @@ function AccountProfileFormInner({ profile }: { profile: any }) {
           Residential address
         </label>
         <textarea
-          required
           value={residentialAddress}
           onChange={(e) => setResidentialAddress(e.target.value)}
           rows={3}

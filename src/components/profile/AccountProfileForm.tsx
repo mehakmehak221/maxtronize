@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getSession, signIn } from "@/lib/auth";
 import { formatRequestError } from "@/lib/formatRequestError";
 import type { UserProfile } from "@/lib/profile";
 import {
   useAuthenticatedProfileQuery,
   useUpdateProfileMutation,
+  useSetupProfileMutation,
 } from "@/store/api/authApi";
 
 const inputClass =
@@ -53,16 +54,35 @@ export function AccountProfileForm() {
 }
 
 function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
-  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+  const [setupProfile, { isLoading: isSettingUp }] = useSetupProfileMutation();
 
   const [fullName, setFullName] = useState(profile.fullName ?? "");
   const [country, setCountry] = useState(
     profile.country ?? profile.nationality ?? "",
   );
+  const [dateOfBirth, setDateOfBirth] = useState(profile.dateOfBirth ?? "");
+  const [residentialAddress, setResidentialAddress] = useState(
+    profile.residentialAddress ?? "",
+  );
+
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Sync profile data dynamically when it gets retrieved or updated
+  useEffect(() => {
+    if (profile.fullName) setFullName(profile.fullName);
+    if (profile.country || profile.nationality) {
+      setCountry(profile.country ?? profile.nationality ?? "");
+    }
+    if (profile.dateOfBirth) setDateOfBirth(profile.dateOfBirth);
+    if (profile.residentialAddress) setResidentialAddress(profile.residentialAddress);
+  }, [profile]);
+
   const countryRegex = /^[a-zA-ZÀ-ÿ\s'\-\.]+$/;
+
+  const isComplete = profile.profileComplete;
+  const isLoading = isUpdating || isSettingUp;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -70,6 +90,9 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
     setSuccess(null);
     const trimmedName = fullName.trim();
     const trimmedCountry = country.trim();
+    const trimmedDob = dateOfBirth.trim();
+    const trimmedAddress = residentialAddress.trim();
+
     if (!trimmedName) {
       setFormError("Full name is required.");
       return;
@@ -84,11 +107,38 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
       );
       return;
     }
+
+    if (!isComplete) {
+      if (!trimmedDob) {
+        setFormError("Date of birth is required.");
+        return;
+      }
+      if (!trimmedAddress) {
+        setFormError("Residential address is required.");
+        return;
+      }
+    }
+
     try {
-      await updateProfile({
-        fullName: trimmedName,
-        country: trimmedCountry,
-      }).unwrap();
+      if (!isComplete) {
+        // Call setup mutation to complete profile verification setup
+        await setupProfile({
+          fullName: trimmedName,
+          dateOfBirth: trimmedDob,
+          nationality: trimmedCountry,
+          residentialAddress: trimmedAddress,
+        }).unwrap();
+        setSuccess("Profile submitted for verification successfully.");
+      } else {
+        // Call update mutation to change editable info
+        await updateProfile({
+          fullName: trimmedName,
+          country: trimmedCountry,
+          dateOfBirth: trimmedDob,
+          residentialAddress: trimmedAddress,
+        }).unwrap();
+        setSuccess("Profile updated successfully.");
+      }
 
       const session = getSession();
       if (session.role) {
@@ -98,8 +148,6 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
           name: trimmedName,
         });
       }
-
-      setSuccess("Profile updated successfully.");
     } catch (err) {
       setFormError(formatRequestError(err));
     }
@@ -151,7 +199,7 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
 
       <div className="space-y-2">
         <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
-          Country
+          Country / Nationality
         </label>
         <input
           type="text"
@@ -165,12 +213,55 @@ function AccountProfileFormInner({ profile }: { profile: UserProfile }) {
         />
       </div>
 
+      <div className="space-y-2">
+        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
+          Date of birth
+        </label>
+        <input
+          type="date"
+          value={dateOfBirth}
+          onChange={(e) => setDateOfBirth(e.target.value)}
+          disabled={isComplete}
+          required={!isComplete}
+          className={`${inputClass} ${isComplete ? "cursor-not-allowed opacity-70" : ""}`}
+        />
+        {isComplete && (
+          <p className="text-xs text-ui-faint">
+            Date of birth is verified and cannot be updated directly. Contact support if changes are required.
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-xs font-bold uppercase tracking-widest text-ui-faint">
+          Residential Address
+        </label>
+        <textarea
+          value={residentialAddress}
+          onChange={(e) => setResidentialAddress(e.target.value)}
+          disabled={isComplete}
+          required={!isComplete}
+          rows={3}
+          className={`${inputClass} ${isComplete ? "cursor-not-allowed opacity-70" : ""}`}
+          placeholder="Street, city, state, postal code, country"
+        />
+        {isComplete && (
+          <p className="text-xs text-ui-faint">
+            Address is verified and cannot be updated directly. Contact support if changes are required.
+          </p>
+        )}
+      </div>
+
       <button
         type="submit"
         disabled={isLoading}
         className="btn-gradient-primary rounded-xl px-6 py-3 text-base font-bold text-white shadow-lg shadow-violet-500/20 disabled:opacity-60"
       >
-        {isLoading ? "Saving…" : "Save changes"}
+        {isLoading
+          ? "Saving…"
+          : isComplete
+          ? "Save changes"
+          : "Submit profile for verification"}
       </button>
     </form>
   );

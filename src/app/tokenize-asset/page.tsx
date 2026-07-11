@@ -113,6 +113,8 @@ export default function TokenizeAssetPage() {
   const [totalTokenSupply, setTotalTokenSupply] = useState('');
   const [initialTokenPrice, setInitialTokenPrice] = useState('');
 
+  const isLoaded = useRef(false);
+
   // Load from localStorage on mount
   useEffect(() => {
     try {
@@ -148,11 +150,14 @@ export default function TokenizeAssetPage() {
       }
     } catch (e) {
       console.error('Failed to load tokenize asset form from localStorage', e);
+    } finally {
+      isLoaded.current = true;
     }
   }, []);
 
   // Save to localStorage on change
   useEffect(() => {
+    if (!isLoaded.current) return;
     const data = {
       currentStep,
       selectedJurisdiction,

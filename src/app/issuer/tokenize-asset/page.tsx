@@ -114,6 +114,8 @@ export default function TokenizeAssetPage() {
   const [totalTokenSupply, setTotalTokenSupply] = useState('');
   const [initialTokenPrice, setInitialTokenPrice] = useState('');
 
+  const isLoaded = useRef(false);
+
   // Load from localStorage on mount (prevents SSR hydration issues)
   React.useEffect(() => {
     try {
@@ -149,11 +151,14 @@ export default function TokenizeAssetPage() {
       }
     } catch (e) {
       console.error('Error loading draft from localStorage', e);
+    } finally {
+      isLoaded.current = true;
     }
   }, []);
 
   // Save to localStorage when any form state changes
   React.useEffect(() => {
+    if (!isLoaded.current) return;
     try {
       const data = {
         currentStep,

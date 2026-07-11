@@ -113,6 +113,8 @@ export const authApi = baseApi.injectEndpoints({
         body: {
           fullName: body.fullName.trim(),
           country: body.country.trim(),
+          ...(body.dateOfBirth?.trim() ? { dateOfBirth: body.dateOfBirth.trim() } : {}),
+          ...(body.residentialAddress?.trim() ? { residentialAddress: body.residentialAddress.trim() } : {}),
         },
         responseHandler: async (response) => {
           const text = await response.text();
@@ -138,6 +140,12 @@ export const authApi = baseApi.injectEndpoints({
             draft.fullName = trimmedName;
             draft.country = trimmedCountry;
             draft.nationality = trimmedCountry;
+            if (arg.dateOfBirth?.trim()) {
+              draft.dateOfBirth = arg.dateOfBirth.trim();
+            }
+            if (arg.residentialAddress?.trim()) {
+              draft.residentialAddress = arg.residentialAddress.trim();
+            }
           }),
         );
         try {

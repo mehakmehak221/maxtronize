@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   TrendingUp,
   Wallet,
+  ShieldCheck,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -23,6 +24,7 @@ export type InvestorNavIconId =
   | 'secondary-market'
   | 'portfolio'
   | 'wallet'
+  | 'compliance'
   | 'documents'
   | 'help';
 
@@ -39,6 +41,8 @@ export function InvestorNavIcon({ id, className }: { id: InvestorNavIconId; clas
       return <NavLucideIcon Icon={TrendingUp} className={className} />;
     case 'wallet':
       return <NavLucideIcon Icon={Wallet} className={className} />;
+    case 'compliance':
+      return <NavLucideIcon Icon={ShieldCheck} className={className} />;
     case 'documents':
       return <NavLucideIcon Icon={FileText} className={className} />;
     case 'help':

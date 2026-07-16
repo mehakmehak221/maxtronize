@@ -17,7 +17,7 @@
 
   --card: oklch(97.5% 0.008 278);
   --card-border: oklch(88% 0.02 280);
-  --header-bg: oklch(95.5% 0.012 278 / 0.96);
+  --header-bg: #F4F2FD;
   --sidebar-bg: oklch(95% 0.014 280);
 
   --palette-success: #10b981;
@@ -33,7 +33,7 @@
   --brand-indigo: #6366f1;
 
   /* ── Semantic UI surface tokens ── */
-  --ui-page: oklch(92.5% 0.016 278);
+  --ui-page: #f8f7ffd7;
   --ui-sidebar: oklch(95% 0.014 280);
   --ui-card: oklch(97.5% 0.008 278);
   --ui-elevated: oklch(99% 0.005 275);
@@ -63,8 +63,8 @@
   --ui-inset-shadow: oklch(40% 0.25 290 / 0.08);
 
   /* Sidebar gradient for premium depth */
-  --ui-sidebar-gradient-from: oklch(95.5% 0.016 282);
-  --ui-sidebar-gradient-to: oklch(94% 0.014 278);
+  --ui-sidebar-gradient-from: #FFFFFF;
+  --ui-sidebar-gradient-to: #FFFFFF;
   --ui-header-border-gradient: linear-gradient(90deg, transparent, oklch(85% 0.03 282), transparent);
 
   --alert-info-bg: rgba(239, 246, 255, 0.85);
@@ -1209,21 +1209,17 @@ html {
 
 /* Sidebar gradient background */
 .sidebar-gradient {
-  background: linear-gradient(
-    175deg,
-    var(--ui-sidebar-gradient-from) 0%,
-    var(--ui-sidebar-gradient-to) 100%
-  );
+  background: linear-gradient(175deg,
+      var(--ui-sidebar-gradient-from) 0%,
+      var(--ui-sidebar-gradient-to) 100%);
 }
 
 /* Active nav item — glowing left bar + gradient tint */
 .nav-active-glow {
-  background: linear-gradient(
-    to right,
-    var(--ui-accent-tint) 0%,
-    var(--ui-accent-tint) 60%,
-    transparent 100%
-  );
+  background: linear-gradient(to right,
+      var(--ui-accent-tint) 0%,
+      var(--ui-accent-tint) 60%,
+      transparent 100%);
   box-shadow:
     inset 3px 0 0 var(--primary),
     inset 0 0 0 1px var(--ui-nav-active-glow),
@@ -1232,8 +1228,13 @@ html {
 
 /* Shimmer sweep animation for CTA button */
 @keyframes shimmerSweep {
-  0% { transform: translateX(-100%) skewX(-20deg); }
-  100% { transform: translateX(250%) skewX(-20deg); }
+  0% {
+    transform: translateX(-100%) skewX(-20deg);
+  }
+
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
 }
 
 .btn-shimmer {
@@ -1245,12 +1246,10 @@ html {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.22) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.22) 50%,
+      transparent 100%);
   width: 40%;
   animation: shimmerSweep 3.2s ease-in-out infinite;
   pointer-events: none;
@@ -1285,13 +1284,11 @@ html {
 /* Decorative category HR with gradient fade */
 .nav-category-rule {
   height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--ui-border) 25%,
-    var(--ui-border) 75%,
-    transparent
-  );
+  background: linear-gradient(to right,
+      transparent,
+      var(--ui-border) 25%,
+      var(--ui-border) 75%,
+      transparent);
   margin-bottom: 0.5rem;
   margin-top: 0.125rem;
 }

@@ -164,8 +164,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         href={item.href}
                         onClick={handleNavClick}
                         className={`motion-nav-link relative flex w-full items-center gap-3 rounded-2xl py-3 pl-4 pr-3 ${isActive
-                            ? 'nav-active-glow text-primary font-bold'
-                            : 'text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong'
+                          ? 'nav-active-glow text-primary font-bold'
+                          : 'text-ui-muted-text hover:bg-ui-muted-deep hover:text-ui-strong'
                           }`}
                       >
                         <IssuerNavIcon
@@ -182,8 +182,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             {item.tag ? (
                               <span
                                 className={`text-[9px] font-bold uppercase tracking-wide ${item.tag === 'AI'
-                                    ? 'min-w-[26px] rounded-full bg-[#7C3AED] px-1.5 py-0.5 text-center text-white'
-                                    : 'text-[#9CA3AF]'
+                                  ? 'min-w-[26px] rounded-full bg-[#7C3AED] px-1.5 py-0.5 text-center text-white'
+                                  : 'text-[#9CA3AF]'
                                   }`}
                               >
                                 {item.tag}

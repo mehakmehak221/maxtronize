@@ -90,6 +90,7 @@ export default function InvestorLayout({
     { name: "Secondary Market", href: "/investor/secondary-market", icon: "secondary-market" },
     { name: "My Portfolio", href: "/investor/portfolio", icon: "portfolio" },
     { name: "Wallet", href: "/investor/wallet", icon: "wallet" },
+    { name: "Compliance", href: "/investor/compliance", icon: "compliance" },
     { name: "Documents", href: "/investor/documents", icon: "documents" },
   ];
   const supportItems: NavItem[] = [

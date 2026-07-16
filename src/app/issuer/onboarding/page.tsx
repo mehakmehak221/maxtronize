@@ -915,10 +915,30 @@ function IssuerOnboardingWizardForm({
   const [multiSigConfig, setMultiSigConfig] = useState(initialState.multiSigConfig);
   const [acceptedTerms, setAcceptedTerms] = useState<boolean[]>(initialState.acceptedTerms);
 
-  // -------------------------------------------------------------------------
-  // Persist in-progress form to sessionStorage (debounced 400ms).
-  // This lets users recover typed-but-unsaved values after a page refresh.
-  // -------------------------------------------------------------------------
+  // Step 4 Legal Structure UI Redesign states
+  const [spvEntityPurpose, setSpvEntityPurpose] = useState('');
+  const [spvRegisteredAddress, setSpvRegisteredAddress] = useState('');
+  const [spvRegisteredAgent, setSpvRegisteredAgent] = useState('');
+  const [spvPrimaryEmail, setSpvPrimaryEmail] = useState('');
+  const [spvContactPhone, setSpvContactPhone] = useState('');
+  const [shareholders, setShareholders] = useState<Array<{ id: number; name: string; role: string; ownership: string; country: string; ubo: boolean }>>([
+    { id: 1, name: 'John Doe Capital', role: 'Managing Member', ownership: '100.00', country: 'United States', ubo: true }
+  ]);
+
+  // Vesting Schedule states
+  const [cliffPeriod, setCliffPeriod] = useState('6');
+  const [vestingLockupPeriod, setVestingLockupPeriod] = useState('12');
+  const [vestingStartDate, setVestingStartDate] = useState('2026-07-01');
+  const [vestingDuration, setVestingDuration] = useState('24');
+  const [releaseFrequency, setReleaseFrequency] = useState('monthly');
+  const [documentsList, setDocumentsList] = useState<Array<{ id: string; name: string; type: string; verified: boolean; progress?: number }>>([
+    { id: '1', name: 'Passport_John_Doe.pdf', type: 'PDF', verified: true },
+    { id: '2', name: 'Proof_of_Address.png', type: 'PNG', verified: false, progress: 71 }
+  ]);
+
+
+
+
   const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -1914,182 +1934,535 @@ function IssuerOnboardingWizardForm({
     </div>
   );
 
-  const renderStep4 = () => (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <header>
-        <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">
-          Step 4 of 8 - Legal Structure
-        </p>
-        <h1 className="text-4xl font-bold text-ui-strong mb-4 tracking-tight">Legal Structure</h1>
-        <p className="text-ui-muted-text text-base">Set up the Special Purpose Vehicle (SPV) structure for this asset.</p>
-      </header>
-
-      <StepValidationBanner message={stepValidationBannerMessage} />
-
-      {/* Info Box */}
-      <div className="bg-alert-info-bg border border-alert-info-border rounded-2xl p-8 flex gap-5 items-start">
-        <div className="w-10 h-10 rounded-2xl bg-alert-info-icon-wrap-bg border border-alert-info-icon-wrap-border flex items-center justify-center shrink-0">
-          <svg className="w-5 h-5 text-alert-info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  const renderStep4 = () => {
+    const JURISDICTIONS = [
+      {
+        id: 'Delaware LLC',
+        name: 'Delaware LLC',
+        desc: 'USA, Most popular, Fast formation',
+        tags: ['FAST-TRACK', 'COMMON LAW'],
+        timeline: '3-5 Business Days',
+        fee: '$300.00',
+        compliance: 'Tier 1 - Standard',
+        badgeColor: 'text-[#7C3AED] bg-[#F5F3FF] border-[#DDD6FE]',
+        icon: (
+          <svg className="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
-        </div>
-        <div className="space-y-1">
-          <h4 className="text-base font-bold text-alert-info-title">Special Purpose Vehicle (SPV) Structure</h4>
-          <p className="text-base text-alert-info-body leading-relaxed">
-            Each asset is held in a dedicated Delaware LLC SPV to isolate liability and enable clean tokenized ownership transfer. Maxtronize provides registered agent services.
-          </p>
-        </div>
-      </div>
+        )
+      },
+      {
+        id: 'Delaware LP',
+        name: 'Delaware LP',
+        desc: 'USA, Flexible ownership, Institutional friendly',
+        tags: ['TAX TRANSPARENT'],
+        timeline: '5-7 Business Days',
+        fee: '$500.00',
+        compliance: 'Tier 1 - Standard',
+        badgeColor: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+        icon: (
+          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        )
+      },
+      {
+        id: 'ADGM SPV',
+        name: 'ADGM SPV',
+        desc: 'Abu Dhabi, International vehicle, UAE framework',
+        tags: ['0% CORP TAX'],
+        timeline: '1-2 Weeks',
+        fee: '$1,500.00',
+        compliance: 'Tier 2 - Advanced',
+        badgeColor: 'text-amber-700 bg-amber-50 border-amber-200',
+        icon: (
+          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        )
+      },
+      {
+        id: 'DIFC SPV',
+        name: 'DIFC SPV',
+        desc: 'Dubai, Global recognition, Strong protections',
+        tags: ['COMMON LAW'],
+        timeline: '2-3 Weeks',
+        fee: '$2,000.00',
+        compliance: 'Tier 2 - Advanced',
+        badgeColor: 'text-blue-700 bg-blue-50 border-blue-200',
+        icon: (
+          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+          </svg>
+        )
+      }
+    ];
 
-      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-10">
-        <div className="space-y-8">
-          <h3 className="text-base font-bold text-ui-strong">SPV Configuration</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
-            <FormField
-              id="spvEntityName"
-              label="SPV Entity Name"
-              placeholder="Crescent Peachtree Tower Holdings LLC"
-              required
-              fullWidth
-              hint="Will be registered as a Delaware LLC. Format: [Asset Name] Holdings LLC"
-              value={spvEntityName}
-              error={fieldError('spvEntityName')}
-              onChange={(v) => {
-                setSpvEntityName(v);
-                clearFieldError('spvEntityName');
-              }}
-            />
-            <FormField
-              id="spvJurisdiction"
-              label="SPV Jurisdiction"
-              placeholder="ADGM"
-              required
-              value={spvJurisdiction}
-              error={fieldError('spvJurisdiction')}
-              onChange={(v) => {
-                setSpvJurisdiction(v);
-                clearFieldError('spvJurisdiction');
-              }}
-            />
-            <FormField
-              id="retainedOwnership"
-              label="Issuer Retained Ownership (%)"
-              placeholder="100"
-              required
-              hint="Remaining % is available for investor token allocation"
-              value={retainedOwnership}
-              error={fieldError('retainedOwnership')}
-              onChange={(v) => {
-                setRetainedOwnership(v.replace(/[^0-9.]/g, ''));
-                clearFieldError('retainedOwnership');
-              }}
-            />
-          </div>
-        </div>
+    const currentJurisdictionObj = JURISDICTIONS.find(j => j.id === spvJurisdiction) || JURISDICTIONS[0];
 
-        <div className="space-y-8 pt-10 border-t border-ui-divider">
-          <div>
-            <h3 className="text-base font-bold text-ui-strong mb-2">Token-Holder Rights Mapping</h3>
-            <p className="text-base text-ui-faint">
-              Define what rights token holders receive. These are encoded in the subscription agreement and operating agreement.
+    const addShareholderRow = () => {
+      const names = ['Acme Ventures', 'Jane Smith Holdings', 'Capital Trust LLC', 'Horizon Fund'];
+      const roles = ['Member', 'Limited Partner', 'Director', 'Beneficiary'];
+      const countries = ['United States', 'United Kingdom', 'Singapore', 'Cayman Islands'];
+
+      const newSh = {
+        id: Date.now(),
+        name: names[Math.floor(Math.random() * names.length)],
+        role: roles[Math.floor(Math.random() * roles.length)],
+        ownership: (Math.random() * 20 + 5).toFixed(2),
+        country: countries[Math.floor(Math.random() * countries.length)],
+        ubo: Math.random() > 0.3
+      };
+      setShareholders([...shareholders, newSh]);
+    };
+
+    const deleteShareholderRow = (id: number) => {
+      setShareholders(shareholders.filter(s => s.id !== id));
+    };
+
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+        {/* Left main form section (2 columns wide) */}
+        <div className="lg:col-span-2 space-y-12">
+          <header>
+            <p className="text-xs font-bold text-[#7C3AED] uppercase tracking-[0.2em] mb-2">
+              Step 4 of 8 - Legal Structure
             </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {([
-              { id: 'pro-rata', title: 'Pro-Rata Cash Distributions', sub: 'Holders receive proportional income distributions', checked: proRataDistributions, toggle: () => setProRataDistributions((v) => !v) },
-              { id: 'voting', title: 'Voting Rights', sub: 'Major asset decisions require a token holder vote', checked: votingRights, toggle: () => setVotingRights((v) => !v) },
-              { id: 'liquidation', title: 'Liquidation Preference', sub: 'Priority return of capital on asset sale', checked: liquidationPreference, toggle: () => setLiquidationPreference((v) => !v) },
-              { id: 'information', title: 'Information Rights', sub: 'Quarterly financials and annual audit reports', checked: informationRights, toggle: () => setInformationRights((v) => !v) },
-            ] as const).map((right) => {
-              const checked = right.checked;
-              return (
-                <button
-                  key={right.id}
-                  type="button"
-                  disabled={isApprovedOrLocked}
-                  onClick={isApprovedOrLocked ? undefined : right.toggle}
-                  className={`text-left p-6 rounded-2xl border-2 transition-all flex gap-4 w-full disabled:opacity-75 disabled:cursor-not-allowed ${isApprovedOrLocked ? 'cursor-not-allowed' : 'cursor-pointer'
-                    } ${checked
-                      ? 'border-primary bg-ui-accent-tint'
-                      : isApprovedOrLocked
-                        ? 'border-ui-divider bg-ui-muted-surface'
-                        : 'border-ui-divider bg-ui-muted-surface hover:border-ui-border'
-                    }`}
-                >
+            <h1 className="text-4xl font-extrabold text-[#111827] mb-2 tracking-tight">Legal Structure</h1>
+            <p className="text-gray-500 text-base">Set up the Special Purpose Vehicle (SPV) structure for this asset.</p>
+          </header>
+
+          <StepValidationBanner message={stepValidationBannerMessage} />
+
+          {/* 1. Jurisdiction Selection */}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#7C3AED] text-white flex items-center justify-center font-bold text-sm">
+                1
+              </div>
+              <h2 className="text-lg font-bold text-gray-900">Jurisdiction Selection</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {JURISDICTIONS.map((jur) => {
+                const isSelected = spvJurisdiction === jur.id;
+                return (
                   <div
-                    className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${checked ? 'border-primary bg-primary' : 'border-ui-border-strong bg-ui-card'
+                    key={jur.id}
+                    onClick={() => {
+                      setSpvJurisdiction(jur.id);
+                      clearFieldError('spvJurisdiction');
+                    }}
+                    className={`relative p-5 rounded-2xl border-2 transition-all cursor-pointer flex gap-4 ${isSelected
+                      ? 'border-[#7C3AED] bg-white shadow-md'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
                       }`}
-                    aria-hidden
                   >
-                    {checked ? <div className="w-2 h-2 rounded-full bg-ui-card" /> : null}
+                    <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                      {jur.icon}
+                    </div>
+                    <div className="flex-1 space-y-1.5 pr-6">
+                      <p className="font-bold text-gray-900 leading-none">{jur.name}</p>
+                      <p className="text-xs text-gray-500 leading-normal">{jur.desc}</p>
+                      <div className="flex flex-col gap-1.5 items-start pt-1">
+                        {jur.tags.map((t, idx) => (
+                          <span key={idx} className={`text-[10px] font-bold px-2 py-0.5 rounded border ${jur.badgeColor || 'text-gray-600 bg-gray-50'}`}>
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    {isSelected && (
+                      <div className="absolute top-4 right-4 text-[#7C3AED]">
+                        <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <p className={`text-base font-bold mb-1 ${checked ? 'text-primary' : 'text-ui-strong'}`}>
-                      {right.title}
-                    </p>
-                    <p className="text-xs text-ui-faint leading-relaxed">{right.sub}</p>
-                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* 2. Entity Details */}
+          <section className="space-y-6 pt-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-gray-300 text-gray-500 flex items-center justify-center font-bold text-sm">
+                2
+              </div>
+              <h2 className="text-lg font-bold text-gray-900">Entity Details</h2>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-3xl p-8 space-y-6 shadow-xs">
+              <FormField
+                id="spvEntityName"
+                label="Legal Entity Name"
+                placeholder="e.g. Maxtronize Real Estate Fund I LLC"
+                required
+                fullWidth
+                value={spvEntityName}
+                error={fieldError('spvEntityName')}
+                onChange={(v) => {
+                  setSpvEntityName(v);
+                  clearFieldError('spvEntityName');
+                }}
+              />
+
+              <div className="space-y-3">
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400">
+                  Entity Purpose <span className="normal-case tracking-normal text-[10px] font-semibold text-gray-400/70 ml-1">(Optional)</span>
+                </label>
+                <textarea
+                  placeholder="Describe the primary business activity..."
+                  value={spvEntityPurpose}
+                  onChange={(e) => setSpvEntityPurpose(e.target.value)}
+                  className="w-full min-h-[100px] px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-[#7C3AED]/5 focus:border-[#7C3AED] outline-none transition-all text-base text-gray-900 placeholder:text-gray-400 font-medium leading-relaxed resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  label="Registered Address"
+                  placeholder="Enter street address, city, state"
+                  value={spvRegisteredAddress}
+                  onChange={setSpvRegisteredAddress}
+                />
+                <FormField
+                  label="Registered Agent"
+                  placeholder="Agent Name"
+                  value={spvRegisteredAgent}
+                  onChange={setSpvRegisteredAgent}
+                />
+                <FormField
+                  label="Primary Email"
+                  placeholder="entity@example.com"
+                  inputType="email"
+                  value={spvPrimaryEmail}
+                  onChange={setSpvPrimaryEmail}
+                />
+                <FormField
+                  label="Contact Phone"
+                  placeholder="+1 (555) 000-0000"
+                  value={spvContactPhone}
+                  onChange={setSpvContactPhone}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* 3. Ownership Structure */}
+          <section className="space-y-6 pt-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-gray-300 text-gray-500 flex items-center justify-center font-bold text-sm">
+                3
+              </div>
+              <h2 className="text-lg font-bold text-gray-900">Ownership Structure</h2>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-gray-900">Legal Entity Setup</h3>
+              <p className="text-sm text-gray-500">Create the legal structure that will hold and manage your tokenized real-world asset.</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50/75 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-4">Name / Entity</th>
+                      <th className="px-6 py-4">Role</th>
+                      <th className="px-6 py-4">Ownership %</th>
+                      <th className="px-6 py-4">Country</th>
+                      <th className="px-6 py-4 text-center">UBO</th>
+                      <th className="px-6 py-4 w-12"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {shareholders.map((sh) => (
+                      <tr key={sh.id} className="text-sm text-gray-900 hover:bg-gray-50/40 transition-colors">
+                        <td className="px-6 py-4 font-semibold flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-xs font-bold shrink-0">
+                            {sh.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                          </div>
+                          <span>{sh.name}</span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-500 font-medium">{sh.role}</td>
+                        <td className="px-6 py-4 font-bold">
+                          <span className="inline-block px-2.5 py-1 rounded-full text-emerald-700 bg-emerald-50 text-xs">
+                            {sh.ownership}%
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-500 font-medium">{sh.country}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center">
+                            {sh.ubo ? (
+                              <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                            ) : (
+                              <div className="w-5 h-5 rounded-full border-2 border-gray-200" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            type="button"
+                            onClick={() => deleteShareholderRow(sh.id)}
+                            className="text-gray-400 hover:text-red-500 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="p-4 border-t border-gray-100 bg-gray-50/30">
+                <button
+                  type="button"
+                  onClick={addShareholderRow}
+                  className="text-sm font-bold text-[#7C3AED] hover:text-[#6D28D9] flex items-center gap-1 transition-colors"
+                >
+                  <span className="text-lg leading-none">+</span> Add Shareholder
                 </button>
-              );
-            })}
+              </div>
+            </div>
+
+            <div className="bg-[#F5F3FF]/40 border border-[#EBE8FF] rounded-3xl p-8 mt-6 flex flex-col items-center justify-center">
+              {/* Target Asset Node */}
+              <div className="bg-white border border-gray-200 rounded-lg px-6 py-3 text-center min-w-[200px] shadow-xs">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Target Asset</p>
+                <p className="text-sm font-bold text-gray-900">{assetName || 'Premium Logistics Hub A1'}</p>
+              </div>
+
+              {/* Connector */}
+              <div className="w-px h-6 bg-gray-300" />
+
+              {/* Issuer SPV Node */}
+              <div className="bg-[#7C3AED] rounded-lg px-6 py-3 text-center min-w-[220px] shadow-sm">
+                <p className="text-[10px] font-bold text-purple-200 uppercase tracking-wider mb-0.5">Issuer SPV</p>
+                <p className="text-sm font-bold text-white truncate max-w-[260px]">{spvEntityName || 'Maxtronize Entity Setup...'}</p>
+              </div>
+
+              {/* Connector structure */}
+              <div className="flex flex-col items-center w-full">
+                <div className="w-px h-6 bg-gray-300" />
+                <div className="w-[180px] h-px bg-gray-300" />
+                <div className="flex justify-between w-[180px]">
+                  <div className="w-px h-6 bg-gray-300" />
+                  <div className="w-px h-6 bg-gray-300" />
+                </div>
+              </div>
+
+              {/* Bottom Nodes */}
+              <div className="flex justify-between w-[280px] gap-4">
+                <div className="flex-1 bg-white border border-gray-200 rounded-lg py-2.5 text-center shadow-xs">
+                  <p className="text-xs font-bold text-gray-900">GP Entity</p>
+                </div>
+                <div className="flex-1 bg-white border border-gray-200 rounded-lg py-2.5 text-center shadow-xs">
+                  <p className="text-xs font-bold text-gray-900">Qualified Investors</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 4. Document Upload */}
+          <section className="space-y-6 pt-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-gray-300 text-gray-500 flex items-center justify-center font-bold text-sm">
+                4
+              </div>
+              <h2 className="text-lg font-bold text-gray-900">Document Upload</h2>
+            </div>
+
+            <div className="border-2 border-dashed border-[#DDD6FE] bg-[#F9F8FF] rounded-3xl p-10 flex flex-col items-center justify-center text-center space-y-4 hover:bg-[#F5F3FF] transition-all cursor-pointer relative">
+              <div className="w-12 h-12 rounded-full bg-white border border-[#DDD6FE] flex items-center justify-center shadow-xs text-gray-500">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-gray-900 text-base">Drag and drop documents here</h4>
+                <p className="text-xs text-gray-500">Upload Passport, Proof of Address, and Formation Resolution</p>
+              </div>
+              <div className="flex gap-2">
+                {['KYC Docs', 'Tax Resolution', 'ID Card'].map((tag, idx) => (
+                  <span key={idx} className="text-[10px] font-bold px-2.5 py-1 bg-white border border-gray-100 rounded-full text-gray-500 shadow-2xs">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Document list */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {documentsList.map((doc) => (
+                <div key={doc.id} className="bg-white border border-gray-200 rounded-2xl p-5 flex items-center justify-between shadow-3xs">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${doc.verified ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-50 text-[#7C3AED]'
+                      }`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <p className="text-sm font-bold text-gray-900 truncate leading-none">{doc.name}</p>
+                      {doc.verified ? (
+                        <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">verified</p>
+                      ) : (
+                        <div className="flex items-center gap-3 pr-4">
+                          <div className="h-1.5 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-[#7C3AED]" style={{ width: `${doc.progress || 0}%` }} />
+                          </div>
+                          <span className="text-xs font-bold text-gray-600 shrink-0">{doc.progress}%</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {doc.verified && (
+                    <div className="text-emerald-500 shrink-0">
+                      <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Navigation Buttons */}
+          <div className="flex flex-row items-center justify-between gap-3 border-t border-gray-200 pt-6">
+            <button
+              type="button"
+              onClick={() => setCurrentStep(3)}
+              className="shrink-0 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-6 py-3.5 text-base font-bold text-gray-500 hover:bg-gray-50 transition-all sm:px-8 sm:py-4"
+            >
+              ← Back
+            </button>
+            <button
+              type="button"
+              onClick={() => void advanceFromLegal()}
+              disabled={isSaving}
+              className="shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white bg-[#7C3AED] hover:bg-[#6D28D9] transition-all shadow-lg shadow-purple-500/20 disabled:opacity-60 sm:px-10 sm:py-4"
+            >
+              {isSaving ? 'Saving…' : 'Continue →'}
+            </button>
           </div>
         </div>
 
-        {/* Warning Box */}
-        <div className="bg-alert-warn-bg border border-alert-warn-border rounded-2xl p-6 flex gap-4 items-start">
-          <svg className="w-5 h-5 text-alert-warn-icon shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <p className="text-xs text-alert-warn-body leading-relaxed">
-            Maxtronize legal templates are reviewed by <span className="font-bold">Cooley LLP</span> and <span className="font-bold">K&L Gates</span>. Custom rights structures require additional legal review ($2,500 flat fee).
-          </p>
-        </div>
-      </section>
+        {/* Right Sidebar sticky progress & details (1 column wide) */}
+        <div className="space-y-6 lg:sticky lg:top-24">
 
-      <section className="bg-ui-card border border-ui-border rounded-2xl p-10 shadow-sm space-y-8">
-        <h3 className="text-base font-bold text-ui-strong">Required Legal Documents</h3>
-        <p className="text-base text-ui-faint">
-          Upload finalized documents, or use Maxtronize templates where noted.
-        </p>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <OnboardingDocumentUpload
-            label="Private Placement Memorandum (PPM)"
-            documentType="PPM"
-            sub="Upload PDF"
-          />
-          <OnboardingDocumentUpload
-            label="Subscription Agreement"
-            documentType="SUBSCRIPTION_AGREEMENT"
-            sub="Upload PDF"
-          />
-          <OnboardingDocumentUpload
-            label="Transfer Restriction Agreement"
-            documentType="TRANSFER_RESTRICTION_AGREEMENT"
-            sub="Upload PDF"
-          />
-        </div>
-      </section>
+          {/* Formation Progress Gauge */}
+          <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-3xs space-y-6">
+            <h3 className="text-sm font-bold text-gray-900">Formation Progress</h3>
 
-      {/* Navigation Buttons */}
-      <div className="flex flex-row items-center justify-between gap-3 border-t border-ui-border pt-6">
-        <button
-          type="button"
-          onClick={() => setCurrentStep(3)}
-          className="shrink-0 whitespace-nowrap rounded-2xl border border-ui-border-strong bg-ui-card px-6 py-3.5 text-base font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep sm:px-8 sm:py-4"
-        >
-          ← Back
-        </button>
-        <button
-          type="button"
-          onClick={() => void advanceFromLegal()}
-          disabled={isSaving}
-          className="btn-gradient-primary shrink-0 whitespace-nowrap rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/30 disabled:opacity-60 sm:px-10 sm:py-4"
-        >
-          {isSaving ? 'Saving…' : 'Continue →'}
-        </button>
+            <div className="flex flex-col items-center justify-center py-4">
+              <div className="relative w-32 h-32">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="#E5E7EB"
+                    strokeWidth="10"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="#7C3AED"
+                    strokeWidth="10"
+                    fill="transparent"
+                    strokeDasharray="251.2"
+                    strokeDashoffset={251.2 * (1 - 0.83)}
+                    strokeLinecap="round"
+                    className="transition-all duration-1000 ease-out"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-extrabold text-gray-900 leading-none">83%</span>
+                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">complete</span>
+                </div>
+              </div>
+            </div>
+
+            <ul className="space-y-4">
+              {[
+                { label: 'Jurisdiction Selected', completed: true },
+                { label: 'Entity Details Added', completed: true },
+                { label: 'Ownership Defined', completed: true },
+                { label: 'Legal Review Pending', completed: false }
+              ].map((step, idx) => (
+                <li key={idx} className="flex items-center gap-3 text-sm">
+                  {step.completed ? (
+                    <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  ) : (
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-200 bg-white shrink-0" />
+                  )}
+                  <span className={`font-semibold ${step.completed ? 'text-gray-900' : 'text-gray-400'}`}>
+                    {step.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Delaware LLC / Selected Jurisdiction Summary Card */}
+          <div className="bg-[#7C3AED] text-white rounded-3xl p-6 shadow-md space-y-6">
+            <div className="flex items-center gap-3">
+              <svg className="w-5 h-5 text-purple-200 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="font-bold text-base leading-none">{currentJurisdictionObj.name} Summary</h3>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between border-b border-purple-400/30 pb-2">
+                <span className="text-xs text-purple-200 font-semibold">Timeline</span>
+                <span className="text-xs font-bold">{currentJurisdictionObj.timeline}</span>
+              </div>
+              <div className="flex justify-between border-b border-purple-400/30 pb-2">
+                <span className="text-xs text-purple-200 font-semibold">Gov Fee</span>
+                <span className="text-xs font-bold">{currentJurisdictionObj.fee}</span>
+              </div>
+              <div className="flex justify-between pb-2">
+                <span className="text-xs text-purple-200 font-semibold">Compliance</span>
+                <span className="text-xs font-bold">{currentJurisdictionObj.compliance}</span>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <span className="inline-block px-3 py-1 rounded-sm text-[10px] font-bold border border-white/20 bg-white/10 uppercase tracking-wider">
+                {currentJurisdictionObj.id === 'Delaware LLC' ? 'READY FOR REVIEW' : currentJurisdictionObj.tags[0]}
+              </span>
+            </div>
+          </div>
+
+          {/* View Audit Trail Button */}
+          <button
+            type="button"
+            className="w-full py-2.5 px-6 border border-[#DDD6FE] text-[#7C3AED] hover:bg-[#F5F3FF] font-semibold rounded-lg text-center text-sm transition-all bg-white"
+          >
+            View Audit Trail
+          </button>
+        </div>
+
       </div>
-    </div>
-  );
+    );
+  };
+
 
   const renderStep5 = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -2208,6 +2581,76 @@ function IssuerOnboardingWizardForm({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        <div className="space-y-8 pt-10 border-t border-ui-divider">
+          <div>
+            <h3 className="text-base font-bold text-ui-strong mb-1">Vesting Schedule</h3>
+            <p className="text-base text-ui-faint">Configure how and when tokens are released to investors</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 lg:gap-x-12 gap-y-8">
+            <FormField
+              label="Cliff Period"
+              placeholder="Select Cliff Period"
+              options={[
+                { label: 'No Cliff', value: '0' },
+                { label: '1 Month', value: '1' },
+                { label: '3 Months', value: '3' },
+                { label: '6 Months', value: '6' },
+                { label: '12 Months', value: '12' },
+              ]}
+              value={cliffPeriod}
+              onChange={setCliffPeriod}
+            />
+            <FormField
+              label="Lock-up Period"
+              placeholder="Select Lock-up Period"
+              options={[
+                { label: 'No Lock-up', value: '0' },
+                { label: '3 Months', value: '3' },
+                { label: '6 Months', value: '6' },
+                { label: '12 Months', value: '12' },
+                { label: '24 Months', value: '24' },
+              ]}
+              value={vestingLockupPeriod}
+              onChange={setVestingLockupPeriod}
+            />
+            <FormField
+              label="Vesting Start Date"
+              placeholder="July 1, 2026"
+              inputType="date"
+              value={vestingStartDate}
+              onChange={setVestingStartDate}
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-8">
+            <FormField
+              label="Vesting Duration"
+              placeholder="Select Vesting Duration"
+              options={[
+                { label: 'Immediate', value: '0' },
+                { label: '6 Months', value: '6' },
+                { label: '12 Months', value: '12' },
+                { label: '24 Months', value: '24' },
+                { label: '36 Months', value: '36' },
+                { label: '48 Months', value: '48' },
+              ]}
+              value={vestingDuration}
+              onChange={setVestingDuration}
+            />
+            <FormField
+              label="Release Frequency"
+              placeholder="Select Release Frequency"
+              options={[
+                { label: 'Monthly', value: 'monthly' },
+                { label: 'Quarterly', value: 'quarterly' },
+                { label: 'Semi-Annually', value: 'semi-annually' },
+                { label: 'Annually', value: 'annually' },
+              ]}
+              value={releaseFrequency}
+              onChange={setReleaseFrequency}
+            />
           </div>
         </div>
 

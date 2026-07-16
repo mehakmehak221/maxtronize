@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 import {
+  Activity,
   AlertTriangle,
   Brain,
   Building2,
@@ -16,6 +17,8 @@ import {
   Shield,
   ShieldCheck,
   Users,
+  Sliders,
+  Scale,
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -25,8 +28,12 @@ import { HubCapTableTab } from '@/components/issuer/HubCapTableTab';
 import { HubComplianceTab } from '@/components/issuer/HubComplianceTab';
 import { HubInvestorsTab } from '@/components/issuer/HubInvestorsTab';
 import { HubDistributionsTab } from '@/components/issuer/HubDistributionsTab';
+import { HubCorporateActionsTab } from '@/components/issuer/HubCorporateActionsTab';
+import { HubLegalDocumentsTab } from '@/components/issuer/HubLegalDocumentsTab';
 // import { HubAnalyticsTab } from '@/components/hub/HubAnalyticsTab';
 import { HubOverviewTab } from '@/components/issuer/HubOverviewTab';
+import { HubSmartContractsTab } from '@/components/issuer/HubSmartContractsTab';
+import { HubTokenOperationsTab } from '@/components/issuer/HubTokenOperationsTab';
 import { formatRequestError } from '@/lib/formatRequestError';
 import { buildAiAssistantDraftReply } from '@/lib/issuerAiAssistant';
 import { formatHubUpdatedAt } from '@/lib/issuerHub';
@@ -72,9 +79,13 @@ type TabType =
   | 'overview'
   | 'assets'
   | 'cap-table'
+  | 'smart-contracts'
+  | 'token-operations'
   | 'investors'
   | 'distributions'
   | 'compliance'
+  | 'corporate-actions'
+  | 'legal-documents'
   // | 'analytics' // Investor-only API — hidden for issuer until issuer endpoints exist
   | 'ai-assistant';
 
@@ -84,9 +95,13 @@ const HUB_TABS: { id: TabType; name: string; icon: LucideIcon; showDot?: boolean
   { id: 'overview', name: 'Overview', icon: LayoutGrid },
   { id: 'assets', name: 'Assets', icon: Building2 },
   { id: 'cap-table', name: 'Cap Table', icon: FileText },
+  { id: 'smart-contracts', name: 'Smart Contracts', icon: Shield },
+  { id: 'token-operations', name: 'Token Operations', icon: Activity },
   { id: 'investors', name: 'Investors', icon: Users },
   { id: 'distributions', name: 'Distributions', icon: DollarSign },
   { id: 'compliance', name: 'Compliance', icon: ShieldCheck },
+  { id: 'corporate-actions', name: 'Corporate Actions', icon: Sliders },
+  { id: 'legal-documents', name: 'Legal Documents', icon: Scale },
   // { id: 'analytics', name: 'Analytics', icon: BarChart3 },
   { id: 'ai-assistant', name: 'AI Assistant', icon: Brain, showDot: true },
 ];
@@ -530,8 +545,12 @@ export default function IssuerHubPage() {
           {activeTab === 'assets' && renderAssets()}
           {activeTab === 'investors' && renderInvestors()}
           {activeTab === 'cap-table' && renderCapTable()}
+          {activeTab === 'smart-contracts' && <HubSmartContractsTab />}
+          {activeTab === 'token-operations' && <HubTokenOperationsTab />}
           {activeTab === 'compliance' && renderCompliance()}
           {activeTab === 'distributions' && <HubDistributionsTab />}
+          {activeTab === 'corporate-actions' && <HubCorporateActionsTab />}
+          {activeTab === 'legal-documents' && <HubLegalDocumentsTab />}
           {/* {activeTab === 'analytics' && renderAnalytics()} */}
           {activeTab === 'ai-assistant' && renderAiAssistant()}
         </div>

@@ -1,753 +1,468 @@
-"use client";
+'use client';
 
+import React, { useState } from 'react';
 import {
   Calendar,
   Clock,
   DollarSign,
-  Plus,
-  Target,
   TrendingUp,
-  X,
-} from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
-import toast from "react-hot-toast";
-import { chartScaleForAmounts } from "@/lib/yield";
-import { formatCompactCurrency } from "@/lib/issuerDashboard";
-import {
-  useGetDistributionScheduleQuery,
-  useGetUpcomingPayoutsQuery,
-  useGetYieldSummaryQuery,
-  useSchedulePayoutMutation,
-} from "@/store/api/yieldApi";
-import { useListIssuerHubAssetsQuery } from "@/store/api/issuerHubApi";
-
-const iconStroke = 1.75;
-
-function MetricIconCircle({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${className ?? ""}`}
-    >
-      {children}
-    </div>
-  );
-}
+  Users,
+  Percent,
+  Download,
+  CheckCircle2,
+  ChevronDown,
+  Calculator,
+  ShieldCheck,
+  MoreHorizontal,
+  Building2
+} from 'lucide-react';
 
 export function HubDistributionsTab() {
-  const currentYear = new Date().getFullYear();
-  const [mounted, setMounted] = useState(false);
-  const [year, setYear] = useState(currentYear);
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    assetId: "",
-    title: "",
-    payoutType: "",
-    scheduledDate: "",
-    totalAmount: "",
-  });
+  const [distributionType, setDistributionType] = useState('Rental Income');
+  const [frequency, setFrequency] = useState('Monthly');
+  const [paymentMethod, setPaymentMethod] = useState('USDC');
+  const [targetDate, setTargetDate] = useState('');
 
-  const { data: summary, isLoading: summaryLoading } =
-    useGetYieldSummaryQuery();
-  const { data: schedule, isLoading: scheduleLoading } =
-    useGetDistributionScheduleQuery({ year });
-  const { data: upcoming = [], isLoading: payoutsLoading } =
-    useGetUpcomingPayoutsQuery();
-  const [schedulePayout, { isLoading: isScheduling }] =
-    useSchedulePayoutMutation();
-  const { data: assetsData } = useListIssuerHubAssetsQuery();
-  const assets = assetsData?.items ?? [];
+  const [grossRevenue, setGrossRevenue] = useState('500,000');
+  const [operatingExpenses, setOperatingExpenses] = useState('45,000');
 
-  // Automatically select the first asset when list loads
-  useEffect(() => {
-    if (assets.length > 0 && !formData.assetId) {
-      setFormData((prev) => ({ ...prev, assetId: assets[0].id }));
-    }
-  }, [assets, formData.assetId]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!showScheduleModal) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [showScheduleModal]);
-
-  useEffect(() => {
-    if (!showScheduleModal) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setShowScheduleModal(false);
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [showScheduleModal]);
-
-  async function handleSchedulePayout(e: React.FormEvent) {
-    e.preventDefault();
-    setValidationError(null);
-
-    // 1. Validate Asset ID (UUID format check)
-    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    if (!uuidRegex.test(formData.assetId.trim())) {
-      setValidationError("Asset ID must be a valid UUID format (e.g., 123e4567-e89b-12d3-a456-426614174000).");
-      return;
-    }
-
-    // 2. Validate Title length
-    if (formData.title.trim().length < 3) {
-      setValidationError("Title must be at least 3 characters long.");
-      return;
-    }
-
-    // 3. Validate Payout Type length
-    if (formData.payoutType.trim().length < 3) {
-      setValidationError("Payout Type must be at least 3 characters long.");
-      return;
-    }
-
-    // 4. Validate Scheduled Date (cannot be in the past, timezone-safe)
-    const dateParts = formData.scheduledDate.split("-");
-    if (dateParts.length !== 3) {
-      setValidationError("Please select a valid scheduled date.");
-      return;
-    }
-    const yearNum = parseInt(dateParts[0], 10);
-    const monthNum = parseInt(dateParts[1], 10) - 1;
-    const dayNum = parseInt(dateParts[2], 10);
-    const dateVal = new Date(yearNum, monthNum, dayNum);
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (isNaN(dateVal.getTime())) {
-      setValidationError("Please select a valid scheduled date.");
-      return;
-    }
-    if (dateVal < today) {
-      setValidationError("Scheduled date cannot be in the past.");
-      return;
-    }
-
-    // 5. Validate Total Amount (must be a positive number greater than 0)
-    const amountVal = parseFloat(formData.totalAmount);
-    if (isNaN(amountVal) || amountVal <= 0) {
-      setValidationError("Total amount must be a positive number greater than 0.");
-      return;
-    }
-
-    try {
-      await schedulePayout({
-        assetId: formData.assetId.trim(),
-        title: formData.title.trim(),
-        payoutType: formData.payoutType.trim(),
-        scheduledDate: formData.scheduledDate,
-        totalAmount: amountVal,
-      }).unwrap();
-      
-      toast.success("Payout scheduled successfully!");
-      setShowScheduleModal(false);
-      setFormData({
-        assetId: assets[0]?.id ?? "",
-        title: "",
-        payoutType: "",
-        scheduledDate: "",
-        totalAmount: "",
-      });
-    } catch (error) {
-      console.error("Failed to schedule payout:", error);
-      setValidationError("Failed to schedule payout. Please check your inputs and try again.");
-    }
-  }
-
-  const chartData = useMemo(() => {
-    const months = schedule?.months ?? [];
-    const actualValues = months.map((m) => m.actual);
-    const scale = chartScaleForAmounts([
-      ...actualValues,
-      ...(schedule ? [schedule.eoyProjection, schedule.ytdActual] : []),
-    ]);
-    return { months, actualValues, scale };
-  }, [schedule]);
-
-  const chartH = 140;
-  const chartTop = 32;
-  const chartLeft = 48;
-  const chartW = 560;
-  const maxChart = Math.max(chartData.scale.max * 1.15, 1);
-  const n = chartData.months.length || 12;
-  const gap = 6;
-  const barW = n > 0 ? (chartW - gap * (n - 1)) / n : 0;
-
-  const totalDistributed = summary
-    ? formatCompactCurrency(
-        summary.totalDistributed.amount,
-        summary.totalDistributed.currency,
-        { decimals: 0 },
-      )
-    : summaryLoading
-      ? "—"
-      : "$0";
-
-  const nextPayout = summary?.nextDistribution
-    ? formatCompactCurrency(
-        summary.nextDistribution.amount,
-        summary.nextDistribution.currency,
-        { decimals: 0 },
-      )
-    : summaryLoading
-      ? "—"
-      : "—";
-
-  const avgApy = summary
-    ? `${summary.portfolioAvgApy.percent.toFixed(1)}%`
-    : summaryLoading
-      ? "—"
-      : "0%";
+  // Calculates pool and yield dynamically
+  const gross = parseFloat(grossRevenue.replace(/,/g, '')) || 0;
+  const expenses = parseFloat(operatingExpenses.replace(/,/g, '')) || 0;
+  const distributablePool = Math.max(0, gross - expenses);
+  const expectedYield = gross > 0 ? ((distributablePool / gross) * 10).toFixed(1) : '0.0';
 
   return (
-    <div className="max-w-full min-w-0 space-y-8 animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {(
-          [
-            {
-              label: "Total Distributed",
-              value: totalDistributed,
-              Icon: DollarSign,
-            },
-            {
-              label: "Next Payout",
-              value: nextPayout,
-              sub: summary?.nextDistribution?.label,
-              Icon: Calendar,
-            },
-            {
-              label: "Portfolio Average APY",
-              value: avgApy,
-              sub: summary?.portfolioAvgApy.summary,
-              Icon: TrendingUp,
-            },
-            {
-              label: "Scheduled Payouts",
-              value: payoutsLoading ? "—" : String(upcoming.length),
-              Icon: Clock,
-            },
-          ] as const
-        ).map((card) => {
-          const CardIcon = card.Icon;
-          return (
-            <div
-              key={card.label}
-              className="flex flex-col justify-between rounded-[24px] border border-card-border bg-card p-6 shadow-sm"
-            >
-              <div>
-                <MetricIconCircle className="mb-6 bg-violet-100 text-primary dark:bg-violet-950/50 dark:text-violet-300">
-                  <CardIcon className="h-5 w-5" strokeWidth={iconStroke} />
-                </MetricIconCircle>
-                <p className="mb-4 text-xs font-bold uppercase tracking-widest text-text-muted">
-                  {card.label}
-                </p>
-                <p className="text-2xl font-bold tracking-tight text-foreground">
-                  {card.value}
-                </p>
-              </div>
-              {"sub" in card && card.sub ? (
-                <p className="mt-4 text-base font-medium text-text-muted">
-                  {card.sub}
-                </p>
-              ) : (
-                <p className="mt-4 text-base font-medium text-transparent select-none" aria-hidden>
-                  &nbsp;
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
+    <div className="max-w-full min-w-0 space-y-8 animate-in fade-in duration-500 relative pb-28">
 
-      <div className="max-w-full min-w-0 rounded-[32px] border border-card-border bg-card p-8 shadow-sm md:p-10">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-lg font-bold text-foreground">
-              Distribution Schedule {schedule?.year ?? year}
-            </h3>
-            <p className="text-base text-text-muted">
-              {scheduleLoading
-                ? "Loading monthly actual vs projected…"
-                : `YTD ${formatCompactCurrency(schedule?.ytdActual ?? 0, schedule?.currency ?? "USD", { decimals: 0 })} · EOY projection ${formatCompactCurrency(schedule?.eoyProjection ?? 0, schedule?.currency ?? "USD", { decimals: 0 })} · ${(schedule?.achievementRate ?? 0).toFixed(0)}% of target`}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-              className="rounded-full border border-card-border bg-surface px-4 py-2 text-base font-bold text-foreground"
-              aria-label="Distribution schedule year"
-            >
-              {[currentYear - 1, currentYear, currentYear + 1].map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={() => {
-                setValidationError(null);
-                setFormData({
-                  assetId: assets[0]?.id ?? "",
-                  title: "",
-                  payoutType: "",
-                  scheduledDate: "",
-                  totalAmount: "",
-                });
-                setShowScheduleModal(true);
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90"
-            >
-              <Plus className="h-4 w-4 shrink-0" strokeWidth={iconStroke} />
-              Schedule Payout
-            </button>
-          </div>
-        </div>
-
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-            <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
-              Actual
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
-              Projected
-            </span>
-          </div>
-        </div>
-
-        <div className="max-w-full min-w-0 overflow-x-auto">
-          <svg
-            className="block h-auto min-h-[180px] w-full max-w-full min-w-0"
-            viewBox="0 0 640 200"
-            preserveAspectRatio="xMidYMid meet"
-            role="img"
-            aria-label="Monthly distribution schedule"
-          >
-            {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
-              const k = maxChart * pct;
-              const y = chartTop + chartH - (k / maxChart) * chartH;
-              const suffix = chartData.scale.suffix;
-              return (
-                <g key={pct}>
-                  <line
-                    x1={chartLeft}
-                    y1={y}
-                    x2={chartLeft + chartW}
-                    y2={y}
-                    stroke="var(--border)"
-                    strokeWidth="1"
-                    strokeDasharray="4 5"
-                  />
-                  <text
-                    x="40"
-                    y={y + 4}
-                    textAnchor="end"
-                    fill="var(--text-muted)"
-                    className="text-xs font-bold"
-                  >
-                    {pct === 0
-                      ? "$0"
-                      : `$${k.toFixed(suffix === "M" ? 1 : 0)}${suffix}`}
-                  </text>
-                </g>
-              );
-            })}
-            {chartData.months.map((month, i) => {
-              const actualH =
-                (month.actual / chartData.scale.divisor / maxChart) * chartH;
-              const projectedH =
-                (month.projected / chartData.scale.divisor / maxChart) * chartH;
-              const x = chartLeft + i * (barW + gap);
-              const groupW = Math.max(barW, 4);
-              const innerGap = 2;
-              const singleW = (groupW - innerGap) / 2;
-              return (
-                <g key={month.label}>
-                  <rect
-                    x={x}
-                    y={chartTop + chartH - Math.max(projectedH, 2)}
-                    width={singleW}
-                    height={Math.max(projectedH, 2)}
-                    rx="3"
-                    fill="var(--border)"
-                  />
-                  <rect
-                    x={x + singleW + innerGap}
-                    y={chartTop + chartH - Math.max(actualH, 2)}
-                    width={singleW}
-                    height={Math.max(actualH, 2)}
-                    rx="3"
-                    fill="var(--primary)"
-                  />
-                  <text
-                    x={x + groupW / 2}
-                    y={chartTop + chartH + 22}
-                    textAnchor="middle"
-                    fill="var(--text-muted)"
-                    className="text-xs font-bold"
-                  >
-                    {month.label}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        </div>
-
-        {summary && !summaryLoading ? (
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="flex flex-col justify-between h-full rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
-                  YTD Distributions
-                </p>
-                <p className="mt-1 text-lg font-bold text-foreground">
-                  {formatCompactCurrency(
-                    summary.ytdDistributions.amount,
-                    summary.ytdDistributions.currency,
-                    { decimals: 0 },
-                  )}
-                </p>
-              </div>
-              <p className="mt-1.5 text-base text-text-muted">
-                {summary.ytdDistributions.changePercent >= 0 ? "+" : ""}
-                {summary.ytdDistributions.changePercent.toFixed(1)}% vs prior
-                year
-              </p>
-            </div>
-            <div className="flex flex-col justify-between h-full rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-1">
-                  <Target className="h-3 w-3" strokeWidth={iconStroke} />
-                  Achievement
-                </p>
-                <p className="mt-1 text-lg font-bold text-foreground">
-                  {(schedule?.achievementRate ?? 0).toFixed(0)}%
-                </p>
-              </div>
-              <p className="mt-1.5 text-base text-transparent select-none" aria-hidden>
-                &nbsp;
-              </p>
-            </div>
-            <div className="flex flex-col justify-between h-full rounded-2xl border border-card-border bg-surface px-4 py-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
-                  {summary.totalDistributed.summary || "All-time total"}
-                </p>
-                <p className="mt-1 text-lg font-bold text-foreground">
-                  {totalDistributed}
-                </p>
-              </div>
-              <p className="mt-1.5 text-base text-transparent select-none" aria-hidden>
-                &nbsp;
-              </p>
-            </div>
-          </div>
-        ) : null}
-      </div>
-
-      <div className="max-w-full min-w-0 overflow-x-auto rounded-[32px] border border-card-border bg-card shadow-sm">
-        <div className="border-b border-card-border px-6 py-4">
-          <h3 className="text-lg font-bold text-foreground">
-            Upcoming Payouts
-          </h3>
+      {/* Page Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+        <div>
+          <h3 className="mb-1 text-lg font-bold text-foreground">Yield Distribution</h3>
           <p className="text-base text-text-muted">
-            Scheduled distributions across assets
+            Configure and automate rental income and investor distributions.
           </p>
         </div>
-        <table className="w-full min-w-0 table-fixed text-left">
-          <thead className="border-b border-card-border bg-surface">
-            <tr>
-              {[
-                "Period",
-                "Asset",
-                "Type",
-                "Amount",
-                "Investors",
-                "Date",
-                "Status",
-              ].map((h) => (
-                <th
-                  key={h}
-                  className="px-3 py-3 text-[9px] font-bold uppercase tracking-widest text-text-muted sm:px-6 sm:py-4"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {payoutsLoading ? (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-6 py-8 text-center text-base text-text-muted"
-                >
-                  Loading upcoming payouts…
-                </td>
-              </tr>
-            ) : upcoming.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-6 py-8 text-center text-base text-text-muted"
-                >
-                  No upcoming payouts scheduled.
-                </td>
-              </tr>
-            ) : (
-              upcoming.map((row) => {
-                const amountFormatted = formatCompactCurrency(
-                  row.expectedAmount,
-                  row.currency,
-                  { decimals: 0 },
-                );
-                const dateStr =
-                  row.scheduledDate && typeof row.scheduledDate === "object"
-                    ? ((row.scheduledDate as Record<string, unknown>)
-                        .date as string)
-                    : null;
-                const formattedDate = dateStr
-                  ? new Date(dateStr).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })
-                  : "—";
-
-                return (
-                  <tr
-                    key={row.id}
-                    className="transition-colors hover:bg-surface"
-                  >
-                    <td className="min-w-0 break-words px-3 py-3 text-sm font-semibold text-foreground sm:px-6 sm:py-4">
-                      {row.frequencyLabel}
-                    </td>
-                    <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-primary">
-                          {row.assetTitle}
-                        </span>
-                        <span className="text-xs text-text-muted">
-                          {row.ticker}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="min-w-0 break-words px-3 py-3 text-xs text-text-muted sm:px-6 sm:py-4">
-                      {row.payoutType}
-                    </td>
-                    <td className="min-w-0 px-3 py-3 text-sm font-bold text-foreground sm:px-6 sm:py-4">
-                      {amountFormatted}
-                    </td>
-                    <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
-                      {row.investorCount}
-                    </td>
-                    <td className="min-w-0 px-3 py-3 text-sm text-text-muted sm:px-6 sm:py-4">
-                      {formattedDate}
-                    </td>
-                    <td className="min-w-0 px-3 py-3 sm:px-6 sm:py-4">
-                      <span
-                        className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${
-                          row.status === "COMPLETED"
-                            ? "border-app-status-success-border bg-app-status-success-bg text-app-status-success-fg"
-                            : "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/30 dark:text-sky-300"
-                        }`}
-                      >
-                        {row.status}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-2xl bg-[#7C3AED] hover:bg-[#6D28D9] px-5 py-3 text-sm font-bold text-white shadow-md shadow-purple-500/10 transition-all"
+        >
+          <Calendar className="h-4.5 w-4.5 text-purple-100" />
+          <span>Schedule Distribution</span>
+        </button>
       </div>
 
-      {mounted &&
-        showScheduleModal &&
-        createPortal(
+      {/* KPI Stats Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          {
+            label: 'Total Distributed',
+            value: '$4,285,900',
+            sub: '+12.5% from last month',
+            trendGreen: true,
+          },
+          {
+            label: 'Next Distribution',
+            value: 'Oct 15, 2023',
+            sub: 'In 12 days',
+          },
+          {
+            label: 'Active Investors',
+            value: '1,248',
+            sub: '24 new this period',
+            showUserIcon: true,
+          },
+          {
+            label: 'Average Yield',
+            value: '8.42%',
+            sub: 'Net APY after expenses',
+            valueClass: 'text-[#7C3AED]'
+          },
+        ].map((kpi, idx) => (
           <div
-            className="fixed inset-0 z-[200] flex items-center justify-center p-4 overflow-y-auto"
-            role="presentation"
+            key={idx}
+            className="rounded-3xl border border-card-border bg-card p-6 shadow-sm flex flex-col justify-between min-h-[120px]"
           >
-            <button
-              type="button"
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              aria-label="Close dialog"
-              onClick={() => setShowScheduleModal(false)}
-            />
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="schedule-payout-title"
-              className="relative w-full max-w-md rounded-2xl border border-card-border bg-card p-5 shadow-xl transition-all"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="mb-4 flex items-center justify-between border-b border-card-border pb-3">
-                <h3
-                  id="schedule-payout-title"
-                  className="text-lg font-bold text-foreground"
-                >
-                  Schedule Payout
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setShowScheduleModal(false)}
-                  className="text-text-muted hover:text-foreground transition-colors"
-                >
-                  <X className="h-5 w-5" strokeWidth={iconStroke} />
-                </button>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{kpi.label}</p>
+              <p className={`text-2xl font-extrabold mt-2 leading-none ${kpi.valueClass || 'text-foreground'}`}>{kpi.value}</p>
+            </div>
+            <div className="mt-4 flex items-center gap-1.5">
+              {kpi.trendGreen && <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />}
+              {kpi.showUserIcon && <Users className="h-3.5 w-3.5 text-text-muted" />}
+              <span className={`text-[10px] font-bold ${kpi.trendGreen ? 'text-emerald-500' : 'text-text-muted'}`}>
+                {kpi.sub}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main content split grid */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+
+        {/* Left column: Configuration, Yield Calculator, Compliance Status */}
+        <div className="space-y-8">
+
+          {/* Configuration Card */}
+          <div className="rounded-3xl border border-card-border bg-card p-6 shadow-sm space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/20 text-[#7C3AED]">
+                <Calendar className="h-5 w-5" />
               </div>
-              <form onSubmit={handleSchedulePayout} className="space-y-4">
-                {validationError && (
-                  <div className="rounded-lg border border-red-155 bg-red-500/10 p-3 text-sm text-red-500 font-medium">
-                    {validationError}
-                  </div>
-                )}
-                
-                <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
-                    Asset
+              <h4 className="font-extrabold text-base text-foreground">Configuration</h4>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black uppercase tracking-wider text-text-muted block">
+                  Distribution Type
+                </label>
+                <div className="relative">
+                  <select
+                    value={distributionType}
+                    onChange={(e) => setDistributionType(e.target.value)}
+                    className="w-full bg-surface border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold text-foreground appearance-none focus:outline-none focus:border-primary"
+                  >
+                    <option value="Rental Income">Rental Income</option>
+                    <option value="Dividend Yield">Dividend Yield</option>
+                    <option value="Capital Return">Capital Return</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted pointer-events-none" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black uppercase tracking-wider text-text-muted block">
+                    Frequency
                   </label>
-                  {assets.length === 0 ? (
-                    <input
-                      type="text"
-                      required
-                      value={formData.assetId}
-                      onChange={(e) =>
-                        setFormData({ ...formData, assetId: e.target.value })
-                      }
-                      placeholder="Enter asset UUID"
-                      className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  ) : (
+                  <div className="relative">
                     <select
-                      required
-                      value={formData.assetId}
-                      onChange={(e) =>
-                        setFormData({ ...formData, assetId: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      value={frequency}
+                      onChange={(e) => setFrequency(e.target.value)}
+                      className="w-full bg-surface border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold text-foreground appearance-none focus:outline-none focus:border-primary"
                     >
-                      {assets.map((asset) => (
-                        <option key={asset.id} value={asset.id}>
-                          {asset.name} ({asset.tag})
-                        </option>
-                      ))}
+                      <option value="Monthly">Monthly</option>
+                      <option value="Quarterly">Quarterly</option>
+                      <option value="Annually">Annually</option>
                     </select>
-                  )}
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted pointer-events-none" />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
-                    Title
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black uppercase tracking-wider text-text-muted block">
+                    Payment Method
                   </label>
+                  <div className="relative">
+                    <select
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-full bg-surface border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold text-foreground appearance-none focus:outline-none focus:border-primary"
+                    >
+                      <option value="USDC">USDC</option>
+                      <option value="USDT">USDT</option>
+                      <option value="Bank">Bank Wire</option>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black uppercase tracking-wider text-text-muted block">
+                  Target Date
+                </label>
+                <input
+                  type="text"
+                  placeholder="mm/dd/yyyy"
+                  value={targetDate}
+                  onChange={(e) => setTargetDate(e.target.value)}
+                  className="w-full bg-surface border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Yield Calculator Card */}
+          <div className="rounded-3xl border border-card-border bg-card p-6 shadow-sm space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/20 text-[#7C3AED]">
+                <Calculator className="h-5 w-5" />
+              </div>
+              <h4 className="font-extrabold text-base text-foreground">Yield Calculator</h4>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-text-muted">Gross Revenue</span>
+                <div className="relative max-w-[120px]">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-text-muted">$</span>
                   <input
                     type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                    placeholder="e.g., Q2 2026 Yield Distribution"
-                    className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    value={grossRevenue}
+                    onChange={(e) => setGrossRevenue(e.target.value)}
+                    className="w-full text-right bg-surface border border-card-border rounded-xl pl-6 pr-3 py-1.5 text-xs font-extrabold text-foreground focus:outline-none focus:border-[#7C3AED]"
                   />
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
-                      Payout Type
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.payoutType}
-                      onChange={(e) =>
-                        setFormData({ ...formData, payoutType: e.target.value })
-                      }
-                      placeholder="e.g., Quarterly Yield"
-                      className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
-                      Total Amount
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      step="0.01"
-                      value={formData.totalAmount}
-                      onChange={(e) =>
-                        setFormData({ ...formData, totalAmount: e.target.value })
-                      }
-                      placeholder="0.00"
-                      className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-text-muted">
-                    Scheduled Date
-                  </label>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-text-muted">Operating Expenses</span>
+                <div className="relative max-w-[120px]">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-text-muted">$</span>
                   <input
-                    type="date"
-                    required
-                    value={formData.scheduledDate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, scheduledDate: e.target.value })
-                    }
-                    className="w-full rounded-lg border border-card-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    type="text"
+                    value={operatingExpenses}
+                    onChange={(e) => setOperatingExpenses(e.target.value)}
+                    className="w-full text-right bg-surface border border-card-border rounded-xl pl-6 pr-3 py-1.5 text-xs font-extrabold text-foreground focus:outline-none focus:border-[#7C3AED]"
                   />
                 </div>
+              </div>
 
-                <div className="flex gap-3 pt-3 border-t border-card-border">
-                  <button
-                    type="button"
-                    onClick={() => setShowScheduleModal(false)}
-                    className="flex-1 rounded-lg border border-card-border bg-surface px-4 py-2 text-sm font-bold text-foreground hover:bg-surface/80 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isScheduling}
-                    className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
-                  >
-                    {isScheduling ? "Scheduling..." : "Schedule"}
-                  </button>
-                </div>
-              </form>
+              <div className="pt-3 border-t border-card-border flex items-center justify-between">
+                <span className="text-xs font-black text-foreground">Distributable Pool</span>
+                <span className="text-base font-black text-emerald-500">
+                  ${distributablePool.toLocaleString()}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-foreground">Expected Yield</span>
+                <span className="text-base font-black text-[#7C3AED]">{expectedYield}%</span>
+              </div>
             </div>
-          </div>,
-          document.body,
-        )}
+          </div>
+
+          {/* Compliance Status Card */}
+          <div className="rounded-3xl border border-card-border bg-card p-6 shadow-sm space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/20 text-[#7C3AED]">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <h4 className="font-extrabold text-base text-foreground">Compliance Status</h4>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                { label: 'Tax Reporting', badge: 'READY', badgeClass: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50' },
+                { label: 'KYC Status', badge: '98.2% VERIFIED', badgeClass: 'bg-purple-50 text-[#7C3AED] dark:bg-purple-950/30 border border-[#DDD6FE] dark:border-purple-900/50' },
+                { label: 'AML Screening', badge: 'CLEAR', badgeClass: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50' },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between py-1">
+                  <span className="text-xs font-bold text-text-muted">{item.label}</span>
+                  <span className={`rounded-md px-2.5 py-0.5 text-[9px] font-black tracking-wider uppercase ${item.badgeClass}`}>
+                    {item.badge}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right Column: Execution Timeline & Investor Preview */}
+        <div className="lg:col-span-2 space-y-8">
+
+          {/* Execution Timeline Card */}
+          <div className="rounded-3xl border border-card-border bg-card p-6 shadow-sm space-y-6">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-text-muted">Execution Timeline</h4>
+
+            <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center py-2 px-2">
+              <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-purple-100 dark:bg-purple-950/30 md:left-4 md:right-4 md:top-4 md:h-0.5 md:w-auto" />
+
+              {[
+                { label: 'COMPLETED', date: 'Sep 15 Distribution', status: 'completed' },
+                { label: 'PROCESSING', date: 'Oct 01 Prep', status: 'processing' },
+                { label: 'UPCOMING', date: 'Oct 15 Payment', status: 'upcoming', icon: Calendar },
+                { label: 'UPCOMING', date: 'Nov 15 Payment', status: 'upcoming', icon: Clock },
+              ].map((step, idx) => {
+                const Icon = step.icon;
+                return (
+                  <div key={idx} className="relative flex items-center gap-4 md:flex-col md:gap-3 md:text-center flex-1 z-10">
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-all ${step.status === 'completed'
+                        ? 'border-emerald-500 bg-emerald-500 text-white'
+                        : step.status === 'processing'
+                          ? 'border-[#7C3AED] bg-[#7C3AED] text-white ring-4 ring-purple-100 dark:ring-purple-950/40'
+                          : 'border-card-border bg-card text-text-muted'
+                        }`}
+                    >
+                      {step.status === 'completed' ? (
+                        <CheckCircle2 className="h-4.5 w-4.5" />
+                      ) : step.status === 'processing' ? (
+                        <div className="h-4.5 w-4.5 flex items-center justify-center font-bold text-xs select-none">↻</div>
+                      ) : (
+                        Icon && <Icon className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div>
+                      <span className={`text-[9px] font-black uppercase tracking-wider block ${step.status === 'completed' ? 'text-emerald-500' : step.status === 'processing' ? 'text-[#7C3AED]' : 'text-text-muted'
+                        }`}>
+                        {step.label}
+                      </span>
+                      <span className="text-[10px] font-bold text-text-muted mt-0.5 block">{step.date}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Investor Distribution Preview Card */}
+          <div className="rounded-3xl border border-card-border bg-card shadow-sm overflow-hidden">
+            <div className="px-6 py-5 flex items-center justify-between border-b border-card-border bg-card">
+              <h4 className="font-extrabold text-foreground text-base">
+                Investor Distribution Preview
+              </h4>
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-xs font-bold text-[#7C3AED] hover:underline"
+              >
+                <Download className="h-4 w-4" />
+                <span>Export CSV</span>
+              </button>
+            </div>
+
+            <div className="overflow-x-auto min-w-0">
+              <table className="w-full whitespace-nowrap text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-card-border bg-surface/50 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                    <th className="px-6 py-4">Investor</th>
+                    <th className="px-6 py-4">Ownership %</th>
+                    <th className="px-6 py-4">Distribution</th>
+                    <th className="px-6 py-4">Method</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4 w-10"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-card-border">
+                  {[
+                    {
+                      name: 'Global Fund Alpha',
+                      addr: '0x71C...4f9',
+                      code: 'GF',
+                      bg: 'bg-purple-50 dark:bg-purple-950/40 text-[#7C3AED]',
+                      ownership: '14.56%',
+                      distribution: '$65,975.00',
+                      method: 'USDC',
+                      status: 'ELIGIBLE',
+                      statusClass: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 border border-emerald-100 dark:border-emerald-900/50',
+                    },
+                    {
+                      name: 'Liberty Management',
+                      addr: '0x220...12A',
+                      code: 'LM',
+                      bg: 'bg-purple-50 dark:bg-purple-950/40 text-[#7C3AED]',
+                      ownership: '8.28%',
+                      distribution: '$37,310.00',
+                      method: 'Bank',
+                      status: 'ELIGIBLE',
+                      statusClass: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 border border-emerald-100 dark:border-emerald-900/50',
+                    },
+                    {
+                      name: 'Summit Capital',
+                      addr: '0x448...99F',
+                      code: 'SC',
+                      bg: 'bg-purple-50 dark:bg-purple-950/40 text-[#7C3AED]',
+                      ownership: '5.75%',
+                      distribution: '$26,162.50',
+                      method: 'USDT',
+                      status: 'PENDING KYC',
+                      statusClass: 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 border border-amber-100 dark:border-amber-900/50',
+                    },
+                    {
+                      name: 'Private Investor #42',
+                      addr: '0x11A...08E',
+                      code: 'PI',
+                      bg: 'bg-purple-50 dark:bg-purple-950/40 text-[#7C3AED]',
+                      ownership: '1.26%',
+                      distribution: '$5,460.00',
+                      method: 'USDC',
+                      status: 'ELIGIBLE',
+                      statusClass: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 border border-emerald-100 dark:border-emerald-900/50',
+                    },
+                  ].map((row, idx) => (
+                    <tr key={idx} className="transition-colors hover:bg-surface/30">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold text-xs ${row.bg}`}>
+                            {row.code}
+                          </div>
+                          <div>
+                            <p className="font-extrabold text-sm text-foreground">{row.name}</p>
+                            <span className="font-mono text-[9px] text-text-muted">{row.addr}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-xs font-semibold text-text-muted">
+                        {row.ownership}
+                      </td>
+                      <td className="px-6 py-4 text-xs font-extrabold text-[#7C3AED]">
+                        {row.distribution}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1 text-xs font-semibold text-text-muted">
+                          {row.method === 'Bank' ? (
+                            <Building2 className="h-3.5 w-3.5 text-text-muted" />
+                          ) : (
+                            <div className="h-3.5 w-3.5 flex items-center justify-center font-bold text-[9px] rounded-full border border-gray-400 leading-none text-text-muted select-none">B</div>
+                          )}
+                          <span>{row.method}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-block rounded-md px-2 py-0.5 text-[9px] font-black tracking-wider uppercase border ${row.statusClass}`}>
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <button className="text-text-muted hover:text-foreground transition-colors p-1">
+                          <MoreHorizontal className="h-5 w-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="border-t border-card-border p-4 bg-card text-center">
+              <button
+                type="button"
+                className="text-[10px] font-black tracking-widest text-[#7C3AED] hover:underline uppercase transition-colors"
+              >
+                VIEW ALL 1,248 INVESTORS
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* Floating Action Bar / Bottom-Right confirmation */}
+      <div className="fixed bottom-6 right-6 z-40 max-w-sm rounded-3xl border border-card-border bg-card p-5 shadow-2xl flex items-center justify-between gap-6 animate-in slide-in-from-bottom-5 duration-500">
+        <div>
+          <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider">
+            Review distribution totals before scheduling.
+          </p>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="text-xs font-bold text-text-muted">Total Batch:</span>
+            <span className="text-base font-black text-[#7C3AED]">
+              ${distributablePool.toLocaleString()}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="rounded-2xl bg-[#7C3AED] hover:bg-[#6D28D9] px-4 py-3 text-xs font-black uppercase tracking-wider text-white shadow-md shadow-purple-500/10 transition-all whitespace-nowrap"
+        >
+          Finalize & Schedule
+        </button>
+      </div>
+
     </div>
   );
 }

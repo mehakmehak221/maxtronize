@@ -1,782 +1,357 @@
 'use client';
 
-import Link from 'next/link';
-import React, { useRef, useState, type ComponentType, type SVGProps } from 'react';
-import InvestorLayout from '@/components/InvestorLayout';
+import React, { useState } from 'react';
 import {
   Wallet,
-  WalletCustodyBarsIcon,
-  WalletDepositIcon,
-  WalletPolygonIcon,
-  WalletTransferIcon,
-  WalletWithdrawIcon,
-} from '@/app/VectorImages';
-import {
-  useGetInvestorWalletInitQuery,
-  useGetInvestorWalletSummaryQuery,
-  useGetInvestorWalletsQuery,
-  useGetInvestorWalletHoldingsQuery,
-  useGetInvestorWalletTransactionsQuery,
-  useConnectInvestorWalletMutation,
-  useDepositInvestorFundsMutation,
-  useWithdrawInvestorFundsMutation,
-  useTransferInvestorFundsMutation,
-} from '@/store/api/investorWalletApi';
-import { formatCompactCurrency } from '@/lib/issuerDashboard';
+  ShieldCheck,
+  CheckCircle2,
+  HelpCircle,
+  Copy,
+  ExternalLink,
+  ChevronRight,
+  Plus,
+  ArrowRight,
+  Clock,
+  Shield,
+  UserCheck,
+  AlertTriangle,
+  Globe,
+  Settings,
+  Bell,
+} from 'lucide-react';
+import InvestorLayout from '@/components/InvestorLayout';
 
-type NavSvg = ComponentType<SVGProps<SVGSVGElement>>;
-type InvestorWalletAction = 'deposit' | 'withdraw' | 'transfer' | 'connect';
+export default function WalletPage() {
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
-type InvestorWalletFormState = {
-  amount: string;
-  currency: string;
-  recipientAddress: string;
-  address: string;
-  network: string;
-  name: string;
-};
-
-function BoltIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
-    </svg>
-  );
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  );
-}
-
-function CopyIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-      />
-    </svg>
-  );
-}
-
-function ExternalIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-      />
-    </svg>
-  );
-}
-
-const INITIAL_FORM: InvestorWalletFormState = {
-  amount: '',
-  currency: 'USD',
-  recipientAddress: '',
-  address: '',
-  network: 'Ethereum',
-  name: '',
-};
-
-// Keep the original wallet visual structure visible while binding the actions and card content to live APIs.
-
-function formatSignedPercent(value: number | null | undefined) {
-  if (value == null || Number.isNaN(value)) return '0.0%';
-  const sign = value > 0 ? '+' : value < 0 ? '-' : '';
-  return `${sign}${Math.abs(value).toFixed(1)}%`;
-}
-
-function formatSignedCurrency(value: number | null | undefined, currency: string) {
-  if (value == null || Number.isNaN(value)) return '—';
-  const sign = value > 0 ? '+' : value < 0 ? '-' : '';
-  return `${sign}${formatCompactCurrency(Math.abs(value), currency)}`;
-}
-
-function buildExplorerUrl(network: string, address: string) {
-  if (!address) return null;
-  const normalized = network.toLowerCase();
-  if (normalized.includes('polygon')) {
-    return `https://polygonscan.com/address/${address}`;
-  }
-  if (normalized.includes('base')) {
-    return `https://basescan.org/address/${address}`;
-  }
-  if (normalized.includes('arbitrum')) {
-    return `https://arbiscan.io/address/${address}`;
-  }
-  return `https://etherscan.io/address/${address}`;
-}
-
-function WalletActionForm({
-  action,
-  form,
-  setForm,
-  onSubmit,
-  onCancel,
-  isSubmitting,
-  error,
-  success,
-}: {
-  action: InvestorWalletAction;
-  form: InvestorWalletFormState;
-  setForm: React.Dispatch<React.SetStateAction<InvestorWalletFormState>>;
-  onSubmit: () => Promise<void>;
-  onCancel: () => void;
-  isSubmitting: boolean;
-  error: string | null;
-  success: string | null;
-}) {
-  const title =
-    action === 'deposit'
-      ? 'Deposit Funds'
-      : action === 'withdraw'
-        ? 'Withdraw Funds'
-        : action === 'transfer'
-          ? 'Transfer Funds'
-          : 'Connect Wallet';
-
-  const submitLabel =
-    action === 'deposit'
-      ? 'Start Deposit'
-      : action === 'withdraw'
-        ? 'Start Withdrawal'
-        : action === 'transfer'
-          ? 'Transfer Funds'
-          : 'Connect Wallet';
-
-  return (
-    <div className="rounded-[24px] border border-ui-border bg-ui-card p-5 shadow-sm md:p-6">
-      <div className="mb-5 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-bold text-ui-strong">{title}</h2>
-          <p className="mt-1 text-base text-ui-muted-text">
-            {action === 'connect'
-              ? 'Add a wallet connection using the live investor wallet API.'
-              : 'Submit this action through the live investor wallet API.'}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-xl border border-ui-border px-3 py-2 text-base font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
-        >
-          Close
-        </button>
-      </div>
-
-      {error ? (
-        <p className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-base font-medium text-red-700">
-          {error}
-        </p>
-      ) : null}
-      {success ? (
-        <p className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-base font-medium text-emerald-700">
-          {success}
-        </p>
-      ) : null}
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {action !== 'connect' ? (
-          <>
-            <label className="space-y-2">
-              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Amount</span>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.amount}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, amount: event.target.value }))
-                }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-                placeholder="1000"
-              />
-            </label>
-            <label className="space-y-2">
-              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Currency</span>
-              <select
-                value={form.currency}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, currency: event.target.value }))
-                }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-              >
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                <option value="CAD">CAD</option>
-                <option value="AUD">AUD</option>
-                <option value="SGD">SGD</option>
-                <option value="HKD">HKD</option>
-                <option value="JPY">JPY</option>
-              </select>
-            </label>
-          </>
-        ) : (
-          <>
-            <label className="space-y-2">
-              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Wallet Name</span>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, name: event.target.value }))
-                }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-                placeholder="Primary Wallet"
-              />
-            </label>
-            <label className="space-y-2">
-              <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Network</span>
-              <input
-                type="text"
-                value={form.network}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, network: event.target.value }))
-                }
-                className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-                placeholder="Ethereum"
-              />
-            </label>
-          </>
-        )}
-
-        {action === 'transfer' ? (
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Recipient Address</span>
-            <input
-              type="text"
-              value={form.recipientAddress}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, recipientAddress: event.target.value }))
-              }
-              className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-              placeholder="0x..."
-            />
-          </label>
-        ) : null}
-
-        {action === 'connect' ? (
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-base font-bold uppercase tracking-widest text-ui-faint">Wallet Address</span>
-            <input
-              type="text"
-              value={form.address}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, address: event.target.value }))
-              }
-              className="w-full rounded-2xl border border-ui-border bg-ui-card px-4 py-3 text-base text-ui-strong outline-none transition-shadow focus:ring-4 focus:ring-primary/10"
-              placeholder="0x..."
-            />
-          </label>
-        ) : null}
-      </div>
-
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={() => void onSubmit()}
-          disabled={isSubmitting}
-          className="rounded-2xl bg-primary px-5 py-3 text-base font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSubmitting ? 'Submitting...' : submitLabel}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-2xl border border-ui-border px-5 py-3 text-base font-bold text-ui-muted-text transition-colors hover:bg-ui-muted"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export default function InvestorWalletPage() {
-  const [copied, setCopied] = useState<string | null>(null);
-  const [activeAction, setActiveAction] = useState<InvestorWalletAction | null>(null);
-  const [form, setForm] = useState<InvestorWalletFormState>(INITIAL_FORM);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const formRef = useRef<HTMLDivElement>(null);
-
-  const { data: initData, isLoading: initLoading } = useGetInvestorWalletInitQuery();
-  const { data: summaryData, isLoading: summaryLoading } = useGetInvestorWalletSummaryQuery();
-  const { data: walletsData, isLoading: walletsLoading } = useGetInvestorWalletsQuery();
-  const { data: holdingsData, isLoading: holdingsLoading } = useGetInvestorWalletHoldingsQuery();
-  const { data: transactionsData, isLoading: transactionsLoading } = useGetInvestorWalletTransactionsQuery();
-  const [connectWallet] = useConnectInvestorWalletMutation();
-  const [depositFunds] = useDepositInvestorFundsMutation();
-  const [withdrawFunds] = useWithdrawInvestorFundsMutation();
-  const [transferFunds] = useTransferInvestorFundsMutation();
-
-  const summary = summaryData ?? initData?.summary;
-  const wallets = walletsData?.length ? walletsData : (initData?.wallets ?? []);
-  const holdings = holdingsData?.length ? holdingsData : (initData?.holdings ?? []);
-  const transactions =
-    transactionsData?.length ? transactionsData : (initData?.transactions ?? []);
-  const isLoading =
-    initLoading || summaryLoading || walletsLoading || holdingsLoading || transactionsLoading;
-  const currency = summary?.currency || form.currency || 'USD';
-
-  const totalValueFormatted =
-    summary?.totalValue != null ? formatCompactCurrency(summary.totalValue, currency) : '$0';
-  const monthlyChangeText =
-    summary?.monthlyChangeAmount != null
-      ? `${formatSignedCurrency(summary.monthlyChangeAmount, currency)} (${formatSignedPercent(summary.monthlyChangePercent)}) this month`
-      : '$0.0 (0.0%) this month';
-
-  const copyAddress = async (address: string) => {
-    await navigator.clipboard.writeText(address);
-    setCopied(address);
-    window.setTimeout(() => setCopied(null), 2000);
+  const handleCopy = (text: string, index: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const openAction = (action: InvestorWalletAction) => {
-    setActiveAction(action);
-    setError(null);
-    setMessage(null);
-    setForm((prev) => ({
-      ...INITIAL_FORM,
-      currency,
-      network: prev.network || INITIAL_FORM.network,
-    }));
-    window.setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  };
-
-  const closeAction = () => {
-    setActiveAction(null);
-    setError(null);
-    setMessage(null);
-    setForm((prev) => ({
-      ...INITIAL_FORM,
-      currency: prev.currency || currency,
-    }));
-  };
-
-  const submitAction = async () => {
-    if (!activeAction) return;
-
-    setError(null);
-    setMessage(null);
-    setIsSubmitting(true);
-
-    try {
-      if (activeAction === 'connect') {
-        if (!form.address.trim() || !form.network.trim()) {
-          throw new Error('Wallet address and network are required.');
-        }
-        await connectWallet({
-          address: form.address.trim(),
-          network: form.network.trim(),
-          name: form.name.trim() || undefined,
-        }).unwrap();
-        setMessage('Wallet connected successfully.');
-      } else {
-        const amount = Number(form.amount);
-        if (!Number.isFinite(amount) || amount <= 0) {
-          throw new Error('Enter a valid amount greater than zero.');
-        }
-
-        if (activeAction === 'deposit') {
-          await depositFunds({ amount, currency: form.currency.trim() || currency }).unwrap();
-          setMessage('Deposit initiated successfully.');
-        } else if (activeAction === 'withdraw') {
-          await withdrawFunds({ amount, currency: form.currency.trim() || currency }).unwrap();
-          setMessage('Withdrawal initiated successfully.');
-        } else {
-          if (!form.recipientAddress.trim()) {
-            throw new Error('Recipient address is required for transfers.');
-          }
-          await transferFunds({
-            amount,
-            currency: form.currency.trim() || currency,
-            recipientAddress: form.recipientAddress.trim(),
-          }).unwrap();
-          setMessage('Transfer submitted successfully.');
-        }
-      }
-
-      setForm((prev) => ({
-        ...INITIAL_FORM,
-        currency: prev.currency || currency,
-      }));
-    } catch (submitError) {
-      const nextError =
-        submitError instanceof Error ? submitError.message : 'Unable to complete wallet action.';
-      setError(nextError);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const actions: { label: string; primary: boolean; Icon: NavSvg; onClick: () => void }[] = [
+  const wallets = [
     {
-      label: 'Deposit',
-      primary: true,
-      Icon: WalletDepositIcon,
-      onClick: () => openAction('deposit'),
+      name: 'Platform Wallet',
+      chain: 'Ethereum',
+      address: '0x7a2f89c314092b3a56e01234b9d0092c4efc789a',
+      displayAddress: '0x7a2f...4efc',
+      balance: '$184,230',
+      iconBg: 'bg-blue-500/10 text-blue-500',
     },
     {
-      label: 'Withdraw',
-      primary: false,
-      Icon: WalletWithdrawIcon,
-      onClick: () => openAction('withdraw'),
+      name: 'Custody Wallet',
+      chain: 'Ethereum',
+      address: '0xd02ca314092b3a56e01234b9d0092c4efc782d2a',
+      displayAddress: '0xd02c...2d2a',
+      balance: '2.84 ETH',
+      iconBg: 'bg-slate-700/10 text-slate-700 dark:text-slate-300 dark:bg-slate-800/40',
     },
     {
-      label: 'Transfer',
-      primary: false,
-      Icon: WalletTransferIcon,
-      onClick: () => openAction('transfer'),
-    },
-    {
-      label: 'Connect Wallet',
-      primary: false,
-      Icon: Wallet,
-      onClick: () => openAction('connect'),
+      name: 'Polygon Bridge',
+      chain: 'Polygon',
+      address: '0xd39fa314092b3a56e01234b9d0092c4efc7897bce',
+      displayAddress: '0xd39f...7bce',
+      balance: '14,820 MATIC',
+      iconBg: 'bg-purple-600/10 text-purple-600 dark:text-purple-400 dark:bg-purple-950/30',
     },
   ];
 
-  const getWalletIconProps = (name: string) => {
-    if (name.toLowerCase().includes('custody')) {
-      return { Icon: WalletCustodyBarsIcon, bg: 'bg-slate-700', cls: 'h-[14px] w-[9px] text-white' };
-    }
-    if (name.toLowerCase().includes('polygon')) {
-      return { Icon: WalletPolygonIcon, bg: 'bg-violet-600', cls: 'h-[14px] w-3 text-white' };
-    }
-    return { Icon: Wallet, bg: 'bg-blue-500', cls: 'h-5 w-5 text-white' };
-  };
-
   return (
-    <InvestorLayout pageTitle="Wallet">
-      <div className="space-y-6 animate-in fade-in duration-700">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-ui-strong md:text-4xl">Wallet</h1>
-          <p className="mt-1 text-base font-medium text-ui-faint">
-            Connected wallets, token holdings, and on-chain transaction history.
-          </p>
-        </div>
-
-        <div className="relative overflow-hidden rounded-[24px] bg-linear-to-br from-[#0b0b16] via-[#121228] to-[#1a0f38] p-6 text-white shadow-2xl ring-1 ring-white/10 md:rounded-[32px] md:p-10">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet-600/25 blur-[100px]" />
-          <div className="pointer-events-none absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-primary/20 blur-[90px]" />
-          <div className="relative z-10 flex flex-col justify-between gap-8 xl:flex-row xl:items-center">
-            <div className="min-w-0">
-              <div className="mb-3 flex items-center gap-2">
-                <Wallet className="h-4 w-4 shrink-0 text-white/50" />
-                <p className="text-xs font-bold uppercase tracking-widest text-white/50">Total Portfolio Value</p>
-              </div>
-              <p className="text-4xl font-bold tracking-tight md:text-6xl">{totalValueFormatted}</p>
-              <span className="motion-chart mt-2 block w-fit">
-                <svg
-                  className="h-7 w-44 text-violet-400/90 md:w-56"
-                  viewBox="0 0 200 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden
-                >
-                  <path
-                    d="M0 14C32 6 68 22 100 10c28-10 56-8 100 2"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>
-              <p className="mt-3 text-xs font-medium text-white/45">
-                {(summary?.walletCount ?? wallets.length)} connected {(summary?.walletCount ?? wallets.length) === 1 ? 'wallet' : 'wallets'} · {(summary?.holdingCount ?? holdings.length)} token {(summary?.holdingCount ?? holdings.length) === 1 ? 'position' : 'positions'}
-              </p>
-              <p className="mt-1.5 flex items-center gap-1 text-sm font-bold text-emerald-400">
-                <span aria-hidden>↗</span> {monthlyChangeText}
-              </p>
+    <InvestorLayout pageTitle="Wallet Connect & Whitelist Status">
+      <div className="mx-auto w-full max-w-7xl space-y-8 animate-in fade-in duration-500 pb-20">
+        
+        {/* Top Header Row */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-card-border pb-6">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-text-muted">
+              <span>Platform</span>
+              <span>&gt;</span>
+              <span className="text-[#7C3AED]">Wallet</span>
             </div>
-            <div className="flex w-full shrink-0 flex-col gap-3 sm:max-w-xs lg:w-56">
-              {actions.map((action) => (
-                <button
-                  key={action.label}
-                  type="button"
-                  onClick={action.onClick}
-                  className={`flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-base font-bold transition-all hover:scale-[1.01] active:scale-[0.99] ${
-                    action.primary
-                      ? 'bg-white text-slate-900 shadow-lg hover:bg-white/95'
-                      : 'border border-white/75 bg-transparent text-white hover:bg-white/10'
-                  }`}
-                >
-                  <action.Icon className={`h-4 w-4 shrink-0 ${action.primary ? 'text-slate-900' : 'text-white'}`} />
-                  {action.label}
-                </button>
-              ))}
+            <h1 className="text-3xl font-black tracking-tight text-foreground">Wallet Connect & Whitelist Status</h1>
+            <p className="text-base text-text-muted">
+              Connect your wallet and manage whitelist eligibility for tokenized asset investments.
+            </p>
+          </div>
+
+          {/* Need Help Box */}
+          <div className="flex items-start gap-3 rounded-2xl border border-card-border bg-card p-4 max-w-xs shrink-0 shadow-sm">
+            <div className="h-8 w-8 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-[#7C3AED] flex items-center justify-center shrink-0">
+              <HelpCircle className="h-4.5 w-4.5" />
             </div>
-          </div>
-        </div>
-
-        {activeAction ? (
-          <div ref={formRef}>
-            <WalletActionForm
-              action={activeAction}
-              form={form}
-              setForm={setForm}
-              onSubmit={submitAction}
-              onCancel={closeAction}
-              isSubmitting={isSubmitting}
-              error={error}
-              success={message}
-            />
-          </div>
-        ) : null}
-
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 2xl:grid-cols-3">
-          <section className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:rounded-[32px]">
-            <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
-              <h3 className="text-base font-bold text-ui-strong">Connected Wallets</h3>
-              <button
-                type="button"
-                onClick={() => openAction('connect')}
-                className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-lg font-bold text-primary transition-colors hover:bg-primary/15"
-                aria-label="Connect wallet"
-              >
-                +
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-text-muted block">Need Help?</span>
+              <p className="text-[10px] text-text-muted mt-0.5 leading-snug">Learn how wallet connection and whitelisting works.</p>
+              <button type="button" className="text-[10px] font-black text-[#7C3AED] hover:underline uppercase tracking-wider mt-1.5 inline-flex items-center gap-0.5">
+                <span>View Guide</span>
+                <ArrowRight className="h-3 w-3" />
               </button>
             </div>
-            <div className="max-h-[360px] overflow-y-auto space-y-3 p-4 pr-2 scrollbar-thin">
-              {isLoading ? (
-                <p className="rounded-2xl bg-ui-muted px-4 py-6 text-center text-base font-medium text-ui-muted-text">
-                  Loading wallets...
-                </p>
-              ) : wallets.length > 0 ? (
-                wallets.map((wallet, index) => {
-                  const icon = getWalletIconProps(wallet.name);
-                  const explorerUrl = buildExplorerUrl(wallet.network, wallet.address);
-                  return (
-                    <div
-                      key={wallet.id || wallet.address || index}
-                      className="group flex items-center gap-3 rounded-2xl bg-ui-muted-deep p-3 transition-colors hover:bg-ui-muted md:p-4"
-                    >
-                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${icon.bg}`}>
-                        <icon.Icon className={icon.cls} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate text-base font-bold text-ui-strong">{wallet.name}</p>
-                          {wallet.connected ? <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" /> : null}
-                        </div>
-                        <p className="text-xs font-medium text-ui-faint">{wallet.network}</p>
-                        <p className="mt-0.5 text-xs font-bold text-ui-body">{wallet.balance}</p>
-                        <div className="mt-0.5 flex items-center gap-1.5">
-                          <p className="truncate font-mono text-[9px] text-ui-placeholder">{wallet.address}</p>
-                          <button
-                            type="button"
-                            onClick={() => void copyAddress(wallet.address)}
-                            className="shrink-0 text-ui-faint transition-colors hover:text-primary"
-                            aria-label="Copy address"
-                          >
-                            {copied === wallet.address ? (
-                              <CheckIcon className="h-3 w-3 text-emerald-500" />
-                            ) : (
-                              <CopyIcon className="h-3 w-3" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                      {explorerUrl ? (
-                        <a
-                          href={explorerUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="shrink-0 text-ui-placeholder transition-colors hover:text-primary"
-                          aria-label="Open in explorer"
-                        >
-                          <ExternalIcon className="h-4 w-4" />
-                        </a>
-                      ) : null}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="rounded-2xl border border-dashed border-ui-border px-4 py-8 text-center">
-                  <p className="text-base font-bold text-ui-strong">No connected wallets yet</p>
-                  <p className="mt-1 text-base font-medium text-ui-muted-text">
-                    Connect an investor wallet to start using wallet actions.
-                  </p>
+          </div>
+        </div>
+
+        {/* 4 KPI Stats Row */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              label: 'Wallet Status',
+              value: 'Connected',
+              sub: '0x71a3...9deE',
+              badge: 'ACTIVE',
+              badgeClass: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30',
+              icon: CheckCircle2,
+              iconColor: 'text-emerald-500',
+            },
+            {
+              label: 'Whitelist Status',
+              value: 'Whitelisted',
+              sub: 'Eligible for investments',
+              badge: 'VERIFIED',
+              badgeClass: 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30',
+              icon: ShieldCheck,
+              iconColor: 'text-blue-500',
+            },
+            {
+              label: 'Verification Level',
+              value: 'Level 2',
+              sub: 'Enhanced verification',
+              badge: 'VERIFIED',
+              badgeClass: 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30',
+              icon: UserCheck,
+              iconColor: 'text-blue-500',
+            },
+            {
+              label: 'Last Verified',
+              value: 'May 20, 2024',
+              sub: '3:15 PM UTC',
+              badge: 'UP TO DATE',
+              badgeClass: 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30',
+              icon: Clock,
+              iconColor: 'text-amber-500',
+            },
+          ].map((kpi, idx) => (
+            <div
+              key={idx}
+              className="rounded-3xl border border-card-border bg-card p-6 shadow-sm flex flex-col justify-between min-h-[125px] relative"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-text-muted block">{kpi.label}</span>
+                  <span className="text-xl font-extrabold text-foreground mt-2 block">{kpi.value}</span>
                 </div>
-              )}
-            </div>
-          </section>
-
-          <section id="investor-wallet-holdings" className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:rounded-[32px]">
-            <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
-              <h3 className="text-base font-bold text-ui-strong">Token Holdings</h3>
-              <span className="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-bold text-primary dark:bg-violet-950/50 dark:text-violet-300">
-                {holdings.length} {holdings.length === 1 ? 'position' : 'positions'}
-              </span>
-            </div>
-            <div className="space-y-4 p-5 md:p-6">
-              {holdings.length > 0 ? (
-                <>
-                  <div>
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-ui-faint">Portfolio Distribution</p>
-                      <p className="text-xs font-bold text-ui-strong">{totalValueFormatted} total</p>
-                    </div>
-                    <div className="flex h-2.5 w-full overflow-hidden rounded-full">
-                      {holdings.map((holding, index) => (
-                        <div
-                          key={`${holding.ticker}-${index}`}
-                          className={`${holding.color || 'bg-violet-600'} h-full`}
-                          style={{ width: `${holding.pct}%` }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    {holdings.map((holding, index) => (
-                      <div
-                        key={`${holding.ticker}-${index}`}
-                        className="group flex items-center gap-3 rounded-2xl p-3 transition-colors hover:bg-ui-muted-deep"
-                      >
-                        <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white ${holding.color || 'bg-violet-600'}`}
-                        >
-                          {holding.ticker.slice(0, 2)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold text-ui-strong">{holding.ticker}</p>
-                          <p className="truncate text-xs font-medium text-ui-faint">{holding.name}</p>
-                        </div>
-                        <div className="shrink-0 text-right">
-                          <p className="text-base font-bold text-ui-strong">{holding.value}</p>
-                          <p className={`text-xs font-bold ${holding.up ? 'text-emerald-500' : 'text-red-500'}`}>
-                            {holding.up ? '↗ ' : '↙ '}
-                            {holding.change}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-ui-border px-4 py-8 text-center">
-                  <p className="text-base font-bold text-ui-strong">No holdings yet</p>
-                  <p className="mt-1 text-base font-medium text-ui-muted-text">
-                    Holdings will appear here once your investor wallet owns tokenized assets.
-                  </p>
+                <div className={`h-8 w-8 rounded-xl bg-slate-50 dark:bg-slate-900/30 flex items-center justify-center ${kpi.iconColor}`}>
+                  <kpi.icon className="h-4.5 w-4.5" />
                 </div>
-              )}
-
-              <Link
-                href="/investor/portfolio"
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ui-border py-3 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted-deep"
-              >
-                All Holdings
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </section>
-
-          <section id="investor-wallet-transactions" className="overflow-hidden rounded-[24px] border border-ui-border bg-ui-card shadow-sm md:col-span-2 md:rounded-[32px] 2xl:col-span-1">
-            <div className="flex items-center justify-between border-b border-ui-divider p-5 md:p-7">
-              <h3 className="text-base font-bold text-ui-strong">Transactions</h3>
-              <div className="flex items-center gap-2">
-                <div className="relative flex h-4 w-4 items-center justify-center">
-                  <span className="absolute h-2 w-2 animate-ping rounded-full bg-red-500/60" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                </div>
-                <svg className="h-3.5 w-3.5 text-red-400/90" viewBox="0 0 24 12" fill="none" aria-hidden>
-                  <path
-                    d="M1 6h4l2-4 3 8 3-10 3 6h7"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span className="text-xs font-bold uppercase tracking-widest text-red-500">Live</span>
+              </div>
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-[10px] font-bold text-text-muted">{kpi.sub}</span>
+                <span className={`rounded-lg px-2 py-0.5 text-[8px] font-black tracking-wider uppercase ${kpi.badgeClass}`}>
+                  {kpi.badge}
+                </span>
               </div>
             </div>
-            <div className="divide-y divide-ui-divider">
-              {transactions.length > 0 ? (
-                transactions.map((transaction, index) => {
-                  const positive = transaction.amount.startsWith('+');
-                  const isWithdraw = transaction.variant === 'withdraw';
-                  const iconWrap = isWithdraw
-                    ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-                    : transaction.variant === 'yield'
-                      ? 'bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400'
-                      : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400';
-
-                  return (
-                    <div
-                      key={transaction.id || index}
-                      className="group flex items-center gap-3 px-5 py-4 transition-colors hover:bg-ui-muted md:px-6"
-                    >
-                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconWrap}`}>
-                        {transaction.variant === 'yield' ? (
-                          <BoltIcon className="h-4 w-4" />
-                        ) : transaction.variant === 'withdraw' ? (
-                          <WalletWithdrawIcon className="h-4 w-4" />
-                        ) : (
-                          <WalletDepositIcon className="h-4 w-4" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-ui-strong transition-colors group-hover:text-primary">
-                          {transaction.label}
-                        </p>
-                        <p className="text-xs font-medium text-ui-faint">{transaction.time}</p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <p
-                          className={`text-base font-bold ${
-                            isWithdraw ? 'text-ui-strong' : positive ? 'text-emerald-500' : 'text-red-500'
-                          }`}
-                        >
-                          {transaction.amount}
-                        </p>
-                        {transaction.status ? (
-                          <span className="mt-1 inline-block rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
-                            {transaction.status}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="px-6 py-10 text-center text-base font-medium text-ui-muted-text">
-                  No wallet transactions yet.
-                </p>
-              )}
-            </div>
-            <div className="border-t border-ui-divider p-4 md:p-5">
-              <Link
-                href="/investor/hub?tab=transactions"
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ui-border py-3 text-sm font-bold text-ui-muted-text transition-all hover:bg-ui-muted"
-              >
-                Full History
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </section>
+          ))}
         </div>
+
+        {/* Mid Section Grid */}
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
+          
+          {/* Column 1 (4 cols): Connected Wallets */}
+          <div className="xl:col-span-4 space-y-6">
+            <div className="rounded-3xl border border-card-border bg-card p-6 shadow-sm space-y-5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black uppercase tracking-widest text-text-muted">Connected Wallets</h4>
+                <button type="button" className="h-7 w-7 rounded-xl border border-card-border bg-card flex items-center justify-center text-text-muted hover:text-[#7C3AED] hover:border-[#7C3AED] transition-all shadow-sm">
+                  <Plus className="h-4.5 w-4.5" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {wallets.map((wallet, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-2xl border border-card-border bg-slate-50 dark:bg-slate-900/10 p-4 relative flex flex-col justify-between min-h-[95px]"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${wallet.iconBg}`}>
+                          <Wallet className="h-4.5 w-4.5" />
+                        </div>
+                        <div>
+                          <span className="font-extrabold text-xs text-foreground block">{wallet.name}</span>
+                          <span className="text-[9px] text-text-muted font-bold block uppercase mt-0.5">{wallet.chain}</span>
+                        </div>
+                      </div>
+                      <a
+                        href={`https://etherscan.io/address/${wallet.address}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-text-muted hover:text-foreground transition-colors shrink-0"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
+
+                    <div className="flex justify-between items-baseline mt-4">
+                      <span className="text-sm font-black text-foreground">{wallet.balance}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(wallet.address, idx)}
+                        className="text-[10px] font-bold text-text-muted hover:text-foreground flex items-center gap-1 transition-colors"
+                      >
+                        <span>{wallet.displayAddress}</span>
+                        <Copy className="h-3 w-3" />
+                        {copiedIndex === idx && <span className="text-[8px] text-emerald-500 font-bold">Copied</span>}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom Secured Banner */}
+              <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 p-3.5 flex items-start gap-2.5">
+                <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 block uppercase tracking-wider">All wallets secured</span>
+                  <p className="text-[9px] text-text-muted leading-tight mt-0.5">Multi-sig enabled · Hardware wallet verified.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Column 2 (4 cols): Whitelist & Compliance */}
+          <div className="xl:col-span-4 space-y-6">
+            <div className="rounded-3xl border border-card-border bg-card p-6 shadow-sm flex flex-col justify-between min-h-[380px]">
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-widest text-text-muted mb-6">Whitelist & Compliance</h4>
+                
+                <div className="space-y-4">
+                  {[
+                    { label: 'KYC Verification', tag: 'Verified' },
+                    { label: 'AML Screening', tag: 'Cleared' },
+                    { label: 'Accredited Investor Status', tag: 'Verified' },
+                    { label: 'Jurisdiction Check', tag: 'Compliant' },
+                    { label: 'Wallet Whitelisted', tag: 'Yes' },
+                    { label: 'Investment Eligibility', tag: 'Eligible' },
+                  ].map((comp, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-xs font-bold border-b border-card-border/60 pb-3 last:border-b-0">
+                      <div className="flex items-center gap-2 text-text-muted font-bold">
+                        <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
+                        <span>{comp.label}</span>
+                      </div>
+                      <span className="text-emerald-500 font-extrabold">{comp.tag}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button type="button" className="text-xs font-black tracking-widest text-[#7C3AED] hover:underline uppercase pt-6 border-t border-card-border mt-4 w-full flex items-center justify-center gap-1.5">
+                <span>View Whitelist Criteria</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Column 3 (4 cols): What You Can Do & Security Tips */}
+          <div className="xl:col-span-4 space-y-6">
+            
+            {/* Actions Card */}
+            <div className="rounded-3xl border border-card-border bg-card p-6 shadow-sm space-y-4">
+              <h4 className="text-xs font-black uppercase tracking-widest text-text-muted">What You Can Do</h4>
+              
+              <div className="space-y-3">
+                {[
+                  { title: 'View Whitelist Criteria', desc: 'See requirements and eligibility' },
+                  { title: 'Update KYC Information', desc: 'Update your identity documents' },
+                  { title: 'Manage Wallet Permissions', desc: 'Control investment permissions' },
+                  { title: 'View Compliance Reports', desc: 'Download your compliance status' },
+                ].map((act, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-2xl border border-card-border bg-slate-50 dark:bg-slate-900/10 p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50 cursor-pointer transition-all"
+                  >
+                    <div>
+                      <h5 className="text-xs font-extrabold text-foreground">{act.title}</h5>
+                      <span className="text-[10px] text-text-muted mt-0.5 block">{act.desc}</span>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-text-muted shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Security Tips */}
+            <div className="rounded-3xl border border-card-border bg-card p-6 shadow-sm space-y-4">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4.5 w-4.5 text-[#7C3AED]" />
+                <h4 className="text-xs font-black uppercase tracking-widest text-text-muted">Security Tips</h4>
+              </div>
+
+              <ul className="space-y-2.5 text-xs font-bold text-text-muted leading-relaxed list-disc list-inside pl-1">
+                <li>Only connect wallets you own and trust</li>
+                <li>Never share your private key or seed phrase</li>
+                <li>Ensure you are on the official Maxtronize platform</li>
+                <li>Enable two-factor authentication</li>
+                <li>Report any suspicious activity immediately</li>
+              </ul>
+
+              <button type="button" className="text-[10px] font-black text-[#7C3AED] hover:underline uppercase tracking-wider mt-4 inline-flex items-center gap-1">
+                <span>Learn more about wallet security</span>
+                <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Bottom Recent Activity Card */}
+        <div className="rounded-3xl border border-card-border bg-card shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-card-border">
+            <h4 className="text-xs font-black uppercase tracking-widest text-text-muted">Recent Activity</h4>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
+              <thead>
+                <tr className="border-b border-card-border bg-slate-50 dark:bg-slate-900/20 text-[9px] font-black uppercase tracking-widest text-text-muted">
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4">Activity</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Details</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-card-border text-xs font-bold text-text-muted">
+                {[
+                  { date: 'May 20, 2024 3:15 PM', act: 'Wallet Connected', status: 'Success', details: 'Connected 0x71a3...9deE to Platform', statCol: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30' },
+                  { date: 'May 20, 2024 2:45 PM', act: 'KYC Verification Completed', status: 'Verified', details: 'Level 2 verification completed', statCol: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30' },
+                  { date: 'May 20, 2024 2:30 PM', act: 'AML Screening Completed', status: 'Cleared', details: 'No issues found', statCol: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30' },
+                  { date: 'May 20, 2024 2:10 PM', act: 'Wallet Whitelisted', status: 'Verified', details: 'Approved for investments', statCol: 'text-blue-500 bg-blue-50 dark:bg-blue-950/30' },
+                ].map((row, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition-colors">
+                    <td className="px-6 py-4 font-normal text-[10px]">{row.date}</td>
+                    <td className="px-6 py-4 text-foreground font-black">{row.act}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex rounded-lg px-2.5 py-1 text-[8px] font-black tracking-wider uppercase ${row.statCol}`}>
+                        {row.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 font-normal">{row.details}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="px-6 py-4 border-t border-card-border">
+            <button type="button" className="text-xs font-black tracking-widest text-[#7C3AED] hover:underline uppercase inline-flex items-center gap-1.5">
+              <span>View All Activity</span>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
       </div>
     </InvestorLayout>
   );
